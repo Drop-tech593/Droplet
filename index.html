@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Droplet — Drag, Drop and Convert | Free Online File Converters</title>
+  <meta name="description" content="Convert PDF to Word, HEIC to JPG, WebP, SVG, and JSON instantly in your browser. 100% private, zero uploads.">
+  
+  <!-- PWA & Favicon -->
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#2563eb">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💧</text></svg>">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col antialiased">
+
+  <!-- Header Navigation -->
+  <header class="bg-white border-b border-slate-200 py-3.5 px-6 sticky top-0 z-50">
+    <div class="max-w-6xl mx-auto flex justify-between items-center">
+      <!-- Logo Branding -->
+      <a href="/" class="flex items-center gap-3 group">
+        <div class="w-9 h-9 bg-blue-600 text-white rounded-xl flex items-center justify-center font-bold text-lg shadow-sm group-hover:scale-105 transition-transform">
+          💧
+        </div>
+        <div>
+          <h1 class="text-xl font-black tracking-tight text-slate-900 leading-none">Droplet</h1>
+          <p class="text-[9px] text-blue-600 font-extrabold tracking-widest uppercase mt-0.5">DRAG, DROP AND CONVERT.</p>
+        </div>
+      </a>
+
+      <!-- Desktop Nav Links -->
+      <nav class="hidden md:flex items-center space-x-6 text-xs font-bold text-slate-600">
+        <a href="#all-tools" class="hover:text-blue-600 transition-colors">All Tools</a>
+        <a href="#image-tools" class="hover:text-blue-600 transition-colors">Image Converter</a>
+        <a href="#data-tools" class="hover:text-blue-600 transition-colors">Data Tools</a>
+        <a href="#doc-tools" class="hover:text-blue-600 transition-colors">Document Tools</a>
+        <a href="/faq.html" class="hover:text-blue-600 transition-colors flex items-center gap-1">
+          <span>❓</span> Help
+        </a>
+      </nav>
+
+      <!-- PWA Mobile / App Action -->
+      <div id="pwa-install-container">
+        <button id="pwa-install-btn" class="bg-blue-50 text-blue-600 hover:bg-blue-100 font-bold text-xs px-3.5 py-2 rounded-lg transition-all border border-blue-200/60 flex items-center gap-1.5 shadow-sm">
+          <span>📲</span> <span class="hidden sm:inline">Install</span> App
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Hero & Active Upload Zone -->
+  <main class="max-w-5xl mx-auto px-4 py-8 md:py-12 flex-grow w-full">
+    
+    <!-- Headline Section -->
+    <div class="text-center mb-8">
+      <h2 class="text-3xl md:text-5xl font-black text-slate-900 tracking-tight">Convert any file locally.</h2>
+      <p class="text-slate-500 text-sm md:text-base mt-2 max-w-md mx-auto">100% Client-Side. Your files never leave your browser or get uploaded to a server.</p>
+    </div>
+
+    <!-- Active Blue Dropzone Box -->
+    <div id="dropzone" class="bg-white border-2 border-dashed border-blue-400 hover:border-blue-600 transition-all rounded-3xl p-8 md:p-14 text-center shadow-lg shadow-blue-500/5 max-w-2xl mx-auto cursor-pointer group relative overflow-hidden">
+      <div class="w-16 h-16 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4 text-3xl group-hover:scale-110 transition-transform shadow-inner">
+        💧
+      </div>
+      <h3 class="text-2xl md:text-3xl font-black text-slate-900 mb-1">Ready to convert?</h3>
+      <p class="text-slate-500 font-medium text-sm md:text-base mb-6">Just drop your file here.</p>
+      
+      <input type="file" id="file-input" class="hidden">
+      <button onclick="document.getElementById('file-input').click()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-7 py-3 rounded-xl text-sm shadow-md shadow-blue-500/20 transition-all active:scale-95 inline-flex items-center gap-2">
+        <span>📁</span> Select File
+      </button>
+    </div>
+
+    <!-- Category Filter / Feature Cards Section -->
+    <section id="all-tools" class="mt-16">
+      <div class="flex items-center justify-between mb-6">
+        <div>
+          <h3 class="text-base font-black text-slate-900">Popular Client-Side Converters</h3>
+          <p class="text-xs text-slate-500">Fast, free, and completely offline-ready</p>
+        </div>
+      </div>
+      
+      <!-- Day-One Grid Layout (Matching Mockup Colors & Styling) -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3.5">
+        
+        <!-- Image Card -->
+        <div id="image-tools" class="bg-blue-500 hover:bg-blue-600 text-white p-4 md:p-5 rounded-2xl shadow-sm transition-all cursor-pointer group flex flex-col justify-between min-h-[120px]">
+          <div class="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center text-lg mb-2">📸</div>
+          <div>
+            <span class="text-[10px] font-bold uppercase tracking-wider text-blue-100 block opacity-80">Image</span>
+            <h4 class="font-extrabold text-sm md:text-base leading-tight mt-0.5">HEIC to JPG</h4>
+          </div>
+        </div>
+
+        <!-- Spreadsheet / Data Card -->
+        <div id="data-tools" class="bg-blue-500 hover:bg-blue-600 text-white p-4 md:p-5 rounded-2xl shadow-sm transition-all cursor-pointer group flex flex-col justify-between min-h-[120px]">
+          <div class="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center text-lg mb-2">📊</div>
+          <div>
+            <span class="text-[10px] font-bold uppercase tracking-wider text-blue-100 block opacity-80">Spreadsheet</span>
+            <h4 class="font-extrabold text-sm md:text-base leading-tight mt-0.5">JSON to CSV</h4>
+          </div>
+        </div>
+
+        <!-- Book / E-Book Card -->
+        <div id="doc-tools" class="bg-blue-500 hover:bg-blue-600 text-white p-4 md:p-5 rounded-2xl shadow-sm transition-all cursor-pointer group flex flex-col justify-between min-h-[120px]">
+          <div class="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center text-lg mb-2">📚</div>
+          <div>
+            <span class="text-[10px] font-bold uppercase tracking-wider text-blue-100 block opacity-80">Book</span>
+            <h4 class="font-extrabold text-sm md:text-base leading-tight mt-0.5">EPUB to PDF</h4>
+          </div>
+        </div>
+
+        <!-- Vector Card -->
+        <div class="bg-blue-500 hover:bg-blue-600 text-white p-4 md:p-5 rounded-2xl shadow-sm transition-all cursor-pointer group flex flex-col justify-between min-h-[120px]">
+          <div class="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center text-lg mb-2">📐</div>
+          <div>
+            <span class="text-[10px] font-bold uppercase tracking-wider text-blue-100 block opacity-80">Vector</span>
+            <h4 class="font-extrabold text-sm md:text-base leading-tight mt-0.5">SVG to PNG</h4>
+          </div>
+        </div>
+
+        <!-- Document (PDF to Word) Card -->
+        <div class="bg-blue-500 hover:bg-blue-600 text-white p-4 md:p-5 rounded-2xl shadow-sm transition-all cursor-pointer group flex flex-col justify-between min-h-[120px]">
+          <div class="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center text-lg mb-2">📄</div>
+          <div>
+            <span class="text-[10px] font-bold uppercase tracking-wider text-blue-100 block opacity-80">Document</span>
+            <h4 class="font-extrabold text-sm md:text-base leading-tight mt-0.5">PDF to DOCX</h4>
+          </div>
+        </div>
+
+        <!-- Web Image Card -->
+        <div class="bg-blue-500 hover:bg-blue-600 text-white p-4 md:p-5 rounded-2xl shadow-sm transition-all cursor-pointer group flex flex-col justify-between min-h-[120px]">
+          <div class="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center text-lg mb-2">🖼️</div>
+          <div>
+            <span class="text-[10px] font-bold uppercase tracking-wider text-blue-100 block opacity-80">Web Graphics</span>
+            <h4 class="font-extrabold text-sm md:text-base leading-tight mt-0.5">WebP to PNG</h4>
+          </div>
+        </div>
+
+        <!-- Photoshop Card -->
+        <div class="bg-blue-500 hover:bg-blue-600 text-white p-4 md:p-5 rounded-2xl shadow-sm transition-all cursor-pointer group flex flex-col justify-between min-h-[120px]">
+          <div class="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center text-lg mb-2">🎨</div>
+          <div>
+            <span class="text-[10px] font-bold uppercase tracking-wider text-blue-100 block opacity-80">Design</span>
+            <h4 class="font-extrabold text-sm md:text-base leading-tight mt-0.5">PSD to PNG</h4>
+          </div>
+        </div>
+
+        <!-- Animation Card -->
+        <div class="bg-blue-500 hover:bg-blue-600 text-white p-4 md:p-5 rounded-2xl shadow-sm transition-all cursor-pointer group flex flex-col justify-between min-h-[120px]">
+          <div class="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center text-lg mb-2">👾</div>
+          <div>
+            <span class="text-[10px] font-bold uppercase tracking-wider text-blue-100 block opacity-80">Animation</span>
+            <h4 class="font-extrabold text-sm md:text-base leading-tight mt-0.5">GIF to PNG</h4>
+          </div>
+        </div>
+
+      </div>
+    </section>
+  </main>
+
+  <!-- Legal & AdSense Compliant Footer -->
+  <footer class="border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-500 mt-auto">
+    <div class="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-3">
+      <p class="font-medium">© Droplet. 100% Client-Side Privacy First File Utility.</p>
+      <div class="space-x-4">
+        <a href="/privacy.html" class="hover:text-blue-600 transition-colors">Privacy Policy</a>
+        <span>•</span>
+        <a href="/terms.html" class="hover:text-blue-600 transition-colors">Terms of Service</a>
+        <span>•</span>
+        <a href="/contact.html" class="hover:text-blue-600 transition-colors">Contact</a>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>
