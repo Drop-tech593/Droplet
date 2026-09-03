@@ -1,1 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PDF to PowerPoint Converter - Droplet</title>
+  <meta name="description" content="Convert PDF to PowerPoint (PPTX) online for free. 100% client-side, your files never leave your browser. Turn PDFs into editable presentations.">
 
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- PDF.js for PDF parsing -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+
+  <!-- PptxGenJS for PPTX generation -->
+  <script src="https://cdn.jsdelivr.net/gh/gitbrent/PptxGenJS@3.12.0/dist/pptxgen.bundle.js"></script>
+
+  <style>
+    .dropzone-highlight {
+      border-color: #3b82f6 !important;
+      background: #eff6ff !important;
+    }
+    .progress-bar {
+      transition: width 0.5s ease;
+    }
+    .hidden {
+      display: none !important;
+    }
+    .slide-preview {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 12px;
+      max-height: 400px;
+      overflow-y: auto;
+      padding: 4px;
+    }
+    .slide-preview .slide-thumb {
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      overflow: hidden;
+      transition: border-color 0.2s;
+      background: white;
+    }
+    .slide-preview .slide-thumb:hover {
+      border-color: #3b82f6;
+    }
+    .slide-preview .slide-thumb img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+    .slide-preview .slide-thumb .slide-num {
+      font-size: 9px;
+      text-align: center;
+      padding: 4px;
+      background: #f8fafc;
+      color: #64748b;
+      font-weight: 600;
+    }
+    .info-badge {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 12px;
+      font-size: 10px;
+      font-weight: 600;
+    }
+    .badge-ppt { background: #dbeafe; color: #1e40af; }
+    .badge-slides { background: #d1fae5; color: #065f46; }
+    .badge-size { background: #fef3c7; color: #92400e; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased">
+
+  <!-- Navigation -->
+  <header class="bg-white border-b border-slate-200 py-3.5 px-6 sticky top-0 z-50">
+    <div class="max-w-6xl mx-auto flex justify-between items-center">
+      <a href="/" class="flex items-center gap-3 group">
+        <img src="Gemini_Generated_Image_sdu6v7sdu6v7sdu6.jpg" alt="Droplet Logo" class="h-9 w-auto rounded-xl shadow-sm group-hover:scale-105 transition-transform">
+        <div>
+          <h1 class="text-xl font-black tracking-tight text-slate-900 leading-none">Droplet</h1>
+          <p class="text-[9px] text-blue-600 font-extrabold tracking-widest uppercase mt-0.5">DRAG, DROP AND CONVERT.</p>
+        </div>
+      </a>
+      <nav class="hidden md:flex items-center space-x-6 text-xs font-bold text-slate-600">
+        <a href="/" class="hover:text-blue-600 transition-colors">← Back</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="max-w-4xl mx-auto px-4 py-8 md:py-12 flex-grow w-full">
+
+    <!-- Page Header -->
+    <div class="text-center mb-8">
+      <div class="inline-block p-3 bg-blue-50 rounded-2xl mb-4">
+        <span class="text-4xl">📊</span>
+      </div>
+      <h1 class="text-3xl md:text-4xl font-black text-slate-900 tracking-tight">PDF to PowerPoint Converter</h1>
+      <p class="text-slate-500 text-sm md:text-base mt-2 max-w-lg mx-auto">
+        Convert your PDFs to editable PowerPoint presentations. <strong>100% client-side</strong> — your files never leave your browser.
+      </p>
+    </div>
+
+    <!-- Conversion Dropzone -->
+    <div id="dropzone" class="bg-white border-2 border-dashed border-slate-300 hover:border-blue-400 transition-all rounded-3xl p-8 md:p-12 text-center shadow-lg max-w-2xl mx-auto cursor-pointer">
+      <div class="flex flex-col items-center">
+        <div class="w-20 h-20 bg-blue-50 rounded-2xl flex items-center justify-center mb-4 text-4xl">
+          📁
+        </div>
+        <h3 class="text-xl font-bold text-slate-900 mb-1">Drop your PDF here</h3>
+        <p class="text-slate-400 text-sm mb-4">or click to browse</p>
+        <input type="file" id="fileInput" accept=".pdf,application/pdf" class="hidden">
+        <button onclick="document.getElementById('fileInput').click()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-3 rounded-xl text-sm shadow-md shadow-blue-500/20 transition-all active:scale-95">
+          Select PDF File
+        </button>
+        <p class="text-xs text-slate-400 mt-3">Max file size: ~50MB</p>
+      </div>
+    </div>
+
+    <!-- File Info & Conversion Controls -->
+    <div id="fileInfo" class="hidden max-w-2xl mx-auto mt-6 bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <span class="text-2xl">📄</span>
+          <div>
+            <p id="fileName" class="font-medium text-slate-900"></p>
+            <p id="fileSize" class="text-xs text-slate-400"></p>
+            <p id="pageCount" class="text-xs text-slate-400"></p>
+          </div>
+        </div>
+        <button onclick="clearFile()" class="text-slate-400 hover:text-red-500 transition-colors">✕</button>
+      </div>
+
+      <!-- PowerPoint Options -->
+      <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-slate-50 rounded-lg">
+        <div>
+          <label class="block text-xs font-medium text-slate-700 mb-1">Slide Layout</label>
+          <select id="slideLayout" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="standard">Standard (4:3)</option>
+            <option value="widescreen" selected>Widescreen (16:9)</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-slate-700 mb-1">Image Quality</label>
+          <select id="imageQuality" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="low">Low (Faster)</option>
+            <option value="medium" selected>Medium</option>
+            <option value="high">High (Better Quality)</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-slate-700 mb-1">Include Page Numbers</label>
+          <select id="includePageNumbers" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="yes" selected>Yes</option>
+            <option value="no">No</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-slate-700 mb-1">Background Color</label>
+          <select id="bgColor" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="white">White</option>
+            <option value="lightgray">Light Gray</option>
+            <option value="blue">Blue</option>
+            <option value="dark">Dark</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="mt-4 flex flex-wrap gap-3">
+        <button onclick="convertPDFtoPPTX()" id="convertBtn" class="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-xl transition-all active:scale-95 shadow-md shadow-green-500/20">
+          🔄 Convert to PowerPoint
+        </button>
+        <button onclick="clearFile()" class="px-4 py-3 border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors text-sm">
+          Change File
+        </button>
+      </div>
+
+      <!-- Progress Bar -->
+      <div id="progressContainer" class="hidden mt-4">
+        <div class="flex justify-between text-xs text-slate-500 mb-1">
+          <span>Converting...</span>
+          <span id="progressText">0%</span>
+        </div>
+        <div class="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
+          <div id="progressBar" class="bg-blue-600 h-2 rounded-full progress-bar" style="width: 0%"></div>
+        </div>
+        <p id="statusText" class="text-xs text-slate-400 mt-2 text-center">Initializing...</p>
+      </div>
+
+      <!-- Slide Preview -->
+      <div id="previewContainer" class="hidden mt-4 border-t border-slate-200 pt-4">
+        <div class="flex items-center justify-between mb-2">
+          <h4 class="font-bold text-sm text-slate-700">📽️ Slide Preview</h4>
+          <span id="slideCount" class="text-xs text-slate-400"></span>
+        </div>
+        <div id="slidePreviewContent" class="slide-preview">
+          <!-- Slides will be rendered here -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Result Section -->
+    <div id="resultSection" class="hidden max-w-2xl mx-auto mt-6 bg-green-50 border border-green-200 rounded-xl p-6">
+      <div class="flex items-center justify-between mb-4">
+        <div>
+          <div class="text-4xl mb-1">✅</div>
+          <h3 class="font-bold text-slate-900">Conversion Complete!</h3>
+          <p class="text-sm text-slate-600">Your PowerPoint presentation is ready to download.</p>
+          <div class="mt-2 flex flex-wrap gap-2">
+            <span id="slideCountBadge" class="info-badge badge-slides">0 slides</span>
+            <span id="layoutBadge" class="info-badge badge-ppt">Widescreen</span>
+          </div>
+        </div>
+        <div class="flex flex-wrap gap-2">
+          <a id="downloadLink" href="#" download="converted.pptx" class="bg-green-600 hover:bg-green-700 text-white font-bold px-4 py-2 rounded-lg text-sm transition-all">
+            📥 Download PPTX
+          </a>
+        </div>
+      </div>
+
+      <div class="mt-4 flex flex-wrap gap-3">
+        <button onclick="resetConverter()" class="px-6 py-3 border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors text-sm">
+          Convert Another
+        </button>
+      </div>
+    </div>
+
+    <!-- Info Section -->
+    <div class="max-w-2xl mx-auto mt-12 grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div class="bg-white p-4 rounded-xl border border-slate-100 text-center">
+        <div class="text-2xl mb-1">🔒</div>
+        <h4 class="font-bold text-sm">100% Private</h4>
+        <p class="text-xs text-slate-500">Your files never leave your browser</p>
+      </div>
+      <div class="bg-white p-4 rounded-xl border border-slate-100 text-center">
+        <div class="text-2xl mb-1">📽️</div>
+        <h4 class="font-bold text-sm">Editable Slides</h4>
+        <p class="text-xs text-slate-500">Each page becomes a slide</p>
+      </div>
+      <div class="bg-white p-4 rounded-xl border border-slate-100 text-center">
+        <div class="text-2xl mb-1">⚡</div>
+        <h4 class="font-bold text-sm">Fast & Free</h4>
+        <p class="text-xs text-slate-500">No sign-up required</p>
+      </div>
+    </div>
+
+    <!-- FAQ Section -->
+    <section class="max-w-2xl mx-auto mt-12">
+      <h2 class="text-xl font-black text-slate-900 text-center mb-6">Frequently Asked Questions</h2>
+      <div class="space-y-3">
+        <div class="bg-white p-5 rounded-xl border border-slate-100">
+          <h3 class="font-bold text-slate-900 text-sm">Is my data safe?</h3>
+          <p class="text-slate-600 text-sm mt-1">Yes! All conversions happen locally in your browser. Your PDF is never uploaded to any server and is automatically deleted when you close the page.</p>
+        </div>
+        <div class="bg-white p-5 rounded-xl border border-slate-100">
+          <h3 class="font-bold text-slate-900 text-sm">How does the conversion work?</h3>
+          <p class="text-slate-600 text-sm mt-1">Each page of your PDF is rendered as a high-quality image and placed on a PowerPoint slide. This preserves the exact layout and formatting of your original document.</p>
+        </div>
+        <div class="bg-white p-5 rounded-xl border border-slate-100">
+          <h3 class="font-bold text-slate-900 text-sm">Will the text be editable?</h3>
+          <p class="text-slate-600 text-sm mt-1">The conversion preserves the visual appearance as images on each slide. For fully editable text, consider using the PDF to DOCX converter instead.</p>
+        </div>
+        <div class="bg-white p-5 rounded-xl border border-slate-100">
+          <h3 class="font-bold text-slate-900 text-sm">Can I choose the slide layout?</h3>
+          <p class="text-slate-600 text-sm mt-1">Yes! You can choose between Standard (4:3) and Widescreen (16:9) layouts, as well as adjust image quality and background color.</p>
+        </div>
+        <div class="bg-white p-5 rounded-xl border border-slate-100">
+          <h3 class="font-bold text-slate-900 text-sm">Are there file size limits?</h3>
+          <p class="text-slate-600 text-sm mt-1">Since everything runs locally, limits depend on your device's memory. Most modern browsers handle PDFs up to 50MB without issues.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-500 mt-auto">
+    <div class="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-3">
+      <p class="font-medium">© Droplet. 100% Client-Side Privacy First File Utility.</p>
+      <div class="space-x-4">
+        <a href="/privacy.html" class="hover:text-blue-600 transition-colors">Privacy Policy</a>
+        <span>•</span>
+        <a href="/terms.html" class="hover:text-blue-600 transition-colors">Terms of Service</a>
+        <span>•</span>
+        <a href="/contact.html" class="hover:text-blue-600 transition-colors">Contact</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Conversion JavaScript -->
+  <script>
+    let currentFile = null;
+    let convertedBlob = null;
+    let slideImages = [];
+
+    // DOM Elements
+    const dropzone = document.getElementById('dropzone');
+    const fileInput = document.getElementById('fileInput');
+    const fileInfo = document.getElementById('fileInfo');
+    const fileName = document.getElementById('fileName');
+    const fileSize = document.getElementById('fileSize');
+    const pageCount = document.getElementById('pageCount');
+    const convertBtn = document.getElementById('convertBtn');
+    const progressContainer = document.getElementById('progressContainer');
+    const progressBar = document.getElementById('progressBar');
+    const progressText = document.getElementById('progressText');
+    const statusText = document.getElementById('statusText');
+    const resultSection = document.getElementById('resultSection');
+    const downloadLink = document.getElementById('downloadLink');
+    const previewContainer = document.getElementById('previewContainer');
+    const slidePreviewContent = document.getElementById('slidePreviewContent');
+    const slideCount = document.getElementById('slideCount');
+    const slideCountBadge = document.getElementById('slideCountBadge');
+    const layoutBadge = document.getElementById('layoutBadge');
+
+    // Options
+    const slideLayout = document.getElementById('slideLayout');
+    const imageQuality = document.getElementById('imageQuality');
+    const includePageNumbers = document.getElementById('includePageNumbers');
+    const bgColor = document.getElementById('bgColor');
+
+    // Set PDF.js worker
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+    // Drag and Drop
+    dropzone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropzone.classList.add('dropzone-highlight');
+    });
+
+    dropzone.addEventListener('dragleave', () => {
+      dropzone.classList.remove('dropzone-highlight');
+    });
+
+    dropzone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropzone.classList.remove('dropzone-highlight');
+      const files = e.dataTransfer.files;
+      if (files.length > 0 && files[0].type === 'application/pdf') {
+        handleFile(files[0]);
+      } else {
+        alert('Please drop a PDF file.');
+      }
+    });
+
+    dropzone.addEventListener('click', (e) => {
+      if (e.target.tagName !== 'BUTTON' && !fileInfo.classList.contains('hidden')) {
+        fileInput.click();
+      }
+    });
+
+    fileInput.addEventListener('change', (e) => {
+      if (e.target.files.length > 0) {
+        handleFile(e.target.files[0]);
+      }
+    });
+
+    function handleFile(file) {
+      // Validate file type
+      if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
+        alert('Please select a valid PDF file.');
+        return;
+      }
+
+      // Validate file size (50MB limit)
+      if (file.size > 50 * 1024 * 1024) {
+        alert('File is too large. Please use a PDF under 50MB.');
+        return;
+      }
+
+      currentFile = file;
+      fileName.textContent = file.name;
+      fileSize.textContent = (file.size / 1024 / 1024).toFixed(2) + ' MB';
+      fileInfo.classList.remove('hidden');
+      dropzone.classList.add('hidden');
+      resultSection.classList.add('hidden');
+      progressContainer.classList.add('hidden');
+      previewContainer.classList.add('hidden');
+      convertBtn.disabled = false;
+      convertBtn.textContent = '🔄 Convert to PowerPoint';
+
+      // Generate slide preview
+      generateSlidePreviews(file);
+    }
+
+    async function generateSlidePreviews(file) {
+      try {
+        const arrayBuffer = await file.arrayBuffer();
+        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+        const totalPages = pdf.numPages;
+        pageCount.textContent = `📄 ${totalPages} pages`;
+
+        // Clear previous slides
+        slideImages = [];
+        let previewHtml = '';
+
+        // Generate thumbnails for all pages
+        const maxPreview = Math.min(12, totalPages);
+
+        for (let i = 1; i <= maxPreview; i++) {
+          const page = await pdf.getPage(i);
+          const viewport = page.getViewport({ scale: 0.3 });
+          const canvas = document.createElement('canvas');
+          const context = canvas.getContext('2d');
+          canvas.width = viewport.width;
+          canvas.height = viewport.height;
+
+          await page.render({ canvasContext: context, viewport: viewport }).promise;
+          const imgData = canvas.toDataURL('image/jpeg', 0.7);
+
+          // Store for later conversion
+          slideImages.push({
+            dataUrl: imgData,
+            width: viewport.width,
+            height: viewport.height,
+            pageNum: i
+          });
+
+          previewHtml += `
+            <div class="slide-thumb">
+              <img src="${imgData}" alt="Slide ${i}">
+              <div class="slide-num">Slide ${i}</div>
+            </div>
+          `;
+        }
+
+        // Show preview
+        if (totalPages > 12) {
+          previewHtml += `
+            <div class="slide-thumb" style="display: flex; align-items: center; justify-content: center; background: #f1f5f9; min-height: 80px;">
+              <span style="font-size: 11px; color: #64748b; text-align: center;">+ ${totalPages - 12} more slides</span>
+            </div>
+          `;
+        }
+
+        slidePreviewContent.innerHTML = previewHtml || '<p class="text-slate-400 text-center">No preview available</p>';
+        slideCount.textContent = `${totalPages} slides`;
+        previewContainer.classList.remove('hidden');
+
+      } catch (error) {
+        console.error('Error generating preview:', error);
+        pageCount.textContent = '📄 Unknown pages';
+      }
+    }
+
+    function clearFile() {
+      currentFile = null;
+      fileInput.value = '';
+      slideImages = [];
+      fileInfo.classList.add('hidden');
+      dropzone.classList.remove('hidden');
+      resultSection.classList.add('hidden');
+      progressContainer.classList.add('hidden');
+      previewContainer.classList.add('hidden');
+      progressBar.style.width = '0%';
+      progressText.textContent = '0%';
+      slidePreviewContent.innerHTML = '';
+    }
+
+    function resetConverter() {
+      clearFile();
+      convertedBlob = null;
+      downloadLink.href = '#';
+    }
+
+    // Main Conversion Function
+    async function convertPDFtoPPTX() {
+      if (!currentFile) {
+        alert('Please select a PDF file first.');
+        return;
+      }
+
+      // Check if PptxGenJS is available
+      if (typeof PptxGenJS === 'undefined') {
+        alert('PowerPoint library not loaded. Please refresh the page and try again.');
+        return;
+      }
+
+      // Show progress
+      progressContainer.classList.remove('hidden');
+      resultSection.classList.add('hidden');
+      convertBtn.disabled = true;
+      convertBtn.textContent = '⏳ Converting...';
+      progressBar.style.width = '10%';
+      progressText.textContent = '10%';
+      statusText.textContent = 'Loading PDF...';
+
+      try {
+        const arrayBuffer = await currentFile.arrayBuffer();
+        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+        const totalPages = pdf.numPages;
+
+        // Get options
+        const layout = slideLayout.value;
+        const quality = imageQuality.value;
+        const includeNumbers = includePageNumbers.value === 'yes';
+        const bgColorValue = bgColor.value;
+
+        // Map quality to scale
+        const scaleMap = {
+          'low': 1.0,
+          'medium': 1.5,
+          'high': 2.5
+        };
+        const scale = scaleMap[quality] || 1.5;
+
+        // Map background color
+        const bgMap = {
+          'white': 'FFFFFF',
+          'lightgray': 'F1F5F9',
+          'blue': '1E40AF',
+          'dark': '1E293B'
+        };
+        const bgHex = bgMap[bgColorValue] || 'FFFFFF';
+
+        // Map layout
+        const layoutMap = {
+          'standard': { width: 10, height: 7.5 },
+          'widescreen': { width: 13.33, height: 7.5 }
+        };
+        const slideSize = layoutMap[layout] || layoutMap['widescreen'];
+
+        // Update badges
+        slideCountBadge.textContent = `${totalPages} slides`;
+        layoutBadge.textContent = layout === 'standard' ? 'Standard (4:3)' : 'Widescreen (16:9)';
+
+        progressBar.style.width = '25%';
+        progressText.textContent = '25%';
+        statusText.textContent = `Rendering ${totalPages} slides...`;
+
+        // Create PowerPoint presentation
+        const pptx = new PptxGenJS();
+        pptx.defineLayout({ name: 'custom', width: slideSize.width, height: slideSize.height });
+        pptx.layout = 'custom';
+
+        // Process each page
+        for (let i = 1; i <= totalPages; i++) {
+          const page = await pdf.getPage(i);
+          const viewport = page.getViewport({ scale: scale });
+
+          // Create canvas for the page
+          const canvas = document.createElement('canvas');
+          canvas.width = viewport.width;
+          canvas.height = viewport.height;
+          const context = canvas.getContext('2d');
+
+          // Set background color
+          context.fillStyle = '#' + bgHex;
+          context.fillRect(0, 0, canvas.width, canvas.height);
+
+          // Render the page
+          await page.render({ canvasContext: context, viewport: viewport }).promise;
+          const imgData = canvas.toDataURL('image/jpeg', 0.92);
+
+          // Add a slide
+          const slide = pptx.addSlide();
+
+          // Set background color
+          slide.background = { color: bgHex };
+
+          // Calculate image dimensions to fit the slide
+          const imgWidth = slideSize.width - 0.8;
+          const imgHeight = (viewport.height / viewport.width) * imgWidth;
+
+          // Add the image to the slide
+          slide.addImage({
+            data: imgData,
+            x: 0.4,
+            y: includeNumbers ? 0.8 : 0.4,
+            w: imgWidth,
+            h: imgHeight,
+            sizing: { type: 'contain', w: imgWidth, h: imgHeight }
+          });
+
+          // Add page number if enabled
+          if (includeNumbers) {
+            slide.addText(`Page ${i} of ${totalPages}`, {
+              x: 0,
+              y: slideSize.height - 0.6,
+              w: slideSize.width,
+              h: 0.5,
+              align: 'center',
+              fontSize: 10,
+              color: '666666',
+              fontFace: 'Arial'
+            });
+          }
+
+          // Update progress
+          const progress = Math.round((i / totalPages) * 60) + 25;
+          progressBar.style.width = progress + '%';
+          progressText.textContent = progress + '%';
+          statusText.textContent = `Processing slide ${i} of ${totalPages}...`;
+        }
+
+        progressBar.style.width = '90%';
+        progressText.textContent = '90%';
+        statusText.textContent = 'Generating PowerPoint file...';
+
+        // Generate the PPTX file
+        const pptxBlob = await pptx.write({ outputType: 'blob' });
+
+        progressBar.style.width = '100%';
+        progressText.textContent = '100%';
+        statusText.textContent = '✅ Conversion complete!';
+
+        // Show result
+        setTimeout(() => {
+          const url = URL.createObjectURL(pptxBlob);
+          downloadLink.href = url;
+          const baseName = currentFile.name.replace(/\.pdf$/i, '');
+          downloadLink.download = baseName + '.pptx';
+          resultSection.classList.remove('hidden');
+
+          convertBtn.disabled = false;
+          convertBtn.textContent = '🔄 Convert to PowerPoint';
+          progressContainer.classList.add('hidden');
+        }, 500);
+
+      } catch (error) {
+        console.error('Conversion error:', error);
+        statusText.textContent = '❌ Conversion failed: ' + error.message;
+        convertBtn.disabled = false;
+        convertBtn.textContent = '🔄 Convert to PowerPoint';
+        alert('Conversion failed. Please try again or use a different PDF file.\n\nError: ' + error.message);
+      }
+    }
+
+    // Keyboard shortcut: Enter to convert
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !fileInfo.classList.contains('hidden') && !convertBtn.disabled) {
+        convertPDFtoPPTX();
+      }
+    });
+  </script>
+
+</body>
+</html>
