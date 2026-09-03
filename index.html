@@ -83,6 +83,16 @@
       text-decoration: none;
       display: block;
     }
+    /* PWA Install Button */
+    #pwa-install-btn {
+      transition: all 0.3s ease;
+    }
+    #pwa-install-btn.installed {
+      background: #d1fae5 !important;
+      color: #065f46 !important;
+      border-color: #86efac !important;
+      cursor: default;
+    }
     @media (max-width: 768px) {
       .mobile-nav-toggle {
         display: block;
@@ -140,7 +150,7 @@
   <header class="bg-white border-b border-slate-200 py-3.5 px-6 sticky top-0 z-50">
     <div class="max-w-7xl mx-auto">
       <div class="flex justify-between items-center">
-        <!-- Logo Branding - Only the image logo, no duplicate text -->
+        <!-- Logo Branding -->
         <a href="/" class="flex items-center gap-3 group flex-shrink-0">
           <img src="Gemini_Generated_Image_sdu6v7sdu6v7sdu6.jpg" alt="Droplet Logo" class="h-9 w-auto rounded-xl shadow-sm group-hover:scale-105 transition-transform">
         </a>
@@ -433,9 +443,99 @@
     </div>
   </footer>
 
-  <!-- Mobile Nav JavaScript -->
+  <!-- Full JavaScript with PWA Support -->
   <script>
-    // Mobile nav toggle
+    // ============================================
+    // 1. PWA INSTALLATION
+    // ============================================
+    
+    let deferredPrompt;
+    const installBtn = document.getElementById('pwa-install-btn');
+
+    // Listen for the beforeinstallprompt event
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      installBtn.style.display = 'flex';
+      installBtn.style.opacity = '1';
+      console.log('📲 App can be installed');
+    });
+
+    // Handle the install button click
+    installBtn.addEventListener('click', async () => {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        const choiceResult = await deferredPrompt.userChoice;
+        
+        if (choiceResult.outcome === 'accepted') {
+          console.log('✅ User accepted the install prompt');
+          installBtn.innerHTML = '✅ Installed';
+          installBtn.classList.add('installed');
+          installBtn.disabled = true;
+        } else {
+          console.log('❌ User dismissed the install prompt');
+        }
+        deferredPrompt = null;
+      } else {
+        if (window.matchMedia('(display-mode: standalone)').matches) {
+          alert('✅ Droplet is already installed on your device!');
+          return;
+        }
+        showManualInstallInstructions();
+      }
+    });
+
+    // Manual installation instructions
+    function showManualInstallInstructions() {
+      const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+      let instructions = '';
+      
+      if (isMobile) {
+        if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+          instructions = '📱 On iOS: Tap the Share button (⬆️) and select "Add to Home Screen"';
+        } else {
+          instructions = '📱 On Android: Tap the menu (⋮) and select "Add to Home Screen" or "Install App"';
+        }
+      } else {
+        instructions = '💻 On Desktop: Look for the install icon (➕) in the address bar, or use Chrome menu → "Install Droplet"';
+      }
+      
+      alert(`📲 Install Droplet as an App\n\n${instructions}\n\nYou can also use Droplet in your browser.`);
+    }
+
+    // Listen for the appinstalled event
+    window.addEventListener('appinstalled', () => {
+      console.log('🎉 App installed successfully!');
+      installBtn.innerHTML = '✅ Installed';
+      installBtn.classList.add('installed');
+      installBtn.disabled = true;
+    });
+
+    // Check if the app is already installed on load
+    window.addEventListener('load', async () => {
+      // Check if running in standalone mode
+      if (window.matchMedia('(display-mode: standalone)').matches) {
+        installBtn.innerHTML = '✅ Installed';
+        installBtn.classList.add('installed');
+        installBtn.disabled = true;
+        console.log('📲 App is running in standalone mode');
+      }
+      
+      // Register Service Worker
+      if ('serviceWorker' in navigator) {
+        try {
+          const registration = await navigator.serviceWorker.register('/sw.js');
+          console.log('✅ Service Worker registered successfully:', registration);
+        } catch (err) {
+          console.log('❌ Service Worker registration failed:', err);
+        }
+      }
+    });
+
+    // ============================================
+    // 2. MOBILE NAVIGATION
+    // ============================================
+    
     const toggleBtn = document.getElementById('mobileNavToggle');
     const nav = document.getElementById('desktopNav');
     
@@ -444,7 +544,6 @@
       toggleBtn.textContent = nav.classList.contains('open') ? '✕' : '☰';
     });
 
-    // Close mobile nav on link click
     document.querySelectorAll('.dropdown-menu a, .desktop-nav > .nav-link-with-dropdown > a, .desktop-nav > a').forEach(link => {
       link.addEventListener('click', () => {
         nav.classList.remove('open');
@@ -452,7 +551,6 @@
       });
     });
 
-    // Mobile dropdown toggle
     document.querySelectorAll('.nav-link-with-dropdown > a').forEach(link => {
       link.addEventListener('click', (e) => {
         if (window.innerWidth <= 768) {
@@ -463,14 +561,15 @@
       });
     });
 
-    // File input handler - Navigate to PDF to Word page if PDF selected
+    // ============================================
+    // 3. FILE INPUT & DROPZONE
+    // ============================================
+    
     document.getElementById('file-input').addEventListener('change', function(e) {
       const files = Array.from(e.target.files);
       if (files.length > 0) {
         const file = files[0];
-        // Check if it's a PDF file
         if (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')) {
-          // Redirect to PDF to Word page with the file
           window.location.href = '/pdf-to-word.html';
         } else {
           alert('Please select a PDF file to convert to Word. Other file types will be supported soon!');
@@ -478,7 +577,6 @@
       }
     });
 
-    // Dropzone click handler
     document.getElementById('dropzone').addEventListener('click', function(e) {
       if (e.target.tagName !== 'BUTTON') {
         document.getElementById('file-input').click();
