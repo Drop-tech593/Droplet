@@ -91,12 +91,17 @@
     /* PWA Install Button */
     #pwa-install-btn {
       transition: all 0.3s ease;
+      display: none;
     }
     #pwa-install-btn.installed {
       background: #d1fae5 !important;
       color: #065f46 !important;
       border-color: #86efac !important;
       cursor: default;
+      display: flex !important;
+    }
+    #pwa-install-btn.visible {
+      display: flex !important;
     }
     @media (max-width: 768px) {
       .mobile-nav-toggle {
@@ -461,8 +466,7 @@
     window.addEventListener('beforeinstallprompt', (e) => {
       e.preventDefault();
       deferredPrompt = e;
-      installBtn.style.display = 'flex';
-      installBtn.style.opacity = '1';
+      installBtn.classList.add('visible');
       console.log('📲 App can be installed');
     });
 
@@ -482,30 +486,35 @@
         }
         deferredPrompt = null;
       } else {
+        // Check if already installed
         if (window.matchMedia('(display-mode: standalone)').matches) {
-          alert('✅ Droplet is already installed on your device!');
+          installBtn.innerHTML = '✅ Installed';
+          installBtn.classList.add('installed');
+          installBtn.disabled = true;
           return;
         }
+        
+        // Show helpful installation instructions
         showManualInstallInstructions();
       }
     });
 
-    // Manual installation instructions
+    // Show manual installation instructions
     function showManualInstallInstructions() {
-      const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+      const isAndroid = /Android/i.test(navigator.userAgent);
+      const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+      
       let instructions = '';
       
-      if (isMobile) {
-        if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
-          instructions = '📱 On iOS: Tap the Share button (⬆️) and select "Add to Home Screen"';
-        } else {
-          instructions = '📱 On Android: Tap the menu (⋮) and select "Add to Home Screen" or "Install App"';
-        }
+      if (isAndroid) {
+        instructions = '📱 On Android:\n1. Tap the three dots menu (⋮) in Chrome\n2. Select "Install App" or "Add to Home Screen"\n3. Follow the prompts to install';
+      } else if (isIOS) {
+        instructions = '📱 On iOS:\n1. Tap the Share button (⬆️)\n2. Scroll down and select "Add to Home Screen"\n3. Tap "Add" in the top-right corner';
       } else {
-        instructions = '💻 On Desktop: Look for the install icon (➕) in the address bar, or use Chrome menu → "Install Droplet"';
+        instructions = '💻 On Desktop:\n1. Look for the install icon (➕) in the address bar\n2. Or use Chrome menu → "Install Droplet"\n3. Or use Edge menu → "Apps" → "Install this site as an app"';
       }
       
-      alert(`📲 Install Droplet as an App\n\n${instructions}\n\nYou can also use Droplet in your browser.`);
+      alert(`📲 Install Droplet as an App\n\n${instructions}\n\n💡 Tip: You can also use Droplet directly in your browser!`);
     }
 
     // Listen for the appinstalled event
@@ -524,6 +533,7 @@
         installBtn.classList.add('installed');
         installBtn.disabled = true;
         console.log('📲 App is running in standalone mode');
+        return;
       }
       
       // Register Service Worker
@@ -534,6 +544,18 @@
         } catch (err) {
           console.log('❌ Service Worker registration failed:', err);
         }
+      }
+      
+      // Check if manifest is loaded
+      try {
+        const response = await fetch('/site.webmanifest');
+        if (response.ok) {
+          console.log('✅ Manifest loaded successfully');
+        } else {
+          console.log('❌ Manifest not found');
+        }
+      } catch (err) {
+        console.log('❌ Could not load manifest');
       }
     });
 
