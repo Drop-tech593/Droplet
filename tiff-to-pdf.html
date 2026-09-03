@@ -1,1 +1,920 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TIFF to PDF Converter - Droplet</title>
+  <meta name="description" content="Convert TIFF images to PDF online for free. 100% client-side, your files never leave your browser. Supports multi-page TIFF files.">
 
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- UTIF.js for TIFF parsing -->
+  <script src="https://cdn.jsdelivr.net/npm/utif@3.1.0/UTIF.min.js"></script>
+
+  <!-- html2pdf for PDF generation -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+  <!-- JSZip for ZIP downloads -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+  <style>
+    .dropzone-highlight {
+      border-color: #3b82f6 !important;
+      background: #eff6ff !important;
+    }
+    .progress-bar {
+      transition: width 0.5s ease;
+    }
+    .hidden {
+      display: none !important;
+    }
+    .image-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 12px;
+      max-height: 400px;
+      overflow-y: auto;
+      padding: 4px;
+    }
+    .image-grid .image-card {
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      overflow: hidden;
+      transition: border-color 0.2s;
+      background: white;
+      position: relative;
+    }
+    .image-grid .image-card:hover {
+      border-color: #3b82f6;
+    }
+    .image-grid .image-card img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+    .image-grid .image-card .file-name {
+      font-size: 9px;
+      text-align: center;
+      padding: 4px;
+      background: #f8fafc;
+      color: #64748b;
+      font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .image-grid .image-card .status-badge {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 8px;
+      font-weight: 600;
+      background: rgba(0,0,0,0.6);
+      color: white;
+    }
+    .image-grid .image-card .page-count {
+      position: absolute;
+      bottom: 24px;
+      left: 4px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 8px;
+      font-weight: 600;
+      background: rgba(0,0,0,0.6);
+      color: white;
+    }
+    .info-badge {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 12px;
+      font-size: 10px;
+      font-weight: 600;
+    }
+    .badge-images { background: #dbeafe; color: #1e40af; }
+    .badge-converted { background: #d1fae5; color: #065f46; }
+    .badge-size { background: #fef3c7; color: #92400e; }
+    .badge-multi { background: #fce7f3; color: #9d174d; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased">
+
+  <!-- Navigation -->
+  <header class="bg-white border-b border-slate-200 py-3.5 px-6 sticky top-0 z-50">
+    <div class="max-w-6xl mx-auto flex justify-between items-center">
+      <a href="/" class="flex items-center gap-3 group">
+        <img src="Gemini_Generated_Image_sdu6v7sdu6v7sdu6.jpg" alt="Droplet Logo" class="h-9 w-auto rounded-xl shadow-sm group-hover:scale-105 transition-transform">
+        <div>
+          <h1 class="text-xl font-black tracking-tight text-slate-900 leading-none">Droplet</h1>
+          <p class="text-[9px] text-blue-600 font-extrabold tracking-widest uppercase mt-0.5">DRAG, DROP AND CONVERT.</p>
+        </div>
+      </a>
+      <nav class="hidden md:flex items-center space-x-6 text-xs font-bold text-slate-600">
+        <a href="/" class="hover:text-blue-600 transition-colors">← Back</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="max-w-4xl mx-auto px-4 py-8 md:py-12 flex-grow w-full">
+
+    <!-- Page Header -->
+    <div class="text-center mb-8">
+      <div class="inline-block p-3 bg-blue-50 rounded-2xl mb-4">
+        <span class="text-4xl">📑</span>
+      </div>
+      <h1 class="text-3xl md:text-4xl font-black text-slate-900 tracking-tight">TIFF to PDF Converter</h1>
+      <p class="text-slate-500 text-sm md:text-base mt-2 max-w-lg mx-auto">
+        Convert your TIFF images to PDF format. <strong>100% client-side</strong> — your files never leave your browser.
+      </p>
+    </div>
+
+    <!-- What is TIFF Info -->
+    <div class="max-w-2xl mx-auto mb-8 bg-blue-50 border border-blue-200 rounded-xl p-4">
+      <div class="flex items-start gap-3">
+        <span class="text-2xl">📋</span>
+        <div>
+          <h4 class="font-bold text-sm text-blue-900">What is TIFF?</h4>
+          <p class="text-xs text-blue-700 mt-1">TIFF (Tagged Image File Format) is a high-quality, lossless image format commonly used in photography, scanning, and professional printing. Converting to PDF creates a universally compatible document that preserves image quality.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Conversion Dropzone -->
+    <div id="dropzone" class="bg-white border-2 border-dashed border-slate-300 hover:border-blue-400 transition-all rounded-3xl p-8 md:p-12 text-center shadow-lg max-w-2xl mx-auto cursor-pointer">
+      <div class="flex flex-col items-center">
+        <div class="w-20 h-20 bg-blue-50 rounded-2xl flex items-center justify-center mb-4 text-4xl">
+          📁
+        </div>
+        <h3 class="text-xl font-bold text-slate-900 mb-1">Drop your TIFF files here</h3>
+        <p class="text-slate-400 text-sm mb-4">or click to browse (batch conversion supported)</p>
+        <input type="file" id="fileInput" accept=".tiff,.tif,image/tiff" multiple class="hidden">
+        <button onclick="document.getElementById('fileInput').click()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-3 rounded-xl text-sm shadow-md shadow-blue-500/20 transition-all active:scale-95">
+          Select TIFF Files
+        </button>
+        <p class="text-xs text-slate-400 mt-3">Max file size: ~100MB per file</p>
+      </div>
+    </div>
+
+    <!-- File Info & Conversion Controls -->
+    <div id="fileInfo" class="hidden max-w-2xl mx-auto mt-6 bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <span class="text-2xl">🖼️</span>
+          <div>
+            <p id="fileCount" class="font-medium text-slate-900"></p>
+            <p id="totalSize" class="text-xs text-slate-400"></p>
+          </div>
+        </div>
+        <button onclick="clearFiles()" class="text-slate-400 hover:text-red-500 transition-colors">✕</button>
+      </div>
+
+      <!-- PDF Options -->
+      <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-slate-50 rounded-lg">
+        <div>
+          <label class="block text-xs font-medium text-slate-700 mb-1">Page Size</label>
+          <select id="pageSize" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="a4">A4 (210 × 297 mm)</option>
+            <option value="letter">Letter (8.5 × 11 in)</option>
+            <option value="legal">Legal (8.5 × 14 in)</option>
+            <option value="fit">Fit to Image</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-slate-700 mb-1">Image Quality</label>
+          <select id="imageQuality" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="low">Low (Faster)</option>
+            <option value="medium" selected>Medium</option>
+            <option value="high">High (Better Quality)</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-slate-700 mb-1">Color Mode</label>
+          <select id="colorMode" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="color">Color</option>
+            <option value="grayscale">Grayscale</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="mt-4 flex flex-wrap gap-3">
+        <button onclick="convertTIFFtoPDF()" id="convertBtn" class="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-xl transition-all active:scale-95 shadow-md shadow-green-500/20">
+          🔄 Convert All
+        </button>
+        <button onclick="clearFiles()" class="px-4 py-3 border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors text-sm">
+          Change Files
+        </button>
+      </div>
+
+      <!-- Progress Bar -->
+      <div id="progressContainer" class="hidden mt-4">
+        <div class="flex justify-between text-xs text-slate-500 mb-1">
+          <span>Converting...</span>
+          <span id="progressText">0%</span>
+        </div>
+        <div class="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
+          <div id="progressBar" class="bg-blue-600 h-2 rounded-full progress-bar" style="width: 0%"></div>
+        </div>
+        <p id="statusText" class="text-xs text-slate-400 mt-2 text-center">Initializing...</p>
+      </div>
+
+      <!-- Image Preview -->
+      <div id="previewContainer" class="hidden mt-4 border-t border-slate-200 pt-4">
+        <div class="flex items-center justify-between mb-2">
+          <h4 class="font-bold text-sm text-slate-700">🖼️ Image Preview</h4>
+          <span id="imageStats" class="text-xs text-slate-400"></span>
+        </div>
+        <div id="imagePreviewContent" class="image-grid">
+          <!-- Images will be rendered here -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Result Section -->
+    <div id="resultSection" class="hidden max-w-2xl mx-auto mt-6 bg-green-50 border border-green-200 rounded-xl p-6">
+      <div class="flex items-center justify-between mb-4">
+        <div>
+          <div class="text-4xl mb-1">✅</div>
+          <h3 class="font-bold text-slate-900">Conversion Complete!</h3>
+          <p class="text-sm text-slate-600">Your PDFs are ready to download.</p>
+          <div class="mt-2 flex flex-wrap gap-2">
+            <span id="convertedCountBadge" class="info-badge badge-images">0 PDFs</span>
+            <span id="totalSizeBadge" class="info-badge badge-size">0 MB</span>
+            <span id="multiBadge" class="info-badge badge-multi hidden">Multi-Page</span>
+          </div>
+        </div>
+        <div class="flex flex-wrap gap-2">
+          <button onclick="downloadAll()" class="bg-green-600 hover:bg-green-700 text-white font-bold px-4 py-2 rounded-lg text-sm transition-all">
+            📥 Download All (ZIP)
+          </button>
+          <button onclick="downloadAllIndividual()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2 rounded-lg text-sm transition-all">
+            📥 Download Individual
+          </button>
+        </div>
+      </div>
+
+      <!-- Download Links -->
+      <div id="downloadLinksContainer" class="mt-2 grid grid-cols-2 md:grid-cols-4 gap-2 max-h-40 overflow-y-auto">
+        <!-- Individual download links will be added here -->
+      </div>
+
+      <div class="mt-4 flex flex-wrap gap-3">
+        <button onclick="resetConverter()" class="px-6 py-3 border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors text-sm">
+          Convert Another
+        </button>
+      </div>
+    </div>
+
+    <!-- Info Section -->
+    <div class="max-w-2xl mx-auto mt-12 grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div class="bg-white p-4 rounded-xl border border-slate-100 text-center">
+        <div class="text-2xl mb-1">🔒</div>
+        <h4 class="font-bold text-sm">100% Private</h4>
+        <p class="text-xs text-slate-500">Your files never leave your browser</p>
+      </div>
+      <div class="bg-white p-4 rounded-xl border border-slate-100 text-center">
+        <div class="text-2xl mb-1">📑</div>
+        <h4 class="font-bold text-sm">Multi-Page Support</h4>
+        <p class="text-xs text-slate-500">Supports multi-page TIFF files</p>
+      </div>
+      <div class="bg-white p-4 rounded-xl border border-slate-100 text-center">
+        <div class="text-2xl mb-1">⚡</div>
+        <h4 class="font-bold text-sm">Fast & Free</h4>
+        <p class="text-xs text-slate-500">No sign-up required</p>
+      </div>
+    </div>
+
+    <!-- TIFF vs PDF Comparison -->
+    <section class="max-w-2xl mx-auto mt-12">
+      <h2 class="text-xl font-black text-slate-900 text-center mb-6">TIFF vs PDF Comparison</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="bg-white p-5 rounded-xl border border-slate-100">
+          <h3 class="font-bold text-slate-900 text-sm flex items-center gap-2">
+            <span class="text-xl">📋</span> TIFF
+          </h3>
+          <ul class="text-sm text-slate-600 mt-2 space-y-1">
+            <li>✅ Lossless quality</li>
+            <li>✅ Supports multi-page</li>
+            <li>✅ High color depth</li>
+            <li>❌ Large file size</li>
+            <li>❌ Not universally viewable</li>
+          </ul>
+        </div>
+        <div class="bg-white p-5 rounded-xl border border-slate-100">
+          <h3 class="font-bold text-slate-900 text-sm flex items-center gap-2">
+            <span class="text-xl">🔵</span> PDF
+          </h3>
+          <ul class="text-sm text-slate-600 mt-2 space-y-1">
+            <li>✅ Universally compatible</li>
+            <li>✅ Smaller file size</li>
+            <li>✅ Supports multi-page</li>
+            <li>✅ Searchable text</li>
+            <li>❌ Potential quality loss</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="max-w-2xl mx-auto mt-12">
+      <h2 class="text-xl font-black text-slate-900 text-center mb-6">Frequently Asked Questions</h2>
+      <div class="space-y-3">
+        <div class="bg-white p-5 rounded-xl border border-slate-100">
+          <h3 class="font-bold text-slate-900 text-sm">Is my data safe?</h3>
+          <p class="text-slate-600 text-sm mt-1">Yes! All conversions happen locally in your browser. Your TIFF files are never uploaded to any server and are automatically deleted when you close the page.</p>
+        </div>
+        <div class="bg-white p-5 rounded-xl border border-slate-100">
+          <h3 class="font-bold text-slate-900 text-sm">Why convert TIFF to PDF?</h3>
+          <p class="text-slate-600 text-sm mt-1">PDF is universally compatible, has smaller file sizes, and can be opened on any device without special software. Converting TIFF to PDF makes your documents accessible to everyone.</p>
+        </div>
+        <div class="bg-white p-5 rounded-xl border border-slate-100">
+          <h3 class="font-bold text-slate-900 text-sm">What about multi-page TIFFs?</h3>
+          <p class="text-slate-600 text-sm mt-1">Multi-page TIFF files are fully supported. Each page becomes a separate page in the PDF, preserving the document structure.</p>
+        </div>
+        <div class="bg-white p-5 rounded-xl border border-slate-100">
+          <h3 class="font-bold text-slate-900 text-sm">Will I lose image quality?</h3>
+          <p class="text-slate-600 text-sm mt-1">TIFF is a lossless format, and this converter preserves quality when creating PDFs. Using the "High" quality setting ensures minimal quality loss.</p>
+        </div>
+        <div class="bg-white p-5 rounded-xl border border-slate-100">
+          <h3 class="font-bold text-slate-900 text-sm">Can I convert multiple files at once?</h3>
+          <p class="text-slate-600 text-sm mt-1">Yes! Drag and drop multiple TIFF files or select multiple files using the file picker. Each file will be converted individually, and you can download them all at once as a ZIP file.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-500 mt-auto">
+    <div class="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-3">
+      <p class="font-medium">© Droplet. 100% Client-Side Privacy First File Utility.</p>
+      <div class="space-x-4">
+        <a href="/privacy.html" class="hover:text-blue-600 transition-colors">Privacy Policy</a>
+        <span>•</span>
+        <a href="/terms.html" class="hover:text-blue-600 transition-colors">Terms of Service</a>
+        <span>•</span>
+        <a href="/contact.html" class="hover:text-blue-600 transition-colors">Contact</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Conversion JavaScript -->
+  <script>
+    let files = [];
+    let convertedFiles = [];
+    let totalSize = 0;
+
+    // DOM Elements
+    const dropzone = document.getElementById('dropzone');
+    const fileInput = document.getElementById('fileInput');
+    const fileInfo = document.getElementById('fileInfo');
+    const fileCount = document.getElementById('fileCount');
+    const totalSizeEl = document.getElementById('totalSize');
+    const convertBtn = document.getElementById('convertBtn');
+    const progressContainer = document.getElementById('progressContainer');
+    const progressBar = document.getElementById('progressBar');
+    const progressText = document.getElementById('progressText');
+    const statusText = document.getElementById('statusText');
+    const resultSection = document.getElementById('resultSection');
+    const previewContainer = document.getElementById('previewContainer');
+    const imagePreviewContent = document.getElementById('imagePreviewContent');
+    const imageStats = document.getElementById('imageStats');
+    const convertedCountBadge = document.getElementById('convertedCountBadge');
+    const totalSizeBadge = document.getElementById('totalSizeBadge');
+    const multiBadge = document.getElementById('multiBadge');
+    const downloadLinksContainer = document.getElementById('downloadLinksContainer');
+
+    // Options
+    const pageSize = document.getElementById('pageSize');
+    const imageQuality = document.getElementById('imageQuality');
+    const colorMode = document.getElementById('colorMode');
+
+    // Drag and Drop
+    dropzone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropzone.classList.add('dropzone-highlight');
+    });
+
+    dropzone.addEventListener('dragleave', () => {
+      dropzone.classList.remove('dropzone-highlight');
+    });
+
+    dropzone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropzone.classList.remove('dropzone-highlight');
+      const droppedFiles = e.dataTransfer.files;
+      if (droppedFiles.length > 0) {
+        handleFiles(droppedFiles);
+      }
+    });
+
+    dropzone.addEventListener('click', (e) => {
+      if (e.target.tagName !== 'BUTTON' && !fileInfo.classList.contains('hidden')) {
+        fileInput.click();
+      }
+    });
+
+    fileInput.addEventListener('change', (e) => {
+      if (e.target.files.length > 0) {
+        handleFiles(e.target.files);
+      }
+    });
+
+    function handleFiles(fileList) {
+      const validFiles = [];
+      let invalidCount = 0;
+
+      for (let i = 0; i < fileList.length; i++) {
+        const file = fileList[i];
+        const ext = file.name.split('.').pop().toLowerCase();
+        const isTIFF = file.type === 'image/tiff' || ext === 'tiff' || ext === 'tif';
+        const isImage = file.type.startsWith('image/');
+        
+        if ((isTIFF || isImage) && file.size <= 100 * 1024 * 1024) {
+          validFiles.push(file);
+          totalSize += file.size;
+        } else if ((isTIFF || isImage) && file.size > 100 * 1024 * 1024) {
+          invalidCount++;
+        } else {
+          invalidCount++;
+        }
+      }
+
+      if (validFiles.length === 0) {
+        alert('No valid TIFF or image files found. Please select TIFF files under 100MB.');
+        return;
+      }
+
+      if (invalidCount > 0) {
+        alert(`${invalidCount} file(s) were skipped due to size limits or invalid format.`);
+      }
+
+      // Add files to the list
+      files = validFiles;
+      fileCount.textContent = `${files.length} file(s)`;
+      totalSizeEl.textContent = `Total: ${(totalSize / 1024 / 1024).toFixed(2)} MB`;
+
+      fileInfo.classList.remove('hidden');
+      dropzone.classList.add('hidden');
+      resultSection.classList.add('hidden');
+      progressContainer.classList.add('hidden');
+      previewContainer.classList.add('hidden');
+      convertBtn.disabled = false;
+      convertBtn.textContent = '🔄 Convert All';
+
+      // Show previews
+      showPreviews();
+    }
+
+    function showPreviews() {
+      let previewHtml = '';
+      const maxPreview = Math.min(12, files.length);
+
+      for (let i = 0; i < maxPreview; i++) {
+        const file = files[i];
+        const url = URL.createObjectURL(file);
+        const ext = file.name.split('.').pop().toLowerCase();
+        const isTIFF = file.type === 'image/tiff' || ext === 'tiff' || ext === 'tif';
+        previewHtml += `
+          <div class="image-card">
+            <img src="${url}" alt="${file.name}">
+            <div class="file-name">${file.name.substring(0, 15)}${file.name.length > 15 ? '...' : ''}</div>
+            <div class="status-badge" style="background: ${isTIFF ? '#dbeafe' : '#fef3c7'}; color: ${isTIFF ? '#1e40af' : '#92400e'};">${isTIFF ? 'TIFF' : 'Other'}</div>
+          </div>
+        `;
+      }
+
+      if (files.length > 12) {
+        previewHtml += `
+          <div class="image-card" style="display: flex; align-items: center; justify-content: center; min-height: 100px; background: #f1f5f9; border: 2px dashed #cbd5e1;">
+            <span style="font-size: 12px; color: #64748b; text-align: center;">+ ${files.length - 12} more images</span>
+          </div>
+        `;
+      }
+
+      imagePreviewContent.innerHTML = previewHtml || '<p class="text-slate-400 text-center">No images to preview</p>';
+      imageStats.textContent = `${files.length} images`;
+      previewContainer.classList.remove('hidden');
+    }
+
+    function clearFiles() {
+      files = [];
+      convertedFiles = [];
+      totalSize = 0;
+      fileInput.value = '';
+      fileInfo.classList.add('hidden');
+      dropzone.classList.remove('hidden');
+      resultSection.classList.add('hidden');
+      progressContainer.classList.add('hidden');
+      previewContainer.classList.add('hidden');
+      progressBar.style.width = '0%';
+      progressText.textContent = '0%';
+      imagePreviewContent.innerHTML = '';
+      downloadLinksContainer.innerHTML = '';
+      multiBadge.classList.add('hidden');
+    }
+
+    function resetConverter() {
+      clearFiles();
+    }
+
+    // Convert TIFF to PDF
+    async function convertTIFFtoPDF() {
+      if (files.length === 0) {
+        alert('Please select TIFF files first.');
+        return;
+      }
+
+      // Check if html2pdf is available
+      if (typeof html2pdf === 'undefined') {
+        alert('PDF library not loaded. Please refresh the page and try again.');
+        return;
+      }
+
+      // Show progress
+      progressContainer.classList.remove('hidden');
+      resultSection.classList.add('hidden');
+      convertBtn.disabled = true;
+      convertBtn.textContent = '⏳ Converting...';
+      progressBar.style.width = '5%';
+      progressText.textContent = '5%';
+      statusText.textContent = 'Initializing...';
+
+      convertedFiles = [];
+      const size = pageSize.value;
+      const quality = imageQuality.value;
+      const color = colorMode.value;
+
+      // Map quality to scale
+      const scaleMap = {
+        'low': 1.0,
+        'medium': 1.5,
+        'high': 2.5
+      };
+      const scale = scaleMap[quality] || 1.5;
+
+      // Map page size
+      const sizeMap = {
+        'a4': { width: 210, height: 297, label: 'A4' },
+        'letter': { width: 215.9, height: 279.4, label: 'Letter' },
+        'legal': { width: 215.9, height: 355.6, label: 'Legal' }
+      };
+      const pageSizeObj = sizeMap[size] || sizeMap['a4'];
+
+      try {
+        for (let i = 0; i < files.length; i++) {
+          const file = files[i];
+          const ext = file.name.split('.').pop().toLowerCase();
+          const isTIFF = file.type === 'image/tiff' || ext === 'tiff' || ext === 'tif';
+          
+          statusText.textContent = `Processing ${i + 1} of ${files.length}: ${file.name}`;
+
+          // Update progress
+          const progress = Math.round(((i) / files.length) * 80) + 10;
+          progressBar.style.width = progress + '%';
+          progressText.textContent = progress + '%';
+
+          let imageData = [];
+
+          try {
+            if (isTIFF) {
+              // Try parsing TIFF with UTIF.js
+              const arrayBuffer = await file.arrayBuffer();
+              const ifds = UTIF.decode(arrayBuffer);
+              
+              if (ifds.length === 0) {
+                throw new Error('No images found in TIFF');
+              }
+
+              // Process each page/frame
+              for (let f = 0; f < ifds.length; f++) {
+                UTIF.decodeImage(arrayBuffer, ifds[f]);
+                const rgba = UTIF.toRGBA8(ifds[f]);
+                const canvas = document.createElement('canvas');
+                canvas.width = ifds[f].width;
+                canvas.height = ifds[f].height;
+                const ctx = canvas.getContext('2d');
+                const imageDataObj = ctx.createImageData(ifds[f].width, ifds[f].height);
+                imageDataObj.data.set(rgba);
+                ctx.putImageData(imageDataObj, 0, 0);
+                
+                // Apply grayscale if selected
+                if (color === 'grayscale') {
+                  const imageData2 = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                  const data = imageData2.data;
+                  for (let p = 0; p < data.length; p += 4) {
+                    const gray = 0.299 * data[p] + 0.587 * data[p+1] + 0.114 * data[p+2];
+                    data[p] = gray;
+                    data[p+1] = gray;
+                    data[p+2] = gray;
+                  }
+                  ctx.putImageData(imageData2, 0, 0);
+                }
+                
+                imageData.push(canvas);
+              }
+            } else {
+              // For non-TIFF images, load with Image
+              const img = await loadImage(file);
+              const canvas = document.createElement('canvas');
+              canvas.width = img.width;
+              canvas.height = img.height;
+              const ctx = canvas.getContext('2d');
+              
+              if (color === 'grayscale') {
+                ctx.filter = 'grayscale(100%)';
+              }
+              
+              ctx.drawImage(img, 0, 0);
+              imageData.push(canvas);
+            }
+          } catch (err) {
+            console.warn('TIFF parsing failed, falling back to Image:', err);
+            // Fall back to Image object
+            const img = await loadImage(file);
+            const canvas = document.createElement('canvas');
+            canvas.width = img.width;
+            canvas.height = img.height;
+            const ctx = canvas.getContext('2d');
+            
+            if (color === 'grayscale') {
+              ctx.filter = 'grayscale(100%)';
+            }
+            
+            ctx.drawImage(img, 0, 0);
+            imageData.push(canvas);
+          }
+
+          // Build HTML for PDF
+          let pagesHtml = '';
+          const isMulti = imageData.length > 1;
+
+          if (isMulti) {
+            multiBadge.classList.remove('hidden');
+          } else {
+            multiBadge.classList.add('hidden');
+          }
+
+          // Determine if we should fit to page or use custom size
+          const useFit = size === 'fit';
+          
+          for (let p = 0; p < imageData.length; p++) {
+            const canvas = imageData[p];
+            const imgData = canvas.toDataURL('image/jpeg', 0.92);
+            
+            // Calculate dimensions for fit mode
+            let imgWidth = canvas.width;
+            let imgHeight = canvas.height;
+            let displayWidth = imgWidth;
+            let displayHeight = imgHeight;
+            
+            if (useFit) {
+              // Fit to page with max 1000px width
+              const maxWidth = 1000;
+              const maxHeight = 1414;
+              const ratio = Math.min(maxWidth / imgWidth, maxHeight / imgHeight);
+              displayWidth = imgWidth * ratio;
+              displayHeight = imgHeight * ratio;
+            } else {
+              // Scale to fit page size
+              const maxWidth = 794; // A4 width in pixels at 96dpi
+              const maxHeight = 1123;
+              const ratio = Math.min(maxWidth / imgWidth, maxHeight / imgHeight);
+              displayWidth = imgWidth * ratio;
+              displayHeight = imgHeight * ratio;
+            }
+
+            pagesHtml += `
+              <div style="page-break-after: always; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; background: white;">
+                <img src="${imgData}" style="max-width: 100%; max-height: 100vh; width: auto; height: auto; object-fit: contain;">
+              </div>
+            `;
+          }
+
+          // Build PDF HTML
+          const pdfHtml = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+              <meta charset="UTF-8">
+              <style>
+                @page { 
+                  size: ${useFit ? 'auto' : pageSizeObj.width + 'mm ' + pageSizeObj.height + 'mm'}; 
+                  margin: 0;
+                }
+                @media print {
+                  * { 
+                    -webkit-print-color-adjust: exact !important; 
+                    print-color-adjust: exact !important;
+                  }
+                  .page-break { 
+                    page-break-after: always; 
+                    break-after: page;
+                  }
+                }
+                body {
+                  margin: 0;
+                  padding: 0;
+                  background: white;
+                }
+              </style>
+            </head>
+            <body>
+              ${pagesHtml}
+            </body>
+            </html>
+          `;
+
+          // Create temporary container
+          const tempContainer = document.createElement('div');
+          tempContainer.innerHTML = pdfHtml;
+          tempContainer.style.position = 'fixed';
+          tempContainer.style.left = '-9999px';
+          tempContainer.style.top = '0';
+          tempContainer.style.width = '210mm';
+          tempContainer.style.background = 'white';
+          tempContainer.style.zIndex = '-9999';
+          document.body.appendChild(tempContainer);
+
+          // Generate PDF
+          const opt = {
+            margin: 0,
+            filename: 'converted.pdf',
+            image: { type: 'jpeg', quality: 0.92 },
+            html2canvas: {
+              scale: 2,
+              useCORS: true,
+              letterRendering: true,
+              backgroundColor: '#ffffff'
+            },
+            jsPDF: {
+              unit: 'mm',
+              format: size === 'fit' ? 'a4' : size,
+              orientation: 'portrait'
+            },
+            pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+          };
+
+          const pdf = await html2pdf()
+            .set(opt)
+            .from(tempContainer)
+            .outputPdf('blob');
+
+          // Clean up
+          document.body.removeChild(tempContainer);
+
+          // Generate filename
+          const baseName = file.name.replace(/\.[^.]+$/, '');
+          const fileName = `${baseName}.pdf`;
+
+          // Store converted file
+          convertedFiles.push({
+            blob: pdf,
+            name: fileName,
+            originalName: file.name,
+            size: pdf.size,
+            url: URL.createObjectURL(pdf),
+            isMulti: isMulti
+          });
+        }
+
+        // Update progress
+        progressBar.style.width = '100%';
+        progressText.textContent = '100%';
+        statusText.textContent = '✅ Conversion complete!';
+
+        // Show results
+        setTimeout(() => {
+          showResults();
+          convertBtn.disabled = false;
+          convertBtn.textContent = '🔄 Convert All';
+          progressContainer.classList.add('hidden');
+        }, 500);
+
+      } catch (error) {
+        console.error('Conversion error:', error);
+        statusText.textContent = '❌ Conversion failed: ' + error.message;
+        convertBtn.disabled = false;
+        convertBtn.textContent = '🔄 Convert All';
+        alert('Conversion failed. Please try again or use different files.\n\nError: ' + error.message);
+      }
+    }
+
+    // Helper function to load an image
+    function loadImage(file) {
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        const url = URL.createObjectURL(file);
+        img.onload = () => {
+          URL.revokeObjectURL(url);
+          resolve(img);
+        };
+        img.onerror = reject;
+        img.src = url;
+      });
+    }
+
+    function showResults() {
+      const successful = convertedFiles.filter(f => !f.error).length;
+      const total = convertedFiles.length;
+      
+      convertedCountBadge.textContent = `${successful} of ${total} converted`;
+      const totalBytes = convertedFiles.reduce((sum, f) => sum + f.size, 0);
+      totalSizeBadge.textContent = `${(totalBytes / 1024 / 1024).toFixed(2)} MB`;
+
+      // Check if any multi-page
+      const hasMulti = convertedFiles.some(f => f.isMulti);
+      if (hasMulti) {
+        multiBadge.classList.remove('hidden');
+      } else {
+        multiBadge.classList.add('hidden');
+      }
+
+      // Show download links
+      downloadLinksContainer.innerHTML = '';
+      convertedFiles.forEach((f, idx) => {
+        if (!f.error) {
+          const link = document.createElement('a');
+          link.href = f.url;
+          link.download = f.name;
+          link.className = 'bg-white border border-slate-200 rounded-lg p-2 text-center hover:border-blue-400 transition-all text-xs truncate';
+          link.textContent = `📄 ${f.name.substring(0, 12)}...`;
+          link.title = f.name;
+          downloadLinksContainer.appendChild(link);
+        }
+      });
+
+      resultSection.classList.remove('hidden');
+    }
+
+    function downloadAll() {
+      if (convertedFiles.length === 0) {
+        alert('No files to download.');
+        return;
+      }
+
+      // Check if there's only one file
+      if (convertedFiles.length === 1) {
+        const f = convertedFiles[0];
+        if (!f.error) {
+          const link = document.createElement('a');
+          link.href = f.url;
+          link.download = f.name;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        }
+        return;
+      }
+
+      // For multiple files, use JSZip if available
+      if (typeof JSZip !== 'undefined') {
+        const zip = new JSZip();
+        convertedFiles.forEach(f => {
+          if (!f.error) {
+            zip.file(f.name, f.blob);
+          }
+        });
+        zip.generateAsync({ type: 'blob' }).then(content => {
+          const url = URL.createObjectURL(content);
+          const link = document.createElement('a');
+          const baseName = files[0]?.name.replace(/\.[^.]+$/, '') || 'converted';
+          link.download = `${baseName}_converted.zip`;
+          link.href = url;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          URL.revokeObjectURL(url);
+        });
+      } else {
+        // Fallback: download each file individually
+        downloadAllIndividual();
+      }
+    }
+
+    function downloadAllIndividual() {
+      convertedFiles.forEach((f, idx) => {
+        if (!f.error) {
+          setTimeout(() => {
+            const link = document.createElement('a');
+            link.href = f.url;
+            link.download = f.name;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+          }, idx * 300);
+        }
+      });
+    }
+
+    // Keyboard shortcut: Enter to convert
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !fileInfo.classList.contains('hidden') && !convertBtn.disabled) {
+        convertTIFFtoPDF();
+      }
+    });
+  </script>
+
+</body>
+</html>
