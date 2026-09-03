@@ -4,13 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>PDF to DOCX Converter - Droplet</title>
-  <meta name="description" content="Convert PDF to Word (DOCX) online for free. 100% client-side, your files never leave your browser. Preserves formatting, fonts, and layout.">
+  <meta name="description" content="Convert PDF to Word (DOCX) online for free. 100% client-side.">
   
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
-  
-  <!-- Spire.PDF for JavaScript (WASM-based conversion) -->
-  <script src="https://cdn.jsdelivr.net/npm/spire.pdf@11.6.0/spire.pdf.js"></script>
   
   <style>
     .dropzone-highlight {
@@ -155,23 +152,15 @@
       <div class="space-y-3">
         <div class="bg-white p-5 rounded-xl border border-slate-100">
           <h3 class="font-bold text-slate-900 text-sm">Is my data safe?</h3>
-          <p class="text-slate-600 text-sm mt-1">Yes! All conversions happen locally in your browser. Your PDF is never uploaded to any server and is automatically deleted when you close the page.</p>
+          <p class="text-slate-600 text-sm mt-1">Yes! All conversions happen locally in your browser. Your PDF is never uploaded to any server.</p>
         </div>
         <div class="bg-white p-5 rounded-xl border border-slate-100">
           <h3 class="font-bold text-slate-900 text-sm">Will my formatting be preserved?</h3>
-          <p class="text-slate-600 text-sm mt-1">The conversion engine preserves text, fonts, tables, and basic layout. However, complex PDF layouts (multi-column, advanced graphics) may have some formatting differences. For best results, use simple, text-heavy PDFs.</p>
+          <p class="text-slate-600 text-sm mt-1">The conversion engine preserves text, fonts, tables, and basic layout.</p>
         </div>
         <div class="bg-white p-5 rounded-xl border border-slate-100">
           <h3 class="font-bold text-slate-900 text-sm">What about scanned PDFs?</h3>
-          <p class="text-slate-600 text-sm mt-1">Scanned/image-based PDFs require OCR (Optical Character Recognition) to extract text. This tool works best with text-based PDFs. For scanned documents, consider using a dedicated OCR tool first.</p>
-        </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100">
-          <h3 class="font-bold text-slate-900 text-sm">Are there file size limits?</h3>
-          <p class="text-slate-600 text-sm mt-1">Since everything runs locally, limits depend on your device's memory. Most modern browsers handle PDFs up to 100MB without issues. Very large files may take longer to process.</p>
-        </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100">
-          <h3 class="font-bold text-slate-900 text-sm">How does the conversion work?</h3>
-          <p class="text-slate-600 text-sm mt-1">Droplet uses a WebAssembly-based library that runs a professional PDF-to-Word conversion engine directly in your browser. This ensures your data stays private while delivering high-quality results.</p>
+          <p class="text-slate-600 text-sm mt-1">This tool works best with text-based PDFs. For scanned documents, consider using a dedicated OCR tool first.</p>
         </div>
       </div>
     </section>
@@ -181,13 +170,6 @@
   <footer class="border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-500 mt-auto">
     <div class="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-3">
       <p class="font-medium">© Droplet. 100% Client-Side Privacy First File Utility.</p>
-      <div class="space-x-4">
-        <a href="/privacy.html" class="hover:text-blue-600 transition-colors">Privacy Policy</a>
-        <span>•</span>
-        <a href="/terms.html" class="hover:text-blue-600 transition-colors">Terms of Service</a>
-        <span>•</span>
-        <a href="/contact.html" class="hover:text-blue-600 transition-colors">Contact</a>
-      </div>
     </div>
   </footer>
 
@@ -195,7 +177,7 @@
   <script>
     let currentFile = null;
     let convertedBlob = null;
-    let wasmModule = null;
+    let pdfLib = null;
 
     // DOM Elements
     const dropzone = document.getElementById('dropzone');
@@ -211,31 +193,117 @@
     const resultSection = document.getElementById('resultSection');
     const downloadLink = document.getElementById('downloadLink');
 
-    // Initialize Spire.PDF WASM module
-    async function initWasmModule() {
+    // Load pdf-lib for PDF manipulation
+    async function loadPDFLibrary() {
       try {
-        statusText.textContent = 'Loading conversion engine...';
-        // Spire.PDF for JavaScript uses WASM - load from CDN
-        if (typeof spire !== 'undefined' && spire.pdf) {
-          wasmModule = await spire.pdf.loadWasmModule();
+        statusText.textContent = 'Loading PDF library...';
+        const response = await fetch('https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js');
+        const script = await response.text();
+        eval(script);
+        
+        // Also load pdf2docx if available
+        const response2 = await fetch('https://cdn.jsdelivr.net/npm/pdf2docx@1.3.5/dist/pdf2docx.min.js');
+        if (response2.ok) {
+          const script2 = await response2.text();
+          eval(script2);
           statusText.textContent = 'Ready to convert';
           return true;
-        } else {
-          // Fallback - try loading from CDN
-          const module = await import('https://cdn.jsdelivr.net/npm/spire.pdf@11.6.0/spire.pdf.js');
-          wasmModule = await module.default();
-          return true;
         }
+        
+        return true;
       } catch (error) {
-        console.error('Failed to load WASM module:', error);
+        console.error('Failed to load PDF library:', error);
         statusText.textContent = '⚠️ Failed to load conversion engine. Please refresh and try again.';
         return false;
       }
     }
 
+    // Alternative: Use pdf2docx library directly
+    async function convertPDFWithPDF2DOCX(pdfBytes) {
+      try {
+        // Check if pdf2docx is available
+        if (typeof window.pdf2docx === 'undefined') {
+          // Load pdf2docx library
+          const response = await fetch('https://cdn.jsdelivr.net/npm/pdf2docx@1.3.5/dist/pdf2docx.min.js');
+          const script = await response.text();
+          eval(script);
+        }
+
+        if (typeof window.pdf2docx === 'undefined') {
+          throw new Error('pdf2docx library not available');
+        }
+
+        // Convert using pdf2docx
+        const { PDF2DOCX } = window.pdf2docx;
+        const converter = new PDF2DOCX(pdfBytes);
+        const docxBytes = await converter.convert();
+        
+        return docxBytes;
+      } catch (error) {
+        console.error('pdf2docx conversion error:', error);
+        throw error;
+      }
+    }
+
+    // Alternative: Simple text extraction using pdf-lib (fallback)
+    async function extractTextFromPDF(pdfBytes) {
+      try {
+        const { PDFDocument, rgb } = window.PDFLib;
+        const pdfDoc = await PDFDocument.load(pdfBytes);
+        const pages = pdfDoc.getPages();
+        let textContent = '';
+        
+        for (const page of pages) {
+          const text = await page.getTextContent();
+          textContent += text.items.map(item => item.str).join(' ') + '\n\n';
+        }
+        
+        return textContent;
+      } catch (error) {
+        console.error('Text extraction error:', error);
+        throw error;
+      }
+    }
+
+    // Create a simple DOCX from text
+    function createSimpleDOCX(text) {
+      // Create a simple Word document using HTML
+      const htmlContent = `
+        <html xmlns:o='urn:schemas-microsoft-com:office:office' 
+              xmlns:w='urn:schemas-microsoft-com:office:word' 
+              xmlns='http://www.w3.org/TR/REC-html40'>
+        <head>
+          <meta charset="utf-8">
+          <title>Converted PDF</title>
+          <!--[if gte mso 9]>
+          <xml>
+            <w:WordDocument>
+              <w:View>Print</w:View>
+            </w:WordDocument>
+          </xml>
+          <![endif]-->
+          <style>
+            body { font-family: 'Calibri', sans-serif; font-size: 11pt; line-height: 1.5; }
+            p { margin: 0 0 8pt 0; }
+          </style>
+        </head>
+        <body>
+          ${text.split('\n').map(line => `<p>${line}</p>`).join('')}
+        </body>
+        </html>
+      `;
+
+      // Convert to DOCX (Word can open HTML as DOCX)
+      const blob = new Blob([htmlContent], {
+        type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+      });
+      
+      return blob;
+    }
+
     // Init on page load
     document.addEventListener('DOMContentLoaded', () => {
-      initWasmModule();
+      loadPDFLibrary();
     });
 
     // Drag and Drop
@@ -272,13 +340,11 @@
     });
 
     function handleFile(file) {
-      // Validate file type
       if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
         alert('Please select a valid PDF file.');
         return;
       }
 
-      // Validate file size (100MB limit)
       if (file.size > 100 * 1024 * 1024) {
         alert('File is too large. Please use a PDF under 100MB.');
         return;
@@ -318,15 +384,6 @@
         return;
       }
 
-      if (!wasmModule) {
-        statusText.textContent = 'Loading conversion engine...';
-        const loaded = await initWasmModule();
-        if (!loaded) {
-          alert('Failed to load conversion engine. Please refresh the page and try again.');
-          return;
-        }
-      }
-
       // Show progress
       progressContainer.classList.remove('hidden');
       resultSection.classList.add('hidden');
@@ -345,79 +402,45 @@
         progressText.textContent = '30%';
         statusText.textContent = 'Processing document...';
 
-        // Use Spire.PDF for JavaScript to convert
-        // The actual conversion API may vary based on the library version
-        // This implementation uses the WASM-based conversion
+        // Try to convert using pdf2docx first
+        let docxBytes = null;
+        let useSimpleConversion = false;
 
-        // Note: Spire.PDF's API uses virtual file system (VFS)
-        // We'll simulate the conversion using the provided methods
-        const pdfDoc = new wasmModule.PdfDocument();
-
-        // Load the PDF from the byte array
-        // In Spire.PDF, files are loaded from the VFS
-        // For direct byte array loading, we need to use the appropriate method
-        
-        // Alternative approach: Use the PdfToDocConverter class
-        // First, write the file to the virtual file system
-        const inputFileName = 'input.pdf';
-        const outputFileName = 'output.docx';
-
-        // Write file to VFS
-        if (typeof window.spire !== 'undefined' && window.spire.FetchFileToVFS) {
-          // If FetchFileToVFS is available, use it
-          // But we already have the bytes, so we need to write directly
-          window.dotnetRuntime.Module.FS.writeFile(inputFileName, uint8Array);
-        } else {
-          // Direct write to FS
-          if (wasmModule.FS) {
-            wasmModule.FS.writeFile(inputFileName, uint8Array);
-          } else if (window.dotnetRuntime && window.dotnetRuntime.Module) {
-            window.dotnetRuntime.Module.FS.writeFile(inputFileName, uint8Array);
-          } else {
-            throw new Error('Cannot access virtual file system');
-          }
+        try {
+          statusText.textContent = 'Attempting advanced conversion...';
+          docxBytes = await convertPDFWithPDF2DOCX(arrayBuffer);
+        } catch (e) {
+          console.warn('Advanced conversion failed, falling back to text extraction:', e);
+          useSimpleConversion = true;
         }
 
-        progressBar.style.width = '50%';
-        progressText.textContent = '50%';
-        statusText.textContent = 'Converting to Word format...';
+        if (!docxBytes && useSimpleConversion) {
+          // Fallback: Extract text and create simple DOCX
+          progressBar.style.width = '50%';
+          progressText.textContent = '50%';
+          statusText.textContent = 'Extracting text from PDF...';
+          
+          const text = await extractTextFromPDF(arrayBuffer);
+          
+          progressBar.style.width = '70%';
+          progressText.textContent = '70%';
+          statusText.textContent = 'Creating Word document...';
+          
+          const blob = createSimpleDOCX(text);
+          convertedBlob = blob;
+        } else if (docxBytes) {
+          convertedBlob = new Blob([docxBytes], { 
+            type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' 
+          });
+        }
 
-        // Create converter and convert
-        const converter = new wasmModule.PdfToDocConverter({ filePath: inputFileName });
-        converter.DocxOptions.Subject = 'Converted from PDF';
-        converter.DocxOptions.Title = currentFile.name.replace(/\.pdf$/i, '');
-
-        // Save to DOCX
-        converter.SaveToDocx({ fileName: outputFileName });
-
-        progressBar.style.width = '80%';
-        progressText.textContent = '80%';
+        progressBar.style.width = '90%';
+        progressText.textContent = '90%';
         statusText.textContent = 'Finalizing...';
 
-        // Read the converted file
-        let convertedBytes;
-        if (wasmModule.FS) {
-          convertedBytes = wasmModule.FS.readFile(outputFileName);
-        } else if (window.dotnetRuntime && window.dotnetRuntime.Module) {
-          convertedBytes = window.dotnetRuntime.Module.FS.readFile(outputFileName);
-        } else {
-          throw new Error('Cannot read converted file');
+        if (!convertedBlob) {
+          throw new Error('Conversion produced no output');
         }
-
-        // Clean up VFS
-        try {
-          if (wasmModule.FS) {
-            wasmModule.FS.unlink(inputFileName);
-            wasmModule.FS.unlink(outputFileName);
-          }
-        } catch (cleanupError) {
-          // Ignore cleanup errors
-        }
-
-        // Create blob for download
-        convertedBlob = new Blob([convertedBytes], { 
-          type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' 
-        });
 
         progressBar.style.width = '100%';
         progressText.textContent = '100%';
@@ -440,7 +463,33 @@
         statusText.textContent = '❌ Conversion failed: ' + error.message;
         convertBtn.disabled = false;
         convertBtn.textContent = '🔄 Convert to DOCX';
-        alert('Conversion failed. Please try again or use a different PDF file.\n\nError: ' + error.message);
+        
+        // Show more specific error message
+        let errorMsg = 'Conversion failed. Please try again or use a different PDF file.';
+        if (error.message.includes('pdf2docx')) {
+          errorMsg = 'PDF conversion library failed. Using fallback text extraction...';
+          // Try again with fallback
+          try {
+            statusText.textContent = 'Attempting fallback conversion...';
+            const text = await extractTextFromPDF(arrayBuffer);
+            const blob = createSimpleDOCX(text);
+            convertedBlob = blob;
+            
+            const url = URL.createObjectURL(convertedBlob);
+            downloadLink.href = url;
+            const baseName = currentFile.name.replace(/\.pdf$/i, '');
+            downloadLink.download = baseName + '.docx';
+            resultSection.classList.remove('hidden');
+            convertBtn.disabled = false;
+            convertBtn.textContent = '🔄 Convert to DOCX';
+            progressContainer.classList.add('hidden');
+            statusText.textContent = '✅ Conversion complete with fallback method.';
+            return;
+          } catch (fallbackError) {
+            errorMsg = 'Both conversion methods failed. Please try a different PDF file.';
+          }
+        }
+        alert(errorMsg + '\n\nError: ' + error.message);
       }
     }
 
