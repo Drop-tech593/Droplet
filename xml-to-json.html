@@ -1,1 +1,703 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>XML to JSON Converter - Droplet</title>
+  <meta name="description" content="Convert XML data to JSON online for free. 100% client-side, your files never leave your browser. Supports nested XML and attributes.">
 
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- xml2js for XML parsing -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xml2js/0.6.2/xml2js.min.js"></script>
+
+  <style>
+    .dropzone-highlight {
+      border-color: #3b82f6 !important;
+      background: #eff6ff !important;
+    }
+    .progress-bar {
+      transition: width 0.5s ease;
+    }
+    .hidden {
+      display: none !important;
+    }
+    .data-preview {
+      max-height: 400px;
+      overflow: auto;
+      background: white;
+      border-radius: 8px;
+      border: 1px solid #e2e8f0;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      padding: 12px;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+    .info-badge {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 12px;
+      font-size: 10px;
+      font-weight: 600;
+    }
+    .badge-nodes { background: #dbeafe; color: #1e40af; }
+    .badge-size { background: #fef3c7; color: #92400e; }
+    .badge-attr { background: #d1fae5; color: #065f46; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased">
+
+  <!-- Navigation -->
+  <header class="bg-white border-b border-slate-200 py-3.5 px-6 sticky top-0 z-50">
+    <div class="max-w-6xl mx-auto flex justify-between items-center">
+      <a href="/" class="flex items-center gap-3 group">
+        <img src="Gemini_Generated_Image_sdu6v7sdu6v7sdu6.jpg" alt="Droplet Logo" class="h-9 w-auto rounded-xl shadow-sm group-hover:scale-105 transition-transform">
+        <div>
+          <h1 class="text-xl font-black tracking-tight text-slate-900 leading-none">Droplet</h1>
+          <p class="text-[9px] text-blue-600 font-extrabold tracking-widest uppercase mt-0.5">DRAG, DROP AND CONVERT.</p>
+        </div>
+      </a>
+      <nav class="hidden md:flex items-center space-x-6 text-xs font-bold text-slate-600">
+        <a href="/" class="hover:text-blue-600 transition-colors">← Back</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="max-w-4xl mx-auto px-4 py-8 md:py-12 flex-grow w-full">
+
+    <!-- Page Header -->
+    <div class="text-center mb-8">
+      <div class="inline-block p-3 bg-blue-50 rounded-2xl mb-4">
+        <span class="text-4xl">🔗</span>
+      </div>
+      <h1 class="text-3xl md:text-4xl font-black text-slate-900 tracking-tight">XML to JSON Converter</h1>
+      <p class="text-slate-500 text-sm md:text-base mt-2 max-w-lg mx-auto">
+        Convert your XML data to JSON format. <strong>100% client-side</strong> — your data never leaves your browser.
+      </p>
+    </div>
+
+    <!-- What is XML to JSON Info -->
+    <div class="max-w-2xl mx-auto mb-8 bg-blue-50 border border-blue-200 rounded-xl p-4">
+      <div class="flex items-start gap-3">
+        <span class="text-2xl">🔄</span>
+        <div>
+          <h4 class="font-bold text-sm text-blue-900">Why Convert XML to JSON?</h4>
+          <p class="text-xs text-blue-700 mt-1">XML is a legacy data format used in many enterprise systems, APIs, and configuration files. JSON is the modern standard for web applications and APIs. Converting XML to JSON allows you to use legacy data in modern applications.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Conversion Dropzone -->
+    <div id="dropzone" class="bg-white border-2 border-dashed border-slate-300 hover:border-blue-400 transition-all rounded-3xl p-8 md:p-12 text-center shadow-lg max-w-2xl mx-auto cursor-pointer">
+      <div class="flex flex-col items-center">
+        <div class="w-20 h-20 bg-blue-50 rounded-2xl flex items-center justify-center mb-4 text-4xl">
+          📁
+        </div>
+        <h3 class="text-xl font-bold text-slate-900 mb-1">Drop your XML file here</h3>
+        <p class="text-slate-400 text-sm mb-4">or paste XML data below</p>
+        <input type="file" id="fileInput" accept=".xml,text/xml,application/xml" class="hidden">
+        <button onclick="document.getElementById('fileInput').click()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-3 rounded-xl text-sm shadow-md shadow-blue-500/20 transition-all active:scale-95">
+          Select XML File
+        </button>
+        <p class="text-xs text-slate-400 mt-3">Max file size: ~10MB</p>
+      </div>
+    </div>
+
+    <!-- XML Input Textarea -->
+    <div class="max-w-2xl mx-auto mt-4">
+      <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
+        <div class="flex items-center justify-between mb-2">
+          <label class="text-xs font-medium text-slate-700">Or paste XML data here:</label>
+          <button onclick="clearXMLInput()" class="text-xs text-slate-400 hover:text-red-500 transition-colors">Clear</button>
+        </div>
+        <textarea id="xmlInput" rows="6" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder='<root><person name="John"><age>30</age><email>john@example.com</email></person></root>'></textarea>
+        <div class="mt-2 flex flex-wrap gap-2">
+          <button onclick="convertXMLtoJSON()" id="convertBtn" class="bg-green-600 hover:bg-green-700 text-white font-bold px-6 py-2 rounded-lg text-sm transition-all shadow-md shadow-green-500/20">
+            🔄 Convert to JSON
+          </button>
+          <button onclick="loadSampleXML()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium px-4 py-2 rounded-lg text-sm transition-all">
+            Load Sample
+          </button>
+          <button onclick="loadComplexXML()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium px-4 py-2 rounded-lg text-sm transition-all">
+            Load Complex
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- File Info -->
+    <div id="fileInfo" class="hidden max-w-2xl mx-auto mt-4 bg-white rounded-xl shadow-sm border border-slate-200 p-4">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <span class="text-2xl">📄</span>
+          <div>
+            <p id="fileName" class="font-medium text-slate-900"></p>
+            <p id="fileSize" class="text-xs text-slate-400"></p>
+          </div>
+        </div>
+        <button onclick="clearFile()" class="text-slate-400 hover:text-red-500 transition-colors">✕</button>
+      </div>
+    </div>
+
+    <!-- Progress Bar -->
+    <div id="progressContainer" class="hidden max-w-2xl mx-auto mt-4">
+      <div class="flex justify-between text-xs text-slate-500 mb-1">
+        <span>Converting...</span>
+        <span id="progressText">0%</span>
+      </div>
+      <div class="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
+        <div id="progressBar" class="bg-blue-600 h-2 rounded-full progress-bar" style="width: 0%"></div>
+      </div>
+      <p id="statusText" class="text-xs text-slate-400 mt-2 text-center">Initializing...</p>
+    </div>
+
+    <!-- JSON Output Section -->
+    <div id="resultContainer" class="hidden max-w-2xl mx-auto mt-6">
+      <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <h4 class="font-bold text-sm text-slate-700">📋 JSON Output</h4>
+            <div class="flex flex-wrap gap-2 mt-1">
+              <span id="nodeCountBadge" class="info-badge badge-nodes">0 nodes</span>
+              <span id="jsonSizeBadge" class="info-badge badge-size">0 KB</span>
+              <span id="attrBadge" class="info-badge badge-attr">0 attributes</span>
+            </div>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            <button onclick="downloadJSON()" id="downloadBtn" class="bg-green-600 hover:bg-green-700 text-white font-bold px-4 py-2 rounded-lg text-sm transition-all shadow-md shadow-green-500/20 hidden">
+              📥 Download JSON
+            </button>
+            <button onclick="copyJSON()" id="copyBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2 rounded-lg text-sm transition-all shadow-md shadow-blue-500/20 hidden">
+              📋 Copy JSON
+            </button>
+          </div>
+        </div>
+        <div id="jsonOutput" class="data-preview">
+          <!-- JSON will be displayed here -->
+        </div>
+        <div class="mt-4 flex flex-wrap gap-3">
+          <button onclick="formatJSON()" id="formatBtn" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium px-4 py-2 rounded-lg text-sm transition-all hidden">
+            🔄 Format
+          </button>
+          <button onclick="minifyJSON()" id="minifyBtn" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium px-4 py-2 rounded-lg text-sm transition-all hidden">
+            📏 Minify
+          </button>
+          <button onclick="resetConverter()" class="px-6 py-2 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors text-sm">
+            Convert Another
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Info Section -->
+    <div class="max-w-2xl mx-auto mt-12 grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div class="bg-white p-4 rounded-xl border border-slate-100 text-center">
+        <div class="text-2xl mb-1">🔒</div>
+        <h4 class="font-bold text-sm">100% Private</h4>
+        <p class="text-xs text-slate-500">Your data never leaves your browser</p>
+      </div>
+      <div class="bg-white p-4 rounded-xl border border-slate-100 text-center">
+        <div class="text-2xl mb-1">🏷️</div>
+        <h4 class="font-bold text-sm">Attribute Support</h4>
+        <p class="text-xs text-slate-500">Preserves XML attributes as `_attributes`</p>
+      </div>
+      <div class="bg-white p-4 rounded-xl border border-slate-100 text-center">
+        <div class="text-2xl mb-1">⚡</div>
+        <h4 class="font-bold text-sm">Fast & Free</h4>
+        <p class="text-xs text-slate-500">No sign-up required</p>
+      </div>
+    </div>
+
+    <!-- XML vs JSON Comparison -->
+    <section class="max-w-2xl mx-auto mt-12">
+      <h2 class="text-xl font-black text-slate-900 text-center mb-6">XML vs JSON Comparison</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="bg-white p-5 rounded-xl border border-slate-100">
+          <h3 class="font-bold text-slate-900 text-sm flex items-center gap-2">
+            <span class="text-xl">📄</span> XML
+          </h3>
+          <ul class="text-sm text-slate-600 mt-2 space-y-1">
+            <li>✅ Supports attributes</li>
+            <li>✅ Human-readable</li>
+            <li>✅ Widely used in enterprise</li>
+            <li>❌ Verbose syntax</li>
+            <li>❌ Larger file size</li>
+          </ul>
+        </div>
+        <div class="bg-white p-5 rounded-xl border border-slate-100">
+          <h3 class="font-bold text-slate-900 text-sm flex items-center gap-2">
+            <span class="text-xl">🔵</span> JSON
+          </h3>
+          <ul class="text-sm text-slate-600 mt-2 space-y-1">
+            <li>✅ Compact syntax</li>
+            <li>✅ Native JavaScript support</li>
+            <li>✅ Smaller file size</li>
+            <li>✅ Faster parsing</li>
+            <li>❌ No built-in attributes</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="max-w-2xl mx-auto mt-12">
+      <h2 class="text-xl font-black text-slate-900 text-center mb-6">Frequently Asked Questions</h2>
+      <div class="space-y-3">
+        <div class="bg-white p-5 rounded-xl border border-slate-100">
+          <h3 class="font-bold text-slate-900 text-sm">Is my data safe?</h3>
+          <p class="text-slate-600 text-sm mt-1">Yes! All conversions happen locally in your browser. Your XML data is never uploaded to any server and is automatically deleted when you close the page.</p>
+        </div>
+        <div class="bg-white p-5 rounded-xl border border-slate-100">
+          <h3 class="font-bold text-slate-900 text-sm">What XML features are supported?</h3>
+          <p class="text-slate-600 text-sm mt-1">This converter supports nested XML elements, attributes (preserved as `_attributes`), text content, CDATA sections, and namespaces. Empty elements become empty objects.</p>
+        </div>
+        <div class="bg-white p-5 rounded-xl border border-slate-100">
+          <h3 class="font-bold text-slate-900 text-sm">How are attributes handled?</h3>
+          <p class="text-slate-600 text-sm mt-1">XML attributes are preserved in the JSON output as an `_attributes` object. For example, `<person id="123">` becomes `{"person": {"_attributes": {"id": "123"}}}`.</p>
+        </div>
+        <div class="bg-white p-5 rounded-xl border border-slate-100">
+          <h3 class="font-bold text-slate-900 text-sm">Are there file size limits?</h3>
+          <p class="text-slate-600 text-sm mt-1">Since everything runs locally, limits depend on your device's memory. Most modern browsers handle XML files up to 10MB without issues.</p>
+        </div>
+        <div class="bg-white p-5 rounded-xl border border-slate-100">
+          <h3 class="font-bold text-slate-900 text-sm">What about CDATA sections?</h3>
+          <p class="text-slate-600 text-sm mt-1">CDATA sections are preserved as text content in the JSON output. They are treated as regular text nodes.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-500 mt-auto">
+    <div class="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-3">
+      <p class="font-medium">© Droplet. 100% Client-Side Privacy First File Utility.</p>
+      <div class="space-x-4">
+        <a href="/privacy.html" class="hover:text-blue-600 transition-colors">Privacy Policy</a>
+        <span>•</span>
+        <a href="/terms.html" class="hover:text-blue-600 transition-colors">Terms of Service</a>
+        <span>•</span>
+        <a href="/contact.html" class="hover:text-blue-600 transition-colors">Contact</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Conversion JavaScript -->
+  <script>
+    let currentFile = null;
+    let jsonData = null;
+    let jsonString = '';
+    let isFormatted = true;
+    let nodeCount = 0;
+    let attrCount = 0;
+
+    // DOM Elements
+    const dropzone = document.getElementById('dropzone');
+    const fileInput = document.getElementById('fileInput');
+    const fileInfo = document.getElementById('fileInfo');
+    const fileName = document.getElementById('fileName');
+    const fileSize = document.getElementById('fileSize');
+    const convertBtn = document.getElementById('convertBtn');
+    const downloadBtn = document.getElementById('downloadBtn');
+    const copyBtn = document.getElementById('copyBtn');
+    const formatBtn = document.getElementById('formatBtn');
+    const minifyBtn = document.getElementById('minifyBtn');
+    const progressContainer = document.getElementById('progressContainer');
+    const progressBar = document.getElementById('progressBar');
+    const progressText = document.getElementById('progressText');
+    const statusText = document.getElementById('statusText');
+    const resultContainer = document.getElementById('resultContainer');
+    const jsonOutput = document.getElementById('jsonOutput');
+    const xmlInput = document.getElementById('xmlInput');
+    const nodeCountBadge = document.getElementById('nodeCountBadge');
+    const jsonSizeBadge = document.getElementById('jsonSizeBadge');
+    const attrBadge = document.getElementById('attrBadge');
+
+    // Drag and Drop
+    dropzone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropzone.classList.add('dropzone-highlight');
+    });
+
+    dropzone.addEventListener('dragleave', () => {
+      dropzone.classList.remove('dropzone-highlight');
+    });
+
+    dropzone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropzone.classList.remove('dropzone-highlight');
+      const files = e.dataTransfer.files;
+      if (files.length > 0 && (files[0].type === 'application/xml' || files[0].type === 'text/xml' || files[0].name.toLowerCase().endsWith('.xml'))) {
+        handleFile(files[0]);
+      } else {
+        alert('Please drop an XML file.');
+      }
+    });
+
+    dropzone.addEventListener('click', (e) => {
+      if (e.target.tagName !== 'BUTTON') {
+        fileInput.click();
+      }
+    });
+
+    fileInput.addEventListener('change', (e) => {
+      if (e.target.files.length > 0) {
+        handleFile(e.target.files[0]);
+      }
+    });
+
+    function handleFile(file) {
+      // Validate file type
+      const ext = file.name.split('.').pop().toLowerCase();
+      if (!['xml'].includes(ext) && file.type !== 'application/xml' && file.type !== 'text/xml') {
+        alert('Please select a valid XML file.');
+        return;
+      }
+
+      // Validate file size (10MB limit)
+      if (file.size > 10 * 1024 * 1024) {
+        alert('File is too large. Please use an XML file under 10MB.');
+        return;
+      }
+
+      currentFile = file;
+      fileName.textContent = file.name;
+      fileSize.textContent = (file.size / 1024 / 1024).toFixed(2) + ' MB';
+      fileInfo.classList.remove('hidden');
+      dropzone.classList.add('hidden');
+      resultContainer.classList.add('hidden');
+      progressContainer.classList.add('hidden');
+      downloadBtn.classList.add('hidden');
+      copyBtn.classList.add('hidden');
+      formatBtn.classList.add('hidden');
+      minifyBtn.classList.add('hidden');
+      convertBtn.disabled = false;
+
+      // Read the file
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          xmlInput.value = e.target.result;
+          // Auto-convert if valid XML
+          tryConvertXML();
+        } catch (error) {
+          console.error('Error reading file:', error);
+          alert('Failed to read the XML file. Please check the file format.');
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function clearFile() {
+      currentFile = null;
+      fileInput.value = '';
+      fileInfo.classList.add('hidden');
+      dropzone.classList.remove('hidden');
+      resultContainer.classList.add('hidden');
+      progressContainer.classList.add('hidden');
+      downloadBtn.classList.add('hidden');
+      copyBtn.classList.add('hidden');
+      formatBtn.classList.add('hidden');
+      minifyBtn.classList.add('hidden');
+      progressBar.style.width = '0%';
+      progressText.textContent = '0%';
+      jsonOutput.textContent = '';
+      xmlInput.value = '';
+      jsonData = null;
+      jsonString = '';
+    }
+
+    function clearXMLInput() {
+      xmlInput.value = '';
+      resultContainer.classList.add('hidden');
+      downloadBtn.classList.add('hidden');
+      copyBtn.classList.add('hidden');
+      formatBtn.classList.add('hidden');
+      minifyBtn.classList.add('hidden');
+    }
+
+    function loadSampleXML() {
+      const sample = `<root>
+  <person name="John Doe">
+    <age>30</age>
+    <email>john@example.com</email>
+    <active>true</active>
+    <address>
+      <street>123 Main St</street>
+      <city>New York</city>
+      <zip>10001</zip>
+    </address>
+  </person>
+  <person name="Jane Smith">
+    <age>25</age>
+    <email>jane@example.com</email>
+    <active>false</active>
+    <address>
+      <street>456 Oak Ave</street>
+      <city>Los Angeles</city>
+      <zip>90001</zip>
+    </address>
+  </person>
+</root>`;
+      xmlInput.value = sample;
+      tryConvertXML();
+    }
+
+    function loadComplexXML() {
+      const sample = `<?xml version="1.0" encoding="UTF-8"?>
+<catalog xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <book id="bk101">
+    <author>Gambardella, Matthew</author>
+    <title>XML Developer's Guide</title>
+    <genre>Computer</genre>
+    <price>44.95</price>
+    <publish_date>2000-10-01</publish_date>
+    <description>An in-depth look at creating applications with XML.</description>
+  </book>
+  <book id="bk102">
+    <author>Ralls, Kim</author>
+    <title>Midnight Rain</title>
+    <genre>Fantasy</genre>
+    <price>5.95</price>
+    <publish_date>2000-12-16</publish_date>
+    <description>A former architect battles corporate zombies, an evil sorceress, and her own childhood to become queen of the world.</description>
+  </book>
+  <book id="bk103">
+    <author>Corets, Eva</author>
+    <title>Maeve Ascendant</title>
+    <genre>Fantasy</genre>
+    <price>5.95</price>
+    <publish_date>2000-11-17</publish_date>
+    <description>After the collapse of a nanotechnology society, the young survivors lay the foundation for a new society.</description>
+  </book>
+</catalog>`;
+      xmlInput.value = sample;
+      tryConvertXML();
+    }
+
+    function resetConverter() {
+      clearFile();
+      clearXMLInput();
+      xmlInput.value = '';
+    }
+
+    // Count nodes and attributes in XML
+    function countNodesAndAttrs(obj) {
+      let nodes = 0;
+      let attrs = 0;
+
+      function traverse(item) {
+        if (typeof item === 'object' && item !== null) {
+          nodes++;
+          if (item._attributes) {
+            attrs += Object.keys(item._attributes).length;
+          }
+          for (let key in item) {
+            if (key !== '_attributes') {
+              traverse(item[key]);
+            }
+          }
+        } else if (Array.isArray(item)) {
+          item.forEach(traverse);
+        }
+      }
+
+      traverse(obj);
+      return { nodes, attrs };
+    }
+
+    // Main conversion function
+    function tryConvertXML() {
+      const input = xmlInput.value.trim();
+      if (!input) {
+        alert('Please paste XML data or upload an XML file.');
+        return;
+      }
+
+      // Show progress
+      progressContainer.classList.remove('hidden');
+      resultContainer.classList.add('hidden');
+      downloadBtn.classList.add('hidden');
+      copyBtn.classList.add('hidden');
+      formatBtn.classList.add('hidden');
+      minifyBtn.classList.add('hidden');
+      progressBar.style.width = '10%';
+      progressText.textContent = '10%';
+      statusText.textContent = 'Parsing XML...';
+
+      setTimeout(() => {
+        convertXMLData(input);
+      }, 300);
+    }
+
+    function convertXMLData(input) {
+      try {
+        progressBar.style.width = '30%';
+        progressText.textContent = '30%';
+        statusText.textContent = 'Processing XML structure...';
+
+        // Parse XML using xml2js
+        const parser = new xml2js.Parser({
+          explicitArray: false,
+          mergeAttrs: false,
+          attrValueProcessors: [xml2js.processors.parseNumbers, xml2js.processors.parseBooleans],
+          valueProcessors: [xml2js.processors.parseNumbers, xml2js.processors.parseBooleans]
+        });
+
+        parser.parseString(input, function(err, result) {
+          if (err) {
+            console.error('XML parse error:', err);
+            statusText.textContent = '❌ XML parsing failed: ' + err.message;
+            alert('Failed to parse XML. Please check your XML syntax.\n\nError: ' + err.message);
+            progressContainer.classList.add('hidden');
+            return;
+          }
+
+          if (!result) {
+            alert('No data found in the XML.');
+            return;
+          }
+
+          progressBar.style.width = '60%';
+          progressText.textContent = '60%';
+          statusText.textContent = 'Generating JSON...';
+
+          // Count nodes and attributes
+          const counts = countNodesAndAttrs(result);
+          nodeCount = counts.nodes;
+          attrCount = counts.attrs;
+
+          // Generate JSON
+          jsonData = result;
+          jsonString = JSON.stringify(jsonData, null, 2);
+          isFormatted = true;
+
+          progressBar.style.width = '100%';
+          progressText.textContent = '100%';
+          statusText.textContent = '✅ Conversion complete!';
+
+          // Show results
+          setTimeout(() => {
+            showResults();
+            progressContainer.classList.add('hidden');
+          }, 500);
+        });
+
+      } catch (error) {
+        console.error('Conversion error:', error);
+        statusText.textContent = '❌ Conversion failed: ' + error.message;
+        alert('Conversion failed. Please check your XML structure.\n\nError: ' + error.message);
+        progressContainer.classList.add('hidden');
+      }
+    }
+
+    function showResults() {
+      // Update badges
+      nodeCountBadge.textContent = `${nodeCount} nodes`;
+      const sizeInKB = (jsonString.length / 1024).toFixed(1);
+      jsonSizeBadge.textContent = `${sizeInKB} KB`;
+      attrBadge.textContent = `${attrCount} attributes`;
+
+      // Show JSON output
+      jsonOutput.textContent = jsonString;
+      resultContainer.classList.remove('hidden');
+      downloadBtn.classList.remove('hidden');
+      copyBtn.classList.remove('hidden');
+      formatBtn.classList.add('hidden');
+      minifyBtn.classList.remove('hidden');
+
+      console.log('XML to JSON conversion complete!');
+      console.log(`${nodeCount} nodes, ${attrCount} attributes`);
+    }
+
+    // Convert button handler
+    function convertXMLtoJSON() {
+      tryConvertXML();
+    }
+
+    function formatJSON() {
+      if (!jsonData) return;
+      jsonString = JSON.stringify(jsonData, null, 2);
+      isFormatted = true;
+      jsonOutput.textContent = jsonString;
+      formatBtn.classList.add('hidden');
+      minifyBtn.classList.remove('hidden');
+    }
+
+    function minifyJSON() {
+      if (!jsonData) return;
+      jsonString = JSON.stringify(jsonData);
+      isFormatted = false;
+      jsonOutput.textContent = jsonString;
+      minifyBtn.classList.add('hidden');
+      formatBtn.classList.remove('hidden');
+    }
+
+    function downloadJSON() {
+      if (!jsonString) {
+        alert('No JSON data to download. Please convert XML first.');
+        return;
+      }
+
+      const blob = new Blob([jsonString], { type: 'application/json;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      const baseName = currentFile ? currentFile.name.replace(/\.xml$/i, '') : 'data';
+      link.download = `${baseName}.json`;
+      link.href = url;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    }
+
+    function copyJSON() {
+      if (!jsonString) {
+        alert('No JSON data to copy. Please convert XML first.');
+        return;
+      }
+
+      navigator.clipboard.writeText(jsonString)
+        .then(() => {
+          alert('✅ JSON copied to clipboard!');
+        })
+        .catch(() => {
+          // Fallback for older browsers
+          const textarea = document.createElement('textarea');
+          textarea.value = jsonString;
+          document.body.appendChild(textarea);
+          textarea.select();
+          document.execCommand('copy');
+          document.body.removeChild(textarea);
+          alert('✅ JSON copied to clipboard!');
+        });
+    }
+
+    // Keyboard shortcut: Ctrl+Enter to convert
+    document.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+        e.preventDefault();
+        tryConvertXML();
+      }
+    });
+
+    // Auto-convert when pasting XML (with debounce)
+    let debounceTimer;
+    xmlInput.addEventListener('input', function() {
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => {
+        if (this.value.trim()) {
+          // Check if it looks like XML
+          const trimmed = this.value.trim();
+          if (trimmed.startsWith('<') && trimmed.includes('>')) {
+            tryConvertXML();
+          }
+        }
+      }, 600);
+    });
+  </script>
+
+</body>
+</html>
