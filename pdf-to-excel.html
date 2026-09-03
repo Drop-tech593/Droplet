@@ -1,1 +1,705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PDF to Excel Converter - Droplet</title>
+  <meta name="description" content="Extract tables from PDF and convert to Excel (XLSX) online for free. 100% client-side, your files never leave your browser.">
 
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- PDF.js for PDF parsing -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+
+  <!-- SheetJS for Excel generation -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+  <style>
+    .dropzone-highlight {
+      border-color: #3b82f6 !important;
+      background: #eff6ff !important;
+    }
+    .progress-bar {
+      transition: width 0.5s ease;
+    }
+    .hidden {
+      display: none !important;
+    }
+    .table-preview {
+      max-height: 400px;
+      overflow: auto;
+      background: white;
+      border-radius: 8px;
+      border: 1px solid #e2e8f0;
+    }
+    .table-preview table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+    .table-preview th {
+      background: #f1f5f9;
+      font-weight: 600;
+      padding: 8px 12px;
+      text-align: left;
+      border-bottom: 2px solid #e2e8f0;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .table-preview td {
+      padding: 6px 12px;
+      border-bottom: 1px solid #f1f5f9;
+    }
+    .table-preview tr:hover td {
+      background: #f8fafc;
+    }
+    .info-badge {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 12px;
+      font-size: 10px;
+      font-weight: 600;
+    }
+    .badge-tables { background: #dbeafe; color: #1e40af; }
+    .badge-rows { background: #d1fae5; color: #065f46; }
+    .badge-cols { background: #fef3c7; color: #92400e; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased">
+
+  <!-- Navigation -->
+  <header class="bg-white border-b border-slate-200 py-3.5 px-6 sticky top-0 z-50">
+    <div class="max-w-6xl mx-auto flex justify-between items-center">
+      <a href="/" class="flex items-center gap-3 group">
+        <img src="Gemini_Generated_Image_sdu6v7sdu6v7sdu6.jpg" alt="Droplet Logo" class="h-9 w-auto rounded-xl shadow-sm group-hover:scale-105 transition-transform">
+        <div>
+          <h1 class="text-xl font-black tracking-tight text-slate-900 leading-none">Droplet</h1>
+          <p class="text-[9px] text-blue-600 font-extrabold tracking-widest uppercase mt-0.5">DRAG, DROP AND CONVERT.</p>
+        </div>
+      </a>
+      <nav class="hidden md:flex items-center space-x-6 text-xs font-bold text-slate-600">
+        <a href="/" class="hover:text-blue-600 transition-colors">← Back</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="max-w-4xl mx-auto px-4 py-8 md:py-12 flex-grow w-full">
+
+    <!-- Page Header -->
+    <div class="text-center mb-8">
+      <div class="inline-block p-3 bg-blue-50 rounded-2xl mb-4">
+        <span class="text-4xl">📈</span>
+      </div>
+      <h1 class="text-3xl md:text-4xl font-black text-slate-900 tracking-tight">PDF to Excel Converter</h1>
+      <p class="text-slate-500 text-sm md:text-base mt-2 max-w-lg mx-auto">
+        Extract tables from your PDFs and convert them to Excel spreadsheets. <strong>100% client-side</strong> — your files never leave your browser.
+      </p>
+    </div>
+
+    <!-- Conversion Dropzone -->
+    <div id="dropzone" class="bg-white border-2 border-dashed border-slate-300 hover:border-blue-400 transition-all rounded-3xl p-8 md:p-12 text-center shadow-lg max-w-2xl mx-auto cursor-pointer">
+      <div class="flex flex-col items-center">
+        <div class="w-20 h-20 bg-blue-50 rounded-2xl flex items-center justify-center mb-4 text-4xl">
+          📁
+        </div>
+        <h3 class="text-xl font-bold text-slate-900 mb-1">Drop your PDF here</h3>
+        <p class="text-slate-400 text-sm mb-4">or click to browse</p>
+        <input type="file" id="fileInput" accept=".pdf,application/pdf" class="hidden">
+        <button onclick="document.getElementById('fileInput').click()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-3 rounded-xl text-sm shadow-md shadow-blue-500/20 transition-all active:scale-95">
+          Select PDF File
+        </button>
+        <p class="text-xs text-slate-400 mt-3">Max file size: ~50MB</p>
+      </div>
+    </div>
+
+    <!-- File Info & Conversion Controls -->
+    <div id="fileInfo" class="hidden max-w-2xl mx-auto mt-6 bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <span class="text-2xl">📄</span>
+          <div>
+            <p id="fileName" class="font-medium text-slate-900"></p>
+            <p id="fileSize" class="text-xs text-slate-400"></p>
+            <p id="pageCount" class="text-xs text-slate-400"></p>
+          </div>
+        </div>
+        <button onclick="clearFile()" class="text-slate-400 hover:text-red-500 transition-colors">✕</button>
+      </div>
+
+      <!-- Excel Options -->
+      <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-slate-50 rounded-lg">
+        <div>
+          <label class="block text-xs font-medium text-slate-700 mb-1">Data Extraction</label>
+          <select id="extractionMode" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="tables">Detect Tables</option>
+            <option value="text">Extract All Text</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-slate-700 mb-1">Sheet Name</label>
+          <input type="text" id="sheetName" value="Data" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+      </div>
+
+      <div class="mt-4 flex flex-wrap gap-3">
+        <button onclick="convertPDFtoExcel()" id="convertBtn" class="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-xl transition-all active:scale-95 shadow-md shadow-green-500/20">
+          🔄 Convert to Excel
+        </button>
+        <button onclick="clearFile()" class="px-4 py-3 border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors text-sm">
+          Change File
+        </button>
+      </div>
+
+      <!-- Progress Bar -->
+      <div id="progressContainer" class="hidden mt-4">
+        <div class="flex justify-between text-xs text-slate-500 mb-1">
+          <span>Converting...</span>
+          <span id="progressText">0%</span>
+        </div>
+        <div class="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
+          <div id="progressBar" class="bg-blue-600 h-2 rounded-full progress-bar" style="width: 0%"></div>
+        </div>
+        <p id="statusText" class="text-xs text-slate-400 mt-2 text-center">Initializing...</p>
+      </div>
+
+      <!-- Table Preview -->
+      <div id="previewContainer" class="hidden mt-4 border-t border-slate-200 pt-4">
+        <div class="flex items-center justify-between mb-2">
+          <h4 class="font-bold text-sm text-slate-700">📊 Data Preview</h4>
+          <span id="tableStats" class="text-xs text-slate-400"></span>
+        </div>
+        <div id="tablePreviewContent" class="table-preview">
+          <!-- Tables will be rendered here -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Result Section -->
+    <div id="resultSection" class="hidden max-w-2xl mx-auto mt-6 bg-green-50 border border-green-200 rounded-xl p-6">
+      <div class="flex items-center justify-between mb-4">
+        <div>
+          <div class="text-4xl mb-1">✅</div>
+          <h3 class="font-bold text-slate-900">Conversion Complete!</h3>
+          <p class="text-sm text-slate-600">Your Excel spreadsheet is ready to download.</p>
+          <div class="mt-2 flex flex-wrap gap-2">
+            <span id="tableCountBadge" class="info-badge badge-tables">0 tables</span>
+            <span id="rowCountBadge" class="info-badge badge-rows">0 rows</span>
+            <span id="colCountBadge" class="info-badge badge-cols">0 cols</span>
+          </div>
+        </div>
+        <div class="flex flex-wrap gap-2">
+          <a id="downloadLink" href="#" download="converted.xlsx" class="bg-green-600 hover:bg-green-700 text-white font-bold px-4 py-2 rounded-lg text-sm transition-all">
+            📥 Download XLSX
+          </a>
+        </div>
+      </div>
+
+      <div class="mt-4 flex flex-wrap gap-3">
+        <button onclick="resetConverter()" class="px-6 py-3 border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors text-sm">
+          Convert Another
+        </button>
+      </div>
+    </div>
+
+    <!-- Info Section -->
+    <div class="max-w-2xl mx-auto mt-12 grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div class="bg-white p-4 rounded-xl border border-slate-100 text-center">
+        <div class="text-2xl mb-1">🔒</div>
+        <h4 class="font-bold text-sm">100% Private</h4>
+        <p class="text-xs text-slate-500">Your files never leave your browser</p>
+      </div>
+      <div class="bg-white p-4 rounded-xl border border-slate-100 text-center">
+        <div class="text-2xl mb-1">📊</div>
+        <h4 class="font-bold text-sm">Table Detection</h4>
+        <p class="text-xs text-slate-500">Automatically finds tables in your PDF</p>
+      </div>
+      <div class="bg-white p-4 rounded-xl border border-slate-100 text-center">
+        <div class="text-2xl mb-1">⚡</div>
+        <h4 class="font-bold text-sm">Fast & Free</h4>
+        <p class="text-xs text-slate-500">No sign-up required</p>
+      </div>
+    </div>
+
+    <!-- FAQ Section -->
+    <section class="max-w-2xl mx-auto mt-12">
+      <h2 class="text-xl font-black text-slate-900 text-center mb-6">Frequently Asked Questions</h2>
+      <div class="space-y-3">
+        <div class="bg-white p-5 rounded-xl border border-slate-100">
+          <h3 class="font-bold text-slate-900 text-sm">Is my data safe?</h3>
+          <p class="text-slate-600 text-sm mt-1">Yes! All conversions happen locally in your browser. Your PDF is never uploaded to any server and is automatically deleted when you close the page.</p>
+        </div>
+        <div class="bg-white p-5 rounded-xl border border-slate-100">
+          <h3 class="font-bold text-slate-900 text-sm">How does the table detection work?</h3>
+          <p class="text-slate-600 text-sm mt-1">The tool analyzes the text layout in your PDF and identifies structured data patterns that resemble tables. It then extracts this data into rows and columns for your Excel spreadsheet.</p>
+        </div>
+        <div class="bg-white p-5 rounded-xl border border-slate-100">
+          <h3 class="font-bold text-slate-900 text-sm">Will it work with scanned PDFs?</h3>
+          <p class="text-slate-600 text-sm mt-1">This tool works best with text-based PDFs. Scanned/image-based PDFs require OCR (Optical Character Recognition) to extract text before tables can be detected.</p>
+        </div>
+        <div class="bg-white p-5 rounded-xl border border-slate-100">
+          <h3 class="font-bold text-slate-900 text-sm">What's the difference between "Detect Tables" and "Extract All Text"?</h3>
+          <p class="text-slate-600 text-sm mt-1">"Detect Tables" intelligently finds table structures in your PDF. "Extract All Text" puts all the text content into a single column, which is useful for unstructured data.</p>
+        </div>
+        <div class="bg-white p-5 rounded-xl border border-slate-100">
+          <h3 class="font-bold text-slate-900 text-sm">Are there file size limits?</h3>
+          <p class="text-slate-600 text-sm mt-1">Since everything runs locally, limits depend on your device's memory. Most modern browsers handle PDFs up to 50MB without issues.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-500 mt-auto">
+    <div class="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-3">
+      <p class="font-medium">© Droplet. 100% Client-Side Privacy First File Utility.</p>
+      <div class="space-x-4">
+        <a href="/privacy.html" class="hover:text-blue-600 transition-colors">Privacy Policy</a>
+        <span>•</span>
+        <a href="/terms.html" class="hover:text-blue-600 transition-colors">Terms of Service</a>
+        <span>•</span>
+        <a href="/contact.html" class="hover:text-blue-600 transition-colors">Contact</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Conversion JavaScript -->
+  <script>
+    let currentFile = null;
+    let convertedBlob = null;
+    let extractedData = [];
+
+    // DOM Elements
+    const dropzone = document.getElementById('dropzone');
+    const fileInput = document.getElementById('fileInput');
+    const fileInfo = document.getElementById('fileInfo');
+    const fileName = document.getElementById('fileName');
+    const fileSize = document.getElementById('fileSize');
+    const pageCount = document.getElementById('pageCount');
+    const convertBtn = document.getElementById('convertBtn');
+    const progressContainer = document.getElementById('progressContainer');
+    const progressBar = document.getElementById('progressBar');
+    const progressText = document.getElementById('progressText');
+    const statusText = document.getElementById('statusText');
+    const resultSection = document.getElementById('resultSection');
+    const downloadLink = document.getElementById('downloadLink');
+    const previewContainer = document.getElementById('previewContainer');
+    const tablePreviewContent = document.getElementById('tablePreviewContent');
+    const tableStats = document.getElementById('tableStats');
+    const tableCountBadge = document.getElementById('tableCountBadge');
+    const rowCountBadge = document.getElementById('rowCountBadge');
+    const colCountBadge = document.getElementById('colCountBadge');
+
+    // Options
+    const extractionMode = document.getElementById('extractionMode');
+    const sheetName = document.getElementById('sheetName');
+
+    // Set PDF.js worker
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+    // Drag and Drop
+    dropzone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropzone.classList.add('dropzone-highlight');
+    });
+
+    dropzone.addEventListener('dragleave', () => {
+      dropzone.classList.remove('dropzone-highlight');
+    });
+
+    dropzone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropzone.classList.remove('dropzone-highlight');
+      const files = e.dataTransfer.files;
+      if (files.length > 0 && files[0].type === 'application/pdf') {
+        handleFile(files[0]);
+      } else {
+        alert('Please drop a PDF file.');
+      }
+    });
+
+    dropzone.addEventListener('click', (e) => {
+      if (e.target.tagName !== 'BUTTON' && !fileInfo.classList.contains('hidden')) {
+        fileInput.click();
+      }
+    });
+
+    fileInput.addEventListener('change', (e) => {
+      if (e.target.files.length > 0) {
+        handleFile(e.target.files[0]);
+      }
+    });
+
+    function handleFile(file) {
+      // Validate file type
+      if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
+        alert('Please select a valid PDF file.');
+        return;
+      }
+
+      // Validate file size (50MB limit)
+      if (file.size > 50 * 1024 * 1024) {
+        alert('File is too large. Please use a PDF under 50MB.');
+        return;
+      }
+
+      currentFile = file;
+      fileName.textContent = file.name;
+      fileSize.textContent = (file.size / 1024 / 1024).toFixed(2) + ' MB';
+      fileInfo.classList.remove('hidden');
+      dropzone.classList.add('hidden');
+      resultSection.classList.add('hidden');
+      progressContainer.classList.add('hidden');
+      previewContainer.classList.add('hidden');
+      convertBtn.disabled = false;
+      convertBtn.textContent = '🔄 Convert to Excel';
+
+      // Get page count
+      getPageInfo(file);
+    }
+
+    async function getPageInfo(file) {
+      try {
+        const arrayBuffer = await file.arrayBuffer();
+        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+        const totalPages = pdf.numPages;
+        pageCount.textContent = `📄 ${totalPages} pages`;
+      } catch (error) {
+        console.error('Error reading PDF:', error);
+        pageCount.textContent = '📄 Unknown pages';
+      }
+    }
+
+    function clearFile() {
+      currentFile = null;
+      fileInput.value = '';
+      extractedData = [];
+      fileInfo.classList.add('hidden');
+      dropzone.classList.remove('hidden');
+      resultSection.classList.add('hidden');
+      progressContainer.classList.add('hidden');
+      previewContainer.classList.add('hidden');
+      progressBar.style.width = '0%';
+      progressText.textContent = '0%';
+      tablePreviewContent.innerHTML = '';
+    }
+
+    function resetConverter() {
+      clearFile();
+      convertedBlob = null;
+      downloadLink.href = '#';
+    }
+
+    // Detect tables from text content
+    function detectTables(textLines) {
+      const tables = [];
+      let currentTable = [];
+      let inTable = false;
+      let headerRow = null;
+
+      for (let i = 0; i < textLines.length; i++) {
+        const line = textLines[i].trim();
+        if (!line) continue;
+
+        // Detect potential table row (multiple spaces indicating columns)
+        const parts = line.split(/\s{2,}/);
+        if (parts.length >= 2) {
+          if (!inTable) {
+            // Start a new table
+            inTable = true;
+            headerRow = parts;
+            currentTable = [parts];
+          } else {
+            // Check if this row has similar column count
+            if (parts.length === headerRow.length) {
+              currentTable.push(parts);
+            } else if (parts.length > 1 && Math.abs(parts.length - headerRow.length) <= 1) {
+              // Try to align with header
+              const alignedParts = [];
+              let prevParts = currentTable[currentTable.length - 1] || [];
+              // Simple alignment - just push and let Excel handle it
+              currentTable.push(parts);
+            } else {
+              // End current table if row structure changes significantly
+              if (currentTable.length >= 2) {
+                tables.push(currentTable);
+              }
+              currentTable = [];
+              headerRow = null;
+              inTable = false;
+            }
+          }
+        } else {
+          // End current table
+          if (inTable && currentTable.length >= 2) {
+            tables.push(currentTable);
+          }
+          currentTable = [];
+          headerRow = null;
+          inTable = false;
+        }
+      }
+
+      // Push the last table if it exists
+      if (inTable && currentTable.length >= 2) {
+        tables.push(currentTable);
+      }
+
+      return tables;
+    }
+
+    // Main Conversion Function
+    async function convertPDFtoExcel() {
+      if (!currentFile) {
+        alert('Please select a PDF file first.');
+        return;
+      }
+
+      // Check if XLSX library is available
+      if (typeof XLSX === 'undefined') {
+        alert('Excel library not loaded. Please refresh the page and try again.');
+        return;
+      }
+
+      // Show progress
+      progressContainer.classList.remove('hidden');
+      resultSection.classList.add('hidden');
+      convertBtn.disabled = true;
+      convertBtn.textContent = '⏳ Converting...';
+      progressBar.style.width = '10%';
+      progressText.textContent = '10%';
+      statusText.textContent = 'Loading PDF...';
+
+      try {
+        const arrayBuffer = await currentFile.arrayBuffer();
+        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+        const totalPages = pdf.numPages;
+
+        const mode = extractionMode.value;
+        const sheetNameValue = sheetName.value || 'Data';
+
+        progressBar.style.width = '20%';
+        progressText.textContent = '20%';
+        statusText.textContent = `Extracting text from ${totalPages} pages...`;
+
+        let allText = [];
+        let allTables = [];
+
+        // Extract text from each page
+        for (let i = 1; i <= totalPages; i++) {
+          const page = await pdf.getPage(i);
+          const textContent = await page.getTextContent();
+          const pageText = textContent.items.map(item => item.str).join(' ');
+          allText.push(pageText);
+
+          // Update progress
+          const progress = Math.round((i / totalPages) * 30) + 20;
+          progressBar.style.width = progress + '%';
+          progressText.textContent = progress + '%';
+          statusText.textContent = `Processing page ${i} of ${totalPages}...`;
+        }
+
+        progressBar.style.width = '55%';
+        progressText.textContent = '55%';
+        statusText.textContent = 'Analyzing data...';
+
+        // Prepare data based on mode
+        let workbookData = [];
+
+        if (mode === 'tables') {
+          // Detect tables from all text
+          const fullText = allText.join('\n');
+          const lines = fullText.split('\n');
+          const tables = detectTables(lines);
+
+          // Build Excel data from tables
+          if (tables.length > 0) {
+            tables.forEach((table, idx) => {
+              const sheetData = [];
+              table.forEach(row => {
+                // Clean up row data
+                const cleanRow = row.map(cell => cell.trim());
+                sheetData.push(cleanRow);
+              });
+              // Only add tables with reasonable data
+              if (sheetData.length >= 2 && sheetData[0].length >= 2) {
+                workbookData.push({
+                  name: sheetData[0][0] ? `Table ${idx + 1}` : `Table ${idx + 1}`,
+                  data: sheetData
+                });
+              }
+            });
+          }
+
+          // If no tables detected, fall back to text mode
+          if (workbookData.length === 0) {
+            statusText.textContent = 'No tables detected. Extracting as text...';
+            // Fall back to text extraction
+            const textData = [];
+            allText.forEach((pageText, idx) => {
+              const lines = pageText.split('\n').filter(l => l.trim());
+              lines.forEach(line => {
+                textData.push([line.trim()]);
+              });
+            });
+            if (textData.length > 0) {
+              workbookData.push({
+                name: sheetNameValue,
+                data: textData
+              });
+            }
+          }
+        } else {
+          // Extract all text as single column
+          const textData = [];
+          allText.forEach((pageText, idx) => {
+            const lines = pageText.split('\n').filter(l => l.trim());
+            // Add page header
+            if (totalPages > 1) {
+              textData.push([`--- Page ${idx + 1} ---`]);
+            }
+            lines.forEach(line => {
+              textData.push([line.trim()]);
+            });
+            if (totalPages > 1) {
+              textData.push([]);
+            }
+          });
+
+          if (textData.length > 0) {
+            workbookData.push({
+              name: sheetNameValue,
+              data: textData
+            });
+          }
+        }
+
+        progressBar.style.width = '75%';
+        progressText.textContent = '75%';
+        statusText.textContent = 'Creating Excel file...';
+
+        // Create Excel workbook
+        const wb = XLSX.utils.book_new();
+
+        // Add sheets
+        if (workbookData.length === 0) {
+          // If no data, create an empty sheet with a message
+          workbookData.push({
+            name: sheetNameValue,
+            data: [['No data found in this PDF.'], ['The file may be scanned or image-based.'], ['Try using the "Extract All Text" mode.']]
+          });
+        }
+
+        workbookData.forEach((sheet, idx) => {
+          const ws = XLSX.utils.aoa_to_sheet(sheet.data);
+          // Auto column widths
+          const colWidths = [];
+          if (sheet.data.length > 0) {
+            const maxCols = Math.max(...sheet.data.map(row => row.length));
+            for (let i = 0; i < maxCols; i++) {
+              let maxWidth = 10;
+              sheet.data.forEach(row => {
+                if (row[i] && row[i].toString().length > maxWidth) {
+                  maxWidth = Math.min(row[i].toString().length + 2, 50);
+                }
+              });
+              colWidths.push({ wch: maxWidth });
+            }
+          }
+          ws['!cols'] = colWidths;
+
+          // Use sheet name (handle duplicates)
+          let wsName = sheet.name || `Sheet ${idx + 1}`;
+          if (Object.keys(wb.SheetNames).includes(wsName)) {
+            wsName = `${wsName} ${idx + 1}`;
+          }
+          XLSX.utils.book_append_sheet(wb, ws, wsName);
+        });
+
+        // Generate Excel file
+        const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+        const blob = new Blob([wbout], { type: 'application/octet-stream' });
+
+        progressBar.style.width = '100%';
+        progressText.textContent = '100%';
+        statusText.textContent = '✅ Conversion complete!';
+
+        // Update badges
+        let totalRows = 0;
+        let totalCols = 0;
+        workbookData.forEach(sheet => {
+          totalRows += sheet.data.length;
+          if (sheet.data.length > 0) {
+            totalCols = Math.max(totalCols, Math.max(...sheet.data.map(row => row.length)));
+          }
+        });
+
+        tableCountBadge.textContent = `${workbookData.length} tables`;
+        rowCountBadge.textContent = `${totalRows} rows`;
+        colCountBadge.textContent = `${totalCols} cols`;
+
+        // Show result
+        setTimeout(() => {
+          const url = URL.createObjectURL(blob);
+          downloadLink.href = url;
+          const baseName = currentFile.name.replace(/\.pdf$/i, '');
+          downloadLink.download = baseName + '.xlsx';
+          resultSection.classList.remove('hidden');
+
+          // Show preview (first table or first 20 rows)
+          let previewHtml = '';
+          let previewData = workbookData[0]?.data || [];
+          const previewRows = Math.min(20, previewData.length);
+          if (previewData.length > 0) {
+            previewHtml += '<table><thead><tr>';
+            const headers = previewData[0] || [];
+            headers.forEach(h => {
+              previewHtml += `<th>${h || ''}</th>`;
+            });
+            previewHtml += '</tr></thead><tbody>';
+            for (let i = 1; i < previewRows; i++) {
+              previewHtml += '<tr>';
+              const row = previewData[i] || [];
+              for (let j = 0; j < Math.max(headers.length, row.length); j++) {
+                previewHtml += `<td>${row[j] || ''}</td>`;
+              }
+              previewHtml += '</tr>';
+            }
+            previewHtml += '</tbody></table>';
+            if (previewData.length > previewRows) {
+              previewHtml += `<p style="padding: 8px; text-align: center; color: #999; font-size: 11px;">... and ${previewData.length - previewRows} more rows</p>`;
+            }
+          } else {
+            previewHtml = '<p class="text-slate-400 text-center p-4">No data to preview</p>';
+          }
+
+          tablePreviewContent.innerHTML = previewHtml;
+          tableStats.textContent = `${workbookData.length} tables • ${totalRows} rows • ${totalCols} columns`;
+          previewContainer.classList.remove('hidden');
+
+          convertBtn.disabled = false;
+          convertBtn.textContent = '🔄 Convert to Excel';
+          progressContainer.classList.add('hidden');
+        }, 500);
+
+      } catch (error) {
+        console.error('Conversion error:', error);
+        statusText.textContent = '❌ Conversion failed: ' + error.message;
+        convertBtn.disabled = false;
+        convertBtn.textContent = '🔄 Convert to Excel';
+        alert('Conversion failed. Please try again or use a different PDF file.\n\nError: ' + error.message);
+      }
+    }
+
+    // Keyboard shortcut: Enter to convert
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !fileInfo.classList.contains('hidden') && !convertBtn.disabled) {
+        convertPDFtoExcel();
+      }
+    });
+  </script>
+
+</body>
+</html>
