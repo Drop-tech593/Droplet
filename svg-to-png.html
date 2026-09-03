@@ -1,1 +1,835 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SVG to PNG Converter - Droplet</title>
+  <meta name="description" content="Convert SVG vector graphics to PNG images online for free. 100% client-side, your files never leave your browser. Supports batch conversion.">
 
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- JSZip for ZIP downloads -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+  <style>
+    .dropzone-highlight {
+      border-color: #3b82f6 !important;
+      background: #eff6ff !important;
+    }
+    .progress-bar {
+      transition: width 0.5s ease;
+    }
+    .hidden {
+      display: none !important;
+    }
+    .image-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 12px;
+      max-height: 400px;
+      overflow-y: auto;
+      padding: 4px;
+    }
+    .image-grid .image-card {
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      overflow: hidden;
+      transition: border-color 0.2s;
+      background: white;
+      position: relative;
+    }
+    .image-grid .image-card:hover {
+      border-color: #3b82f6;
+    }
+    .image-grid .image-card img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+    .image-grid .image-card .file-name {
+      font-size: 9px;
+      text-align: center;
+      padding: 4px;
+      background: #f8fafc;
+      color: #64748b;
+      font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .image-grid .image-card .status-badge {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 8px;
+      font-weight: 600;
+      background: rgba(0,0,0,0.6);
+      color: white;
+    }
+    .image-grid .image-card .dimensions {
+      position: absolute;
+      bottom: 24px;
+      left: 4px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 8px;
+      font-weight: 600;
+      background: rgba(0,0,0,0.6);
+      color: white;
+    }
+    .info-badge {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 12px;
+      font-size: 10px;
+      font-weight: 600;
+    }
+    .badge-images { background: #dbeafe; color: #1e40af; }
+    .badge-converted { background: #d1fae5; color: #065f46; }
+    .badge-size { background: #fef3c7; color: #92400e; }
+    .badge-svg { background: #fce7f3; color: #9d174d; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased">
+
+  <!-- Navigation -->
+  <header class="bg-white border-b border-slate-200 py-3.5 px-6 sticky top-0 z-50">
+    <div class="max-w-6xl mx-auto flex justify-between items-center">
+      <a href="/" class="flex items-center gap-3 group">
+        <img src="Gemini_Generated_Image_sdu6v7sdu6v7sdu6.jpg" alt="Droplet Logo" class="h-9 w-auto rounded-xl shadow-sm group-hover:scale-105 transition-transform">
+        <div>
+          <h1 class="text-xl font-black tracking-tight text-slate-900 leading-none">Droplet</h1>
+          <p class="text-[9px] text-blue-600 font-extrabold tracking-widest uppercase mt-0.5">DRAG, DROP AND CONVERT.</p>
+        </div>
+      </a>
+      <nav class="hidden md:flex items-center space-x-6 text-xs font-bold text-slate-600">
+        <a href="/" class="hover:text-blue-600 transition-colors">← Back</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="max-w-4xl mx-auto px-4 py-8 md:py-12 flex-grow w-full">
+
+    <!-- Page Header -->
+    <div class="text-center mb-8">
+      <div class="inline-block p-3 bg-blue-50 rounded-2xl mb-4">
+        <span class="text-4xl">📐</span>
+      </div>
+      <h1 class="text-3xl md:text-4xl font-black text-slate-900 tracking-tight">SVG to PNG Converter</h1>
+      <p class="text-slate-500 text-sm md:text-base mt-2 max-w-lg mx-auto">
+        Convert your SVG vector graphics to PNG images. <strong>100% client-side</strong> — your files never leave your browser.
+      </p>
+    </div>
+
+    <!-- What is SVG Info -->
+    <div class="max-w-2xl mx-auto mb-8 bg-blue-50 border border-blue-200 rounded-xl p-4">
+      <div class="flex items-start gap-3">
+        <span class="text-2xl">🎨</span>
+        <div>
+          <h4 class="font-bold text-sm text-blue-900">What is SVG?</h4>
+          <p class="text-xs text-blue-700 mt-1">SVG (Scalable Vector Graphics) is an XML-based vector image format that scales infinitely without losing quality. Converting to PNG creates a raster image that's universally compatible with all devices and platforms.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Conversion Dropzone -->
+    <div id="dropzone" class="bg-white border-2 border-dashed border-slate-300 hover:border-blue-400 transition-all rounded-3xl p-8 md:p-12 text-center shadow-lg max-w-2xl mx-auto cursor-pointer">
+      <div class="flex flex-col items-center">
+        <div class="w-20 h-20 bg-blue-50 rounded-2xl flex items-center justify-center mb-4 text-4xl">
+          📁
+        </div>
+        <h3 class="text-xl font-bold text-slate-900 mb-1">Drop your SVG files here</h3>
+        <p class="text-slate-400 text-sm mb-4">or click to browse (batch conversion supported)</p>
+        <input type="file" id="fileInput" accept=".svg,image/svg+xml" multiple class="hidden">
+        <button onclick="document.getElementById('fileInput').click()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-3 rounded-xl text-sm shadow-md shadow-blue-500/20 transition-all active:scale-95">
+          Select SVG Files
+        </button>
+        <p class="text-xs text-slate-400 mt-3">Max file size: ~10MB per file</p>
+      </div>
+    </div>
+
+    <!-- File Info & Conversion Controls -->
+    <div id="fileInfo" class="hidden max-w-2xl mx-auto mt-6 bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <span class="text-2xl">🖼️</span>
+          <div>
+            <p id="fileCount" class="font-medium text-slate-900"></p>
+            <p id="totalSize" class="text-xs text-slate-400"></p>
+          </div>
+        </div>
+        <button onclick="clearFiles()" class="text-slate-400 hover:text-red-500 transition-colors">✕</button>
+      </div>
+
+      <!-- PNG Options -->
+      <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-slate-50 rounded-lg">
+        <div>
+          <label class="block text-xs font-medium text-slate-700 mb-1">PNG Size</label>
+          <select id="pngSize" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="original">Original Size</option>
+            <option value="2x">2x (Double)</option>
+            <option value="3x">3x (Triple)</option>
+            <option value="width:800">Fit Width: 800px</option>
+            <option value="width:1920">Fit Width: 1920px</option>
+            <option value="custom">Custom Size</option>
+          </select>
+        </div>
+        <div id="customSizeContainer" class="hidden">
+          <label class="block text-xs font-medium text-slate-700 mb-1">Custom Dimensions (px)</label>
+          <div class="flex gap-2">
+            <input type="number" id="customWidth" placeholder="Width" class="w-1/2 border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <input type="number" id="customHeight" placeholder="Height" class="w-1/2 border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-slate-700 mb-1">Background</label>
+          <select id="bgColor" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="transparent">Transparent</option>
+            <option value="white">White</option>
+            <option value="black">Black</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-slate-700 mb-1">Quality</label>
+          <select id="pngQuality" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="0.7">High (Smaller)</option>
+            <option value="0.85" selected>Very High</option>
+            <option value="0.95">Maximum (Larger)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="mt-4 flex flex-wrap gap-3">
+        <button onclick="convertSVGtoPNG()" id="convertBtn" class="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-xl transition-all active:scale-95 shadow-md shadow-green-500/20">
+          🔄 Convert All
+        </button>
+        <button onclick="clearFiles()" class="px-4 py-3 border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors text-sm">
+          Change Files
+        </button>
+      </div>
+
+      <!-- Progress Bar -->
+      <div id="progressContainer" class="hidden mt-4">
+        <div class="flex justify-between text-xs text-slate-500 mb-1">
+          <span>Converting...</span>
+          <span id="progressText">0%</span>
+        </div>
+        <div class="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
+          <div id="progressBar" class="bg-blue-600 h-2 rounded-full progress-bar" style="width: 0%"></div>
+        </div>
+        <p id="statusText" class="text-xs text-slate-400 mt-2 text-center">Initializing...</p>
+      </div>
+
+      <!-- Image Preview -->
+      <div id="previewContainer" class="hidden mt-4 border-t border-slate-200 pt-4">
+        <div class="flex items-center justify-between mb-2">
+          <h4 class="font-bold text-sm text-slate-700">🖼️ SVG Preview</h4>
+          <span id="imageStats" class="text-xs text-slate-400"></span>
+        </div>
+        <div id="imagePreviewContent" class="image-grid">
+          <!-- Images will be rendered here -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Result Section -->
+    <div id="resultSection" class="hidden max-w-2xl mx-auto mt-6 bg-green-50 border border-green-200 rounded-xl p-6">
+      <div class="flex items-center justify-between mb-4">
+        <div>
+          <div class="text-4xl mb-1">✅</div>
+          <h3 class="font-bold text-slate-900">Conversion Complete!</h3>
+          <p class="text-sm text-slate-600">Your images are ready to download.</p>
+          <div class="mt-2 flex flex-wrap gap-2">
+            <span id="convertedCountBadge" class="info-badge badge-images">0 images</span>
+            <span id="totalSizeBadge" class="info-badge badge-size">0 MB</span>
+          </div>
+        </div>
+        <div class="flex flex-wrap gap-2">
+          <button onclick="downloadAll()" class="bg-green-600 hover:bg-green-700 text-white font-bold px-4 py-2 rounded-lg text-sm transition-all">
+            📥 Download All (ZIP)
+          </button>
+          <button onclick="downloadAllIndividual()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2 rounded-lg text-sm transition-all">
+            📥 Download Individual
+          </button>
+        </div>
+      </div>
+
+      <!-- Download Links -->
+      <div id="downloadLinksContainer" class="mt-2 grid grid-cols-2 md:grid-cols-4 gap-2 max-h-40 overflow-y-auto">
+        <!-- Individual download links will be added here -->
+      </div>
+
+      <div class="mt-4 flex flex-wrap gap-3">
+        <button onclick="resetConverter()" class="px-6 py-3 border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors text-sm">
+          Convert Another
+        </button>
+      </div>
+    </div>
+
+    <!-- Info Section -->
+    <div class="max-w-2xl mx-auto mt-12 grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div class="bg-white p-4 rounded-xl border border-slate-100 text-center">
+        <div class="text-2xl mb-1">🔒</div>
+        <h4 class="font-bold text-sm">100% Private</h4>
+        <p class="text-xs text-slate-500">Your files never leave your browser</p>
+      </div>
+      <div class="bg-white p-4 rounded-xl border border-slate-100 text-center">
+        <div class="text-2xl mb-1">📐</div>
+        <h4 class="font-bold text-sm">Scalable</h4>
+        <p class="text-xs text-slate-500">Convert at any resolution</p>
+      </div>
+      <div class="bg-white p-4 rounded-xl border border-slate-100 text-center">
+        <div class="text-2xl mb-1">⚡</div>
+        <h4 class="font-bold text-sm">Fast & Free</h4>
+        <p class="text-xs text-slate-500">No sign-up required</p>
+      </div>
+    </div>
+
+    <!-- SVG vs PNG Comparison -->
+    <section class="max-w-2xl mx-auto mt-12">
+      <h2 class="text-xl font-black text-slate-900 text-center mb-6">SVG vs PNG Comparison</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="bg-white p-5 rounded-xl border border-slate-100">
+          <h3 class="font-bold text-slate-900 text-sm flex items-center gap-2">
+            <span class="text-xl">📐</span> SVG
+          </h3>
+          <ul class="text-sm text-slate-600 mt-2 space-y-1">
+            <li>✅ Infinite scalability</li>
+            <li>✅ Small file size</li>
+            <li>✅ Editable in code</li>
+            <li>✅ Supports animation</li>
+            <li>❌ Not all browsers support</li>
+          </ul>
+        </div>
+        <div class="bg-white p-5 rounded-xl border border-slate-100">
+          <h3 class="font-bold text-slate-900 text-sm flex items-center gap-2">
+            <span class="text-xl">🔵</span> PNG
+          </h3>
+          <ul class="text-sm text-slate-600 mt-2 space-y-1">
+            <li>✅ Universal compatibility</li>
+            <li>✅ Fixed resolution</li>
+            <li>✅ Supports transparency</li>
+            <li>✅ Great for web</li>
+            <li>❌ Larger file size</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="max-w-2xl mx-auto mt-12">
+      <h2 class="text-xl font-black text-slate-900 text-center mb-6">Frequently Asked Questions</h2>
+      <div class="space-y-3">
+        <div class="bg-white p-5 rounded-xl border border-slate-100">
+          <h3 class="font-bold text-slate-900 text-sm">Is my data safe?</h3>
+          <p class="text-slate-600 text-sm mt-1">Yes! All conversions happen locally in your browser. Your SVG files are never uploaded to any server and are automatically deleted when you close the page.</p>
+        </div>
+        <div class="bg-white p-5 rounded-xl border border-slate-100">
+          <h3 class="font-bold text-slate-900 text-sm">Why convert SVG to PNG?</h3>
+          <p class="text-slate-600 text-sm mt-1">PNG is universally compatible and can be viewed on any device without special software. Converting SVG to PNG is useful for sharing graphics with users who don't have SVG viewers, or for using in applications that only support raster images.</p>
+        </div>
+        <div class="bg-white p-5 rounded-xl border border-slate-100">
+          <h3 class="font-bold text-slate-900 text-sm">Will I lose quality?</h3>
+          <p class="text-slate-600 text-sm mt-1">SVG is a vector format that scales infinitely. When converting to PNG, you can choose the output size. For best results, export at the size you need. You can also export at 2x or 3x for retina displays.</p>
+        </div>
+        <div class="bg-white p-5 rounded-xl border border-slate-100">
+          <h3 class="font-bold text-slate-900 text-sm">Can I convert multiple files at once?</h3>
+          <p class="text-slate-600 text-sm mt-1">Yes! Drag and drop multiple SVG files or select multiple files using the file picker. Each file will be converted individually, and you can download them all at once as a ZIP file.</p>
+        </div>
+        <div class="bg-white p-5 rounded-xl border border-slate-100">
+          <h3 class="font-bold text-slate-900 text-sm">What about transparency?</h3>
+          <p class="text-slate-600 text-sm mt-1">PNG supports transparency. If your SVG has transparent areas, they will be preserved when you select the "Transparent" background option. You can also choose a solid background if needed.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-500 mt-auto">
+    <div class="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-3">
+      <p class="font-medium">© Droplet. 100% Client-Side Privacy First File Utility.</p>
+      <div class="space-x-4">
+        <a href="/privacy.html" class="hover:text-blue-600 transition-colors">Privacy Policy</a>
+        <span>•</span>
+        <a href="/terms.html" class="hover:text-blue-600 transition-colors">Terms of Service</a>
+        <span>•</span>
+        <a href="/contact.html" class="hover:text-blue-600 transition-colors">Contact</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Conversion JavaScript -->
+  <script>
+    let files = [];
+    let convertedFiles = [];
+    let totalSize = 0;
+
+    // DOM Elements
+    const dropzone = document.getElementById('dropzone');
+    const fileInput = document.getElementById('fileInput');
+    const fileInfo = document.getElementById('fileInfo');
+    const fileCount = document.getElementById('fileCount');
+    const totalSizeEl = document.getElementById('totalSize');
+    const convertBtn = document.getElementById('convertBtn');
+    const progressContainer = document.getElementById('progressContainer');
+    const progressBar = document.getElementById('progressBar');
+    const progressText = document.getElementById('progressText');
+    const statusText = document.getElementById('statusText');
+    const resultSection = document.getElementById('resultSection');
+    const previewContainer = document.getElementById('previewContainer');
+    const imagePreviewContent = document.getElementById('imagePreviewContent');
+    const imageStats = document.getElementById('imageStats');
+    const convertedCountBadge = document.getElementById('convertedCountBadge');
+    const totalSizeBadge = document.getElementById('totalSizeBadge');
+    const downloadLinksContainer = document.getElementById('downloadLinksContainer');
+    const customSizeContainer = document.getElementById('customSizeContainer');
+    const customWidth = document.getElementById('customWidth');
+    const customHeight = document.getElementById('customHeight');
+
+    // Options
+    const pngSize = document.getElementById('pngSize');
+    const bgColor = document.getElementById('bgColor');
+    const pngQuality = document.getElementById('pngQuality');
+
+    // Show/hide custom size inputs
+    pngSize.addEventListener('change', function() {
+      if (this.value === 'custom') {
+        customSizeContainer.classList.remove('hidden');
+      } else {
+        customSizeContainer.classList.add('hidden');
+      }
+    });
+
+    // Drag and Drop
+    dropzone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropzone.classList.add('dropzone-highlight');
+    });
+
+    dropzone.addEventListener('dragleave', () => {
+      dropzone.classList.remove('dropzone-highlight');
+    });
+
+    dropzone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropzone.classList.remove('dropzone-highlight');
+      const droppedFiles = e.dataTransfer.files;
+      if (droppedFiles.length > 0) {
+        handleFiles(droppedFiles);
+      }
+    });
+
+    dropzone.addEventListener('click', (e) => {
+      if (e.target.tagName !== 'BUTTON' && !fileInfo.classList.contains('hidden')) {
+        fileInput.click();
+      }
+    });
+
+    fileInput.addEventListener('change', (e) => {
+      if (e.target.files.length > 0) {
+        handleFiles(e.target.files);
+      }
+    });
+
+    function handleFiles(fileList) {
+      const validFiles = [];
+      let invalidCount = 0;
+
+      for (let i = 0; i < fileList.length; i++) {
+        const file = fileList[i];
+        const isSVG = file.type === 'image/svg+xml' || file.name.toLowerCase().endsWith('.svg');
+        const isImage = file.type.startsWith('image/');
+        
+        if ((isSVG || isImage) && file.size <= 10 * 1024 * 1024) {
+          validFiles.push(file);
+          totalSize += file.size;
+        } else if ((isSVG || isImage) && file.size > 10 * 1024 * 1024) {
+          invalidCount++;
+        } else {
+          invalidCount++;
+        }
+      }
+
+      if (validFiles.length === 0) {
+        alert('No valid SVG or image files found. Please select SVG files under 10MB.');
+        return;
+      }
+
+      if (invalidCount > 0) {
+        alert(`${invalidCount} file(s) were skipped due to size limits or invalid format.`);
+      }
+
+      // Add files to the list
+      files = validFiles;
+      fileCount.textContent = `${files.length} file(s)`;
+      totalSizeEl.textContent = `Total: ${(totalSize / 1024 / 1024).toFixed(2)} MB`;
+
+      fileInfo.classList.remove('hidden');
+      dropzone.classList.add('hidden');
+      resultSection.classList.add('hidden');
+      progressContainer.classList.add('hidden');
+      previewContainer.classList.add('hidden');
+      convertBtn.disabled = false;
+      convertBtn.textContent = '🔄 Convert All';
+
+      // Show previews
+      showPreviews();
+    }
+
+    function showPreviews() {
+      let previewHtml = '';
+      const maxPreview = Math.min(12, files.length);
+
+      for (let i = 0; i < maxPreview; i++) {
+        const file = files[i];
+        const url = URL.createObjectURL(file);
+        const isSVG = file.type === 'image/svg+xml' || file.name.toLowerCase().endsWith('.svg');
+        previewHtml += `
+          <div class="image-card">
+            <img src="${url}" alt="${file.name}">
+            <div class="file-name">${file.name.substring(0, 15)}${file.name.length > 15 ? '...' : ''}</div>
+            <div class="status-badge" style="background: ${isSVG ? '#fce7f3' : '#fef3c7'}; color: ${isSVG ? '#9d174d' : '#92400e'};">${isSVG ? 'SVG' : 'Other'}</div>
+          </div>
+        `;
+      }
+
+      if (files.length > 12) {
+        previewHtml += `
+          <div class="image-card" style="display: flex; align-items: center; justify-content: center; min-height: 100px; background: #f1f5f9; border: 2px dashed #cbd5e1;">
+            <span style="font-size: 12px; color: #64748b; text-align: center;">+ ${files.length - 12} more images</span>
+          </div>
+        `;
+      }
+
+      imagePreviewContent.innerHTML = previewHtml || '<p class="text-slate-400 text-center">No images to preview</p>';
+      imageStats.textContent = `${files.length} images`;
+      previewContainer.classList.remove('hidden');
+    }
+
+    function clearFiles() {
+      files = [];
+      convertedFiles = [];
+      totalSize = 0;
+      fileInput.value = '';
+      fileInfo.classList.add('hidden');
+      dropzone.classList.remove('hidden');
+      resultSection.classList.add('hidden');
+      progressContainer.classList.add('hidden');
+      previewContainer.classList.add('hidden');
+      progressBar.style.width = '0%';
+      progressText.textContent = '0%';
+      imagePreviewContent.innerHTML = '';
+      downloadLinksContainer.innerHTML = '';
+    }
+
+    function resetConverter() {
+      clearFiles();
+    }
+
+    // Convert SVG to PNG
+    async function convertSVGtoPNG() {
+      if (files.length === 0) {
+        alert('Please select SVG files first.');
+        return;
+      }
+
+      // Show progress
+      progressContainer.classList.remove('hidden');
+      resultSection.classList.add('hidden');
+      convertBtn.disabled = true;
+      convertBtn.textContent = '⏳ Converting...';
+      progressBar.style.width = '5%';
+      progressText.textContent = '5%';
+      statusText.textContent = 'Initializing...';
+
+      convertedFiles = [];
+      const sizeOption = pngSize.value;
+      const bg = bgColor.value;
+      const quality = parseFloat(pngQuality.value);
+
+      try {
+        for (let i = 0; i < files.length; i++) {
+          const file = files[i];
+          statusText.textContent = `Converting ${i + 1} of ${files.length}: ${file.name}`;
+
+          // Update progress
+          const progress = Math.round(((i) / files.length) * 80) + 10;
+          progressBar.style.width = progress + '%';
+          progressText.textContent = progress + '%';
+
+          try {
+            // Load SVG
+            const svgText = await file.text();
+            
+            // Create a blob URL for the SVG
+            const blob = new Blob([svgText], { type: 'image/svg+xml' });
+            const url = URL.createObjectURL(blob);
+
+            // Load the SVG into an image
+            const img = new Image();
+            await new Promise((resolve, reject) => {
+              img.onload = resolve;
+              img.onerror = reject;
+              img.src = url;
+            });
+
+            // Get original dimensions
+            let width = img.width;
+            let height = img.height;
+
+            // Calculate target dimensions
+            let targetWidth = width;
+            let targetHeight = height;
+
+            if (sizeOption === 'original') {
+              targetWidth = width;
+              targetHeight = height;
+            } else if (sizeOption === '2x') {
+              targetWidth = width * 2;
+              targetHeight = height * 2;
+            } else if (sizeOption === '3x') {
+              targetWidth = width * 3;
+              targetHeight = height * 3;
+            } else if (sizeOption.startsWith('width:')) {
+              const maxWidth = parseInt(sizeOption.split(':')[1]);
+              const ratio = maxWidth / width;
+              targetWidth = maxWidth;
+              targetHeight = Math.round(height * ratio);
+            } else if (sizeOption === 'custom') {
+              const cw = parseInt(customWidth.value);
+              const ch = parseInt(customHeight.value);
+              if (cw && ch) {
+                targetWidth = cw;
+                targetHeight = ch;
+              } else {
+                targetWidth = width;
+                targetHeight = height;
+              }
+            }
+
+            // Create canvas
+            const canvas = document.createElement('canvas');
+            canvas.width = targetWidth;
+            canvas.height = targetHeight;
+            const ctx = canvas.getContext('2d');
+
+            // Set background
+            if (bg !== 'transparent') {
+              ctx.fillStyle = bg === 'white' ? '#ffffff' : '#000000';
+              ctx.fillRect(0, 0, targetWidth, targetHeight);
+            }
+
+            // Draw SVG on canvas
+            ctx.drawImage(img, 0, 0, targetWidth, targetHeight);
+
+            // Convert to PNG
+            const blobData = await new Promise(resolve => {
+              canvas.toBlob(resolve, 'image/png', quality);
+            });
+
+            // Generate filename
+            const baseName = file.name.replace(/\.(svg|SVG)$/, '');
+            const fileName = `${baseName}.png`;
+
+            // Store converted file
+            convertedFiles.push({
+              blob: blobData,
+              name: fileName,
+              originalName: file.name,
+              size: blobData.size,
+              url: URL.createObjectURL(blobData)
+            });
+
+            // Clean up
+            URL.revokeObjectURL(url);
+
+          } catch (err) {
+            console.error(`Error converting ${file.name}:`, err);
+            // Try fallback using DOMParser
+            try {
+              const svgText = await file.text();
+              const parser = new DOMParser();
+              const svgDoc = parser.parseFromString(svgText, 'image/svg+xml');
+              
+              // Get dimensions from SVG
+              const svgElement = svgDoc.documentElement;
+              let width = parseInt(svgElement.getAttribute('width')) || 100;
+              let height = parseInt(svgElement.getAttribute('height')) || 100;
+              
+              // Create canvas
+              const canvas = document.createElement('canvas');
+              canvas.width = width;
+              canvas.height = height;
+              const ctx = canvas.getContext('2d');
+              
+              // Create a blob URL
+              const blob = new Blob([svgText], { type: 'image/svg+xml' });
+              const url = URL.createObjectURL(blob);
+              
+              const img = new Image();
+              await new Promise((resolve, reject) => {
+                img.onload = resolve;
+                img.onerror = reject;
+                img.src = url;
+              });
+              
+              if (bg !== 'transparent') {
+                ctx.fillStyle = bg === 'white' ? '#ffffff' : '#000000';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+              }
+              
+              ctx.drawImage(img, 0, 0);
+              
+              const blobData = await new Promise(resolve => {
+                canvas.toBlob(resolve, 'image/png', quality);
+              });
+              
+              const baseName = file.name.replace(/\.(svg|SVG)$/, '');
+              const fileName = `${baseName}.png`;
+              
+              convertedFiles.push({
+                blob: blobData,
+                name: fileName,
+                originalName: file.name,
+                size: blobData.size,
+                url: URL.createObjectURL(blobData)
+              });
+              
+              URL.revokeObjectURL(url);
+            } catch (fallbackErr) {
+              console.error('Fallback conversion also failed:', fallbackErr);
+              const errorMsg = `Failed to convert ${file.name}`;
+              const textBlob = new Blob([errorMsg], { type: 'text/plain' });
+              convertedFiles.push({
+                blob: textBlob,
+                name: `${file.name}_error.txt`,
+                originalName: file.name,
+                size: textBlob.size,
+                url: URL.createObjectURL(textBlob),
+                error: true
+              });
+            }
+          }
+        }
+
+        // Update progress
+        progressBar.style.width = '100%';
+        progressText.textContent = '100%';
+        statusText.textContent = '✅ Conversion complete!';
+
+        // Show results
+        setTimeout(() => {
+          showResults();
+          convertBtn.disabled = false;
+          convertBtn.textContent = '🔄 Convert All';
+          progressContainer.classList.add('hidden');
+        }, 500);
+
+      } catch (error) {
+        console.error('Conversion error:', error);
+        statusText.textContent = '❌ Conversion failed: ' + error.message;
+        convertBtn.disabled = false;
+        convertBtn.textContent = '🔄 Convert All';
+        alert('Conversion failed. Please try again or use different files.\n\nError: ' + error.message);
+      }
+    }
+
+    function showResults() {
+      const successful = convertedFiles.filter(f => !f.error).length;
+      const total = convertedFiles.length;
+      
+      convertedCountBadge.textContent = `${successful} of ${total} converted`;
+      const totalBytes = convertedFiles.reduce((sum, f) => sum + f.size, 0);
+      totalSizeBadge.textContent = `${(totalBytes / 1024 / 1024).toFixed(2)} MB`;
+
+      // Show download links
+      downloadLinksContainer.innerHTML = '';
+      convertedFiles.forEach((f, idx) => {
+        if (!f.error) {
+          const link = document.createElement('a');
+          link.href = f.url;
+          link.download = f.name;
+          link.className = 'bg-white border border-slate-200 rounded-lg p-2 text-center hover:border-blue-400 transition-all text-xs truncate';
+          link.textContent = `🖼️ ${f.name.substring(0, 12)}...`;
+          link.title = f.name;
+          downloadLinksContainer.appendChild(link);
+        }
+      });
+
+      resultSection.classList.remove('hidden');
+    }
+
+    function downloadAll() {
+      if (convertedFiles.length === 0) {
+        alert('No files to download.');
+        return;
+      }
+
+      // Check if there's only one file
+      if (convertedFiles.length === 1) {
+        const f = convertedFiles[0];
+        if (!f.error) {
+          const link = document.createElement('a');
+          link.href = f.url;
+          link.download = f.name;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        }
+        return;
+      }
+
+      // For multiple files, use JSZip if available
+      if (typeof JSZip !== 'undefined') {
+        const zip = new JSZip();
+        convertedFiles.forEach(f => {
+          if (!f.error) {
+            zip.file(f.name, f.blob);
+          }
+        });
+        zip.generateAsync({ type: 'blob' }).then(content => {
+          const url = URL.createObjectURL(content);
+          const link = document.createElement('a');
+          const baseName = files[0]?.name.replace(/\.(svg|SVG)$/, '') || 'converted';
+          link.download = `${baseName}_converted.zip`;
+          link.href = url;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          URL.revokeObjectURL(url);
+        });
+      } else {
+        // Fallback: download each file individually
+        downloadAllIndividual();
+      }
+    }
+
+    function downloadAllIndividual() {
+      convertedFiles.forEach((f, idx) => {
+        if (!f.error) {
+          setTimeout(() => {
+            const link = document.createElement('a');
+            link.href = f.url;
+            link.download = f.name;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+          }, idx * 300);
+        }
+      });
+    }
+
+    // Keyboard shortcut: Enter to convert
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !fileInfo.classList.contains('hidden') && !convertBtn.disabled) {
+        convertSVGtoPNG();
+      }
+    });
+  </script>
+
+</body>
+</html>
