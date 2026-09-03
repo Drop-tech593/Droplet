@@ -38,6 +38,7 @@
       color: #1e293b;
       transition: background 0.15s;
       font-weight: 500;
+      text-decoration: none;
     }
     .dropdown-menu a:hover {
       background: #f1f5f9;
@@ -61,6 +62,8 @@
       display: flex;
       align-items: center;
       gap: 0.25rem;
+      text-decoration: none;
+      color: #475569;
     }
     .nav-link-with-dropdown > a::after {
       content: "▾";
@@ -75,6 +78,10 @@
       cursor: pointer;
       color: #1e293b;
       padding: 0.25rem;
+    }
+    .tool-card-link {
+      text-decoration: none;
+      display: block;
     }
     @media (max-width: 768px) {
       .mobile-nav-toggle {
@@ -151,24 +158,24 @@
             <a href="#all-tools" class="hover:text-blue-600 transition-colors">All Tools</a>
             <div class="dropdown-menu">
               <span class="category-label">📄 Core Documents</span>
-              <a href="/pdf-to-word">PDF to DOCX (Word)</a>
-              <a href="/word-to-pdf">Word (DOCX) to PDF</a>
-              <a href="/pdf-to-txt">PDF to TXT</a>
-              <a href="/epub-to-pdf">EPUB to PDF</a>
-              <a href="/txt-to-pdf">TXT to PDF</a>
-              <a href="/pdf-to-pdfa">PDF to PDF/A</a>
-              <a href="/pdf-to-powerpoint">PDF to POWERPOINT</a>
-              <a href="/pdf-to-excel">PDF to EXCEL</a>
+              <a href="/pdf-to-word.html">PDF to DOCX (Word)</a>
+              <a href="/word-to-pdf.html">Word (DOCX) to PDF</a>
+              <a href="/pdf-to-txt.html">PDF to TXT</a>
+              <a href="/epub-to-pdf.html">EPUB to PDF</a>
+              <a href="/txt-to-pdf.html">TXT to PDF</a>
+              <a href="/pdf-to-pdfa.html">PDF to PDF/A</a>
+              <a href="/pdf-to-powerpoint.html">PDF to POWERPOINT</a>
+              <a href="/pdf-to-excel.html">PDF to EXCEL</a>
               <span class="category-label">🖼️ Image Converters</span>
-              <a href="/heic-to-jpg">HEIC to JPG</a>
-              <a href="/webp-to-jpg">WebP to JPG</a>
-              <a href="/avif-to-png">AVIF to PNG</a>
-              <a href="/gif-to-png">GIF to PNG</a>
-              <a href="/psd-to-png">PSD to PNG</a>
-              <a href="/raw-to-jpg">RAW to JPG</a>
-              <a href="/tiff-to-pdf">TIFF to PDF</a>
-              <a href="/jpg-to-pdf">JPG to PDF</a>
-              <a href="/pdf-to-jpg">PDF to JPG</a>
+              <a href="/heic-to-jpg.html">HEIC to JPG</a>
+              <a href="/webp-to-jpg.html">WebP to JPG</a>
+              <a href="/avif-to-png.html">AVIF to PNG</a>
+              <a href="/gif-to-png.html">GIF to PNG</a>
+              <a href="/psd-to-png.html">PSD to PNG</a>
+              <a href="/raw-to-jpg.html">RAW to JPG</a>
+              <a href="/tiff-to-pdf.html">TIFF to PDF</a>
+              <a href="/jpg-to-pdf.html">JPG to PDF</a>
+              <a href="/pdf-to-jpg.html">PDF to JPG</a>
             </div>
           </div>
 
@@ -176,17 +183,17 @@
           <div class="nav-link-with-dropdown dropdown-group">
             <a href="#image-tools" class="hover:text-blue-600 transition-colors">Image Converter</a>
             <div class="dropdown-menu">
-              <a href="/heic-to-jpg">🍎 HEIC to JPG</a>
-              <a href="/webp-to-jpg">🌐 WebP to JPG</a>
-              <a href="/avif-to-png">🖼️ AVIF to PNG</a>
-              <a href="/gif-to-png">🎞️ GIF to PNG</a>
-              <a href="/psd-to-png">🎨 PSD to PNG</a>
-              <a href="/raw-to-jpg">📸 RAW to JPG</a>
-              <a href="/tiff-to-pdf">📑 TIFF to PDF</a>
-              <a href="/jpg-to-pdf">🖼️ JPG to PDF</a>
-              <a href="/pdf-to-jpg">🖼️ PDF to JPG</a>
-              <a href="/svg-to-png">📐 SVG to PNG</a>
-              <a href="/eps-to-svg">✏️ EPS to SVG</a>
+              <a href="/heic-to-jpg.html">🍎 HEIC to JPG</a>
+              <a href="/webp-to-jpg.html">🌐 WebP to JPG</a>
+              <a href="/avif-to-png.html">🖼️ AVIF to PNG</a>
+              <a href="/gif-to-png.html">🎞️ GIF to PNG</a>
+              <a href="/psd-to-png.html">🎨 PSD to PNG</a>
+              <a href="/raw-to-jpg.html">📸 RAW to JPG</a>
+              <a href="/tiff-to-pdf.html">📑 TIFF to PDF</a>
+              <a href="/jpg-to-pdf.html">🖼️ JPG to PDF</a>
+              <a href="/pdf-to-jpg.html">🖼️ PDF to JPG</a>
+              <a href="/svg-to-png.html">📐 SVG to PNG</a>
+              <a href="/eps-to-svg.html">✏️ EPS to SVG</a>
             </div>
           </div>
 
@@ -194,9 +201,9 @@
           <div class="nav-link-with-dropdown dropdown-group">
             <a href="#data-tools" class="hover:text-blue-600 transition-colors">Data Tools</a>
             <div class="dropdown-menu">
-              <a href="/json-to-csv">📋 JSON to CSV</a>
-              <a href="/csv-to-json">📈 CSV to JSON</a>
-              <a href="/xml-to-json">🔗 XML to JSON</a>
+              <a href="/json-to-csv.html">📋 JSON to CSV</a>
+              <a href="/csv-to-json.html">📈 CSV to JSON</a>
+              <a href="/xml-to-json.html">🔗 XML to JSON</a>
             </div>
           </div>
 
@@ -205,44 +212,44 @@
             <a href="#doc-tools" class="hover:text-blue-600 transition-colors">Document Tools</a>
             <div class="dropdown-menu">
               <span class="category-label">📄 Core Documents</span>
-              <a href="/pdf-to-word">PDF to DOCX (Word)</a>
-              <a href="/word-to-pdf">Word (DOCX) to PDF</a>
-              <a href="/pdf-to-txt">PDF to TXT</a>
-              <a href="/epub-to-pdf">EPUB to PDF</a>
-              <a href="/txt-to-pdf">TXT to PDF</a>
-              <a href="/pdf-to-pdfa">PDF to PDF/A</a>
-              <a href="/pdf-to-powerpoint">PDF to POWERPOINT</a>
-              <a href="/pdf-to-excel">PDF to EXCEL</a>
+              <a href="/pdf-to-word.html">PDF to DOCX (Word)</a>
+              <a href="/word-to-pdf.html">Word (DOCX) to PDF</a>
+              <a href="/pdf-to-txt.html">PDF to TXT</a>
+              <a href="/epub-to-pdf.html">EPUB to PDF</a>
+              <a href="/txt-to-pdf.html">TXT to PDF</a>
+              <a href="/pdf-to-pdfa.html">PDF to PDF/A</a>
+              <a href="/pdf-to-powerpoint.html">PDF to POWERPOINT</a>
+              <a href="/pdf-to-excel.html">PDF to EXCEL</a>
               <span class="category-label">📑 PDF Organize</span>
-              <a href="/merge-pdf">🔗 Merge PDF</a>
-              <a href="/split-pdf">✂️ Split PDF</a>
-              <a href="/remove-pages">🗑️ Remove pages</a>
-              <a href="/extract-pages">📤 Extract pages</a>
-              <a href="/organize-pdf">🗂️ Organize PDF</a>
-              <a href="/scan-to-pdf">📷 Scan to PDF</a>
-              <a href="/rotate-pdf">🔄 Rotate PDF</a>
-              <a href="/add-page-numbers">🔢 Add page numbers</a>
+              <a href="/merge-pdf.html">🔗 Merge PDF</a>
+              <a href="/split-pdf.html">✂️ Split PDF</a>
+              <a href="/remove-pages.html">🗑️ Remove pages</a>
+              <a href="/extract-pages.html">📤 Extract pages</a>
+              <a href="/organize-pdf.html">🗂️ Organize PDF</a>
+              <a href="/scan-to-pdf.html">📷 Scan to PDF</a>
+              <a href="/rotate-pdf.html">🔄 Rotate PDF</a>
+              <a href="/add-page-numbers.html">🔢 Add page numbers</a>
               <span class="category-label">🧠 PDF Intelligence</span>
-              <a href="/ai-summarizer">🤖 AI Summarizer</a>
-              <a href="/translate-pdf">🌍 Translate PDF</a>
-              <a href="/pdf-to-markdown">📝 PDF to Markdown</a>
+              <a href="/ai-summarizer.html">🤖 AI Summarizer</a>
+              <a href="/translate-pdf.html">🌍 Translate PDF</a>
+              <a href="/pdf-to-markdown.html">📝 PDF to Markdown</a>
               <span class="category-label">✨ PDF Editing & Security</span>
-              <a href="/add-watermark">💧 Add watermark</a>
-              <a href="/crop-pdf">✂️ Crop PDF</a>
-              <a href="/edit-pdf">✏️ Edit PDF</a>
-              <a href="/pdf-forms">📋 PDF Forms</a>
+              <a href="/add-watermark.html">💧 Add watermark</a>
+              <a href="/crop-pdf.html">✂️ Crop PDF</a>
+              <a href="/edit-pdf.html">✏️ Edit PDF</a>
+              <a href="/pdf-forms.html">📋 PDF Forms</a>
               <span class="category-label">🔄 Convert to PDF</span>
-              <a href="/jpg-to-pdf">🖼️ JPG to PDF</a>
-              <a href="/word-to-pdf">📝 WORD to PDF</a>
-              <a href="/powerpoint-to-pdf">📊 POWERPOINT to PDF</a>
-              <a href="/excel-to-pdf">📈 EXCEL to PDF</a>
-              <a href="/html-to-pdf">🌐 HTML to PDF</a>
+              <a href="/jpg-to-pdf.html">🖼️ JPG to PDF</a>
+              <a href="/word-to-pdf.html">📝 WORD to PDF</a>
+              <a href="/powerpoint-to-pdf.html">📊 POWERPOINT to PDF</a>
+              <a href="/excel-to-pdf.html">📈 EXCEL to PDF</a>
+              <a href="/html-to-pdf.html">🌐 HTML to PDF</a>
               <span class="category-label">🔄 Convert from PDF</span>
-              <a href="/pdf-to-jpg">🖼️ PDF to JPG</a>
-              <a href="/pdf-to-word">📝 PDF to WORD</a>
-              <a href="/pdf-to-powerpoint">📊 PDF to POWERPOINT</a>
-              <a href="/pdf-to-excel">📈 PDF to EXCEL</a>
-              <a href="/pdf-to-pdfa">📄 PDF to PDF/A</a>
+              <a href="/pdf-to-jpg.html">🖼️ PDF to JPG</a>
+              <a href="/pdf-to-word.html">📝 PDF to WORD</a>
+              <a href="/pdf-to-powerpoint.html">📊 PDF to POWERPOINT</a>
+              <a href="/pdf-to-excel.html">📈 PDF to EXCEL</a>
+              <a href="/pdf-to-pdfa.html">📄 PDF to PDF/A</a>
             </div>
           </div>
 
@@ -292,79 +299,95 @@
         </div>
       </div>
       
-      <!-- 8 Popular Converter Cards -->
+      <!-- 8 Popular Converter Cards - All clickable links -->
       <div class="grid grid-cols-2 md:grid-cols-4 gap-3.5">
-        <!-- Image Card -->
-        <div id="image-tools" class="bg-blue-500 hover:bg-blue-600 text-white p-4 md:p-5 rounded-2xl shadow-sm transition-all cursor-pointer group flex flex-col justify-between min-h-[120px]">
-          <div class="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center text-lg mb-2">📸</div>
-          <div>
-            <span class="text-[10px] font-bold uppercase tracking-wider text-blue-100 block opacity-80">Image</span>
-            <h4 class="font-extrabold text-sm md:text-base leading-tight mt-0.5">HEIC to JPG</h4>
+        <!-- Image Card - HEIC to JPG -->
+        <a href="/heic-to-jpg.html" class="tool-card-link">
+          <div class="bg-blue-500 hover:bg-blue-600 text-white p-4 md:p-5 rounded-2xl shadow-sm transition-all cursor-pointer group flex flex-col justify-between min-h-[120px]">
+            <div class="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center text-lg mb-2">📸</div>
+            <div>
+              <span class="text-[10px] font-bold uppercase tracking-wider text-blue-100 block opacity-80">Image</span>
+              <h4 class="font-extrabold text-sm md:text-base leading-tight mt-0.5">HEIC to JPG</h4>
+            </div>
           </div>
-        </div>
+        </a>
 
-        <!-- Spreadsheet / Data Card -->
-        <div id="data-tools" class="bg-blue-500 hover:bg-blue-600 text-white p-4 md:p-5 rounded-2xl shadow-sm transition-all cursor-pointer group flex flex-col justify-between min-h-[120px]">
-          <div class="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center text-lg mb-2">📊</div>
-          <div>
-            <span class="text-[10px] font-bold uppercase tracking-wider text-blue-100 block opacity-80">Spreadsheet</span>
-            <h4 class="font-extrabold text-sm md:text-base leading-tight mt-0.5">JSON to CSV</h4>
+        <!-- Spreadsheet / Data Card - JSON to CSV -->
+        <a href="/json-to-csv.html" class="tool-card-link">
+          <div class="bg-blue-500 hover:bg-blue-600 text-white p-4 md:p-5 rounded-2xl shadow-sm transition-all cursor-pointer group flex flex-col justify-between min-h-[120px]">
+            <div class="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center text-lg mb-2">📊</div>
+            <div>
+              <span class="text-[10px] font-bold uppercase tracking-wider text-blue-100 block opacity-80">Spreadsheet</span>
+              <h4 class="font-extrabold text-sm md:text-base leading-tight mt-0.5">JSON to CSV</h4>
+            </div>
           </div>
-        </div>
+        </a>
 
-        <!-- Book / E-Book Card -->
-        <div id="doc-tools" class="bg-blue-500 hover:bg-blue-600 text-white p-4 md:p-5 rounded-2xl shadow-sm transition-all cursor-pointer group flex flex-col justify-between min-h-[120px]">
-          <div class="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center text-lg mb-2">📚</div>
-          <div>
-            <span class="text-[10px] font-bold uppercase tracking-wider text-blue-100 block opacity-80">Book</span>
-            <h4 class="font-extrabold text-sm md:text-base leading-tight mt-0.5">EPUB to PDF</h4>
+        <!-- Book / E-Book Card - EPUB to PDF -->
+        <a href="/epub-to-pdf.html" class="tool-card-link">
+          <div class="bg-blue-500 hover:bg-blue-600 text-white p-4 md:p-5 rounded-2xl shadow-sm transition-all cursor-pointer group flex flex-col justify-between min-h-[120px]">
+            <div class="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center text-lg mb-2">📚</div>
+            <div>
+              <span class="text-[10px] font-bold uppercase tracking-wider text-blue-100 block opacity-80">Book</span>
+              <h4 class="font-extrabold text-sm md:text-base leading-tight mt-0.5">EPUB to PDF</h4>
+            </div>
           </div>
-        </div>
+        </a>
 
-        <!-- Vector Card -->
-        <div class="bg-blue-500 hover:bg-blue-600 text-white p-4 md:p-5 rounded-2xl shadow-sm transition-all cursor-pointer group flex flex-col justify-between min-h-[120px]">
-          <div class="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center text-lg mb-2">📐</div>
-          <div>
-            <span class="text-[10px] font-bold uppercase tracking-wider text-blue-100 block opacity-80">Vector</span>
-            <h4 class="font-extrabold text-sm md:text-base leading-tight mt-0.5">SVG to PNG</h4>
+        <!-- Vector Card - SVG to PNG -->
+        <a href="/svg-to-png.html" class="tool-card-link">
+          <div class="bg-blue-500 hover:bg-blue-600 text-white p-4 md:p-5 rounded-2xl shadow-sm transition-all cursor-pointer group flex flex-col justify-between min-h-[120px]">
+            <div class="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center text-lg mb-2">📐</div>
+            <div>
+              <span class="text-[10px] font-bold uppercase tracking-wider text-blue-100 block opacity-80">Vector</span>
+              <h4 class="font-extrabold text-sm md:text-base leading-tight mt-0.5">SVG to PNG</h4>
+            </div>
           </div>
-        </div>
+        </a>
 
-        <!-- Document (PDF to Word) Card -->
-        <div class="bg-blue-500 hover:bg-blue-600 text-white p-4 md:p-5 rounded-2xl shadow-sm transition-all cursor-pointer group flex flex-col justify-between min-h-[120px]">
-          <div class="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center text-lg mb-2">📄</div>
-          <div>
-            <span class="text-[10px] font-bold uppercase tracking-wider text-blue-100 block opacity-80">Document</span>
-            <h4 class="font-extrabold text-sm md:text-base leading-tight mt-0.5">PDF to DOCX</h4>
+        <!-- Document Card - PDF to DOCX (Word) -->
+        <a href="/pdf-to-word.html" class="tool-card-link">
+          <div class="bg-blue-500 hover:bg-blue-600 text-white p-4 md:p-5 rounded-2xl shadow-sm transition-all cursor-pointer group flex flex-col justify-between min-h-[120px]">
+            <div class="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center text-lg mb-2">📄</div>
+            <div>
+              <span class="text-[10px] font-bold uppercase tracking-wider text-blue-100 block opacity-80">Document</span>
+              <h4 class="font-extrabold text-sm md:text-base leading-tight mt-0.5">PDF to DOCX</h4>
+            </div>
           </div>
-        </div>
+        </a>
 
-        <!-- Web Image Card -->
-        <div class="bg-blue-500 hover:bg-blue-600 text-white p-4 md:p-5 rounded-2xl shadow-sm transition-all cursor-pointer group flex flex-col justify-between min-h-[120px]">
-          <div class="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center text-lg mb-2">🖼️</div>
-          <div>
-            <span class="text-[10px] font-bold uppercase tracking-wider text-blue-100 block opacity-80">Web Graphics</span>
-            <h4 class="font-extrabold text-sm md:text-base leading-tight mt-0.5">WebP to PNG</h4>
+        <!-- Web Image Card - WebP to PNG -->
+        <a href="/webp-to-png.html" class="tool-card-link">
+          <div class="bg-blue-500 hover:bg-blue-600 text-white p-4 md:p-5 rounded-2xl shadow-sm transition-all cursor-pointer group flex flex-col justify-between min-h-[120px]">
+            <div class="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center text-lg mb-2">🖼️</div>
+            <div>
+              <span class="text-[10px] font-bold uppercase tracking-wider text-blue-100 block opacity-80">Web Graphics</span>
+              <h4 class="font-extrabold text-sm md:text-base leading-tight mt-0.5">WebP to PNG</h4>
+            </div>
           </div>
-        </div>
+        </a>
 
-        <!-- Photoshop Card -->
-        <div class="bg-blue-500 hover:bg-blue-600 text-white p-4 md:p-5 rounded-2xl shadow-sm transition-all cursor-pointer group flex flex-col justify-between min-h-[120px]">
-          <div class="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center text-lg mb-2">🎨</div>
-          <div>
-            <span class="text-[10px] font-bold uppercase tracking-wider text-blue-100 block opacity-80">Design</span>
-            <h4 class="font-extrabold text-sm md:text-base leading-tight mt-0.5">PSD to PNG</h4>
+        <!-- Photoshop Card - PSD to PNG -->
+        <a href="/psd-to-png.html" class="tool-card-link">
+          <div class="bg-blue-500 hover:bg-blue-600 text-white p-4 md:p-5 rounded-2xl shadow-sm transition-all cursor-pointer group flex flex-col justify-between min-h-[120px]">
+            <div class="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center text-lg mb-2">🎨</div>
+            <div>
+              <span class="text-[10px] font-bold uppercase tracking-wider text-blue-100 block opacity-80">Design</span>
+              <h4 class="font-extrabold text-sm md:text-base leading-tight mt-0.5">PSD to PNG</h4>
+            </div>
           </div>
-        </div>
+        </a>
 
-        <!-- Animation Card -->
-        <div class="bg-blue-500 hover:bg-blue-600 text-white p-4 md:p-5 rounded-2xl shadow-sm transition-all cursor-pointer group flex flex-col justify-between min-h-[120px]">
-          <div class="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center text-lg mb-2">👾</div>
-          <div>
-            <span class="text-[10px] font-bold uppercase tracking-wider text-blue-100 block opacity-80">Animation</span>
-            <h4 class="font-extrabold text-sm md:text-base leading-tight mt-0.5">GIF to PNG</h4>
+        <!-- Animation Card - GIF to PNG -->
+        <a href="/gif-to-png.html" class="tool-card-link">
+          <div class="bg-blue-500 hover:bg-blue-600 text-white p-4 md:p-5 rounded-2xl shadow-sm transition-all cursor-pointer group flex flex-col justify-between min-h-[120px]">
+            <div class="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center text-lg mb-2">👾</div>
+            <div>
+              <span class="text-[10px] font-bold uppercase tracking-wider text-blue-100 block opacity-80">Animation</span>
+              <h4 class="font-extrabold text-sm md:text-base leading-tight mt-0.5">GIF to PNG</h4>
+            </div>
           </div>
-        </div>
+        </a>
       </div>
     </section>
     
@@ -440,12 +463,18 @@
       });
     });
 
-    // File input handler
+    // File input handler - Navigate to PDF to Word page if PDF selected
     document.getElementById('file-input').addEventListener('change', function(e) {
       const files = Array.from(e.target.files);
       if (files.length > 0) {
-        console.log('Selected files:', files.map(f => f.name));
-        alert(`Selected ${files.length} file(s). Conversion functionality coming soon!`);
+        const file = files[0];
+        // Check if it's a PDF file
+        if (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')) {
+          // Redirect to PDF to Word page with the file
+          window.location.href = '/pdf-to-word.html';
+        } else {
+          alert('Please select a PDF file to convert to Word. Other file types will be supported soon!');
+        }
       }
     });
 
