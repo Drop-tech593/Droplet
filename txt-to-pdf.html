@@ -1,1 +1,717 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TXT to PDF Converter - Droplet</title>
+  <meta name="description" content="Convert plain text files to PDF online for free. 100% client-side, your files never leave your browser. Turn TXT to PDF instantly.">
 
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- html2pdf for PDF generation -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+  <style>
+    .dropzone-highlight {
+      border-color: #3b82f6 !important;
+      background: #eff6ff !important;
+    }
+    .progress-bar {
+      transition: width 0.5s ease;
+    }
+    .hidden {
+      display: none !important;
+    }
+    .text-preview {
+      font-family: 'Courier New', monospace;
+      font-size: 14px;
+      line-height: 1.8;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      max-height: 400px;
+      overflow-y: auto;
+      background: #f8fafc;
+      padding: 16px;
+      border-radius: 8px;
+      border: 1px solid #e2e8f0;
+    }
+    .pdf-preview {
+      font-family: Georgia, serif;
+      line-height: 1.8;
+      max-height: 400px;
+      overflow-y: auto;
+      background: white;
+      padding: 40px;
+      border-radius: 8px;
+      border: 1px solid #e2e8f0;
+    }
+    .pdf-preview h1 {
+      font-size: 24px;
+      margin: 1em 0 0.5em;
+      font-weight: bold;
+    }
+    .pdf-preview h2 {
+      font-size: 20px;
+      margin: 1em 0 0.5em;
+      font-weight: bold;
+    }
+    .pdf-preview h3 {
+      font-size: 16px;
+      margin: 0.8em 0 0.4em;
+      font-weight: bold;
+    }
+    .pdf-preview p {
+      margin: 0.5em 0;
+      text-align: justify;
+    }
+    .pdf-preview .title-page {
+      text-align: center;
+      padding: 60pt 0 40pt;
+    }
+    .pdf-preview .title-page h1 {
+      font-size: 28pt;
+      margin-bottom: 20pt;
+    }
+    .pdf-preview .title-page .author {
+      font-size: 16pt;
+      color: #555;
+    }
+    .pdf-preview .page-break {
+      border: none;
+      border-top: 1px dashed #ccc;
+      margin: 20px 0;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased">
+
+  <!-- Navigation -->
+  <header class="bg-white border-b border-slate-200 py-3.5 px-6 sticky top-0 z-50">
+    <div class="max-w-6xl mx-auto flex justify-between items-center">
+      <a href="/" class="flex items-center gap-3 group">
+        <img src="Gemini_Generated_Image_sdu6v7sdu6v7sdu6.jpg" alt="Droplet Logo" class="h-9 w-auto rounded-xl shadow-sm group-hover:scale-105 transition-transform">
+        <div>
+          <h1 class="text-xl font-black tracking-tight text-slate-900 leading-none">Droplet</h1>
+          <p class="text-[9px] text-blue-600 font-extrabold tracking-widest uppercase mt-0.5">DRAG, DROP AND CONVERT.</p>
+        </div>
+      </a>
+      <nav class="hidden md:flex items-center space-x-6 text-xs font-bold text-slate-600">
+        <a href="/" class="hover:text-blue-600 transition-colors">← Back</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="max-w-4xl mx-auto px-4 py-8 md:py-12 flex-grow w-full">
+
+    <!-- Page Header -->
+    <div class="text-center mb-8">
+      <div class="inline-block p-3 bg-blue-50 rounded-2xl mb-4">
+        <span class="text-4xl">✏️</span>
+      </div>
+      <h1 class="text-3xl md:text-4xl font-black text-slate-900 tracking-tight">TXT to PDF Converter</h1>
+      <p class="text-slate-500 text-sm md:text-base mt-2 max-w-lg mx-auto">
+        Convert your plain text files to professional PDFs. <strong>100% client-side</strong> — your files never leave your browser.
+      </p>
+    </div>
+
+    <!-- Conversion Dropzone -->
+    <div id="dropzone" class="bg-white border-2 border-dashed border-slate-300 hover:border-blue-400 transition-all rounded-3xl p-8 md:p-12 text-center shadow-lg max-w-2xl mx-auto cursor-pointer">
+      <div class="flex flex-col items-center">
+        <div class="w-20 h-20 bg-blue-50 rounded-2xl flex items-center justify-center mb-4 text-4xl">
+          📁
+        </div>
+        <h3 class="text-xl font-bold text-slate-900 mb-1">Drop your text file here</h3>
+        <p class="text-slate-400 text-sm mb-4">Supports .txt files</p>
+        <input type="file" id="fileInput" accept=".txt,text/plain" class="hidden">
+        <button onclick="document.getElementById('fileInput').click()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-3 rounded-xl text-sm shadow-md shadow-blue-500/20 transition-all active:scale-95">
+          Select Text File
+        </button>
+        <p class="text-xs text-slate-400 mt-3">Max file size: ~10MB</p>
+      </div>
+    </div>
+
+    <!-- File Info & Conversion Controls -->
+    <div id="fileInfo" class="hidden max-w-2xl mx-auto mt-6 bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <span class="text-2xl">📄</span>
+          <div>
+            <p id="fileName" class="font-medium text-slate-900"></p>
+            <p id="fileSize" class="text-xs text-slate-400"></p>
+            <p id="stats" class="text-xs text-slate-400"></p>
+          </div>
+        </div>
+        <button onclick="clearFile()" class="text-slate-400 hover:text-red-500 transition-colors">✕</button>
+      </div>
+
+      <div class="mt-4 flex flex-wrap gap-3">
+        <button onclick="convertTXTtoPDF()" id="convertBtn" class="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-xl transition-all active:scale-95 shadow-md shadow-green-500/20">
+          🔄 Convert to PDF
+        </button>
+        <button onclick="clearFile()" class="px-4 py-3 border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors text-sm">
+          Change File
+        </button>
+      </div>
+
+      <!-- Progress Bar -->
+      <div id="progressContainer" class="hidden mt-4">
+        <div class="flex justify-between text-xs text-slate-500 mb-1">
+          <span>Converting...</span>
+          <span id="progressText">0%</span>
+        </div>
+        <div class="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
+          <div id="progressBar" class="bg-blue-600 h-2 rounded-full progress-bar" style="width: 0%"></div>
+        </div>
+        <p id="statusText" class="text-xs text-slate-400 mt-2 text-center">Initializing...</p>
+      </div>
+
+      <!-- Preview Section -->
+      <div id="previewContainer" class="hidden mt-4 border-t border-slate-200 pt-4">
+        <div class="flex items-center justify-between mb-2">
+          <h4 class="font-bold text-sm text-slate-700">📄 Document Preview</h4>
+          <span class="text-xs text-slate-400">(First 500 characters)</span>
+        </div>
+        <div id="previewContent" class="text-preview">
+          <!-- Preview will be rendered here -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Result Section -->
+    <div id="resultSection" class="hidden max-w-2xl mx-auto mt-6 bg-green-50 border border-green-200 rounded-xl p-6">
+      <div class="flex items-center justify-between mb-4">
+        <div>
+          <div class="text-4xl mb-1">✅</div>
+          <h3 class="font-bold text-slate-900">Conversion Complete!</h3>
+          <p class="text-sm text-slate-600">Your PDF document is ready to download.</p>
+        </div>
+        <div class="flex flex-wrap gap-2">
+          <a id="downloadLink" href="#" download="converted.pdf" class="bg-green-600 hover:bg-green-700 text-white font-bold px-4 py-2 rounded-lg text-sm transition-all">
+            📥 Download PDF
+          </a>
+        </div>
+      </div>
+
+      <!-- PDF Preview -->
+      <div class="mt-2">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-medium text-slate-500">PDF Preview</span>
+        </div>
+        <div id="pdfPreviewContent" class="pdf-preview">
+          <!-- PDF preview will be rendered here -->
+        </div>
+      </div>
+
+      <div class="mt-4 flex flex-wrap gap-3">
+        <button onclick="resetConverter()" class="px-6 py-3 border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors text-sm">
+          Convert Another
+        </button>
+      </div>
+    </div>
+
+    <!-- Info Section -->
+    <div class="max-w-2xl mx-auto mt-12 grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div class="bg-white p-4 rounded-xl border border-slate-100 text-center">
+        <div class="text-2xl mb-1">🔒</div>
+        <h4 class="font-bold text-sm">100% Private</h4>
+        <p class="text-xs text-slate-500">Your files never leave your browser</p>
+      </div>
+      <div class="bg-white p-4 rounded-xl border border-slate-100 text-center">
+        <div class="text-2xl mb-1">⚡</div>
+        <h4 class="font-bold text-sm">Fast & Free</h4>
+        <p class="text-xs text-slate-500">No sign-up required</p>
+      </div>
+      <div class="bg-white p-4 rounded-xl border border-slate-100 text-center">
+        <div class="text-2xl mb-1">📝</div>
+        <h4 class="font-bold text-sm">Professional PDF</h4>
+        <p class="text-xs text-slate-500">Clean formatting with title page</p>
+      </div>
+    </div>
+
+    <!-- Options Section -->
+    <div class="max-w-2xl mx-auto mt-8 bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+      <h3 class="font-bold text-slate-900 text-sm mb-4">⚙️ PDF Options</h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-xs font-medium text-slate-700 mb-1">Page Size</label>
+          <select id="pageSize" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="a4">A4 (210 × 297 mm)</option>
+            <option value="letter">Letter (8.5 × 11 in)</option>
+            <option value="legal">Legal (8.5 × 14 in)</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-slate-700 mb-1">Font Size</label>
+          <select id="fontSize" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="10">10 pt</option>
+            <option value="11" selected>11 pt</option>
+            <option value="12">12 pt</option>
+            <option value="14">14 pt</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-slate-700 mb-1">Line Spacing</label>
+          <select id="lineSpacing" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="1.5">1.5</option>
+            <option value="1.8" selected>1.8</option>
+            <option value="2.0">2.0</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-slate-700 mb-1">Include Title Page</label>
+          <select id="includeTitle" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="yes" selected>Yes</option>
+            <option value="no">No</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- FAQ Section -->
+    <section class="max-w-2xl mx-auto mt-12">
+      <h2 class="text-xl font-black text-slate-900 text-center mb-6">Frequently Asked Questions</h2>
+      <div class="space-y-3">
+        <div class="bg-white p-5 rounded-xl border border-slate-100">
+          <h3 class="font-bold text-slate-900 text-sm">Is my data safe?</h3>
+          <p class="text-slate-600 text-sm mt-1">Yes! All conversions happen locally in your browser. Your text file is never uploaded to any server and is automatically deleted when you close the page.</p>
+        </div>
+        <div class="bg-white p-5 rounded-xl border border-slate-100">
+          <h3 class="font-bold text-slate-900 text-sm">Can I customize the PDF?</h3>
+          <p class="text-slate-600 text-sm mt-1">Yes! You can choose page size (A4, Letter, Legal), font size (10-14pt), line spacing (1.5-2.0), and whether to include a title page.</p>
+        </div>
+        <div class="bg-white p-5 rounded-xl border border-slate-100">
+          <h3 class="font-bold text-slate-900 text-sm">What about special characters?</h3>
+          <p class="text-slate-600 text-sm mt-1">The converter supports UTF-8 encoding, so special characters, accents, and non-Latin scripts should display correctly.</p>
+        </div>
+        <div class="bg-white p-5 rounded-xl border border-slate-100">
+          <h3 class="font-bold text-slate-900 text-sm">Are there file size limits?</h3>
+          <p class="text-slate-600 text-sm mt-1">Since everything runs locally, limits depend on your device's memory. Most modern browsers handle text files up to 10MB without issues.</p>
+        </div>
+        <div class="bg-white p-5 rounded-xl border border-slate-100">
+          <h3 class="font-bold text-slate-900 text-sm">How does the conversion work?</h3>
+          <p class="text-slate-600 text-sm mt-1">The text is read, formatted with proper fonts and margins, and rendered as HTML. Then html2pdf.js converts it to a downloadable PDF file. All processing stays in your browser.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-500 mt-auto">
+    <div class="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-3">
+      <p class="font-medium">© Droplet. 100% Client-Side Privacy First File Utility.</p>
+      <div class="space-x-4">
+        <a href="/privacy.html" class="hover:text-blue-600 transition-colors">Privacy Policy</a>
+        <span>•</span>
+        <a href="/terms.html" class="hover:text-blue-600 transition-colors">Terms of Service</a>
+        <span>•</span>
+        <a href="/contact.html" class="hover:text-blue-600 transition-colors">Contact</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Conversion JavaScript -->
+  <script>
+    let currentFile = null;
+    let convertedBlob = null;
+    let fileContent = '';
+
+    // DOM Elements
+    const dropzone = document.getElementById('dropzone');
+    const fileInput = document.getElementById('fileInput');
+    const fileInfo = document.getElementById('fileInfo');
+    const fileName = document.getElementById('fileName');
+    const fileSize = document.getElementById('fileSize');
+    const stats = document.getElementById('stats');
+    const convertBtn = document.getElementById('convertBtn');
+    const progressContainer = document.getElementById('progressContainer');
+    const progressBar = document.getElementById('progressBar');
+    const progressText = document.getElementById('progressText');
+    const statusText = document.getElementById('statusText');
+    const resultSection = document.getElementById('resultSection');
+    const downloadLink = document.getElementById('downloadLink');
+    const previewContainer = document.getElementById('previewContainer');
+    const previewContent = document.getElementById('previewContent');
+    const pdfPreviewContent = document.getElementById('pdfPreviewContent');
+
+    // Options
+    const pageSize = document.getElementById('pageSize');
+    const fontSize = document.getElementById('fontSize');
+    const lineSpacing = document.getElementById('lineSpacing');
+    const includeTitle = document.getElementById('includeTitle');
+
+    // Drag and Drop
+    dropzone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropzone.classList.add('dropzone-highlight');
+    });
+
+    dropzone.addEventListener('dragleave', () => {
+      dropzone.classList.remove('dropzone-highlight');
+    });
+
+    dropzone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropzone.classList.remove('dropzone-highlight');
+      const files = e.dataTransfer.files;
+      if (files.length > 0 && (files[0].name.toLowerCase().endsWith('.txt') || files[0].type === 'text/plain')) {
+        handleFile(files[0]);
+      } else {
+        alert('Please drop a .txt file.');
+      }
+    });
+
+    dropzone.addEventListener('click', (e) => {
+      if (e.target.tagName !== 'BUTTON' && !fileInfo.classList.contains('hidden')) {
+        fileInput.click();
+      }
+    });
+
+    fileInput.addEventListener('change', (e) => {
+      if (e.target.files.length > 0) {
+        handleFile(e.target.files[0]);
+      }
+    });
+
+    function handleFile(file) {
+      // Validate file type
+      if (!file.name.toLowerCase().endsWith('.txt') && file.type !== 'text/plain') {
+        alert('Please select a valid .txt file.');
+        return;
+      }
+
+      // Validate file size (10MB limit)
+      if (file.size > 10 * 1024 * 1024) {
+        alert('File is too large. Please use a text file under 10MB.');
+        return;
+      }
+
+      currentFile = file;
+      fileName.textContent = file.name;
+      fileSize.textContent = (file.size / 1024 / 1024).toFixed(2) + ' MB';
+      fileInfo.classList.remove('hidden');
+      dropzone.classList.add('hidden');
+      resultSection.classList.add('hidden');
+      progressContainer.classList.add('hidden');
+      previewContainer.classList.add('hidden');
+      convertBtn.disabled = false;
+      convertBtn.textContent = '🔄 Convert to PDF';
+
+      // Read and preview the file
+      readFile(file);
+    }
+
+    async function readFile(file) {
+      try {
+        const text = await file.text();
+        fileContent = text;
+
+        // Count lines and characters
+        const lines = text.split('\n').length;
+        const chars = text.length;
+        const words = text.split(/\s+/).filter(w => w.length > 0).length;
+        stats.textContent = `📝 ${words} words • 📄 ${lines} lines • ${chars.toLocaleString()} characters`;
+
+        // Show preview (first 500 characters)
+        const preview = text.substring(0, 500) + (text.length > 500 ? '...' : '');
+        previewContent.textContent = preview || '(Empty file)';
+        previewContainer.classList.remove('hidden');
+
+      } catch (error) {
+        console.error('Error reading file:', error);
+        alert('Failed to read the text file. Please try again.');
+      }
+    }
+
+    function clearFile() {
+      currentFile = null;
+      fileInput.value = '';
+      fileContent = '';
+      fileInfo.classList.add('hidden');
+      dropzone.classList.remove('hidden');
+      resultSection.classList.add('hidden');
+      progressContainer.classList.add('hidden');
+      previewContainer.classList.add('hidden');
+      progressBar.style.width = '0%';
+      progressText.textContent = '0%';
+      previewContent.textContent = '';
+      pdfPreviewContent.innerHTML = '';
+    }
+
+    function resetConverter() {
+      clearFile();
+      convertedBlob = null;
+      downloadLink.href = '#';
+    }
+
+    // Main Conversion Function
+    async function convertTXTtoPDF() {
+      if (!currentFile) {
+        alert('Please select a text file first.');
+        return;
+      }
+
+      // Check if html2pdf is available
+      if (typeof html2pdf === 'undefined') {
+        alert('PDF library not loaded. Please refresh the page and try again.');
+        return;
+      }
+
+      // Show progress
+      progressContainer.classList.remove('hidden');
+      resultSection.classList.add('hidden');
+      convertBtn.disabled = true;
+      convertBtn.textContent = '⏳ Converting...';
+      progressBar.style.width = '10%';
+      progressText.textContent = '10%';
+      statusText.textContent = 'Preparing document...';
+
+      try {
+        // Get user options
+        const pageSizeValue = pageSize.value;
+        const fontSizeValue = fontSize.value;
+        const lineSpacingValue = lineSpacing.value;
+        const includeTitleValue = includeTitle.value;
+
+        // Format the text content
+        const lines = fileContent.split('\n');
+        let formattedContent = '';
+
+        // Process text to detect headings (lines in all caps or with === or --- underlines)
+        let inHeading = false;
+        for (let i = 0; i < lines.length; i++) {
+          let line = lines[i];
+          let trimmed = line.trim();
+
+          // Skip empty lines at start
+          if (trimmed === '') {
+            formattedContent += '<br>';
+            continue;
+          }
+
+          // Check if this is a heading (all caps or underlined)
+          const isAllCaps = trimmed === trimmed.toUpperCase() && trimmed.length > 3;
+          const hasUnderline = i < lines.length - 1 && (lines[i + 1].trim().match(/^[=\-]{3,}$/));
+          const isUnderline = trimmed.match(/^[=\-]{3,}$/);
+
+          if (isUnderline) {
+            continue; // Skip underline lines
+          }
+
+          if (isAllCaps || hasUnderline) {
+            formattedContent += `<h2>${trimmed}</h2>`;
+            if (hasUnderline) {
+              i++; // Skip the underline line
+            }
+          } else if (trimmed.startsWith('# ')) {
+            formattedContent += `<h1>${trimmed.substring(2)}</h1>`;
+          } else if (trimmed.startsWith('## ')) {
+            formattedContent += `<h2>${trimmed.substring(3)}</h2>`;
+          } else if (trimmed.startsWith('### ')) {
+            formattedContent += `<h3>${trimmed.substring(4)}</h3>`;
+          } else if (trimmed.startsWith('- ') || trimmed.startsWith('* ')) {
+            formattedContent += `<li>${trimmed.substring(2)}</li>`;
+          } else if (trimmed.match(/^\d+\.\s/)) {
+            formattedContent += `<li>${trimmed.replace(/^\d+\.\s/, '')}</li>`;
+          } else {
+            formattedContent += `<p>${trimmed}</p>`;
+          }
+        }
+
+        progressBar.style.width = '30%';
+        progressText.textContent = '30%';
+        statusText.textContent = 'Rendering document...';
+
+        // Get filename without extension for title
+        const baseName = currentFile.name.replace(/\.txt$/i, '');
+
+        // Build the HTML for PDF
+        const pageSizes = {
+          'a4': { width: '210mm', height: '297mm' },
+          'letter': { width: '8.5in', height: '11in' },
+          'legal': { width: '8.5in', height: '14in' }
+        };
+        const pageSizeObj = pageSizes[pageSizeValue] || pageSizes['a4'];
+
+        const titlePageHtml = includeTitleValue === 'yes' ? `
+          <div class="title-page">
+            <h1>${baseName}</h1>
+            <p class="author">${currentFile.name}</p>
+            <p style="margin-top: 30pt; font-size: 10pt; color: #999;">Converted by Droplet</p>
+            <p style="font-size: 9pt; color: #bbb;">${new Date().toLocaleDateString()}</p>
+          </div>
+          <div class="page-break"></div>
+        ` : '';
+
+        const printHtml = `
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <meta charset="UTF-8">
+            <style>
+              @page { 
+                size: ${pageSizeObj.width} ${pageSizeObj.height}; 
+                margin: 20mm 25mm;
+              }
+              @media print {
+                * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+                .page-break { page-break-after: always; }
+              }
+              body {
+                font-family: Georgia, 'Times New Roman', serif;
+                font-size: ${fontSizeValue}pt;
+                line-height: ${lineSpacingValue};
+                color: #1a1a1a;
+                background: white;
+                padding: 20px;
+                max-width: 160mm;
+                margin: 0 auto;
+              }
+              h1 { 
+                font-size: ${parseInt(fontSizeValue) + 14}pt; 
+                margin: 1em 0 0.5em; 
+                font-weight: bold;
+                text-align: center;
+              }
+              h2 { 
+                font-size: ${parseInt(fontSizeValue) + 8}pt; 
+                margin: 1em 0 0.5em; 
+                font-weight: bold;
+              }
+              h3 { 
+                font-size: ${parseInt(fontSizeValue) + 4}pt; 
+                margin: 0.8em 0 0.4em; 
+                font-weight: bold;
+              }
+              p { 
+                margin: 0.5em 0; 
+                text-align: justify;
+                text-justify: inter-word;
+                text-indent: 2em;
+              }
+              p:first-of-type {
+                text-indent: 0;
+              }
+              ul, ol { 
+                padding-left: 2em; 
+                margin: 0.5em 0;
+              }
+              li {
+                margin: 0.25em 0;
+              }
+              .title-page {
+                text-align: center;
+                padding: 80pt 0 40pt;
+              }
+              .title-page h1 {
+                font-size: ${parseInt(fontSizeValue) + 18}pt;
+                margin-bottom: 20pt;
+                text-align: center;
+              }
+              .title-page .author {
+                font-size: ${parseInt(fontSizeValue) + 4}pt;
+                color: #555;
+              }
+              .page-break {
+                page-break-after: always;
+                border: none;
+                margin: 0;
+                padding: 0;
+                height: 0;
+              }
+            </style>
+          </head>
+          <body>
+            ${titlePageHtml}
+            ${formattedContent}
+          </body>
+          </html>
+        `;
+
+        progressBar.style.width = '60%';
+        progressText.textContent = '60%';
+        statusText.textContent = 'Generating PDF...';
+
+        // Create a temporary container for PDF generation
+        const tempContainer = document.createElement('div');
+        tempContainer.innerHTML = printHtml;
+        tempContainer.style.position = 'fixed';
+        tempContainer.style.left = '-9999px';
+        tempContainer.style.top = '0';
+        tempContainer.style.width = pageSizeObj.width;
+        tempContainer.style.background = 'white';
+        tempContainer.style.zIndex = '-9999';
+        document.body.appendChild(tempContainer);
+
+        // Generate PDF
+        const opt = {
+          margin: 10,
+          filename: 'converted.pdf',
+          image: { type: 'jpeg', quality: 0.98 },
+          html2canvas: {
+            scale: 3,
+            useCORS: true,
+            letterRendering: true,
+            width: tempContainer.scrollWidth || 794,
+            height: tempContainer.scrollHeight || 1123
+          },
+          jsPDF: {
+            unit: 'mm',
+            format: pageSizeValue,
+            orientation: 'portrait'
+          },
+          pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+        };
+
+        progressBar.style.width = '80%';
+        progressText.textContent = '80%';
+        statusText.textContent = 'Finalizing PDF...';
+
+        const pdf = await html2pdf()
+          .set(opt)
+          .from(tempContainer)
+          .outputPdf('blob');
+
+        // Clean up
+        document.body.removeChild(tempContainer);
+
+        progressBar.style.width = '100%';
+        progressText.textContent = '100%';
+        statusText.textContent = '✅ Conversion complete!';
+
+        // Show result
+        setTimeout(() => {
+          const url = URL.createObjectURL(pdf);
+          downloadLink.href = url;
+          downloadLink.download = baseName + '.pdf';
+          resultSection.classList.remove('hidden');
+
+          // Show PDF preview
+          const previewHtml = printHtml.replace(/<style>.*?<\/style>/s, '');
+          pdfPreviewContent.innerHTML = previewHtml;
+
+          convertBtn.disabled = false;
+          convertBtn.textContent = '🔄 Convert to PDF';
+          progressContainer.classList.add('hidden');
+        }, 500);
+
+      } catch (error) {
+        console.error('Conversion error:', error);
+        statusText.textContent = '❌ Conversion failed: ' + error.message;
+        convertBtn.disabled = false;
+        convertBtn.textContent = '🔄 Convert to PDF';
+        alert('Conversion failed. Please try again or use a different text file.\n\nError: ' + error.message);
+      }
+    }
+
+    // Keyboard shortcut: Enter to convert
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !fileInfo.classList.contains('hidden') && !convertBtn.disabled) {
+        convertTXTtoPDF();
+      }
+    });
+  </script>
+
+</body>
+</html>
