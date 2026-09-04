@@ -6,10 +6,7 @@
   <title>PDF to DOCX Converter - Droplet</title>
   <meta name="description" content="Convert PDF to Word (DOCX) online for free. 100% client-side, your files never leave your browser.">
   
-  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
-  
-  <!-- DOCX Library -->
   <script src="https://unpkg.com/docx@8.5.0/build/index.umd.js"></script>
   
   <style>
@@ -17,7 +14,6 @@
     .hidden { display: none !important; }
     .progress-bar { transition: width 0.5s ease; }
     
-    /* Preview Styles */
     .preview-container {
       font-family: 'Segoe UI', 'Calibri', Arial, sans-serif;
       font-size: 11pt;
@@ -35,11 +31,11 @@
     .preview-container::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 8px; }
     .preview-container::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
     
-    .preview-container .preview-heading { font-size: 14pt; font-weight: bold; margin-top: 12pt; margin-bottom: 6pt; color: #0f172a; }
-    .preview-container .preview-subheading { font-size: 12pt; font-weight: bold; margin-top: 10pt; margin-bottom: 4pt; color: #0f172a; }
-    .preview-container .preview-paragraph { margin-bottom: 4pt; text-align: justify; color: #1e293b; }
-    .preview-container .preview-bullet { margin-bottom: 2pt; padding-left: 20pt; color: #1e293b; }
-    .preview-container .preview-numbered { margin-bottom: 2pt; padding-left: 20pt; color: #1e293b; }
+    .preview-container .preview-heading { font-size: 14pt; font-weight: bold; margin-top: 18pt; margin-bottom: 9pt; color: #0f172a; }
+    .preview-container .preview-subheading { font-size: 12pt; font-weight: bold; margin-top: 12pt; margin-bottom: 6pt; color: #0f172a; }
+    .preview-container .preview-paragraph { margin-bottom: 4pt; text-align: justify; color: #1e293b; line-height: 1.5; }
+    .preview-container .preview-bullet { margin-bottom: 3pt; padding-left: 20pt; color: #1e293b; line-height: 1.5; }
+    .preview-container .preview-numbered { margin-bottom: 3pt; padding-left: 20pt; color: #1e293b; line-height: 1.5; }
     .preview-container .preview-bold { font-weight: bold; }
     .preview-container .preview-page-break { border-top: 2px dashed #e2e8f0; margin: 20pt 0; text-align: center; color: #94a3b8; font-size: 9pt; }
     .preview-container .preview-image-placeholder { background: #f1f5f9; border: 2px dashed #cbd5e1; border-radius: 8px; padding: 20px; text-align: center; color: #94a3b8; margin: 10pt 0; font-size: 10pt; }
@@ -154,7 +150,7 @@
       <h2 class="text-xl font-black text-slate-900 text-center mb-6">Frequently Asked Questions</h2>
       <div class="space-y-3">
         <div class="bg-white p-5 rounded-xl border border-slate-100"><h3 class="font-bold text-slate-900 text-sm">Is my data safe?</h3><p class="text-slate-600 text-sm mt-1">Yes! All conversions happen locally in your browser. Your PDF is never uploaded to any server.</p></div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100"><h3 class="font-bold text-slate-900 text-sm">Will my formatting be preserved?</h3><p class="text-slate-600 text-sm mt-1">The converter preserves text, bold, headings, images, tables, and page breaks.</p></div>
+        <div class="bg-white p-5 rounded-xl border border-slate-100"><h3 class="font-bold text-slate-900 text-sm">Will my formatting be preserved?</h3><p class="text-slate-600 text-sm mt-1">The converter preserves text, bold, headings, images, tables, and page breaks with proper Word spacing.</p></div>
       </div>
     </section>
   </main>
@@ -180,7 +176,6 @@
     let extractedText = '';
     let currentPreviewMode = 'formatted';
 
-    // DOM Elements
     const dropzone = document.getElementById('dropzone');
     const fileInput = document.getElementById('fileInput');
     const fileInfo = document.getElementById('fileInfo');
@@ -230,10 +225,10 @@
         const page = documentData.pages[p];
         if (p > 0) html += `<div class="preview-page-break">— Page ${p + 1} —</div>`;
         
-        // Render text lines
         for (const line of page.lines) {
           if (line.isHeading) {
-            html += `<div class="preview-heading">${line.text}</div>`;
+            const isMain = /^[A-Z][A-Z\s]+$/.test(line.text) || /^\d+\.\s+[A-Z]/.test(line.text);
+            html += `<div class="${isMain ? 'preview-heading' : 'preview-subheading'}">${line.text}</div>`;
           } else if (line.isBullet) {
             html += `<div class="preview-bullet">• ${line.text.replace(/^[•●▪◦\-*]\s*/, '')}</div>`;
           } else if (line.isNumbered) {
@@ -243,7 +238,6 @@
           }
         }
         
-        // Render tables
         if (page.tables && page.tables.length > 0) {
           for (const table of page.tables) {
             html += `<table class="preview-table">`;
@@ -266,7 +260,6 @@
           }
         }
         
-        // Render images
         if (page.images && page.images.length > 0) {
           html += `<div class="preview-image-placeholder">🖼️ ${page.images.length} image(s) on this page</div>`;
         }
@@ -295,9 +288,6 @@
       }
     }
 
-    // ============================================
-    // MATRIX UTILITY FUNCTIONS
-    // ============================================
     function matrixMultiply(a, b) {
       return [
         a[0]*b[0] + a[2]*b[1], a[1]*b[0] + a[3]*b[1],
@@ -330,9 +320,6 @@
       return bytes;
     }
 
-    // ============================================
-    // RENDER PAGE AND FIND IMAGES
-    // ============================================
     async function renderPageAndFindImages(page, pageNumber) {
       const baseViewport = page.getViewport({ scale: 1 });
       const renderScale = 1.5;
@@ -399,9 +386,6 @@
       return { pageNumber, pageWidth: baseViewport.width, pageHeight: baseViewport.height, images: crops };
     }
 
-    // ============================================
-    // DETECT TABLES FROM TEXT LINES
-    // ============================================
     function detectTables(lines) {
       const tables = [];
       let currentTable = [];
@@ -422,7 +406,6 @@
           continue;
         }
 
-        // Check if line contains multiple columns (detect by multiple spaces or tabs)
         const parts = text.split(/\s{3,}/).filter(p => p.trim());
         if (parts.length >= 2) {
           if (!inTable) {
@@ -431,11 +414,9 @@
             currentTable = [parts];
             tableStartY = line.y;
           } else if (Math.abs(line.y - tableStartY) < 50) {
-            // Same table
             if (parts.length === headerRow.length || Math.abs(parts.length - headerRow.length) <= 1) {
               currentTable.push(parts);
             } else {
-              // Different table structure
               if (currentTable.length >= 2) {
                 tables.push({ header: headerRow, rows: currentTable.slice(1) });
               }
@@ -461,9 +442,6 @@
       return tables;
     }
 
-    // ============================================
-    // EXTRACT DOCUMENT CONTENT
-    // ============================================
     async function extractDocumentContent(arrayBuffer, showProgress = true) {
       if (!pdfjsLib) await loadPDFJS();
 
@@ -486,7 +464,6 @@
           return { text: item.str || '', x, y, width: item.width || 0, fontSize, isBold };
         }).filter(item => item.text.trim());
 
-        // Group into lines
         const lines = [];
         const tolerance = 2.5;
         for (const item of items) {
@@ -525,6 +502,7 @@
             isHeading: isHeading,
             isBullet: /^[•●▪◦\-*]\s*/.test(lineText),
             isNumbered: /^\d+[\.)]\s/.test(lineText),
+            isAllCaps: isAllCaps,
             page: pageIndex - 1,
             y: line.y,
             x: Math.min(...line.items.map(i => i.x))
@@ -533,10 +511,7 @@
           fullText += lineText + '\n';
         }
 
-        // Detect tables
         const tables = detectTables(structuredLines);
-
-        // Get images
         const visual = await renderPageAndFindImages(page, pageIndex - 1);
         totalImages += visual.images.length;
 
@@ -560,13 +535,8 @@
       return { pages, text: fullText, pageCount: pdf.numPages, imageCount: totalImages };
     }
 
-    function halfPointsFromPdf(fontSize) {
-      const pt = Math.max(7, Math.min(36, fontSize || 11));
-      return Math.round(pt * 2);
-    }
-
     // ============================================
-    // CREATE DOCX WITH IMAGES, TABLES & FORMATTING
+    // CREATE DOCX WITH PROPER SPACING
     // ============================================
     async function createStyledDOCX(documentData, filename) {
       if (typeof window.docx === 'undefined') {
@@ -578,40 +548,68 @@
 
       if (filename) {
         children.push(new Paragraph({
-          children: [new TextRun({ text: filename, size: 32, bold: true })],
+          children: [new TextRun({ text: filename, size: 36, bold: true })],
           alignment: AlignmentType.CENTER,
-          spacing: { after: 400 }
+          spacing: { before: 400, after: 400 }
         }));
       }
 
       for (let p = 0; p < documentData.pages.length; p++) {
         const page = documentData.pages[p];
-
-        // Sort lines by Y position
         const sortedLines = [...page.lines].sort((a, b) => a.y - b.y);
 
-        // Track if we've added tables for this page
-        let tableIndex = 0;
+        let lastLineWasHeading = false;
 
         for (const line of sortedLines) {
-          const size = halfPointsFromPdf(line.fontSize);
-          const isHeading = line.isHeading;
+          const isHeading = line.isHeading || line.isAllCaps;
+          
+          let beforeSpacing = 0;
+          let afterSpacing = 0;
+          let fontSize = 22;
+          let lineSpacing = 1.5;
+
+          if (isHeading) {
+            const isMainHeading = /^[A-Z][A-Z\s]+$/.test(line.text) || /^\d+\.\s+[A-Z]/.test(line.text);
+            
+            if (isMainHeading) {
+              fontSize = 28;
+              beforeSpacing = 360;
+              afterSpacing = 180;
+              lineSpacing = 1.3;
+            } else {
+              fontSize = 24;
+              beforeSpacing = 240;
+              afterSpacing = 120;
+              lineSpacing = 1.3;
+            }
+          } else if (line.isBullet || line.isNumbered) {
+            fontSize = 22;
+            beforeSpacing = 60;
+            afterSpacing = 60;
+            lineSpacing = 1.5;
+          } else {
+            fontSize = 22;
+            beforeSpacing = 80;
+            afterSpacing = 80;
+            lineSpacing = 1.5;
+          }
 
           let text = line.text;
           if (line.isBullet) text = text.replace(/^[•●▪◦\-*]\s*/, '');
 
           const run = new TextRun({
             text: line.isBullet ? '• ' + text : text,
-            size: size,
+            size: fontSize,
             bold: !!(line.isBold || isHeading)
           });
 
           const options = {
             children: [run],
             spacing: {
-              before: isHeading ? 200 : 60,
-              after: isHeading ? 100 : 60,
-              line: Math.round(size * 1.2)
+              before: beforeSpacing,
+              after: afterSpacing,
+              line: Math.round(fontSize * lineSpacing),
+              lineRule: 'exact'
             }
           };
 
@@ -623,13 +621,17 @@
             options.indent = { left: 360, hanging: 180 };
           }
 
+          if (isHeading && !lastLineWasHeading && beforeSpacing > 0) {
+            options.spacing.before = beforeSpacing + 120;
+          }
+
           children.push(new Paragraph(options));
+          lastLineWasHeading = isHeading;
         }
 
         // Add tables
         for (const table of page.tables) {
           try {
-            // Create a proper table in docx
             const { Table, TableRow, TableCell, BorderStyle, WidthType } = window.docx;
 
             const rows = [];
@@ -637,7 +639,7 @@
               new TableCell({
                 children: [new Paragraph({
                   children: [new TextRun({ text: cell || '', bold: true, size: 20 })],
-                  spacing: { before: 60, after: 60 }
+                  spacing: { before: 80, after: 80 }
                 })],
                 borders: {
                   top: { style: BorderStyle.SINGLE, size: 1 },
@@ -654,7 +656,7 @@
                 new TableCell({
                   children: [new Paragraph({
                     children: [new TextRun({ text: cell || '', size: 20 })],
-                    spacing: { before: 40, after: 40 }
+                    spacing: { before: 60, after: 60 }
                   })],
                   borders: {
                     top: { style: BorderStyle.SINGLE, size: 1 },
@@ -672,8 +674,9 @@
               width: { size: 100, type: WidthType.PERCENTAGE },
             });
 
+            children.push(new Paragraph({ children: [], spacing: { before: 120, after: 0 } }));
             children.push(tableObj);
-            tableIndex++;
+            children.push(new Paragraph({ children: [], spacing: { before: 0, after: 120 } }));
           } catch (e) {
             console.warn('Table creation error:', e);
           }
@@ -689,6 +692,8 @@
             const cappedHeightPx = Math.min(heightPx, 600);
             const cappedWidthPx = Math.round(widthPx * (cappedHeightPx / heightPx));
 
+            children.push(new Paragraph({ children: [], spacing: { before: 120, after: 0 } }));
+            
             children.push(new Paragraph({
               children: [new ImageRun({
                 data: img.data,
@@ -700,6 +705,8 @@
               alignment: AlignmentType.CENTER,
               spacing: { before: 80, after: 80 }
             }));
+            
+            children.push(new Paragraph({ children: [], spacing: { before: 0, after: 120 } }));
           } catch (e) {
             console.warn('Image insertion error:', e);
           }
@@ -716,7 +723,12 @@
             page: {
               width: convertInchesToTwip(8.27),
               height: convertInchesToTwip(11.69),
-              margin: { top: convertInchesToTwip(0.75), bottom: convertInchesToTwip(0.75), left: convertInchesToTwip(0.8), right: convertInchesToTwip(0.8) }
+              margin: {
+                top: convertInchesToTwip(1.0),
+                bottom: convertInchesToTwip(1.0),
+                left: convertInchesToTwip(1.25),
+                right: convertInchesToTwip(1.25)
+              }
             }
           },
           children
@@ -726,9 +738,6 @@
       return await Packer.toBlob(doc);
     }
 
-    // ============================================
-    // EVENT HANDLERS
-    // ============================================
     document.addEventListener('DOMContentLoaded', () => { loadPDFJS(); });
 
     dropzone.addEventListener('dragover', (e) => { e.preventDefault(); dropzone.classList.add('dropzone-highlight'); });
