@@ -387,19 +387,39 @@
       pageGridContainer.classList.toggle('hidden', this.value !== 'extract');
     });
 
-    // Drag and Drop
-    dropzone.addEventListener('dragover', (e) => {
-      e.preventDefault();
-      dropzone.classList.add('dropzone-highlight');
+    // ============================================
+    // FILE HANDLING - FIXED
+    // ============================================
+    
+    // Click on dropzone to open file picker
+    dropzone.addEventListener('click', function(e) {
+      if (e.target.tagName !== 'BUTTON') {
+        fileInput.click();
+      }
     });
 
-    dropzone.addEventListener('dragleave', () => {
-      dropzone.classList.remove('dropzone-highlight');
+    // File input change handler
+    fileInput.addEventListener('change', function(e) {
+      if (this.files.length > 0) {
+        handleFile(this.files[0]);
+        this.value = ''; // Reset so same file can be selected again
+      }
     });
 
-    dropzone.addEventListener('drop', (e) => {
+    // Drag and drop
+    dropzone.addEventListener('dragover', function(e) {
       e.preventDefault();
-      dropzone.classList.remove('dropzone-highlight');
+      this.classList.add('dropzone-highlight');
+    });
+
+    dropzone.addEventListener('dragleave', function(e) {
+      e.preventDefault();
+      this.classList.remove('dropzone-highlight');
+    });
+
+    dropzone.addEventListener('drop', function(e) {
+      e.preventDefault();
+      this.classList.remove('dropzone-highlight');
       const files = e.dataTransfer.files;
       if (files.length > 0 && files[0].type === 'application/pdf') {
         handleFile(files[0]);
@@ -408,19 +428,15 @@
       }
     });
 
-    dropzone.addEventListener('click', (e) => {
-      if (e.target.tagName !== 'BUTTON') {
-        fileInput.click();
-      }
-    });
-
-    fileInput.addEventListener('change', (e) => {
-      if (e.target.files.length > 0) {
-        handleFile(e.target.files[0]);
-      }
+    // The button inside dropzone should also trigger file picker
+    document.querySelector('#dropzone button').addEventListener('click', function(e) {
+      e.stopPropagation();
+      fileInput.click();
     });
 
     async function handleFile(file) {
+      console.log('File selected:', file.name);
+
       if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
         alert('Please select a valid PDF file.');
         return;
@@ -560,7 +576,7 @@
     }
 
     // ============================================
-    // SPLIT PDF - FIXED VERSION
+    // SPLIT PDF
     // ============================================
     async function splitPDF() {
       if (!currentFile) {
@@ -651,7 +667,7 @@
             });
           }
 
-          // Create PDF using html2pdf (more reliable)
+          // Create PDF using html2pdf
           const pdfBlob = await createPDFFromImages(pageImages);
           
           const baseName = currentFile.name.replace(/\.pdf$/i, '');
@@ -810,11 +826,41 @@
         return;
       }
 
-      // Use JSZip if available
       if (typeof JSZip !== 'undefined') {
         const zip = new JSZip();
         for (const result of splitResults) {
           zip.file(result.name, result.blob);
         }
         zip.generateAsync({ type: 'blob' }).then(content => {
-          const url = URL.createObjectURL(content
+          const url = URL.createObjectURL(content);
+          const link = document.createElement('a');
+          const baseName = currentFile?.name.replace(/\.pdf$/i, '') || 'split';
+          link.download = `${baseName}_split.zip`;
+          link.href = url;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          URL.revokeObjectURL(url);
+        });
+      } else {
+        // Fallback: download individually
+        for (let i = 0; i < splitResults.length; i++) {
+          setTimeout(() => {
+            downloadSplit(i);
+          }, i * 500);
+        }
+      }
+    }
+
+    // Keyboard shortcut: Enter to split
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !splitBtn.disabled && !splitBtn.textContent.includes('⏳')) {
+        splitPDF();
+      }
+    });
+
+    console.log('Split PDF tool loaded successfully!');
+  </script>
+
+</body>
+</html>
