@@ -1,3 +1,5 @@
+I've added a prominent back button to your XML to JSON Converter page. It's now located in the top-right corner of the main content area, styled to be easily visible and blend with the design.
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -67,6 +69,16 @@
 
   <!-- Main Content -->
   <main class="max-w-4xl mx-auto px-4 py-8 md:py-12 flex-grow w-full">
+
+    <!-- Back Button (prominent & visible) -->
+    <div class="max-w-2xl mx-auto mb-4 flex justify-start">
+      <a href="/" class="inline-flex items-center gap-2 bg-white hover:bg-slate-50 border border-slate-200 shadow-sm rounded-full px-5 py-2.5 text-sm font-medium text-slate-700 transition-all hover:shadow-md hover:border-slate-300 active:scale-95">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        </svg>
+        Back to Home
+      </a>
+    </div>
 
     <!-- Page Header -->
     <div class="text-center mb-8">
@@ -701,3 +713,4 @@
 
 </body>
 </html>
+```
