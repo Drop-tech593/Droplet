@@ -1,1 +1,857 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Split PDF - Droplet</title>
+  <meta name="description" content="Split PDF files into multiple documents online for free. 100% client-side, your files never leave your browser.">
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- PDF.js for PDF parsing -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  
+  <!-- jsPDF for PDF creation -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  
+  <style>
+    .dropzone-highlight {
+      border-color: #3b82f6 !important;
+      background: #eff6ff !important;
+    }
+    .hidden {
+      display: none !important;
+    }
+    .progress-bar {
+      transition: width 0.5s ease;
+    }
+    .page-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+      gap: 8px;
+      max-height: 300px;
+      overflow-y: auto;
+      padding: 8px;
+    }
+    .page-grid::-webkit-scrollbar { width: 6px; }
+    .page-grid::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 8px; }
+    .page-grid::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 8px; }
+    .page-grid::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    .page-thumb {
+      border: 2px solid #e2e8f0;
+      border-radius: 6px;
+      padding: 6px 4px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: white;
+      font-size: 11px;
+      font-weight: 500;
+      color: #64748b;
+      user-select: none;
+    }
+    .page-thumb:hover {
+      border-color: #94a3b8;
+      background: #f8fafc;
+    }
+    .page-thumb.selected {
+      border-color: #2563eb;
+      background: #eff6ff;
+      color: #1e40af;
+    }
+    .page-thumb .page-num {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .page-thumb .page-preview {
+      display: block;
+      margin: 2px auto;
+      background: #f1f5f9;
+      border-radius: 2px;
+    }
+    .info-badge {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 12px;
+      font-size: 10px;
+      font-weight: 600;
+    }
+    .badge-pages { background: #dbeafe; color: #1e40af; }
+    .badge-files { background: #d1fae5; color: #065f46; }
+    .badge-size { background: #fef3c7; color: #92400e; }
+    .badge-split { background: #fce7f3; color: #9d174d; }
+    
+    .split-result-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 14px;
+      border-bottom: 1px solid #f1f5f9;
+      transition: background 0.2s;
+    }
+    .split-result-item:hover {
+      background: #f8fafc;
+    }
+    .split-result-item .info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .split-result-item .info .name {
+      font-weight: 500;
+      color: #1e293b;
+    }
+    .split-result-item .info .pages {
+      font-size: 0.75rem;
+      color: #64748b;
+      background: #f1f5f9;
+      padding: 2px 8px;
+      border-radius: 12px;
+    }
+    .split-result-item .info .range {
+      font-size: 0.75rem;
+      color: #94a3b8;
+    }
+    .split-result-item .download-btn {
+      background: #2563eb;
+      color: white;
+      border: none;
+      padding: 4px 12px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .split-result-item .download-btn:hover {
+      background: #1d4ed8;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased">
 
+  <!-- Navigation -->
+  <header class="bg-white border-b border-slate-200 py-3.5 px-6 sticky top-0 z-50">
+    <div class="max-w-6xl mx-auto flex justify-between items-center">
+      <a href="/" class="flex items-center gap-3 group">
+        <img src="Gemini_Generated_Image_sdu6v7sdu6v7sdu6.jpg" alt="Droplet Logo" class="h-9 w-auto rounded-xl shadow-sm group-hover:scale-105 transition-transform">
+        <div>
+          <h1 class="text-xl font-black tracking-tight text-slate-900 leading-none">Droplet</h1>
+          <p class="text-[9px] text-blue-600 font-extrabold tracking-widest uppercase mt-0.5">DRAG, DROP AND CONVERT.</p>
+        </div>
+      </a>
+      <nav class="hidden md:flex items-center space-x-6 text-xs font-bold text-slate-600">
+        <a href="/" class="hover:text-blue-600 transition-colors">← Back</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="max-w-4xl mx-auto px-4 py-8 md:py-12 flex-grow w-full">
+
+    <!-- Page Header -->
+    <div class="text-center mb-8">
+      <div class="inline-block p-3 bg-blue-50 rounded-2xl mb-4">
+        <span class="text-4xl">✂️</span>
+      </div>
+      <h1 class="text-3xl md:text-4xl font-black text-slate-900 tracking-tight">Split PDF</h1>
+      <p class="text-slate-500 text-sm md:text-base mt-2 max-w-lg mx-auto">
+        Split your PDF into multiple files. <strong>100% client-side</strong> — your files never leave your browser.
+      </p>
+    </div>
+
+    <!-- Dropzone -->
+    <div id="dropzone" class="bg-white border-2 border-dashed border-slate-300 hover:border-blue-400 transition-all rounded-3xl p-8 md:p-12 text-center shadow-lg max-w-2xl mx-auto cursor-pointer">
+      <div class="flex flex-col items-center">
+        <div class="w-20 h-20 bg-blue-50 rounded-2xl flex items-center justify-center mb-4 text-4xl">
+          📁
+        </div>
+        <h3 class="text-xl font-bold text-slate-900 mb-1">Drop your PDF here</h3>
+        <p class="text-slate-400 text-sm mb-4">or click to browse</p>
+        <input type="file" id="fileInput" accept=".pdf,application/pdf" class="hidden">
+        <button onclick="document.getElementById('fileInput').click()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-3 rounded-xl text-sm shadow-md shadow-blue-500/20 transition-all active:scale-95">
+          Select PDF File
+        </button>
+        <p class="text-xs text-slate-400 mt-3">Max file size: ~100MB</p>
+      </div>
+    </div>
+
+    <!-- File Info -->
+    <div id="fileInfo" class="hidden max-w-2xl mx-auto mt-6 bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <span class="text-2xl">📄</span>
+          <div>
+            <p id="fileName" class="font-medium text-slate-900"></p>
+            <p id="fileSize" class="text-xs text-slate-400"></p>
+            <p id="pageCount" class="text-xs text-slate-400"></p>
+          </div>
+        </div>
+        <button onclick="clearFile()" class="text-slate-400 hover:text-red-500 transition-colors">✕</button>
+      </div>
+      
+      <!-- Split Options -->
+      <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-slate-50 rounded-lg">
+        <div>
+          <label class="block text-xs font-medium text-slate-700 mb-1">Split Mode</label>
+          <select id="splitMode" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="every">Every N Pages</option>
+            <option value="ranges">Custom Ranges</option>
+            <option value="extract">Extract Selected Pages</option>
+          </select>
+        </div>
+        <div id="everyNContainer">
+          <label class="block text-xs font-medium text-slate-700 mb-1">Pages Per File</label>
+          <input type="number" id="pagesPerFile" value="1" min="1" max="100" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div id="rangesContainer" class="hidden">
+          <label class="block text-xs font-medium text-slate-700 mb-1">Page Ranges (e.g., 1-3, 5, 7-9)</label>
+          <input type="text" id="pageRanges" placeholder="1-3, 5, 7-9" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div id="extractContainer" class="hidden">
+          <label class="block text-xs font-medium text-slate-700 mb-1">Select pages below</label>
+          <p class="text-xs text-slate-400">Click on pages to select/deselect</p>
+        </div>
+      </div>
+
+      <!-- Page Grid -->
+      <div id="pageGridContainer" class="hidden mt-4 border-t border-slate-200 pt-4">
+        <div class="flex items-center justify-between mb-2">
+          <h4 class="font-bold text-sm text-slate-700">📄 Pages</h4>
+          <div class="flex gap-2">
+            <button onclick="selectAllPages()" class="text-xs text-blue-600 hover:text-blue-800 transition-colors">Select All</button>
+            <button onclick="deselectAllPages()" class="text-xs text-slate-500 hover:text-slate-700 transition-colors">Deselect All</button>
+            <span id="selectedCount" class="text-xs text-slate-400"></span>
+          </div>
+        </div>
+        <div id="pageGrid" class="page-grid"></div>
+      </div>
+      
+      <div class="mt-4 flex flex-wrap gap-3">
+        <button onclick="splitPDF()" id="splitBtn" class="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-xl transition-all active:scale-95 shadow-md shadow-green-500/20 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+          ✂️ Split PDF
+        </button>
+        <button onclick="clearFile()" class="px-4 py-3 border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors text-sm">
+          Change File
+        </button>
+      </div>
+      
+      <!-- Progress Bar -->
+      <div id="progressContainer" class="hidden mt-4">
+        <div class="flex justify-between text-xs text-slate-500 mb-1">
+          <span>Splitting...</span>
+          <span id="progressText">0%</span>
+        </div>
+        <div class="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
+          <div id="progressBar" class="bg-blue-600 h-2 rounded-full progress-bar" style="width: 0%"></div>
+        </div>
+        <p id="statusText" class="text-xs text-slate-400 mt-2 text-center">Initializing...</p>
+      </div>
+    </div>
+
+    <!-- Result Section -->
+    <div id="resultSection" class="hidden max-w-2xl mx-auto mt-6 bg-green-50 border border-green-200 rounded-xl p-6">
+      <div class="flex items-center justify-between mb-4">
+        <div>
+          <div class="text-4xl mb-1">✅</div>
+          <h3 class="font-bold text-slate-900">Split Complete!</h3>
+          <p class="text-sm text-slate-600 mt-1">Your files are ready to download.</p>
+          <div class="mt-2 flex flex-wrap gap-2">
+            <span id="resultBadgeFiles" class="info-badge badge-files">0 files</span>
+            <span id="resultBadgePages" class="info-badge badge-pages">0 pages</span>
+          </div>
+        </div>
+        <button onclick="downloadAllSplits()" id="downloadAllBtn" class="bg-green-600 hover:bg-green-700 text-white font-bold px-4 py-2 rounded-lg text-sm transition-all shadow-md shadow-green-500/20">
+          📥 Download All (ZIP)
+        </button>
+      </div>
+      
+      <div id="splitResults" class="max-h-60 overflow-y-auto border border-slate-200 rounded-lg bg-white">
+        <!-- Split results will be added here -->
+      </div>
+      
+      <div class="mt-4 flex flex-wrap gap-3">
+        <button onclick="resetConverter()" class="px-6 py-3 border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors text-sm">
+          Split Another
+        </button>
+      </div>
+    </div>
+
+    <!-- Info Section -->
+    <div class="max-w-2xl mx-auto mt-12 grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div class="bg-white p-4 rounded-xl border border-slate-100 text-center">
+        <div class="text-2xl mb-1">🔒</div>
+        <h4 class="font-bold text-sm">100% Private</h4>
+        <p class="text-xs text-slate-500">Your files never leave your browser</p>
+      </div>
+      <div class="bg-white p-4 rounded-xl border border-slate-100 text-center">
+        <div class="text-2xl mb-1">✂️</div>
+        <h4 class="font-bold text-sm">Multiple Modes</h4>
+        <p class="text-xs text-slate-500">Split by pages, ranges, or extract</p>
+      </div>
+      <div class="bg-white p-4 rounded-xl border border-slate-100 text-center">
+        <div class="text-2xl mb-1">⚡</div>
+        <h4 class="font-bold text-sm">Fast & Free</h4>
+        <p class="text-xs text-slate-500">No sign-up required</p>
+      </div>
+    </div>
+
+    <!-- FAQ Section -->
+    <section class="max-w-2xl mx-auto mt-12">
+      <h2 class="text-xl font-black text-slate-900 text-center mb-6">Frequently Asked Questions</h2>
+      <div class="space-y-3">
+        <div class="bg-white p-5 rounded-xl border border-slate-100">
+          <h3 class="font-bold text-slate-900 text-sm">Is my data safe?</h3>
+          <p class="text-slate-600 text-sm mt-1">Yes! All splitting happens locally in your browser. Your PDF is never uploaded to any server.</p>
+        </div>
+        <div class="bg-white p-5 rounded-xl border border-slate-100">
+          <h3 class="font-bold text-slate-900 text-sm">What split modes are available?</h3>
+          <p class="text-slate-600 text-sm mt-1">You can split by "Every N Pages" (e.g., every 2 pages), "Custom Ranges" (e.g., 1-3, 5, 7-9), or "Extract Selected Pages" by clicking on pages.</p>
+        </div>
+        <div class="bg-white p-5 rounded-xl border border-slate-100">
+          <h3 class="font-bold text-slate-900 text-sm">Are there file size limits?</h3>
+          <p class="text-slate-600 text-sm mt-1">Since everything runs locally, limits depend on your device's memory. Most modern browsers handle PDFs up to 100MB without issues.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-500 mt-auto">
+    <div class="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-3">
+      <p class="font-medium">© Droplet. 100% Client-Side Privacy First File Utility.</p>
+      <div class="space-x-4">
+        <a href="/privacy.html" class="hover:text-blue-600 transition-colors">Privacy Policy</a>
+        <span>•</span>
+        <a href="/terms.html" class="hover:text-blue-600 transition-colors">Terms of Service</a>
+        <span>•</span>
+        <a href="/contact.html" class="hover:text-blue-600 transition-colors">Contact</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ===== JAVASCRIPT ===== -->
+  <script>
+    let currentFile = null;
+    let pdfPages = [];
+    let selectedPages = new Set();
+    let splitResults = [];
+    let totalPages = 0;
+
+    // DOM Elements
+    const dropzone = document.getElementById('dropzone');
+    const fileInput = document.getElementById('fileInput');
+    const fileInfo = document.getElementById('fileInfo');
+    const fileName = document.getElementById('fileName');
+    const fileSize = document.getElementById('fileSize');
+    const pageCount = document.getElementById('pageCount');
+    const splitBtn = document.getElementById('splitBtn');
+    const progressContainer = document.getElementById('progressContainer');
+    const progressBar = document.getElementById('progressBar');
+    const progressText = document.getElementById('progressText');
+    const statusText = document.getElementById('statusText');
+    const resultSection = document.getElementById('resultSection');
+    const splitResults = document.getElementById('splitResults');
+    const pageGrid = document.getElementById('pageGrid');
+    const pageGridContainer = document.getElementById('pageGridContainer');
+    const selectedCount = document.getElementById('selectedCount');
+    const resultBadgeFiles = document.getElementById('resultBadgeFiles');
+    const resultBadgePages = document.getElementById('resultBadgePages');
+    const downloadAllBtn = document.getElementById('downloadAllBtn');
+
+    // Options
+    const splitMode = document.getElementById('splitMode');
+    const pagesPerFile = document.getElementById('pagesPerFile');
+    const pageRanges = document.getElementById('pageRanges');
+    const everyNContainer = document.getElementById('everyNContainer');
+    const rangesContainer = document.getElementById('rangesContainer');
+    const extractContainer = document.getElementById('extractContainer');
+
+    // Set PDF.js worker
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+    // Toggle split mode UI
+    splitMode.addEventListener('change', function() {
+      everyNContainer.classList.toggle('hidden', this.value !== 'every');
+      rangesContainer.classList.toggle('hidden', this.value !== 'ranges');
+      extractContainer.classList.toggle('hidden', this.value !== 'extract');
+      pageGridContainer.classList.toggle('hidden', this.value !== 'extract');
+    });
+
+    // Drag and Drop
+    dropzone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropzone.classList.add('dropzone-highlight');
+    });
+
+    dropzone.addEventListener('dragleave', () => {
+      dropzone.classList.remove('dropzone-highlight');
+    });
+
+    dropzone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropzone.classList.remove('dropzone-highlight');
+      const files = e.dataTransfer.files;
+      if (files.length > 0 && files[0].type === 'application/pdf') {
+        handleFile(files[0]);
+      } else {
+        alert('Please drop a PDF file.');
+      }
+    });
+
+    dropzone.addEventListener('click', (e) => {
+      if (e.target.tagName !== 'BUTTON') {
+        fileInput.click();
+      }
+    });
+
+    fileInput.addEventListener('change', (e) => {
+      if (e.target.files.length > 0) {
+        handleFile(e.target.files[0]);
+      }
+    });
+
+    async function handleFile(file) {
+      if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
+        alert('Please select a valid PDF file.');
+        return;
+      }
+
+      if (file.size > 100 * 1024 * 1024) {
+        alert('File is too large. Please use a PDF under 100MB.');
+        return;
+      }
+
+      currentFile = file;
+      fileName.textContent = file.name;
+      fileSize.textContent = (file.size / 1024 / 1024).toFixed(2) + ' MB';
+      fileInfo.classList.remove('hidden');
+      dropzone.classList.add('hidden');
+      resultSection.classList.add('hidden');
+      progressContainer.classList.add('hidden');
+      splitBtn.disabled = false;
+
+      // Load PDF and show pages
+      await loadPDF(file);
+    }
+
+    async function loadPDF(file) {
+      try {
+        statusText.textContent = 'Loading PDF...';
+        progressContainer.classList.remove('hidden');
+        progressBar.style.width = '10%';
+        progressText.textContent = '10%';
+
+        const arrayBuffer = await file.arrayBuffer();
+        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+        totalPages = pdf.numPages;
+        pageCount.textContent = `📄 ${totalPages} pages`;
+
+        pdfPages = [];
+        selectedPages = new Set();
+
+        // Render page thumbnails
+        pageGrid.innerHTML = '';
+        const maxPreview = Math.min(totalPages, 20);
+
+        for (let i = 1; i <= totalPages; i++) {
+          const page = await pdf.getPage(i);
+          const viewport = page.getViewport({ scale: 0.3 });
+          const canvas = document.createElement('canvas');
+          canvas.width = viewport.width;
+          canvas.height = viewport.height;
+          const ctx = canvas.getContext('2d');
+          await page.render({ canvasContext: ctx, viewport }).promise;
+
+          pdfPages.push({
+            pageNum: i,
+            canvas: canvas
+          });
+
+          // Create thumbnail
+          const thumb = document.createElement('div');
+          thumb.className = 'page-thumb';
+          thumb.dataset.page = i;
+          thumb.innerHTML = `
+            <span class="page-num">${i}</span>
+            <canvas class="page-preview" width="${viewport.width * 0.6}" height="${viewport.height * 0.6}" style="width: 40px; height: auto;"></canvas>
+          `;
+          
+          const previewCanvas = thumb.querySelector('canvas');
+          const previewCtx = previewCanvas.getContext('2d');
+          previewCtx.drawImage(canvas, 0, 0, previewCanvas.width, previewCanvas.height);
+
+          thumb.addEventListener('click', function() {
+            const pageNum = parseInt(this.dataset.page);
+            if (selectedPages.has(pageNum)) {
+              selectedPages.delete(pageNum);
+              this.classList.remove('selected');
+            } else {
+              selectedPages.add(pageNum);
+              this.classList.add('selected');
+            }
+            updateSelectedCount();
+          });
+
+          pageGrid.appendChild(thumb);
+        }
+
+        pageGridContainer.classList.remove('hidden');
+        updateSelectedCount();
+
+        progressContainer.classList.add('hidden');
+        statusText.textContent = '✅ Ready to split';
+
+      } catch (error) {
+        console.error('Error loading PDF:', error);
+        statusText.textContent = '❌ Failed to load PDF: ' + error.message;
+        progressContainer.classList.add('hidden');
+        alert('Failed to load PDF. Please try again.');
+      }
+    }
+
+    function updateSelectedCount() {
+      selectedCount.textContent = `${selectedPages.size} selected`;
+    }
+
+    function selectAllPages() {
+      for (let i = 1; i <= totalPages; i++) {
+        selectedPages.add(i);
+      }
+      document.querySelectorAll('.page-thumb').forEach(el => {
+        el.classList.add('selected');
+      });
+      updateSelectedCount();
+    }
+
+    function deselectAllPages() {
+      selectedPages.clear();
+      document.querySelectorAll('.page-thumb').forEach(el => {
+        el.classList.remove('selected');
+      });
+      updateSelectedCount();
+    }
+
+    function clearFile() {
+      currentFile = null;
+      pdfPages = [];
+      selectedPages = new Set();
+      splitResults = [];
+      fileInput.value = '';
+      fileInfo.classList.add('hidden');
+      dropzone.classList.remove('hidden');
+      resultSection.classList.add('hidden');
+      progressContainer.classList.add('hidden');
+      pageGridContainer.classList.add('hidden');
+      progressBar.style.width = '0%';
+      progressText.textContent = '0%';
+      splitBtn.disabled = true;
+    }
+
+    function resetConverter() {
+      clearFile();
+      splitResults = [];
+      downloadAllBtn.textContent = '📥 Download All (ZIP)';
+    }
+
+    // ============================================
+    // SPLIT PDF
+    // ============================================
+    async function splitPDF() {
+      if (!currentFile) {
+        alert('Please select a PDF file first.');
+        return;
+      }
+
+      const mode = splitMode.value;
+      let pageRangesList = [];
+
+      if (mode === 'every') {
+        const n = parseInt(pagesPerFile.value) || 1;
+        if (n < 1) {
+          alert('Please enter a valid number of pages per file.');
+          return;
+        }
+        for (let i = 1; i <= totalPages; i += n) {
+          const end = Math.min(i + n - 1, totalPages);
+          pageRangesList.push({ start: i, end: end });
+        }
+      } else if (mode === 'ranges') {
+        const input = pageRanges.value.trim();
+        if (!input) {
+          alert('Please enter page ranges (e.g., 1-3, 5, 7-9)');
+          return;
+        }
+        try {
+          pageRangesList = parseRanges(input);
+        } catch (e) {
+          alert('Invalid page range format. Use format like: 1-3, 5, 7-9');
+          return;
+        }
+      } else if (mode === 'extract') {
+        if (selectedPages.size === 0) {
+          alert('Please select at least one page.');
+          return;
+        }
+        const sorted = Array.from(selectedPages).sort((a, b) => a - b);
+        // Group consecutive pages
+        let start = sorted[0];
+        let end = sorted[0];
+        for (let i = 1; i < sorted.length; i++) {
+          if (sorted[i] === end + 1) {
+            end = sorted[i];
+          } else {
+            pageRangesList.push({ start: start, end: end });
+            start = sorted[i];
+            end = sorted[i];
+          }
+        }
+        pageRangesList.push({ start: start, end: end });
+      }
+
+      if (pageRangesList.length === 0) {
+        alert('No page ranges to split.');
+        return;
+      }
+
+      // Show progress
+      progressContainer.classList.remove('hidden');
+      resultSection.classList.add('hidden');
+      splitBtn.disabled = true;
+      splitBtn.textContent = '⏳ Splitting...';
+      progressBar.style.width = '5%';
+      progressText.textContent = '5%';
+      statusText.textContent = 'Loading PDF...';
+
+      try {
+        const arrayBuffer = await currentFile.arrayBuffer();
+        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+        splitResults = [];
+
+        for (let r = 0; r < pageRangesList.length; r++) {
+          const range = pageRangesList[r];
+          const pages = [];
+          
+          for (let pageNum = range.start; pageNum <= range.end; pageNum++) {
+            const page = await pdf.getPage(pageNum);
+            const viewport = page.getViewport({ scale: 2.0 });
+            const canvas = document.createElement('canvas');
+            canvas.width = viewport.width;
+            canvas.height = viewport.height;
+            const ctx = canvas.getContext('2d');
+            await page.render({ canvasContext: ctx, viewport }).promise;
+            pages.push({ canvas: canvas, width: viewport.width, height: viewport.height });
+          }
+
+          // Create PDF for this range
+          const blob = await createPDFFromPages(pages);
+          
+          const baseName = currentFile.name.replace(/\.pdf$/i, '');
+          const fileName = `${baseName}_part_${r + 1}.pdf`;
+          
+          splitResults.push({
+            blob: blob,
+            name: fileName,
+            pages: pages.length,
+            range: `${range.start}-${range.end}`
+          });
+
+          // Update progress
+          const progress = Math.round(((r + 1) / pageRangesList.length) * 80) + 15;
+          progressBar.style.width = Math.min(progress, 95) + '%';
+          progressText.textContent = Math.min(progress, 95) + '%';
+          statusText.textContent = `Creating part ${r + 1} of ${pageRangesList.length}...`;
+        }
+
+        progressBar.style.width = '100%';
+        progressText.textContent = '100%';
+        statusText.textContent = '✅ Split complete!';
+
+        // Show results
+        setTimeout(() => {
+          showResults();
+          splitBtn.disabled = false;
+          splitBtn.textContent = '✂️ Split PDF';
+          progressContainer.classList.add('hidden');
+        }, 500);
+
+      } catch (error) {
+        console.error('Split error:', error);
+        statusText.textContent = '❌ Split failed: ' + error.message;
+        splitBtn.disabled = false;
+        splitBtn.textContent = '✂️ Split PDF';
+        alert('Split failed. Please try again.\n\nError: ' + error.message);
+      }
+    }
+
+    function parseRanges(input) {
+      const ranges = [];
+      const parts = input.split(',').map(p => p.trim());
+      for (const part of parts) {
+        if (part.includes('-')) {
+          const [start, end] = part.split('-').map(p => parseInt(p.trim()));
+          if (isNaN(start) || isNaN(end) || start < 1 || end > totalPages || start > end) {
+            throw new Error('Invalid range');
+          }
+          ranges.push({ start: start, end: end });
+        } else {
+          const page = parseInt(part);
+          if (isNaN(page) || page < 1 || page > totalPages) {
+            throw new Error('Invalid page number');
+          }
+          ranges.push({ start: page, end: page });
+        }
+      }
+      return ranges;
+    }
+
+    async function createPDFFromPages(pages) {
+      const { jsPDF } = window.jspdf;
+      const firstPage = pages[0];
+      const orientation = firstPage.width > firstPage.height ? 'landscape' : 'portrait';
+      const format = [firstPage.width, firstPage.height];
+
+      const pdf = new jsPDF({
+        orientation: orientation,
+        unit: 'px',
+        format: format,
+        compress: true
+      });
+
+      for (let i = 0; i < pages.length; i++) {
+        const page = pages[i];
+        const imgData = page.canvas.toDataURL('image/jpeg', 0.92);
+        
+        if (i > 0) {
+          // Check if dimensions match
+          if (Math.abs(page.width - firstPage.width) > 1 || Math.abs(page.height - firstPage.height) > 1) {
+            const scaleX = firstPage.width / page.width;
+            const scaleY = firstPage.height / page.height;
+            const scale = Math.min(scaleX, scaleY);
+            const scaledWidth = page.width * scale;
+            const scaledHeight = page.height * scale;
+            const offsetX = (firstPage.width - scaledWidth) / 2;
+            const offsetY = (firstPage.height - scaledHeight) / 2;
+            pdf.addPage([firstPage.width, firstPage.height]);
+            pdf.addImage(imgData, 'JPEG', offsetX, offsetY, scaledWidth, scaledHeight);
+          } else {
+            pdf.addPage([firstPage.width, firstPage.height]);
+            pdf.addImage(imgData, 'JPEG', 0, 0, page.width, page.height);
+          }
+        } else {
+          pdf.addImage(imgData, 'JPEG', 0, 0, page.width, page.height);
+        }
+      }
+
+      return pdf.output('blob');
+    }
+
+    function showResults() {
+      resultBadgeFiles.textContent = `${splitResults.length} files`;
+      let totalPages = 0;
+      for (const result of splitResults) {
+        totalPages += result.pages;
+      }
+      resultBadgePages.textContent = `${totalPages} pages`;
+
+      // Build results list
+      splitResults.innerHTML = '';
+      for (let i = 0; i < splitResults.length; i++) {
+        const result = splitResults[i];
+        const div = document.createElement('div');
+        div.className = 'split-result-item';
+        div.innerHTML = `
+          <div class="info">
+            <span class="name">${result.name}</span>
+            <span class="pages">📄 ${result.pages} pages</span>
+            <span class="range">Pages ${result.range}</span>
+          </div>
+          <button class="download-btn" onclick="downloadSplit(${i})">📥 Download</button>
+        `;
+        splitResults.appendChild(div);
+      }
+
+      resultSection.classList.remove('hidden');
+    }
+
+    function downloadSplit(index) {
+      const result = splitResults[index];
+      const url = URL.createObjectURL(result.blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = result.name;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    }
+
+    function downloadAllSplits() {
+      if (splitResults.length === 0) {
+        alert('No files to download.');
+        return;
+      }
+
+      if (splitResults.length === 1) {
+        downloadSplit(0);
+        return;
+      }
+
+      // Use JSZip if available
+      if (typeof JSZip !== 'undefined') {
+        const zip = new JSZip();
+        for (const result of splitResults) {
+          zip.file(result.name, result.blob);
+        }
+        zip.generateAsync({ type: 'blob' }).then(content => {
+          const url = URL.createObjectURL(content);
+          const link = document.createElement('a');
+          const baseName = currentFile?.name.replace(/\.pdf$/i, '') || 'split';
+          link.download = `${baseName}_split.zip`;
+          link.href = url;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          URL.revokeObjectURL(url);
+        });
+      } else {
+        // Fallback: download individually
+        for (let i = 0; i < splitResults.length; i++) {
+          setTimeout(() => {
+            downloadSplit(i);
+          }, i * 500);
+        }
+      }
+    }
+
+    // Load JSZip for zip downloads
+    function loadJSZip() {
+      return new Promise((resolve, reject) => {
+        if (typeof JSZip !== 'undefined') {
+          resolve();
+          return;
+        }
+        const script = document.createElement('script');
+        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';
+        script.onload = resolve;
+        script.onerror = reject;
+        document.head.appendChild(script);
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadJSZip();
+    });
+
+    // Keyboard shortcut: Enter to split
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !splitBtn.disabled && !splitBtn.textContent.includes('⏳')) {
+        splitPDF();
+      }
+    });
+  </script>
+
+</body>
+</html>
