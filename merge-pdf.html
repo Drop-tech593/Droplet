@@ -12,6 +12,9 @@
   <!-- PDF.js for PDF parsing -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   
+  <!-- jsPDF for PDF creation -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  
   <style>
     .dropzone-highlight {
       border-color: #3b82f6 !important;
@@ -57,6 +60,7 @@
       display: flex;
       align-items: center;
       gap: 10px;
+      flex-wrap: wrap;
     }
     .file-item .file-info .name {
       font-weight: 500;
@@ -105,6 +109,26 @@
     .badge-files { background: #dbeafe; color: #1e40af; }
     .badge-pages { background: #d1fae5; color: #065f46; }
     .badge-size { background: #fef3c7; color: #92400e; }
+    
+    /* Page preview thumbnails */
+    .page-thumbnails {
+      display: flex;
+      gap: 4px;
+      flex-wrap: wrap;
+      margin-top: 4px;
+    }
+    .page-thumbnails .thumb {
+      width: 20px;
+      height: 28px;
+      background: #f1f5f9;
+      border: 1px solid #e2e8f0;
+      border-radius: 2px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 6px;
+      color: #94a3b8;
+    }
   </style>
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans antialiased">
@@ -245,10 +269,6 @@
         <div class="bg-white p-5 rounded-xl border border-slate-100">
           <h3 class="font-bold text-slate-900 text-sm">Are there file size limits?</h3>
           <p class="text-slate-600 text-sm mt-1">Since everything runs locally, limits depend on your device's memory. Most modern browsers handle PDFs up to 100MB each without issues.</p>
-        </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100">
-          <h3 class="font-bold text-slate-900 text-sm">What happens if files have different page sizes?</h3>
-          <p class="text-slate-600 text-sm mt-1">The merged PDF will preserve each page's original size. The output will use the first page's size as the default.</p>
         </div>
       </div>
     </section>
@@ -473,7 +493,7 @@
     }
 
     // ============================================
-    // MERGE PDFS
+    // MERGE PDFS - FIXED VERSION
     // ============================================
     async function mergePDFs() {
       if (files.length < 2) {
@@ -491,127 +511,115 @@
       statusText.textContent = 'Loading PDF files...';
 
       try {
-        // Read all PDF files as ArrayBuffers
-        const pdfData = [];
+        // Read all PDFs as ArrayBuffers and render pages
+        const allPages = [];
+        let pageCounter = 0;
+
         for (let i = 0; i < files.length; i++) {
           const arrayBuffer = await files[i].file.arrayBuffer();
-          pdfData.push(arrayBuffer);
-          
-          const progress = Math.round(((i + 1) / files.length) * 30) + 5;
-          progressBar.style.width = progress + '%';
-          progressText.textContent = progress + '%';
-          statusText.textContent = `Loading file ${i + 1} of ${files.length}...`;
-        }
-
-        progressBar.style.width = '40%';
-        progressText.textContent = '40%';
-        statusText.textContent = 'Merging PDFs...';
-
-        // Use PDF.js to merge
-        const mergedPages = [];
-        let totalMergedPages = 0;
-
-        for (let i = 0; i < pdfData.length; i++) {
-          const data = pdfData[i];
-          const pdf = await pdfjsLib.getDocument({ data }).promise;
+          const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
           
           for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
             const page = await pdf.getPage(pageNum);
-            const viewport = page.getViewport({ scale: 1.5 });
+            const viewport = page.getViewport({ scale: 2.0 }); // Higher quality
             
-            // Create canvas for rendering
             const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
             canvas.width = viewport.width;
             canvas.height = viewport.height;
-            const ctx = canvas.getContext('2d');
             
-            await page.render({ canvasContext: ctx, viewport }).promise;
+            await page.render({ canvasContext: context, viewport }).promise;
             
-            // Get image data
-            const imgData = canvas.toDataURL('image/jpeg', 0.92);
-            mergedPages.push({
-              data: imgData,
+            allPages.push({
+              canvas: canvas,
               width: viewport.width,
-              height: viewport.height
+              height: viewport.height,
+              sourceFile: i,
+              pageNum: pageNum
             });
             
-            totalMergedPages++;
+            pageCounter++;
             
-            const progress = Math.round(((totalMergedPages) / (files.reduce((sum, f) => sum + (f.pages || 1), 0))) * 40) + 40;
-            progressBar.style.width = Math.min(progress, 85) + '%';
-            progressText.textContent = Math.min(progress, 85) + '%';
-            statusText.textContent = `Merging page ${totalMergedPages}...`;
+            // Update progress
+            const progress = Math.round((pageCounter / (files.reduce((sum, f) => sum + f.pages, 0))) * 40) + 10;
+            progressBar.style.width = Math.min(progress, 50) + '%';
+            progressText.textContent = Math.min(progress, 50) + '%';
+            statusText.textContent = `Processing page ${pageCounter}...`;
           }
         }
 
-        progressBar.style.width = '90%';
-        progressText.textContent = '90%';
-        statusText.textContent = 'Building merged PDF...';
+        progressBar.style.width = '60%';
+        progressText.textContent = '60%';
+        statusText.textContent = 'Creating merged PDF...';
 
-        // Build the merged PDF using html2canvas approach
-        // Since we can't create PDFs directly with PDF.js, we'll use a canvas-based approach
-        // to create a new PDF with all pages
+        // Create merged PDF using jsPDF
+        const { jsPDF } = window.jspdf;
         
-        // Create a single canvas with all pages stacked vertically
-        const totalHeight = mergedPages.reduce((sum, page) => sum + page.height, 0);
-        const maxWidth = Math.max(...mergedPages.map(p => p.width));
+        // Determine orientation and format from first page
+        const firstPage = allPages[0];
+        const orientation = firstPage.width > firstPage.height ? 'landscape' : 'portrait';
+        const format = [firstPage.width, firstPage.height];
         
-        const finalCanvas = document.createElement('canvas');
-        finalCanvas.width = maxWidth;
-        finalCanvas.height = totalHeight;
-        const finalCtx = finalCanvas.getContext('2d');
-        
-        let yOffset = 0;
-        for (const page of mergedPages) {
-          const img = new Image();
-          await new Promise((resolve, reject) => {
-            img.onload = resolve;
-            img.onerror = reject;
-            img.src = page.data;
-          });
-          finalCtx.drawImage(img, 0, yOffset, page.width, page.height);
-          yOffset += page.height;
-        }
+        // Create PDF with first page
+        const pdf = new jsPDF({
+          orientation: orientation,
+          unit: 'px',
+          format: format,
+          compress: true
+        });
 
-        // Convert to PDF using html2pdf
-        if (typeof html2pdf !== 'undefined') {
-          const tempDiv = document.createElement('div');
-          tempDiv.style.position = 'fixed';
-          tempDiv.style.left = '-9999px';
-          tempDiv.style.top = '0';
-          tempDiv.style.width = maxWidth + 'px';
-          tempDiv.style.background = 'white';
-          tempDiv.style.zIndex = '-9999';
-          tempDiv.innerHTML = `<img src="${finalCanvas.toDataURL('image/jpeg', 0.92)}" style="width: 100%; height: auto;">`;
-          document.body.appendChild(tempDiv);
+        // Add all pages
+        for (let i = 0; i < allPages.length; i++) {
+          const page = allPages[i];
           
-          const opt = {
-            margin: 0,
-            filename: 'merged.pdf',
-            image: { type: 'jpeg', quality: 0.92 },
-            html2canvas: { scale: 1.5, useCORS: true, letterRendering: true },
-            jsPDF: { unit: 'px', format: [maxWidth, totalHeight], orientation: 'portrait' }
-          };
+          // For pages after the first, add a new page
+          if (i > 0) {
+            // Check if dimensions match the first page
+            if (Math.abs(page.width - firstPage.width) > 1 || Math.abs(page.height - firstPage.height) > 1) {
+              // Different page size - create new PDF with this page's size
+              // For simplicity, we'll use the first page's size and scale
+              const scaleX = firstPage.width / page.width;
+              const scaleY = firstPage.height / page.height;
+              const scale = Math.min(scaleX, scaleY);
+              const scaledWidth = page.width * scale;
+              const scaledHeight = page.height * scale;
+              const offsetX = (firstPage.width - scaledWidth) / 2;
+              const offsetY = (firstPage.height - scaledHeight) / 2;
+              
+              pdf.addPage([firstPage.width, firstPage.height]);
+              const imgData = page.canvas.toDataURL('image/jpeg', 0.9);
+              pdf.addImage(imgData, 'JPEG', offsetX, offsetY, scaledWidth, scaledHeight);
+            } else {
+              pdf.addPage([firstPage.width, firstPage.height]);
+              const imgData = page.canvas.toDataURL('image/jpeg', 0.9);
+              pdf.addImage(imgData, 'JPEG', 0, 0, page.width, page.height);
+            }
+          } else {
+            // First page
+            const imgData = page.canvas.toDataURL('image/jpeg', 0.9);
+            pdf.addImage(imgData, 'JPEG', 0, 0, page.width, page.height);
+          }
           
-          const pdfBlob = await html2pdf().set(opt).from(tempDiv).outputPdf('blob');
-          document.body.removeChild(tempDiv);
-          mergedBlob = pdfBlob;
-        } else {
-          // Fallback: Use the canvas image directly as a PDF
-          // Create a PDF using jsPDF if available, or use the canvas data
-          const pdfBlob = await createPDFFromCanvas(finalCanvas);
-          mergedBlob = pdfBlob;
+          // Update progress
+          const progress = Math.round(((i + 1) / allPages.length) * 30) + 60;
+          progressBar.style.width = Math.min(progress, 95) + '%';
+          progressText.textContent = Math.min(progress, 95) + '%';
+          statusText.textContent = `Adding page ${i + 1} of ${allPages.length}...`;
         }
 
         progressBar.style.width = '100%';
         progressText.textContent = '100%';
         statusText.textContent = '✅ Merge complete!';
 
+        // Generate PDF blob
+        const pdfOutput = pdf.output('blob');
+        mergedBlob = pdfOutput;
+
         // Show result
         setTimeout(() => {
           const url = URL.createObjectURL(mergedBlob);
           downloadLink.href = url;
-          const totalPages = mergedPages.length;
+          const totalPages = allPages.length;
           const totalSize = mergedBlob.size;
           const baseName = files[0]?.name.replace(/\.pdf$/i, '') || 'merged';
           downloadLink.download = baseName + '_merged.pdf';
@@ -634,73 +642,6 @@
         alert('Merge failed. Please try again or use different PDF files.\n\nError: ' + error.message);
       }
     }
-
-    // Fallback PDF creation from canvas
-    async function createPDFFromCanvas(canvas) {
-      // Use the canvas to create a PDF with jsPDF if available
-      if (typeof jsPDF !== 'undefined') {
-        const { jsPDF } = window.jspdf;
-        const imgData = canvas.toDataURL('image/jpeg', 0.92);
-        const pdf = new jsPDF({
-          orientation: canvas.width > canvas.height ? 'landscape' : 'portrait',
-          unit: 'px',
-          format: [canvas.width, canvas.height]
-        });
-        pdf.addImage(imgData, 'JPEG', 0, 0, canvas.width, canvas.height);
-        return pdf.output('blob');
-      }
-      
-      // Ultimate fallback: just return the canvas data as a blob
-      return new Promise(resolve => {
-        canvas.toBlob(resolve, 'image/jpeg', 0.92);
-      });
-    }
-
-    // Load html2pdf for PDF generation if needed
-    function loadHtml2PDF() {
-      return new Promise((resolve, reject) => {
-        if (typeof html2pdf !== 'undefined') {
-          resolve();
-          return;
-        }
-        const script = document.createElement('script');
-        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
-        script.onload = resolve;
-        script.onerror = reject;
-        document.head.appendChild(script);
-      });
-    }
-
-    // Load jsPDF as fallback
-    function loadJsPDF() {
-      return new Promise((resolve, reject) => {
-        if (typeof jsPDF !== 'undefined') {
-          resolve();
-          return;
-        }
-        const script = document.createElement('script');
-        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
-        script.onload = resolve;
-        script.onerror = reject;
-        document.head.appendChild(script);
-      });
-    }
-
-    // Preload libraries on page load
-    document.addEventListener('DOMContentLoaded', async () => {
-      try {
-        await loadHtml2PDF();
-        console.log('✅ html2pdf loaded');
-      } catch (e) {
-        console.log('html2pdf not loaded, using fallback');
-        try {
-          await loadJsPDF();
-          console.log('✅ jsPDF loaded');
-        } catch (e2) {
-          console.log('⚠️ No PDF library loaded, using basic fallback');
-        }
-      }
-    });
 
     // Keyboard shortcut: Enter to merge
     document.addEventListener('keydown', (e) => {
