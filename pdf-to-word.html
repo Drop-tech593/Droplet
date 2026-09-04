@@ -164,7 +164,7 @@
         <div id="previewContent" class="text-preview">
           <!-- Preview text will be rendered here -->
         </div>
-        <p class="text-xs text-slate-400 mt-2">💡 Preview shows extracted text. Actual Word document will be properly formatted.</p>
+        <p class="text-xs text-slate-400 mt-2">💡 Preview shows extracted text. Actual Word document will preserve bold, font sizes, and headings.</p>
       </div>
       
       <div class="mt-4 flex flex-wrap gap-3">
@@ -216,7 +216,7 @@
       <div class="bg-white p-4 rounded-xl border border-slate-100 text-center">
         <div class="text-2xl mb-1">📝</div>
         <h4 class="font-bold text-sm">Editable DOCX</h4>
-        <p class="text-xs text-slate-500">Proper Word document format</p>
+        <p class="text-xs text-slate-500">Proper Word document format with formatting</p>
       </div>
     </div>
 
@@ -230,11 +230,11 @@
         </div>
         <div class="bg-white p-5 rounded-xl border border-slate-100">
           <h3 class="font-bold text-slate-900 text-sm">Will my formatting be preserved?</h3>
-          <p class="text-slate-600 text-sm mt-1">The converter uses the proper DOCX format with real Word document structure. Text, headings, and basic formatting are preserved. Complex layouts (multi-column, tables) may have limitations.</p>
+          <p class="text-slate-600 text-sm mt-1">The converter now detects font sizes, bold text, and headings from the PDF. This preserves the document structure much better than before.</p>
         </div>
         <div class="bg-white p-5 rounded-xl border border-slate-100">
           <h3 class="font-bold text-slate-900 text-sm">What about scanned PDFs?</h3>
-          <p class="text-slate-600 text-sm mt-1">Scanned/image-based PDFs require OCR (Optical Character Recognition) to extract text. This tool works best with text-based PDFs.</p>
+          <p class="text-slate-600 text-sm mt-1">Scanned/image-based PDFs require OCR. This tool works best with text-based PDFs.</p>
         </div>
         <div class="bg-white p-5 rounded-xl border border-slate-100">
           <h3 class="font-bold text-slate-900 text-sm">Are there file size limits?</h3>
@@ -261,6 +261,7 @@
     let currentFile = null;
     let convertedBlob = null;
     let pdfjsLib = null;
+    let structuredLines = [];
     let extractedText = '';
     let currentPreviewMode = 'full';
 
@@ -346,24 +347,47 @@
       }
     }
 
-    // Extract text from PDF
-    async function extractTextFromPDF(arrayBuffer, showProgress = true) {
+    // ============================================
+    // ENHANCED TEXT EXTRACTION WITH FORMATTING
+    // ============================================
+    async function extractTextWithFormatting(arrayBuffer, showProgress = true) {
       try {
         const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+        let allLines = [];
         let fullText = '';
         
         for (let i = 1; i <= pdf.numPages; i++) {
           const page = await pdf.getPage(i);
           const textContent = await page.getTextContent();
           
-          const items = textContent.items.map(item => ({
-            text: item.str,
-            x: item.transform[4],
-            y: item.transform[5],
-            width: item.width,
-            height: item.height
-          }));
+          // Extract items with font size and bold detection
+          const items = textContent.items.map(item => {
+            // Extract font size from transform matrix
+            const fontSize = Math.sqrt(item.transform[0] * item.transform[0] + item.transform[1] * item.transform[1]);
+            
+            // Detect bold - check font name or large font size
+            const isBold = (item.fontName && item.fontName.toLowerCase().includes('bold')) || 
+                           (item.fontName && item.fontName.toLowerCase().includes('black')) ||
+                           fontSize > 14;
+            
+            // Detect if text is in all caps (likely heading)
+            const text = item.str.trim();
+            const isAllCaps = text.length > 2 && text === text.toUpperCase() && text.match(/[A-Z]/);
+            
+            return {
+              text: item.str,
+              x: item.transform[4],
+              y: item.transform[5],
+              width: item.width,
+              height: item.height,
+              fontSize: fontSize,
+              isBold: isBold,
+              isAllCaps: isAllCaps,
+              fontName: item.fontName || ''
+            };
+          });
           
+          // Sort by Y (top to bottom) then X (left to right)
           items.sort((a, b) => {
             const yDiff = b.y - a.y;
             if (Math.abs(yDiff) < 3) {
@@ -372,45 +396,93 @@
             return b.y - a.y;
           });
           
-          let pageText = '';
+          // Group items into lines
+          let lines = [];
+          let currentLine = [];
           let lastY = null;
-          let lineText = '';
-          let lastX = 0;
           
           for (let j = 0; j < items.length; j++) {
             const item = items[j];
             const currentY = Math.round(item.y / 2) * 2;
             
             if (lastY !== null && Math.abs(currentY - lastY) > 3) {
-              pageText += lineText.trim() + '\n';
-              lineText = '';
-              lastX = 0;
+              // New line
+              if (currentLine.length > 0) {
+                lines.push(currentLine);
+              }
+              currentLine = [];
             }
             
-            if (lastX > 0 && (item.x - lastX) > 20) {
-              lineText += '  ';
-            }
-            
-            lineText += item.text;
-            lastX = item.x + (item.width || 0);
+            currentLine.push(item);
             lastY = currentY;
           }
           
-          if (lineText.trim()) {
-            pageText += lineText.trim() + '\n';
+          if (currentLine.length > 0) {
+            lines.push(currentLine);
           }
           
-          fullText += pageText + '\n\n';
+          // Process each line to extract formatting
+          for (let lineIdx = 0; lineIdx < lines.length; lineIdx++) {
+            const lineItems = lines[lineIdx];
+            
+            // Combine text with proper spacing
+            let lineText = '';
+            let lastX = 0;
+            
+            for (let k = 0; k < lineItems.length; k++) {
+              const item = lineItems[k];
+              if (k > 0 && (item.x - lastX) > 20) {
+                lineText += '  ';
+              }
+              lineText += item.text;
+              lastX = item.x + (item.width || 0);
+            }
+            
+            lineText = lineText.trim();
+            if (!lineText) continue;
+            
+            // Determine line formatting
+            const maxFontSize = Math.max(...lineItems.map(item => item.fontSize));
+            const hasBold = lineItems.some(item => item.isBold);
+            const hasAllCaps = lineItems.some(item => item.isAllCaps);
+            const avgFontSize = lineItems.reduce((sum, item) => sum + item.fontSize, 0) / lineItems.length;
+            
+            // Detect if this is a heading
+            const isHeading = maxFontSize > 14 || 
+                              (hasAllCaps && lineText.length < 60 && lineText.match(/^[A-Z][A-Z\s]+$/)) ||
+                              lineText.match(/^\d+\.\s+[A-Z]/) ||
+                              lineText.match(/^[A-Z][a-z]+.*:$/);
+            
+            // Detect if this is a list item
+            const isBullet = lineText.startsWith('•') || lineText.startsWith('-') || lineText.startsWith('*');
+            const isNumbered = lineText.match(/^\d+\.\s/);
+            
+            // Store structured line
+            allLines.push({
+              text: lineText,
+              fontSize: maxFontSize,
+              isBold: hasBold,
+              isHeading: isHeading,
+              isBullet: isBullet,
+              isNumbered: isNumbered,
+              isAllCaps: hasAllCaps,
+              page: i
+            });
+            
+            fullText += lineText + '\n';
+          }
+          
+          fullText += '\n';
           
           if (showProgress) {
             const progress = Math.round((i / pdf.numPages) * 60) + 30;
             progressBar.style.width = progress + '%';
             progressText.textContent = progress + '%';
-            statusText.textContent = `Extracting text from page ${i} of ${pdf.numPages}...`;
+            statusText.textContent = `Processing page ${i} of ${pdf.numPages}...`;
           }
         }
         
-        return { text: fullText, pageCount: pdf.numPages };
+        return { lines: allLines, text: fullText, pageCount: pdf.numPages };
       } catch (error) {
         console.error('Text extraction error:', error);
         throw error;
@@ -418,19 +490,15 @@
     }
 
     // ============================================
-    // REAL DOCX CREATION USING DOCX.JS LIBRARY
+    // ENHANCED DOCX CREATION WITH FORMATTING
     // ============================================
-    async function createRealDOCX(text, filename) {
+    async function createStyledDOCX(lines, filename) {
       try {
-        // Check if docx library is loaded
         if (typeof window.docx === 'undefined') {
           throw new Error('DOCX library not loaded. Please refresh the page.');
         }
 
-        const { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType, convertInchesToTwip } = window.docx;
-
-        // Split text into paragraphs
-        const lines = text.split(/\n/).filter(line => line.trim().length > 0 || line.trim() === '');
+        const { Document, Packer, Paragraph, TextRun, AlignmentType, convertInchesToTwip } = window.docx;
         
         const children = [];
         
@@ -441,7 +509,7 @@
               children: [
                 new TextRun({
                   text: filename,
-                  size: 32, // 16pt
+                  size: 32,
                   bold: true,
                 }),
               ],
@@ -450,110 +518,106 @@
             })
           );
         }
-
-        // Process each line
+        
+        // Process each line with formatting
         for (let i = 0; i < lines.length; i++) {
-          const line = lines[i].trim();
+          const line = lines[i];
           
-          if (!line) {
-            // Empty line - add spacing
+          if (!line.text) {
             children.push(
               new Paragraph({
                 children: [],
-                spacing: { before: 120, after: 120 },
+                spacing: { before: 80, after: 80 },
               })
             );
             continue;
           }
-
-          // Check for heading patterns
-          const isAllCaps = line.match(/^[A-Z][A-Z\s]+$/) && line.length > 3 && line.length < 100;
-          const isNumberedHeading = line.match(/^\d+\.\s+[A-Z]/) || line.match(/^\d+\.\d+\s+[A-Z]/);
-          const isSubHeading = line.match(/^[A-Z][a-z]+.*:$/) && line.length < 80 && !line.includes('  ');
-          const isBullet = line.startsWith('•') || line.startsWith('-') || line.startsWith('*');
-          const isNumbered = line.match(/^\d+\.\s/);
-          const isTableCaption = line.includes('Table') && line.includes(':');
-
+          
+          // Calculate font size in half-points (docx uses half-points)
+          let docxFontSize = 22; // default 11pt
+          if (line.fontSize > 0) {
+            // Map PDF font size to docx size (approximate)
+            if (line.fontSize >= 20) docxFontSize = 36;
+            else if (line.fontSize >= 16) docxFontSize = 28;
+            else if (line.fontSize >= 14) docxFontSize = 24;
+            else if (line.fontSize >= 12) docxFontSize = 22;
+            else docxFontSize = 20;
+          }
+          
+          // Override for headings
+          if (line.isHeading) {
+            docxFontSize = line.fontSize >= 16 ? 28 : 24;
+          }
+          
+          // Determine spacing
+          let beforeSpacing = 80;
+          let afterSpacing = 80;
+          
+          if (line.isHeading) {
+            beforeSpacing = 240;
+            afterSpacing = 120;
+          } else if (line.isBullet || line.isNumbered) {
+            beforeSpacing = 60;
+            afterSpacing = 60;
+          }
+          
+          // Create paragraph with formatting
           let paragraph;
-
-          if (isAllCaps || isNumberedHeading) {
-            // Major heading
-            paragraph = new Paragraph({
-              children: [
-                new TextRun({
-                  text: line,
-                  size: 28, // 14pt
-                  bold: true,
-                }),
-              ],
-              spacing: { before: 240, after: 120 },
-            });
-          } else if (isSubHeading) {
-            // Sub heading
-            paragraph = new Paragraph({
-              children: [
-                new TextRun({
-                  text: line,
-                  size: 24, // 12pt
-                  bold: true,
-                }),
-              ],
-              spacing: { before: 180, after: 80 },
-            });
-          } else if (isBullet) {
-            // Bullet point
-            const bulletText = line.replace(/^[•\-*]\s*/, '');
+          
+          if (line.isBullet) {
+            const bulletText = line.text.replace(/^[•\-*]\s*/, '');
             paragraph = new Paragraph({
               children: [
                 new TextRun({
                   text: `• ${bulletText}`,
-                  size: 22, // 11pt
+                  size: docxFontSize,
+                  bold: line.isBold || false,
                 }),
               ],
-              spacing: { before: 60, after: 60 },
+              spacing: { before: beforeSpacing, after: afterSpacing },
               indent: { firstLine: 360, hanging: 360 },
             });
-          } else if (isNumbered) {
-            // Numbered item
+          } else if (line.isNumbered) {
             paragraph = new Paragraph({
               children: [
                 new TextRun({
-                  text: line,
-                  size: 22,
+                  text: line.text,
+                  size: docxFontSize,
+                  bold: line.isBold || false,
                 }),
               ],
-              spacing: { before: 60, after: 60 },
+              spacing: { before: beforeSpacing, after: afterSpacing },
               indent: { firstLine: 360, hanging: 360 },
             });
-          } else if (isTableCaption) {
-            // Table caption
+          } else if (line.isHeading) {
             paragraph = new Paragraph({
               children: [
                 new TextRun({
-                  text: line,
-                  size: 22,
+                  text: line.text,
+                  size: docxFontSize,
                   bold: true,
                 }),
               ],
-              spacing: { before: 180, after: 80 },
+              spacing: { before: beforeSpacing, after: afterSpacing },
             });
           } else {
-            // Regular paragraph
+            // Regular paragraph with justify
             paragraph = new Paragraph({
               children: [
                 new TextRun({
-                  text: line,
-                  size: 22, // 11pt
+                  text: line.text,
+                  size: docxFontSize,
+                  bold: line.isBold || false,
                 }),
               ],
-              spacing: { before: 80, after: 80 },
+              spacing: { before: beforeSpacing, after: afterSpacing },
               alignment: AlignmentType.JUSTIFIED,
             });
           }
-
+          
           children.push(paragraph);
         }
-
+        
         // Create the document
         const doc = new Document({
           sections: [{
@@ -570,11 +634,10 @@
             children: children,
           }],
         });
-
-        // Generate the DOCX blob
+        
         const blob = await Packer.toBlob(doc);
         return blob;
-
+        
       } catch (error) {
         console.error('DOCX creation error:', error);
         throw error;
@@ -651,7 +714,8 @@
         }
 
         const arrayBuffer = await file.arrayBuffer();
-        const result = await extractTextFromPDF(arrayBuffer, false);
+        const result = await extractTextWithFormatting(arrayBuffer, false);
+        structuredLines = result.lines;
         extractedText = result.text;
         pageCount.textContent = `📄 ${result.pageCount} pages`;
 
@@ -675,6 +739,7 @@
     function clearFile() {
       currentFile = null;
       extractedText = '';
+      structuredLines = [];
       fileInput.value = '';
       fileInfo.classList.add('hidden');
       dropzone.classList.remove('hidden');
@@ -691,7 +756,7 @@
       downloadLink.href = '#';
     }
 
-    // Main Conversion Function - Using Real DOCX Library
+    // Main Conversion Function - Using Enhanced Formatting
     async function convertPDF() {
       if (!currentFile) {
         alert('Please select a PDF file first.');
@@ -707,26 +772,26 @@
       statusText.textContent = 'Reading PDF file...';
 
       try {
-        if (!extractedText) {
+        if (!structuredLines || structuredLines.length === 0) {
           const arrayBuffer = await currentFile.arrayBuffer();
           if (!pdfjsLib) {
             await loadPDFJS();
           }
-          const result = await extractTextFromPDF(arrayBuffer, true);
+          const result = await extractTextWithFormatting(arrayBuffer, true);
+          structuredLines = result.lines;
           extractedText = result.text;
         }
 
-        if (!extractedText || extractedText.trim().length === 0) {
+        if (!structuredLines || structuredLines.length === 0) {
           throw new Error('No text could be extracted from the PDF. The PDF might be scanned or image-based.');
         }
 
         progressBar.style.width = '60%';
         progressText.textContent = '60%';
-        statusText.textContent = 'Creating Word document...';
+        statusText.textContent = 'Creating Word document with formatting...';
 
-        // Create REAL DOCX using docx.js library
         const baseName = currentFile.name.replace(/\.pdf$/i, '');
-        const docxBlob = await createRealDOCX(extractedText, baseName);
+        const docxBlob = await createStyledDOCX(structuredLines, baseName);
         
         convertedBlob = docxBlob;
 
