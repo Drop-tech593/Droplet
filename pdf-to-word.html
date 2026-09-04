@@ -4,10 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>PDF to DOCX Converter - Droplet</title>
-  <meta name="description" content="Convert PDF to Word (DOCX) online for free. 100% client-side, your files never leave your browser. Preserves formatting, fonts, and layout.">
+  <meta name="description" content="Convert PDF to Word (DOCX) online for free. 100% client-side, your files never leave your browser.">
   
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- DOCX Library for real Word document generation -->
+  <script src="https://unpkg.com/docx@8.5.0/build/index.umd.js"></script>
   
   <style>
     .dropzone-highlight {
@@ -151,7 +154,6 @@
           <span id="charCount" class="text-xs text-slate-400"></span>
         </div>
         
-        <!-- Preview Controls -->
         <div class="preview-controls mb-3">
           <button class="active" onclick="setPreviewMode('full')" id="btnFull">📄 Full Document</button>
           <button onclick="setPreviewMode('first')" id="btnFirst">📃 First 500 Chars</button>
@@ -162,7 +164,7 @@
         <div id="previewContent" class="text-preview">
           <!-- Preview text will be rendered here -->
         </div>
-        <p class="text-xs text-slate-400 mt-2">💡 Preview shows extracted text. Actual Word document may have better formatting.</p>
+        <p class="text-xs text-slate-400 mt-2">💡 Preview shows extracted text. Actual Word document will be properly formatted.</p>
       </div>
       
       <div class="mt-4 flex flex-wrap gap-3">
@@ -214,7 +216,7 @@
       <div class="bg-white p-4 rounded-xl border border-slate-100 text-center">
         <div class="text-2xl mb-1">📝</div>
         <h4 class="font-bold text-sm">Editable DOCX</h4>
-        <p class="text-xs text-slate-500">Preserves formatting where possible</p>
+        <p class="text-xs text-slate-500">Proper Word document format</p>
       </div>
     </div>
 
@@ -228,15 +230,15 @@
         </div>
         <div class="bg-white p-5 rounded-xl border border-slate-100">
           <h3 class="font-bold text-slate-900 text-sm">Will my formatting be preserved?</h3>
-          <p class="text-slate-600 text-sm mt-1">The conversion preserves text, fonts, tables, and basic layout. However, complex PDF layouts (multi-column, advanced graphics) may have some formatting differences. For best results, use simple, text-heavy PDFs.</p>
+          <p class="text-slate-600 text-sm mt-1">The converter uses the proper DOCX format with real Word document structure. Text, headings, and basic formatting are preserved. Complex layouts (multi-column, tables) may have limitations.</p>
         </div>
         <div class="bg-white p-5 rounded-xl border border-slate-100">
           <h3 class="font-bold text-slate-900 text-sm">What about scanned PDFs?</h3>
-          <p class="text-slate-600 text-sm mt-1">Scanned/image-based PDFs require OCR (Optical Character Recognition) to extract text. This tool works best with text-based PDFs. For scanned documents, consider using a dedicated OCR tool first.</p>
+          <p class="text-slate-600 text-sm mt-1">Scanned/image-based PDFs require OCR (Optical Character Recognition) to extract text. This tool works best with text-based PDFs.</p>
         </div>
         <div class="bg-white p-5 rounded-xl border border-slate-100">
           <h3 class="font-bold text-slate-900 text-sm">Are there file size limits?</h3>
-          <p class="text-slate-600 text-sm mt-1">Since everything runs locally, limits depend on your device's memory. Most modern browsers handle PDFs up to 100MB without issues. Very large files may take longer to process.</p>
+          <p class="text-slate-600 text-sm mt-1">Since everything runs locally, limits depend on your device's memory. Most modern browsers handle PDFs up to 100MB without issues.</p>
         </div>
       </div>
     </section>
@@ -285,7 +287,6 @@
     function setPreviewMode(mode) {
       currentPreviewMode = mode;
       
-      // Update button states
       document.querySelectorAll('.preview-controls button').forEach(btn => btn.classList.remove('active'));
       if (mode === 'full') {
         document.getElementById('btnFull').classList.add('active');
@@ -345,7 +346,7 @@
       }
     }
 
-    // Extract text with better formatting preservation
+    // Extract text from PDF
     async function extractTextFromPDF(arrayBuffer, showProgress = true) {
       try {
         const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
@@ -355,7 +356,6 @@
           const page = await pdf.getPage(i);
           const textContent = await page.getTextContent();
           
-          // Get text with positioning info for better formatting
           const items = textContent.items.map(item => ({
             text: item.str,
             x: item.transform[4],
@@ -364,7 +364,6 @@
             height: item.height
           }));
           
-          // Sort by Y position (top to bottom) then X position (left to right)
           items.sort((a, b) => {
             const yDiff = b.y - a.y;
             if (Math.abs(yDiff) < 3) {
@@ -418,75 +417,168 @@
       }
     }
 
-    // Create a proper DOCX from text with better formatting
-    function createDOCXFromText(text, filename) {
-      let paragraphs = text.split(/\n\s*\n/).filter(p => p.trim().length > 0);
-      
-      if (paragraphs.length <= 1) {
-        paragraphs = text.split(/\n/).filter(p => p.trim().length > 0);
-      }
-      
-      paragraphs = paragraphs.map(p => p.trim());
-      
-      let bodyHtml = '';
-      
-      if (filename) {
-        bodyHtml += `<p style="font-size: 16pt; font-weight: bold; text-align: center; margin-bottom: 12pt;">${filename}</p>`;
-      }
-      
-      for (let i = 0; i < paragraphs.length; i++) {
-        let p = paragraphs[i];
-        
-        if (p.match(/^[A-Z][A-Z\s]+$/) && p.length > 3 && p.length < 100) {
-          bodyHtml += `<p style="font-size: 14pt; font-weight: bold; margin-top: 12pt; margin-bottom: 6pt;">${p}</p>`;
-        } else if (p.match(/^\d+\.\s+[A-Z]/) || p.match(/^\d+\.\d+\s+[A-Z]/)) {
-          bodyHtml += `<p style="font-size: 13pt; font-weight: bold; margin-top: 10pt; margin-bottom: 4pt;">${p}</p>`;
-        } else if (p.match(/^[A-Z][a-z]+.*:$/) && p.length < 80) {
-          bodyHtml += `<p style="font-size: 12pt; font-weight: bold; margin-top: 8pt; margin-bottom: 4pt;">${p}</p>`;
-        } else if (p.startsWith('•') || p.startsWith('-') || p.startsWith('*')) {
-          bodyHtml += `<p style="margin-left: 20pt; margin-bottom: 2pt;">${p}</p>`;
-        } else if (p.match(/^\d+\.\s/)) {
-          bodyHtml += `<p style="margin-left: 20pt; margin-bottom: 2pt;">${p}</p>`;
-        } else if (p.includes('Table') && p.includes(':')) {
-          bodyHtml += `<p style="font-weight: bold; margin-top: 8pt; margin-bottom: 4pt;">${p}</p>`;
-        } else {
-          bodyHtml += `<p style="margin-bottom: 6pt; text-align: justify;">${p}</p>`;
+    // ============================================
+    // REAL DOCX CREATION USING DOCX.JS LIBRARY
+    // ============================================
+    async function createRealDOCX(text, filename) {
+      try {
+        // Check if docx library is loaded
+        if (typeof window.docx === 'undefined') {
+          throw new Error('DOCX library not loaded. Please refresh the page.');
         }
-      }
-      
-      const htmlContent = `
-        <html xmlns:o='urn:schemas-microsoft-com:office:office' 
-              xmlns:w='urn:schemas-microsoft-com:office:word' 
-              xmlns='http://www.w3.org/TR/REC-html40'>
-        <head>
-          <meta charset="utf-8">
-          <title>${filename}</title>
-          <style>
-            @page {
-              size: A4;
-              margin: 2.54cm 3.17cm 2.54cm 3.17cm;
-            }
-            body { 
-              font-family: 'Calibri', 'Arial', sans-serif; 
-              font-size: 11pt; 
-              line-height: 1.5;
-              color: #000000;
-            }
-            p { 
-              margin: 0;
-              padding: 0;
-            }
-          </style>
-        </head>
-        <body>
-          ${bodyHtml}
-        </body>
-        </html>
-      `;
 
-      return new Blob([htmlContent], {
-        type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-      });
+        const { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType, convertInchesToTwip } = window.docx;
+
+        // Split text into paragraphs
+        const lines = text.split(/\n/).filter(line => line.trim().length > 0 || line.trim() === '');
+        
+        const children = [];
+        
+        // Add title
+        if (filename) {
+          children.push(
+            new Paragraph({
+              children: [
+                new TextRun({
+                  text: filename,
+                  size: 32, // 16pt
+                  bold: true,
+                }),
+              ],
+              alignment: AlignmentType.CENTER,
+              spacing: { after: 400 },
+            })
+          );
+        }
+
+        // Process each line
+        for (let i = 0; i < lines.length; i++) {
+          const line = lines[i].trim();
+          
+          if (!line) {
+            // Empty line - add spacing
+            children.push(
+              new Paragraph({
+                children: [],
+                spacing: { before: 120, after: 120 },
+              })
+            );
+            continue;
+          }
+
+          // Check for heading patterns
+          const isAllCaps = line.match(/^[A-Z][A-Z\s]+$/) && line.length > 3 && line.length < 100;
+          const isNumberedHeading = line.match(/^\d+\.\s+[A-Z]/) || line.match(/^\d+\.\d+\s+[A-Z]/);
+          const isSubHeading = line.match(/^[A-Z][a-z]+.*:$/) && line.length < 80 && !line.includes('  ');
+          const isBullet = line.startsWith('•') || line.startsWith('-') || line.startsWith('*');
+          const isNumbered = line.match(/^\d+\.\s/);
+          const isTableCaption = line.includes('Table') && line.includes(':');
+
+          let paragraph;
+
+          if (isAllCaps || isNumberedHeading) {
+            // Major heading
+            paragraph = new Paragraph({
+              children: [
+                new TextRun({
+                  text: line,
+                  size: 28, // 14pt
+                  bold: true,
+                }),
+              ],
+              spacing: { before: 240, after: 120 },
+            });
+          } else if (isSubHeading) {
+            // Sub heading
+            paragraph = new Paragraph({
+              children: [
+                new TextRun({
+                  text: line,
+                  size: 24, // 12pt
+                  bold: true,
+                }),
+              ],
+              spacing: { before: 180, after: 80 },
+            });
+          } else if (isBullet) {
+            // Bullet point
+            const bulletText = line.replace(/^[•\-*]\s*/, '');
+            paragraph = new Paragraph({
+              children: [
+                new TextRun({
+                  text: `• ${bulletText}`,
+                  size: 22, // 11pt
+                }),
+              ],
+              spacing: { before: 60, after: 60 },
+              indent: { firstLine: 360, hanging: 360 },
+            });
+          } else if (isNumbered) {
+            // Numbered item
+            paragraph = new Paragraph({
+              children: [
+                new TextRun({
+                  text: line,
+                  size: 22,
+                }),
+              ],
+              spacing: { before: 60, after: 60 },
+              indent: { firstLine: 360, hanging: 360 },
+            });
+          } else if (isTableCaption) {
+            // Table caption
+            paragraph = new Paragraph({
+              children: [
+                new TextRun({
+                  text: line,
+                  size: 22,
+                  bold: true,
+                }),
+              ],
+              spacing: { before: 180, after: 80 },
+            });
+          } else {
+            // Regular paragraph
+            paragraph = new Paragraph({
+              children: [
+                new TextRun({
+                  text: line,
+                  size: 22, // 11pt
+                }),
+              ],
+              spacing: { before: 80, after: 80 },
+              alignment: AlignmentType.JUSTIFIED,
+            });
+          }
+
+          children.push(paragraph);
+        }
+
+        // Create the document
+        const doc = new Document({
+          sections: [{
+            properties: {
+              page: {
+                margin: {
+                  top: convertInchesToTwip(1),
+                  bottom: convertInchesToTwip(1),
+                  left: convertInchesToTwip(1.25),
+                  right: convertInchesToTwip(1.25),
+                },
+              },
+            },
+            children: children,
+          }],
+        });
+
+        // Generate the DOCX blob
+        const blob = await Packer.toBlob(doc);
+        return blob;
+
+      } catch (error) {
+        console.error('DOCX creation error:', error);
+        throw error;
+      }
     }
 
     // Init on page load
@@ -563,11 +655,9 @@
         extractedText = result.text;
         pageCount.textContent = `📄 ${result.pageCount} pages`;
 
-        // Show full document preview
         const wordCount = extractedText.split(/\s+/).filter(w => w.length > 0).length;
         charCount.textContent = `${extractedText.length.toLocaleString()} chars • ${wordCount.toLocaleString()} words • ${result.pageCount} pages`;
         
-        // Render the full preview
         renderPreview('full');
         previewContainer.classList.remove('hidden');
 
@@ -601,7 +691,7 @@
       downloadLink.href = '#';
     }
 
-    // Main Conversion Function
+    // Main Conversion Function - Using Real DOCX Library
     async function convertPDF() {
       if (!currentFile) {
         alert('Please select a PDF file first.');
@@ -630,12 +720,13 @@
           throw new Error('No text could be extracted from the PDF. The PDF might be scanned or image-based.');
         }
 
-        progressBar.style.width = '70%';
-        progressText.textContent = '70%';
+        progressBar.style.width = '60%';
+        progressText.textContent = '60%';
         statusText.textContent = 'Creating Word document...';
 
+        // Create REAL DOCX using docx.js library
         const baseName = currentFile.name.replace(/\.pdf$/i, '');
-        const docxBlob = createDOCXFromText(extractedText, baseName);
+        const docxBlob = await createRealDOCX(extractedText, baseName);
         
         convertedBlob = docxBlob;
 
@@ -665,7 +756,7 @@
         let errorMsg = 'Conversion failed. ';
         if (error.message.includes('No text could be extracted')) {
           errorMsg += 'The PDF appears to be scanned or image-based. Try using an OCR tool first.';
-        } else if (error.message.includes('PDF library failed to load')) {
+        } else if (error.message.includes('DOCX library not loaded')) {
           errorMsg += 'Please refresh the page and try again.';
         } else {
           errorMsg += 'Please try again or use a different PDF file.';
