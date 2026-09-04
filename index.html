@@ -170,6 +170,7 @@
       font-size: 0.95rem;
       border-bottom: 1px solid #f1f5f9;
       transition: color 0.2s;
+      cursor: pointer;
     }
     .mobile-nav-panel .mobile-nav-item:hover {
       color: #2563eb;
@@ -231,6 +232,117 @@
       display: flex !important;
     }
 
+    /* ===== FILE UPLOAD OVERLAY ===== */
+    .upload-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      z-index: 2000;
+      justify-content: center;
+      align-items: center;
+    }
+    .upload-overlay.open {
+      display: flex;
+    }
+    .upload-modal {
+      background: white;
+      border-radius: 24px;
+      padding: 2rem;
+      max-width: 500px;
+      width: 90%;
+      max-height: 80vh;
+      overflow-y: auto;
+      box-shadow: 0 40px 80px rgba(0,0,0,0.3);
+      animation: slideUp 0.3s ease;
+    }
+    @keyframes slideUp {
+      from { transform: translateY(30px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    .upload-modal .modal-close {
+      float: right;
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: #94a3b8;
+      transition: color 0.2s;
+    }
+    .upload-modal .modal-close:hover {
+      color: #1e293b;
+    }
+    .upload-modal .file-info {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1rem;
+      background: #f8fafc;
+      border-radius: 12px;
+      margin: 1rem 0;
+    }
+    .upload-modal .file-info .icon {
+      font-size: 2.5rem;
+    }
+    .upload-modal .file-info .details {
+      flex: 1;
+    }
+    .upload-modal .file-info .details .name {
+      font-weight: 600;
+      color: #1e293b;
+    }
+    .upload-modal .file-info .details .size {
+      font-size: 0.8rem;
+      color: #94a3b8;
+    }
+    .upload-modal .conversion-options {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      margin: 1rem 0;
+    }
+    .upload-modal .conversion-options .option-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem 1rem;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      background: white;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+      color: #1e293b;
+    }
+    .upload-modal .conversion-options .option-btn:hover {
+      border-color: #2563eb;
+      background: #eff6ff;
+      transform: translateX(4px);
+    }
+    .upload-modal .conversion-options .option-btn .emoji {
+      font-size: 1.5rem;
+    }
+    .upload-modal .conversion-options .option-btn .label {
+      font-weight: 500;
+    }
+    .upload-modal .conversion-options .option-btn .desc {
+      font-size: 0.75rem;
+      color: #94a3b8;
+    }
+    .upload-modal .no-options {
+      text-align: center;
+      padding: 1.5rem;
+      color: #94a3b8;
+    }
+    .upload-modal .no-options .big-emoji {
+      font-size: 3rem;
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+
     /* ===== RESPONSIVE ===== */
     @media (max-width: 768px) {
       .desktop-nav {
@@ -238,6 +350,9 @@
       }
       .mobile-nav-toggle {
         display: block;
+      }
+      .upload-modal {
+        padding: 1.5rem;
       }
     }
     @media (min-width: 769px) {
@@ -494,6 +609,33 @@
     </button>
   </div>
 
+  <!-- ===== UPLOAD MODAL ===== -->
+  <div class="upload-overlay" id="uploadOverlay">
+    <div class="upload-modal">
+      <button class="modal-close" id="modalClose">✕</button>
+      <h3 class="text-xl font-bold text-slate-900 mb-2">📂 File Uploaded</h3>
+      <p class="text-slate-500 text-sm">Choose a conversion option for your file:</p>
+      
+      <div class="file-info" id="fileInfo">
+        <span class="icon" id="fileIcon">📄</span>
+        <div class="details">
+          <div class="name" id="fileName">filename.ext</div>
+          <div class="size" id="fileSize">0 KB</div>
+        </div>
+      </div>
+      
+      <div class="conversion-options" id="conversionOptions">
+        <!-- Options will be dynamically added -->
+      </div>
+      
+      <div class="no-options hidden" id="noOptions">
+        <span class="big-emoji">🔄</span>
+        <p>No direct conversion available for this file type yet.</p>
+        <p class="text-xs mt-2">But we're adding new formats all the time!</p>
+      </div>
+    </div>
+  </div>
+
   <!-- ===== MAIN CONTENT ===== -->
   <main class="max-w-5xl mx-auto px-4 py-8 md:py-12 flex-grow w-full">
     
@@ -676,24 +818,20 @@
     closeBtn.addEventListener('click', closeMobileNav);
     overlay.addEventListener('click', closeMobileNav);
 
-    // Close on escape key
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') closeMobileNav();
     });
 
-    // Toggle mobile submenu
     function toggleMobileSubmenu(id) {
       const submenu = document.getElementById(id);
       if (submenu) {
         submenu.classList.toggle('open');
-        // Close other submenus
         document.querySelectorAll('.mobile-submenu').forEach(el => {
           if (el.id !== id) el.classList.remove('open');
         });
       }
     }
 
-    // Close mobile nav on link click
     document.querySelectorAll('.mobile-nav-panel a, #mobileInstallBtn').forEach(link => {
       link.addEventListener('click', closeMobileNav);
     });
@@ -706,7 +844,6 @@
     const installBtn = document.getElementById('pwa-install-btn');
     const mobileInstallBtn = document.getElementById('mobileInstallBtn');
 
-    // Show install button when available
     window.addEventListener('beforeinstallprompt', (e) => {
       e.preventDefault();
       deferredPrompt = e;
@@ -715,7 +852,6 @@
       console.log('📲 App can be installed');
     });
 
-    // Install function
     async function installApp() {
       if (deferredPrompt) {
         deferredPrompt.prompt();
@@ -746,7 +882,6 @@
     installBtn.addEventListener('click', installApp);
     mobileInstallBtn.addEventListener('click', installApp);
 
-    // Manual installation instructions
     function showManualInstallInstructions() {
       const isAndroid = /Android/i.test(navigator.userAgent);
       const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
@@ -764,7 +899,6 @@
       alert(`📲 Install Droplet as an App\n\n${instructions}\n\n💡 Tip: You can also use Droplet directly in your browser!`);
     }
 
-    // App installed event
     window.addEventListener('appinstalled', () => {
       console.log('🎉 App installed successfully!');
       installBtn.innerHTML = '✅ Installed';
@@ -776,7 +910,6 @@
       mobileInstallBtn.disabled = true;
     });
 
-    // Check if already installed
     window.addEventListener('load', async () => {
       if (window.matchMedia('(display-mode: standalone)').matches) {
         installBtn.innerHTML = '✅ Installed';
@@ -789,7 +922,6 @@
         console.log('📲 App is running in standalone mode');
       }
       
-      // Register Service Worker
       if ('serviceWorker' in navigator) {
         try {
           await navigator.serviceWorker.register('/sw.js');
@@ -801,24 +933,232 @@
     });
 
     // ============================================
-    // 3. FILE INPUT & DROPZONE
+    // 3. FILE INPUT & SMART DROPZONE
     // ============================================
     
-    document.getElementById('file-input').addEventListener('change', function(e) {
-      const files = Array.from(e.target.files);
-      if (files.length > 0) {
-        const file = files[0];
-        if (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')) {
-          window.location.href = '/pdf-to-word.html';
-        } else {
-          alert('Please select a PDF file to convert to Word. Other file types will be supported soon!');
+    const fileInput = document.getElementById('file-input');
+    const dropzone = document.getElementById('dropzone');
+    const uploadOverlay = document.getElementById('uploadOverlay');
+    const modalClose = document.getElementById('modalClose');
+    const fileIcon = document.getElementById('fileIcon');
+    const fileName = document.getElementById('fileName');
+    const fileSize = document.getElementById('fileSize');
+    const conversionOptions = document.getElementById('conversionOptions');
+    const noOptions = document.getElementById('noOptions');
+
+    // File type to conversion mapping
+    const conversionMap = {
+      // Image formats
+      'image/heic': [{ name: 'HEIC to JPG', page: '/heic-to-jpg.html', emoji: '🖼️', desc: 'Convert to universal JPG' }],
+      'image/heif': [{ name: 'HEIC to JPG', page: '/heic-to-jpg.html', emoji: '🖼️', desc: 'Convert to universal JPG' }],
+      'image/webp': [
+        { name: 'WebP to JPG', page: '/webp-to-jpg.html', emoji: '🌐', desc: 'Convert to JPG' },
+        { name: 'WebP to PNG', page: '/webp-to-png.html', emoji: '🖼️', desc: 'Convert to PNG' }
+      ],
+      'image/avif': [{ name: 'AVIF to PNG', page: '/avif-to-png.html', emoji: '🖼️', desc: 'Convert to PNG' }],
+      'image/gif': [{ name: 'GIF to PNG', page: '/gif-to-png.html', emoji: '🎞️', desc: 'Extract frames to PNG' }],
+      'image/vnd.adobe.photoshop': [{ name: 'PSD to PNG', page: '/psd-to-png.html', emoji: '🎨', desc: 'Convert to PNG' }],
+      'image/tiff': [{ name: 'TIFF to PDF', page: '/tiff-to-pdf.html', emoji: '📑', desc: 'Convert to PDF' }],
+      'image/jpeg': [{ name: 'JPG to PDF', page: '/jpg-to-pdf.html', emoji: '🖼️', desc: 'Convert to PDF' }],
+      'image/png': [{ name: 'PNG to PDF', page: '/jpg-to-pdf.html', emoji: '🖼️', desc: 'Convert to PDF' }],
+      
+      // Document formats
+      'application/pdf': [
+        { name: 'PDF to DOCX (Word)', page: '/pdf-to-word.html', emoji: '📄', desc: 'Convert to editable Word' },
+        { name: 'PDF to JPG', page: '/pdf-to-jpg.html', emoji: '🖼️', desc: 'Extract pages as images' },
+        { name: 'PDF to PDF/A', page: '/pdf-to-pdfa.html', emoji: '📄', desc: 'Archive format' },
+        { name: 'PDF to TXT', page: '/pdf-to-txt.html', emoji: '📝', desc: 'Extract text' },
+        { name: 'PDF to POWERPOINT', page: '/pdf-to-powerpoint.html', emoji: '📊', desc: 'Convert to slides' },
+        { name: 'PDF to EXCEL', page: '/pdf-to-excel.html', emoji: '📈', desc: 'Extract tables' }
+      ],
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document': [
+        { name: 'Word to PDF', page: '/word-to-pdf.html', emoji: '📝', desc: 'Convert to PDF' }
+      ],
+      'application/epub+zip': [{ name: 'EPUB to PDF', page: '/epub-to-pdf.html', emoji: '📚', desc: 'Convert to PDF' }],
+      'text/plain': [{ name: 'TXT to PDF', page: '/txt-to-pdf.html', emoji: '✏️', desc: 'Convert to PDF' }],
+      
+      // Data formats
+      'application/json': [{ name: 'JSON to CSV', page: '/json-to-csv.html', emoji: '📋', desc: 'Convert to spreadsheet' }],
+      'text/csv': [{ name: 'CSV to JSON', page: '/csv-to-json.html', emoji: '📈', desc: 'Convert to JSON' }],
+      'application/xml': [{ name: 'XML to JSON', page: '/xml-to-json.html', emoji: '🔗', desc: 'Convert to JSON' }],
+      'text/xml': [{ name: 'XML to JSON', page: '/xml-to-json.html', emoji: '🔗', desc: 'Convert to JSON' }],
+      
+      // Vector formats
+      'image/svg+xml': [{ name: 'SVG to PNG', page: '/svg-to-png.html', emoji: '📐', desc: 'Convert to PNG' }],
+      
+      // RAW formats
+      'image/x-canon-cr2': [{ name: 'RAW to JPG', page: '/raw-to-jpg.html', emoji: '📸', desc: 'Convert to JPG' }],
+      'image/x-nikon-nef': [{ name: 'RAW to JPG', page: '/raw-to-jpg.html', emoji: '📸', desc: 'Convert to JPG' }],
+      'image/x-sony-arw': [{ name: 'RAW to JPG', page: '/raw-to-jpg.html', emoji: '📸', desc: 'Convert to JPG' }],
+      'image/x-adobe-dng': [{ name: 'RAW to JPG', page: '/raw-to-jpg.html', emoji: '📸', desc: 'Convert to JPG' }]
+    };
+
+    // Extension-based fallback
+    const extensionMap = {
+      '.heic': 'image/heic',
+      '.heif': 'image/heif',
+      '.webp': 'image/webp',
+      '.avif': 'image/avif',
+      '.gif': 'image/gif',
+      '.psd': 'image/vnd.adobe.photoshop',
+      '.tiff': 'image/tiff',
+      '.tif': 'image/tiff',
+      '.jpg': 'image/jpeg',
+      '.jpeg': 'image/jpeg',
+      '.png': 'image/png',
+      '.pdf': 'application/pdf',
+      '.docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      '.epub': 'application/epub+zip',
+      '.txt': 'text/plain',
+      '.json': 'application/json',
+      '.csv': 'text/csv',
+      '.xml': 'application/xml',
+      '.svg': 'image/svg+xml',
+      '.cr2': 'image/x-canon-cr2',
+      '.nef': 'image/x-nikon-nef',
+      '.arw': 'image/x-sony-arw',
+      '.dng': 'image/x-adobe-dng'
+    };
+
+    function getFileType(file) {
+      // First check by MIME type
+      if (file.type && conversionMap[file.type]) {
+        return file.type;
+      }
+      
+      // Fallback to extension
+      const ext = '.' + file.name.split('.').pop().toLowerCase();
+      if (extensionMap[ext]) {
+        return extensionMap[ext];
+      }
+      
+      // Check if it's an image by MIME type
+      if (file.type.startsWith('image/')) {
+        return file.type;
+      }
+      
+      return null;
+    }
+
+    function getConversions(file) {
+      const type = getFileType(file);
+      if (type && conversionMap[type]) {
+        return conversionMap[type];
+      }
+      
+      // Check if any conversion matches by extension
+      const ext = '.' + file.name.split('.').pop().toLowerCase();
+      if (extensionMap[ext] && conversionMap[extensionMap[ext]]) {
+        return conversionMap[extensionMap[ext]];
+      }
+      
+      return null;
+    }
+
+    function handleFile(file) {
+      // Show file info in modal
+      const iconMap = {
+        'application/pdf': '📄',
+        'image/': '🖼️',
+        'text/': '📝',
+        'application/json': '📋',
+        'application/xml': '🔗',
+        'text/csv': '📊',
+        'image/svg+xml': '📐',
+        'application/epub+zip': '📚',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document': '📝'
+      };
+      
+      let icon = '📄';
+      for (const [key, value] of Object.entries(iconMap)) {
+        if (file.type.startsWith(key) || file.type === key) {
+          icon = value;
+          break;
         }
+      }
+      
+      fileIcon.textContent = icon;
+      fileName.textContent = file.name;
+      fileSize.textContent = (file.size / 1024).toFixed(1) + ' KB';
+      
+      // Get conversion options
+      const conversions = getConversions(file);
+      
+      // Clear previous options
+      conversionOptions.innerHTML = '';
+      noOptions.classList.add('hidden');
+      
+      if (conversions && conversions.length > 0) {
+        conversions.forEach(conv => {
+          const btn = document.createElement('a');
+          btn.className = 'option-btn';
+          btn.href = conv.page;
+          btn.innerHTML = `
+            <span class="emoji">${conv.emoji}</span>
+            <div>
+              <div class="label">${conv.name}</div>
+              <div class="desc">${conv.desc}</div>
+            </div>
+          `;
+          conversionOptions.appendChild(btn);
+        });
+      } else {
+        noOptions.classList.remove('hidden');
+      }
+      
+      // Show modal
+      uploadOverlay.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    // Close modal
+    function closeModal() {
+      uploadOverlay.classList.remove('open');
+      document.body.style.overflow = '';
+      fileInput.value = '';
+    }
+
+    modalClose.addEventListener('click', closeModal);
+    uploadOverlay.addEventListener('click', (e) => {
+      if (e.target === uploadOverlay) closeModal();
+    });
+
+    // File input change
+    fileInput.addEventListener('change', function(e) {
+      if (this.files.length > 0) {
+        handleFile(this.files[0]);
       }
     });
 
-    document.getElementById('dropzone').addEventListener('click', function(e) {
+    // Dropzone click
+    dropzone.addEventListener('click', function(e) {
       if (e.target.tagName !== 'BUTTON') {
-        document.getElementById('file-input').click();
+        fileInput.click();
+      }
+    });
+
+    // Drag and drop
+    dropzone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropzone.classList.add('border-blue-600', 'bg-blue-50');
+    });
+
+    dropzone.addEventListener('dragleave', () => {
+      dropzone.classList.remove('border-blue-600', 'bg-blue-50');
+    });
+
+    dropzone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropzone.classList.remove('border-blue-600', 'bg-blue-50');
+      if (e.dataTransfer.files.length > 0) {
+        handleFile(e.dataTransfer.files[0]);
+      }
+    });
+
+    // Keyboard shortcut: Escape to close modal
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && uploadOverlay.classList.contains('open')) {
+        closeModal();
       }
     });
   </script>
