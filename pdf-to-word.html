@@ -17,7 +17,7 @@
     .preview-container {
       font-family: 'Segoe UI', 'Calibri', Arial, sans-serif;
       font-size: 11pt;
-      line-height: 1.6;
+      line-height: 1.0;
       max-height: 500px;
       overflow-y: auto;
       background: white;
@@ -31,15 +31,16 @@
     .preview-container::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 8px; }
     .preview-container::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
     
-    .preview-container .preview-heading { font-size: 14pt; font-weight: bold; margin-top: 18pt; margin-bottom: 9pt; color: #0f172a; }
-    .preview-container .preview-subheading { font-size: 12pt; font-weight: bold; margin-top: 12pt; margin-bottom: 6pt; color: #0f172a; }
-    .preview-container .preview-paragraph { margin-bottom: 4pt; text-align: justify; color: #1e293b; line-height: 1.5; }
-    .preview-container .preview-bullet { margin-bottom: 3pt; padding-left: 20pt; color: #1e293b; line-height: 1.5; }
-    .preview-container .preview-numbered { margin-bottom: 3pt; padding-left: 20pt; color: #1e293b; line-height: 1.5; }
+    .preview-container .preview-main-heading { font-size: 14pt; font-weight: bold; margin-top: 18pt; margin-bottom: 9pt; color: #0f172a; padding-left: 0.25in; }
+    .preview-container .preview-subheading { font-size: 12pt; font-weight: bold; margin-top: 18pt; margin-bottom: 6pt; color: #0f172a; }
+    .preview-container .preview-paragraph { margin-top: 12pt; margin-bottom: 6pt; text-align: justify; color: #1e293b; line-height: 1.0; }
+    .preview-container .preview-bullet { margin-top: 3pt; margin-bottom: 3pt; padding-left: 0.25in; color: #1e293b; line-height: 1.0; }
+    .preview-container .preview-numbered { margin-top: 3pt; margin-bottom: 3pt; padding-left: 0.25in; color: #1e293b; line-height: 1.0; }
     .preview-container .preview-bold { font-weight: bold; }
     .preview-container .preview-page-break { border-top: 2px dashed #e2e8f0; margin: 20pt 0; text-align: center; color: #94a3b8; font-size: 9pt; }
-    .preview-container .preview-image-placeholder { background: #f1f5f9; border: 2px dashed #cbd5e1; border-radius: 8px; padding: 20px; text-align: center; color: #94a3b8; margin: 10pt 0; font-size: 10pt; }
-    .preview-container .preview-table { width: 100%; border-collapse: collapse; margin: 10pt 0; font-size: 10pt; }
+    .preview-container .preview-image-placeholder { background: #f1f5f9; border: 2px dashed #cbd5e1; border-radius: 8px; padding: 20px; text-align: center; color: #94a3b8; margin: 6pt 0; font-size: 10pt; }
+    .preview-container .preview-caption { font-size: 11pt; text-align: center; margin-top: 3pt; margin-bottom: 6pt; color: #1e293b; }
+    .preview-container .preview-table { width: 100%; border-collapse: collapse; margin: 6pt 0; font-size: 10pt; }
     .preview-container .preview-table th { background: #f1f5f9; border: 1px solid #e2e8f0; padding: 6px 8px; text-align: left; font-weight: 600; }
     .preview-container .preview-table td { border: 1px solid #e2e8f0; padding: 6px 8px; }
 
@@ -143,14 +144,14 @@
     <div class="max-w-2xl mx-auto mt-12 grid grid-cols-1 md:grid-cols-3 gap-4">
       <div class="bg-white p-4 rounded-xl border border-slate-100 text-center"><div class="text-2xl mb-1">🔒</div><h4 class="font-bold text-sm">100% Private</h4><p class="text-xs text-slate-500">Your files never leave your browser</p></div>
       <div class="bg-white p-4 rounded-xl border border-slate-100 text-center"><div class="text-2xl mb-1">⚡</div><h4 class="font-bold text-sm">Fast & Free</h4><p class="text-xs text-slate-500">No sign-up required</p></div>
-      <div class="bg-white p-4 rounded-xl border border-slate-100 text-center"><div class="text-2xl mb-1">📝</div><h4 class="font-bold text-sm">Editable DOCX</h4><p class="text-xs text-slate-500">Preserves text, bold, headings, images &amp; tables</p></div>
+      <div class="bg-white p-4 rounded-xl border border-slate-100 text-center"><div class="text-2xl mb-1">📝</div><h4 class="font-bold text-sm">Editable DOCX</h4><p class="text-xs text-slate-500">Professional formatting with proper spacing</p></div>
     </div>
 
     <section class="max-w-2xl mx-auto mt-12">
       <h2 class="text-xl font-black text-slate-900 text-center mb-6">Frequently Asked Questions</h2>
       <div class="space-y-3">
         <div class="bg-white p-5 rounded-xl border border-slate-100"><h3 class="font-bold text-slate-900 text-sm">Is my data safe?</h3><p class="text-slate-600 text-sm mt-1">Yes! All conversions happen locally in your browser. Your PDF is never uploaded to any server.</p></div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100"><h3 class="font-bold text-slate-900 text-sm">Will my formatting be preserved?</h3><p class="text-slate-600 text-sm mt-1">The converter preserves text, bold, headings, images, tables, and page breaks with proper Word spacing.</p></div>
+        <div class="bg-white p-5 rounded-xl border border-slate-100"><h3 class="font-bold text-slate-900 text-sm">Will my formatting be preserved?</h3><p class="text-slate-600 text-sm mt-1">The converter uses professional Word formatting: 14pt bold headings, 11pt justified body text, single line spacing, and proper margins.</p></div>
       </div>
     </section>
   </main>
@@ -176,6 +177,7 @@
     let extractedText = '';
     let currentPreviewMode = 'formatted';
 
+    // DOM Elements
     const dropzone = document.getElementById('dropzone');
     const fileInput = document.getElementById('fileInput');
     const fileInfo = document.getElementById('fileInfo');
@@ -226,9 +228,10 @@
         if (p > 0) html += `<div class="preview-page-break">— Page ${p + 1} —</div>`;
         
         for (const line of page.lines) {
-          if (line.isHeading) {
-            const isMain = /^[A-Z][A-Z\s]+$/.test(line.text) || /^\d+\.\s+[A-Z]/.test(line.text);
-            html += `<div class="${isMain ? 'preview-heading' : 'preview-subheading'}">${line.text}</div>`;
+          if (line.isMainHeading) {
+            html += `<div class="preview-main-heading">${line.text}</div>`;
+          } else if (line.isSubHeading) {
+            html += `<div class="preview-subheading">${line.text}</div>`;
           } else if (line.isBullet) {
             html += `<div class="preview-bullet">• ${line.text.replace(/^[•●▪◦\-*]\s*/, '')}</div>`;
           } else if (line.isNumbered) {
@@ -261,7 +264,10 @@
         }
         
         if (page.images && page.images.length > 0) {
-          html += `<div class="preview-image-placeholder">🖼️ ${page.images.length} image(s) on this page</div>`;
+          for (const img of page.images) {
+            html += `<div class="preview-image-placeholder">🖼️ Image (${Math.round(img.width / 1.5)} × ${Math.round(img.height / 1.5)} px)</div>`;
+            html += `<div class="preview-caption">Figure ${p + 1}.${page.images.indexOf(img) + 1}: Image</div>`;
+          }
         }
       }
       if (documentData.pages.length > 3) {
@@ -288,6 +294,7 @@
       }
     }
 
+    // ===== MATRIX UTILITY FUNCTIONS =====
     function matrixMultiply(a, b) {
       return [
         a[0]*b[0] + a[2]*b[1], a[1]*b[0] + a[3]*b[1],
@@ -442,6 +449,9 @@
       return tables;
     }
 
+    // ============================================
+    // EXTRACT DOCUMENT CONTENT
+    // ============================================
     async function extractDocumentContent(arrayBuffer, showProgress = true) {
       if (!pdfjsLib) await loadPDFJS();
 
@@ -493,16 +503,24 @@
           const maxFontSize = Math.max(...line.items.map(i => i.fontSize));
           const hasBold = line.items.some(i => i.isBold);
           const isAllCaps = /^[A-Z0-9\s\-–—.,:;()]+$/.test(lineText) && /[A-Z]/.test(lineText);
-          const isHeading = maxFontSize >= 16 || (isAllCaps && lineText.length < 100) || /^\d+(\.\d+)*[\s.)]+[A-Z]/.test(lineText) || /^[A-Z][A-Z\s]+$/.test(lineText);
+          
+          // Detect heading levels
+          const isMainHeading = (isAllCaps && lineText.length < 80 && /^[A-Z][A-Z\s]+$/.test(lineText)) ||
+                                /^\d+\.\s+[A-Z]/.test(lineText) ||
+                                /^(EXECUTIVE SUMMARY|TABLE OF CONTENTS|INTRODUCTION|CONCLUSION|RECOMMENDATIONS|REFERENCES|APPENDIX)/i.test(lineText);
+          
+          const isSubHeading = /^\d+\.\d+\s+[A-Z]/.test(lineText) ||
+                               /^[A-Z][a-z]+.*:$/.test(lineText) && lineText.length < 80 ||
+                               (maxFontSize >= 14 && maxFontSize < 16);
 
           structuredLines.push({
             text: lineText,
             fontSize: maxFontSize,
             isBold: hasBold,
-            isHeading: isHeading,
+            isMainHeading: isMainHeading,
+            isSubHeading: isSubHeading || (!isMainHeading && maxFontSize >= 14),
             isBullet: /^[•●▪◦\-*]\s*/.test(lineText),
             isNumbered: /^\d+[\.)]\s/.test(lineText),
-            isAllCaps: isAllCaps,
             page: pageIndex - 1,
             y: line.y,
             x: Math.min(...line.items.map(i => i.x))
@@ -536,7 +554,7 @@
     }
 
     // ============================================
-    // CREATE DOCX WITH PROPER SPACING
+    // CREATE DOCX WITH EXACT FORMATTING SPECS
     // ============================================
     async function createStyledDOCX(documentData, filename) {
       if (typeof window.docx === 'undefined') {
@@ -548,9 +566,9 @@
 
       if (filename) {
         children.push(new Paragraph({
-          children: [new TextRun({ text: filename, size: 36, bold: true })],
+          children: [new TextRun({ text: filename, size: 28, bold: true })],
           alignment: AlignmentType.CENTER,
-          spacing: { before: 400, after: 400 }
+          spacing: { before: 360, after: 180 }
         }));
       }
 
@@ -558,40 +576,50 @@
         const page = documentData.pages[p];
         const sortedLines = [...page.lines].sort((a, b) => a.y - b.y);
 
-        let lastLineWasHeading = false;
-
         for (const line of sortedLines) {
-          const isHeading = line.isHeading || line.isAllCaps;
-          
-          let beforeSpacing = 0;
-          let afterSpacing = 0;
-          let fontSize = 22;
-          let lineSpacing = 1.5;
+          let beforeSpacing = 240;  // 12pt default for body
+          let afterSpacing = 120;   // 6pt default for body
+          let fontSize = 22;        // 11pt default
+          let isBold = false;
+          let alignment = AlignmentType.JUSTIFIED;
+          let indent = null;
+          let leftIndent = 0;
 
-          if (isHeading) {
-            const isMainHeading = /^[A-Z][A-Z\s]+$/.test(line.text) || /^\d+\.\s+[A-Z]/.test(line.text);
-            
-            if (isMainHeading) {
-              fontSize = 28;
-              beforeSpacing = 360;
-              afterSpacing = 180;
-              lineSpacing = 1.3;
-            } else {
-              fontSize = 24;
-              beforeSpacing = 240;
-              afterSpacing = 120;
-              lineSpacing = 1.3;
-            }
-          } else if (line.isBullet || line.isNumbered) {
+          if (line.isMainHeading) {
+            // Main Heading: 14pt Bold, 18pt before, 9pt after, Left, 0.25" indent
+            fontSize = 28;
+            isBold = true;
+            beforeSpacing = 360;
+            afterSpacing = 180;
+            alignment = AlignmentType.LEFT;
+            leftIndent = 360; // 0.25 inch in twips
+          } else if (line.isSubHeading) {
+            // Subheading: 12pt Bold, 18pt before, 6pt after, Left
+            fontSize = 24;
+            isBold = true;
+            beforeSpacing = 360;
+            afterSpacing = 120;
+            alignment = AlignmentType.LEFT;
+          } else if (line.isBullet) {
+            // Bullet: 11pt, 3pt before, 3pt after, Left, 0.25" indent
             fontSize = 22;
             beforeSpacing = 60;
             afterSpacing = 60;
-            lineSpacing = 1.5;
-          } else {
+            alignment = AlignmentType.LEFT;
+            indent = { left: 360, hanging: 180 };
+          } else if (line.isNumbered) {
+            // Numbered: 11pt, 3pt before, 3pt after, Left, 0.25" indent
             fontSize = 22;
-            beforeSpacing = 80;
-            afterSpacing = 80;
-            lineSpacing = 1.5;
+            beforeSpacing = 60;
+            afterSpacing = 60;
+            alignment = AlignmentType.LEFT;
+            indent = { left: 360, hanging: 180 };
+          } else {
+            // Normal paragraph: 11pt, 12pt before, 6pt after, Justified
+            fontSize = 22;
+            beforeSpacing = 240;
+            afterSpacing = 120;
+            alignment = AlignmentType.JUSTIFIED;
           }
 
           let text = line.text;
@@ -600,7 +628,7 @@
           const run = new TextRun({
             text: line.isBullet ? '• ' + text : text,
             size: fontSize,
-            bold: !!(line.isBold || isHeading)
+            bold: isBold || line.isBold
           });
 
           const options = {
@@ -608,25 +636,21 @@
             spacing: {
               before: beforeSpacing,
               after: afterSpacing,
-              line: Math.round(fontSize * lineSpacing),
+              line: Math.round(fontSize * 1.0),
               lineRule: 'exact'
-            }
+            },
+            alignment: alignment
           };
 
-          if (!isHeading && !line.isBullet && !line.isNumbered) {
-            options.alignment = AlignmentType.JUSTIFIED;
+          if (indent) {
+            options.indent = indent;
           }
 
-          if (line.isBullet || line.isNumbered) {
-            options.indent = { left: 360, hanging: 180 };
-          }
-
-          if (isHeading && !lastLineWasHeading && beforeSpacing > 0) {
-            options.spacing.before = beforeSpacing + 120;
+          if (leftIndent > 0 && !indent) {
+            options.indent = { left: leftIndent };
           }
 
           children.push(new Paragraph(options));
-          lastLineWasHeading = isHeading;
         }
 
         // Add tables
@@ -639,7 +663,7 @@
               new TableCell({
                 children: [new Paragraph({
                   children: [new TextRun({ text: cell || '', bold: true, size: 20 })],
-                  spacing: { before: 80, after: 80 }
+                  spacing: { before: 0, after: 60 }
                 })],
                 borders: {
                   top: { style: BorderStyle.SINGLE, size: 1 },
@@ -656,7 +680,7 @@
                 new TableCell({
                   children: [new Paragraph({
                     children: [new TextRun({ text: cell || '', size: 20 })],
-                    spacing: { before: 60, after: 60 }
+                    spacing: { before: 0, after: 60 }
                   })],
                   borders: {
                     top: { style: BorderStyle.SINGLE, size: 1 },
@@ -674,6 +698,7 @@
               width: { size: 100, type: WidthType.PERCENTAGE },
             });
 
+            // Add spacing around table: 6pt before and after
             children.push(new Paragraph({ children: [], spacing: { before: 120, after: 0 } }));
             children.push(tableObj);
             children.push(new Paragraph({ children: [], spacing: { before: 0, after: 120 } }));
@@ -682,7 +707,8 @@
           }
         }
 
-        // Add images
+        // Add images with proper spacing
+        let imageCounter = 1;
         for (const img of page.images) {
           try {
             const imageWidthIn = Math.min(5.5, Math.max(0.8, (img.width / 1.5) / 72));
@@ -692,8 +718,10 @@
             const cappedHeightPx = Math.min(heightPx, 600);
             const cappedWidthPx = Math.round(widthPx * (cappedHeightPx / heightPx));
 
+            // Space before image: 6pt
             children.push(new Paragraph({ children: [], spacing: { before: 120, after: 0 } }));
             
+            // Image: Centered
             children.push(new Paragraph({
               children: [new ImageRun({
                 data: img.data,
@@ -703,10 +731,18 @@
                 }
               })],
               alignment: AlignmentType.CENTER,
-              spacing: { before: 80, after: 80 }
+              spacing: { before: 0, after: 0 }
             }));
             
-            children.push(new Paragraph({ children: [], spacing: { before: 0, after: 120 } }));
+            // Caption: 11pt, Centered, 3pt before, 6pt after
+            const captionText = `Figure ${p + 1}.${imageCounter}: Image`;
+            children.push(new Paragraph({
+              children: [new TextRun({ text: captionText, size: 22 })],
+              alignment: AlignmentType.CENTER,
+              spacing: { before: 60, after: 120 }
+            }));
+            
+            imageCounter++;
           } catch (e) {
             console.warn('Image insertion error:', e);
           }
@@ -738,6 +774,9 @@
       return await Packer.toBlob(doc);
     }
 
+    // ============================================
+    // EVENT HANDLERS
+    // ============================================
     document.addEventListener('DOMContentLoaded', () => { loadPDFJS(); });
 
     dropzone.addEventListener('dragover', (e) => { e.preventDefault(); dropzone.classList.add('dropzone-highlight'); });
