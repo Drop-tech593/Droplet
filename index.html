@@ -232,6 +232,160 @@
       display: flex !important;
     }
 
+    /* ===== SEARCH BAR ===== */
+    .search-container {
+      position: relative;
+      max-width: 500px;
+      margin: 0 auto 1.5rem;
+    }
+    .search-container input {
+      width: 100%;
+      padding: 0.75rem 1rem 0.75rem 2.8rem;
+      border: 2px solid #e2e8f0;
+      border-radius: 16px;
+      font-size: 0.95rem;
+      transition: all 0.3s;
+      background: white;
+      outline: none;
+      color: #1e293b;
+    }
+    .search-container input:focus {
+      border-color: #2563eb;
+      box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+    }
+    .search-container .search-icon {
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 1.2rem;
+      color: #94a3b8;
+    }
+    .search-container .clear-btn {
+      position: absolute;
+      right: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      font-size: 1.2rem;
+      color: #94a3b8;
+      cursor: pointer;
+      display: none;
+      transition: color 0.2s;
+    }
+    .search-container .clear-btn:hover {
+      color: #ef4444;
+    }
+    .search-container .clear-btn.visible {
+      display: block;
+    }
+    .search-container .search-shortcut {
+      position: absolute;
+      right: 3rem;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 0.6rem;
+      color: #94a3b8;
+      background: #f1f5f9;
+      padding: 0.15rem 0.4rem;
+      border-radius: 4px;
+      display: none;
+    }
+    .search-container .search-shortcut.visible {
+      display: block;
+    }
+    @media (max-width: 640px) {
+      .search-container .search-shortcut {
+        display: none !important;
+      }
+    }
+
+    /* Search Results Dropdown */
+    .search-results {
+      display: none;
+      position: absolute;
+      top: calc(100% + 8px);
+      left: 0;
+      right: 0;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+      border: 1px solid #e2e8f0;
+      max-height: 400px;
+      overflow-y: auto;
+      z-index: 100;
+      padding: 0.5rem 0;
+    }
+    .search-results.open {
+      display: block;
+    }
+    .search-results .result-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.6rem 1rem;
+      cursor: pointer;
+      transition: background 0.15s;
+      text-decoration: none;
+      color: #1e293b;
+    }
+    .search-results .result-item:hover {
+      background: #f1f5f9;
+    }
+    .search-results .result-item .emoji {
+      font-size: 1.3rem;
+      width: 2rem;
+      text-align: center;
+      flex-shrink: 0;
+    }
+    .search-results .result-item .info {
+      flex: 1;
+      min-width: 0;
+    }
+    .search-results .result-item .info .name {
+      font-weight: 500;
+      font-size: 0.9rem;
+    }
+    .search-results .result-item .info .category {
+      font-size: 0.7rem;
+      color: #94a3b8;
+    }
+    .search-results .result-item .info .match {
+      font-size: 0.7rem;
+      color: #64748b;
+      background: #f1f5f9;
+      padding: 0.1rem 0.4rem;
+      border-radius: 4px;
+      margin-left: 0.4rem;
+    }
+    .search-results .result-item .arrow {
+      color: #94a3b8;
+      font-size: 0.8rem;
+    }
+    .search-results .no-results {
+      padding: 1.5rem;
+      text-align: center;
+      color: #94a3b8;
+    }
+    .search-results .no-results .emoji {
+      font-size: 2rem;
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+    .search-results .result-category {
+      padding: 0.4rem 1rem;
+      font-size: 0.65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: #94a3b8;
+      background: #f8fafc;
+      border-top: 1px solid #f1f5f9;
+    }
+    .search-results .result-category:first-child {
+      border-top: none;
+    }
+
     /* ===== FILE UPLOAD OVERLAY ===== */
     .upload-overlay {
       display: none;
@@ -354,6 +508,10 @@
       .upload-modal {
         padding: 1.5rem;
       }
+      .search-container {
+        max-width: 100%;
+        padding: 0 1rem;
+      }
     }
     @media (min-width: 769px) {
       .desktop-nav {
@@ -368,6 +526,22 @@
       .mobile-nav-panel {
         display: none !important;
       }
+    }
+
+    /* Scrollbar styling for search results */
+    .search-results::-webkit-scrollbar {
+      width: 6px;
+    }
+    .search-results::-webkit-scrollbar-track {
+      background: #f1f5f9;
+      border-radius: 8px;
+    }
+    .search-results::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 8px;
+    }
+    .search-results::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
     }
   </style>
 </head>
@@ -640,9 +814,18 @@
   <main class="max-w-5xl mx-auto px-4 py-8 md:py-12 flex-grow w-full">
     
     <!-- Headline Section -->
-    <div class="text-center mb-8">
+    <div class="text-center mb-6">
       <h2 class="text-3xl md:text-5xl font-black text-slate-900 tracking-tight">Convert any file locally.</h2>
       <p class="text-slate-500 text-sm md:text-base mt-2 max-w-md mx-auto">100% Client-Side. Your files never leave your browser or get uploaded to a server.</p>
+    </div>
+
+    <!-- ===== SEARCH BAR ===== -->
+    <div class="search-container">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="searchInput" placeholder="Search 46 tools... (e.g. PDF, Word, JPG, HEIC)" autocomplete="off">
+      <span class="search-shortcut" id="searchShortcut">⌘K</span>
+      <button class="clear-btn" id="clearBtn">✕</button>
+      <div class="search-results" id="searchResults"></div>
     </div>
 
     <!-- Dropzone -->
@@ -794,7 +977,244 @@
   <!-- ===== JAVASCRIPT ===== -->
   <script>
     // ============================================
-    // 1. MOBILE NAVIGATION
+    // 0. ALL TOOLS DATABASE
+    // ============================================
+    const allTools = [
+      // Core Documents
+      { name: 'PDF to DOCX (Word)', page: '/pdf-to-word.html', category: 'Core Documents', emoji: '📝', keywords: ['pdf', 'word', 'docx', 'convert', 'edit', 'document'] },
+      { name: 'Word (DOCX) to PDF', page: '/word-to-pdf.html', category: 'Core Documents', emoji: '🔄', keywords: ['word', 'docx', 'pdf', 'convert', 'document'] },
+      { name: 'PDF to TXT', page: '/pdf-to-txt.html', category: 'Core Documents', emoji: '📃', keywords: ['pdf', 'txt', 'text', 'extract', 'plain'] },
+      { name: 'EPUB to PDF', page: '/epub-to-pdf.html', category: 'Core Documents', emoji: '📘', keywords: ['epub', 'pdf', 'ebook', 'convert', 'book'] },
+      { name: 'TXT to PDF', page: '/txt-to-pdf.html', category: 'Core Documents', emoji: '✏️', keywords: ['txt', 'pdf', 'text', 'convert'] },
+      { name: 'PDF to PDF/A', page: '/pdf-to-pdfa.html', category: 'Core Documents', emoji: '📄', keywords: ['pdf', 'pdfa', 'archive', 'preserve', 'long term'] },
+      { name: 'PDF to POWERPOINT', page: '/pdf-to-powerpoint.html', category: 'Core Documents', emoji: '📊', keywords: ['pdf', 'powerpoint', 'ppt', 'slides', 'presentation'] },
+      { name: 'PDF to EXCEL', page: '/pdf-to-excel.html', category: 'Core Documents', emoji: '📈', keywords: ['pdf', 'excel', 'xlsx', 'spreadsheet', 'tables'] },
+      
+      // Image Converters
+      { name: 'HEIC to JPG', page: '/heic-to-jpg.html', category: 'Image Converters', emoji: '🍎', keywords: ['heic', 'jpg', 'jpeg', 'apple', 'iphoto', 'convert'] },
+      { name: 'WebP to JPG', page: '/webp-to-jpg.html', category: 'Image Converters', emoji: '🌐', keywords: ['webp', 'jpg', 'jpeg', 'google', 'convert'] },
+      { name: 'AVIF to PNG', page: '/avif-to-png.html', category: 'Image Converters', emoji: '🖼️', keywords: ['avif', 'png', 'image', 'convert'] },
+      { name: 'GIF to PNG', page: '/gif-to-png.html', category: 'Image Converters', emoji: '🎞️', keywords: ['gif', 'png', 'animated', 'frame', 'extract'] },
+      { name: 'PSD to PNG', page: '/psd-to-png.html', category: 'Image Converters', emoji: '🎨', keywords: ['psd', 'png', 'photoshop', 'layers', 'convert'] },
+      { name: 'RAW to JPG', page: '/raw-to-jpg.html', category: 'Image Converters', emoji: '📸', keywords: ['raw', 'jpg', 'camera', 'photo', 'convert'] },
+      { name: 'TIFF to PDF', page: '/tiff-to-pdf.html', category: 'Image Converters', emoji: '📑', keywords: ['tiff', 'pdf', 'image', 'scan', 'convert'] },
+      { name: 'JPG to PDF', page: '/jpg-to-pdf.html', category: 'Image Converters', emoji: '🖼️', keywords: ['jpg', 'jpeg', 'pdf', 'image', 'convert'] },
+      { name: 'PDF to JPG', page: '/pdf-to-jpg.html', category: 'Image Converters', emoji: '🖼️', keywords: ['pdf', 'jpg', 'jpeg', 'extract', 'image'] },
+      { name: 'SVG to PNG', page: '/svg-to-png.html', category: 'Image Converters', emoji: '📐', keywords: ['svg', 'png', 'vector', 'convert'] },
+      { name: 'EPS to SVG', page: '/eps-to-svg.html', category: 'Image Converters', emoji: '✏️', keywords: ['eps', 'svg', 'vector', 'convert'] },
+      { name: 'WebP to PNG', page: '/webp-to-png.html', category: 'Image Converters', emoji: '🖼️', keywords: ['webp', 'png', 'google', 'convert'] },
+      
+      // Data & Dev Tools
+      { name: 'JSON to CSV', page: '/json-to-csv.html', category: 'Data & Dev Tools', emoji: '📋', keywords: ['json', 'csv', 'data', 'convert', 'spreadsheet'] },
+      { name: 'CSV to JSON', page: '/csv-to-json.html', category: 'Data & Dev Tools', emoji: '📈', keywords: ['csv', 'json', 'data', 'convert'] },
+      { name: 'XML to JSON', page: '/xml-to-json.html', category: 'Data & Dev Tools', emoji: '🔗', keywords: ['xml', 'json', 'data', 'convert', 'api'] },
+      
+      // Vector & Design
+      { name: 'SVG to PNG', page: '/svg-to-png.html', category: 'Vector & Design', emoji: '📏', keywords: ['svg', 'png', 'vector', 'convert'] },
+      { name: 'EPS to SVG', page: '/eps-to-svg.html', category: 'Vector & Design', emoji: '✏️', keywords: ['eps', 'svg', 'vector', 'convert'] },
+      
+      // PDF Organize
+      { name: 'Merge PDF', page: '/merge-pdf.html', category: 'PDF Organize', emoji: '🔗', keywords: ['merge', 'pdf', 'combine', 'join'] },
+      { name: 'Split PDF', page: '/split-pdf.html', category: 'PDF Organize', emoji: '✂️', keywords: ['split', 'pdf', 'separate', 'divide'] },
+      { name: 'Remove pages', page: '/remove-pages.html', category: 'PDF Organize', emoji: '🗑️', keywords: ['remove', 'pdf', 'delete', 'pages'] },
+      { name: 'Extract pages', page: '/extract-pages.html', category: 'PDF Organize', emoji: '📤', keywords: ['extract', 'pdf', 'pages', 'save'] },
+      { name: 'Organize PDF', page: '/organize-pdf.html', category: 'PDF Organize', emoji: '🗂️', keywords: ['organize', 'pdf', 'rearrange', 'reorder'] },
+      { name: 'Scan to PDF', page: '/scan-to-pdf.html', category: 'PDF Organize', emoji: '📷', keywords: ['scan', 'pdf', 'document', 'photo'] },
+      { name: 'Rotate PDF', page: '/rotate-pdf.html', category: 'PDF Organize', emoji: '🔄', keywords: ['rotate', 'pdf', 'orientation', 'fix'] },
+      { name: 'Add page numbers', page: '/add-page-numbers.html', category: 'PDF Organize', emoji: '🔢', keywords: ['page numbers', 'pdf', 'numbering', 'add'] },
+      
+      // PDF Intelligence
+      { name: 'AI Summarizer', page: '/ai-summarizer.html', category: 'PDF Intelligence', emoji: '🤖', keywords: ['ai', 'summarize', 'pdf', 'summary', 'long document'] },
+      { name: 'Translate PDF', page: '/translate-pdf.html', category: 'PDF Intelligence', emoji: '🌍', keywords: ['translate', 'pdf', 'language', 'convert'] },
+      { name: 'PDF to Markdown', page: '/pdf-to-markdown.html', category: 'PDF Intelligence', emoji: '📝', keywords: ['pdf', 'markdown', 'md', 'convert', 'docs'] },
+      
+      // PDF Editing & Security
+      { name: 'Add watermark', page: '/add-watermark.html', category: 'PDF Editing & Security', emoji: '💧', keywords: ['watermark', 'pdf', 'protect', 'brand'] },
+      { name: 'Crop PDF', page: '/crop-pdf.html', category: 'PDF Editing & Security', emoji: '✂️', keywords: ['crop', 'pdf', 'trim', 'margins'] },
+      { name: 'Edit PDF', page: '/edit-pdf.html', category: 'PDF Editing & Security', emoji: '✏️', keywords: ['edit', 'pdf', 'modify', 'change'] },
+      { name: 'PDF Forms', page: '/pdf-forms.html', category: 'PDF Editing & Security', emoji: '📋', keywords: ['forms', 'pdf', 'fill', 'create'] },
+      
+      // Convert to PDF
+      { name: 'JPG to PDF', page: '/jpg-to-pdf.html', category: 'Convert to PDF', emoji: '🖼️', keywords: ['jpg', 'pdf', 'image', 'convert'] },
+      { name: 'WORD to PDF', page: '/word-to-pdf.html', category: 'Convert to PDF', emoji: '📝', keywords: ['word', 'pdf', 'docx', 'convert'] },
+      { name: 'POWERPOINT to PDF', page: '/powerpoint-to-pdf.html', category: 'Convert to PDF', emoji: '📊', keywords: ['powerpoint', 'pdf', 'ppt', 'slides', 'convert'] },
+      { name: 'EXCEL to PDF', page: '/excel-to-pdf.html', category: 'Convert to PDF', emoji: '📈', keywords: ['excel', 'pdf', 'xlsx', 'spreadsheet', 'convert'] },
+      { name: 'HTML to PDF', page: '/html-to-pdf.html', category: 'Convert to PDF', emoji: '🌐', keywords: ['html', 'pdf', 'webpage', 'convert'] }
+    ];
+
+    // ============================================
+    // 1. SEARCH FUNCTIONALITY
+    // ============================================
+    
+    const searchInput = document.getElementById('searchInput');
+    const searchResults = document.getElementById('searchResults');
+    const clearBtn = document.getElementById('clearBtn');
+    const searchShortcut = document.getElementById('searchShortcut');
+
+    // Fuzzy search function
+    function fuzzySearch(query, text) {
+      if (!query) return true;
+      const q = query.toLowerCase().trim();
+      const t = text.toLowerCase();
+      // Simple contains check
+      if (t.includes(q)) return true;
+      // Check individual words
+      const words = q.split(/\s+/);
+      for (const word of words) {
+        if (word.length > 1 && t.includes(word)) return true;
+      }
+      return false;
+    }
+
+    function performSearch(query) {
+      if (!query || query.trim().length === 0) {
+        searchResults.classList.remove('open');
+        return;
+      }
+
+      const q = query.toLowerCase().trim();
+      const results = allTools.filter(tool => {
+        // Search in name
+        if (fuzzySearch(q, tool.name)) return true;
+        // Search in keywords
+        for (const keyword of tool.keywords) {
+          if (fuzzySearch(q, keyword)) return true;
+        }
+        // Search in category
+        if (fuzzySearch(q, tool.category)) return true;
+        return false;
+      });
+
+      // Sort results by relevance
+      results.sort((a, b) => {
+        const aName = a.name.toLowerCase();
+        const bName = b.name.toLowerCase();
+        // Exact match first
+        if (aName === q) return -1;
+        if (bName === q) return 1;
+        // Starts with query
+        if (aName.startsWith(q) && !bName.startsWith(q)) return -1;
+        if (bName.startsWith(q) && !aName.startsWith(q)) return 1;
+        return 0;
+      });
+
+      displayResults(results, q);
+    }
+
+    function displayResults(results, query) {
+      if (results.length === 0) {
+        searchResults.innerHTML = `
+          <div class="no-results">
+            <span class="emoji">🔍</span>
+            No tools found for "${query}"
+            <p style="font-size: 0.75rem; color: #94a3b8; margin-top: 0.5rem;">
+              Try searching for: PDF, Word, JPG, JSON, or file format names
+            </p>
+          </div>
+        `;
+        searchResults.classList.add('open');
+        return;
+      }
+
+      let html = '';
+      let currentCategory = '';
+
+      results.forEach((tool, index) => {
+        if (tool.category !== currentCategory) {
+          currentCategory = tool.category;
+          html += `<div class="result-category">${currentCategory}</div>`;
+        }
+
+        // Highlight matching text
+        let displayName = tool.name;
+        const q = query.toLowerCase().trim();
+        if (q.length > 0) {
+          const lowerName = tool.name.toLowerCase();
+          const idx = lowerName.indexOf(q);
+          if (idx !== -1) {
+            displayName = tool.name.substring(0, idx) + 
+              '<span style="background: #dbeafe; color: #1e40af; padding: 0 2px; border-radius: 2px;">' + 
+              tool.name.substring(idx, idx + q.length) + 
+              '</span>' + 
+              tool.name.substring(idx + q.length);
+          }
+        }
+
+        html += `
+          <a href="${tool.page}" class="result-item">
+            <span class="emoji">${tool.emoji}</span>
+            <div class="info">
+              <div class="name">${displayName}</div>
+              <div class="category">${tool.category}</div>
+            </div>
+            <span class="arrow">→</span>
+          </a>
+        `;
+      });
+
+      searchResults.innerHTML = html;
+      searchResults.classList.add('open');
+    }
+
+    // Search input events
+    searchInput.addEventListener('input', function() {
+      const query = this.value;
+      if (query.length > 0) {
+        clearBtn.classList.add('visible');
+      } else {
+        clearBtn.classList.remove('visible');
+        searchResults.classList.remove('open');
+      }
+      performSearch(query);
+    });
+
+    // Clear button
+    clearBtn.addEventListener('click', function() {
+      searchInput.value = '';
+      searchResults.classList.remove('open');
+      clearBtn.classList.remove('visible');
+      searchInput.focus();
+    });
+
+    // Close search results on outside click
+    document.addEventListener('click', function(e) {
+      const container = document.querySelector('.search-container');
+      if (!container.contains(e.target)) {
+        searchResults.classList.remove('open');
+      }
+    });
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', function(e) {
+      // Ctrl+K or Cmd+K to focus search
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        searchInput.focus();
+        searchInput.select();
+      }
+      // Escape to clear search
+      if (e.key === 'Escape') {
+        searchInput.value = '';
+        searchResults.classList.remove('open');
+        clearBtn.classList.remove('visible');
+        searchInput.blur();
+      }
+      // Enter to go to first result
+      if (e.key === 'Enter' && searchResults.classList.contains('open')) {
+        const firstResult = searchResults.querySelector('.result-item');
+        if (firstResult) {
+          window.location.href = firstResult.getAttribute('href');
+        }
+      }
+    });
+
+    // Show shortcut hint on desktop
+    if (window.innerWidth > 640) {
+      searchShortcut.classList.add('visible');
+    }
+
+    // ============================================
+    // 2. MOBILE NAVIGATION
     // ============================================
     
     const toggleBtn = document.getElementById('mobileNavToggle');
@@ -837,7 +1257,7 @@
     });
 
     // ============================================
-    // 2. PWA INSTALLATION
+    // 3. PWA INSTALLATION
     // ============================================
     
     let deferredPrompt;
@@ -933,7 +1353,7 @@
     });
 
     // ============================================
-    // 3. FILE INPUT & SMART DROPZONE
+    // 4. FILE INPUT & SMART DROPZONE
     // ============================================
     
     const fileInput = document.getElementById('file-input');
@@ -1021,22 +1441,16 @@
     };
 
     function getFileType(file) {
-      // First check by MIME type
       if (file.type && conversionMap[file.type]) {
         return file.type;
       }
-      
-      // Fallback to extension
       const ext = '.' + file.name.split('.').pop().toLowerCase();
       if (extensionMap[ext]) {
         return extensionMap[ext];
       }
-      
-      // Check if it's an image by MIME type
       if (file.type.startsWith('image/')) {
         return file.type;
       }
-      
       return null;
     }
 
@@ -1045,18 +1459,14 @@
       if (type && conversionMap[type]) {
         return conversionMap[type];
       }
-      
-      // Check if any conversion matches by extension
       const ext = '.' + file.name.split('.').pop().toLowerCase();
       if (extensionMap[ext] && conversionMap[extensionMap[ext]]) {
         return conversionMap[extensionMap[ext]];
       }
-      
       return null;
     }
 
     function handleFile(file) {
-      // Show file info in modal
       const iconMap = {
         'application/pdf': '📄',
         'image/': '🖼️',
@@ -1081,10 +1491,7 @@
       fileName.textContent = file.name;
       fileSize.textContent = (file.size / 1024).toFixed(1) + ' KB';
       
-      // Get conversion options
       const conversions = getConversions(file);
-      
-      // Clear previous options
       conversionOptions.innerHTML = '';
       noOptions.classList.add('hidden');
       
@@ -1106,12 +1513,10 @@
         noOptions.classList.remove('hidden');
       }
       
-      // Show modal
       uploadOverlay.classList.add('open');
       document.body.style.overflow = 'hidden';
     }
 
-    // Close modal
     function closeModal() {
       uploadOverlay.classList.remove('open');
       document.body.style.overflow = '';
@@ -1123,21 +1528,18 @@
       if (e.target === uploadOverlay) closeModal();
     });
 
-    // File input change
     fileInput.addEventListener('change', function(e) {
       if (this.files.length > 0) {
         handleFile(this.files[0]);
       }
     });
 
-    // Dropzone click
     dropzone.addEventListener('click', function(e) {
       if (e.target.tagName !== 'BUTTON') {
         fileInput.click();
       }
     });
 
-    // Drag and drop
     dropzone.addEventListener('dragover', (e) => {
       e.preventDefault();
       dropzone.classList.add('border-blue-600', 'bg-blue-50');
@@ -1155,7 +1557,6 @@
       }
     });
 
-    // Keyboard shortcut: Escape to close modal
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && uploadOverlay.classList.contains('open')) {
         closeModal();
