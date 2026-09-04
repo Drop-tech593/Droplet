@@ -19,23 +19,82 @@
     }
     .hidden { display: none !important; }
     .progress-bar { transition: width 0.5s ease; }
-    .text-preview {
-      font-family: 'Courier New', monospace;
-      font-size: 13px;
-      line-height: 1.8;
-      white-space: pre-wrap;
-      word-wrap: break-word;
+    
+    /* ===== PREVIEW STYLES ===== */
+    .preview-container {
+      font-family: 'Segoe UI', 'Calibri', Arial, sans-serif;
+      font-size: 11pt;
+      line-height: 1.6;
       max-height: 500px;
       overflow-y: auto;
-      background: #f8fafc;
-      padding: 20px;
+      background: white;
+      padding: 30px 40px;
       border-radius: 8px;
       border: 1px solid #e2e8f0;
+      color: #1e293b;
     }
-    .text-preview::-webkit-scrollbar { width: 8px; }
-    .text-preview::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 8px; }
-    .text-preview::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 8px; }
-    .text-preview::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    .preview-container::-webkit-scrollbar { width: 8px; }
+    .preview-container::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 8px; }
+    .preview-container::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 8px; }
+    .preview-container::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    
+    .preview-container .preview-title {
+      font-size: 16pt;
+      font-weight: bold;
+      text-align: center;
+      margin-bottom: 16pt;
+      color: #0f172a;
+    }
+    .preview-container .preview-heading {
+      font-size: 14pt;
+      font-weight: bold;
+      margin-top: 12pt;
+      margin-bottom: 6pt;
+      color: #0f172a;
+    }
+    .preview-container .preview-subheading {
+      font-size: 12pt;
+      font-weight: bold;
+      margin-top: 10pt;
+      margin-bottom: 4pt;
+      color: #0f172a;
+    }
+    .preview-container .preview-paragraph {
+      margin-bottom: 4pt;
+      text-align: justify;
+      color: #1e293b;
+    }
+    .preview-container .preview-bullet {
+      margin-bottom: 2pt;
+      padding-left: 20pt;
+      color: #1e293b;
+    }
+    .preview-container .preview-numbered {
+      margin-bottom: 2pt;
+      padding-left: 20pt;
+      color: #1e293b;
+    }
+    .preview-container .preview-bold {
+      font-weight: bold;
+    }
+    .preview-container .preview-page-break {
+      border-top: 2px dashed #e2e8f0;
+      margin: 20pt 0;
+      text-align: center;
+      color: #94a3b8;
+      font-size: 9pt;
+    }
+    .preview-container .preview-image-placeholder {
+      background: #f1f5f9;
+      border: 2px dashed #cbd5e1;
+      border-radius: 8px;
+      padding: 20px;
+      text-align: center;
+      color: #94a3b8;
+      margin: 10pt 0;
+      font-size: 10pt;
+    }
+
     .preview-controls {
       display: flex;
       gap: 8px;
@@ -57,6 +116,7 @@
     @media (max-width: 640px) {
       .preview-controls { flex-direction: column; align-items: stretch; }
       .preview-controls .info-text { margin-left: 0; text-align: center; }
+      .preview-container { padding: 15px 20px; }
     }
   </style>
 </head>
@@ -115,19 +175,23 @@
         <button onclick="clearFile()" class="text-slate-400 hover:text-red-500 transition-colors">✕</button>
       </div>
       
+      <!-- Preview Section -->
       <div id="previewContainer" class="hidden mt-4 border-t border-slate-200 pt-4">
         <div class="flex items-center justify-between mb-2">
           <h4 class="font-bold text-sm text-slate-700">📄 Document Preview</h4>
           <span id="charCount" class="text-xs text-slate-400"></span>
         </div>
+        
         <div class="preview-controls mb-3">
-          <button class="active" onclick="setPreviewMode('full')" id="btnFull">📄 Full Document</button>
-          <button onclick="setPreviewMode('first')" id="btnFirst">📃 First 500 Chars</button>
-          <button onclick="setPreviewMode('last')" id="btnLast">📃 Last 500 Chars</button>
-          <span class="info-text" id="previewInfo">Showing all content</span>
+          <button class="active" onclick="setPreviewMode('formatted')" id="btnFormatted">📝 Formatted</button>
+          <button onclick="setPreviewMode('raw')" id="btnRaw">📃 Raw Text</button>
+          <span class="info-text" id="previewInfo">Showing formatted preview</span>
         </div>
-        <div id="previewContent" class="text-preview"></div>
-        <p class="text-xs text-slate-400 mt-2">💡 Preview shows extracted text. Actual Word document will preserve formatting and images.</p>
+        
+        <div id="previewContent" class="preview-container">
+          <!-- Preview will be rendered here -->
+        </div>
+        <p class="text-xs text-slate-400 mt-2">💡 Preview shows how the document will look in Word. Images are shown as placeholders.</p>
       </div>
       
       <div class="mt-4 flex flex-wrap gap-3">
@@ -219,7 +283,7 @@
     let pdfjsLib = null;
     let documentData = null;
     let extractedText = '';
-    let currentPreviewMode = 'full';
+    let currentPreviewMode = 'formatted';
 
     // DOM Elements
     const dropzone = document.getElementById('dropzone');
@@ -240,38 +304,114 @@
     const charCount = document.getElementById('charCount');
     const previewInfo = document.getElementById('previewInfo');
 
+    // Preview mode buttons
     function setPreviewMode(mode) {
       currentPreviewMode = mode;
       document.querySelectorAll('.preview-controls button').forEach(btn => btn.classList.remove('active'));
-      if (mode === 'full') {
-        document.getElementById('btnFull').classList.add('active');
-        previewInfo.textContent = 'Showing all content';
-        renderPreview('full');
-      } else if (mode === 'first') {
-        document.getElementById('btnFirst').classList.add('active');
-        previewInfo.textContent = 'Showing first 500 characters';
-        renderPreview('first');
-      } else if (mode === 'last') {
-        document.getElementById('btnLast').classList.add('active');
-        previewInfo.textContent = 'Showing last 500 characters';
-        renderPreview('last');
+      
+      if (mode === 'formatted') {
+        document.getElementById('btnFormatted').classList.add('active');
+        previewInfo.textContent = 'Showing formatted preview';
+        renderFormattedPreview();
+      } else {
+        document.getElementById('btnRaw').classList.add('active');
+        previewInfo.textContent = 'Showing raw text';
+        renderRawPreview();
       }
     }
 
-    function renderPreview(mode) {
-      if (!extractedText) return;
-      let displayText = '';
-      const totalLength = extractedText.length;
-      if (mode === 'full') {
-        displayText = extractedText || '(No text found)';
-      } else if (mode === 'first') {
-        displayText = extractedText.substring(0, 500) + (totalLength > 500 ? '\n\n... (truncated)' : '');
-      } else if (mode === 'last') {
-        displayText = (totalLength > 500 ? '... (truncated)\n\n' : '') + extractedText.substring(Math.max(0, totalLength - 500));
+    function renderRawPreview() {
+      if (!extractedText) {
+        previewContent.innerHTML = '<p style="color: #94a3b8; text-align: center;">No text to preview</p>';
+        return;
       }
-      previewContent.textContent = displayText || '(No text found)';
+      previewContent.innerHTML = `<pre style="font-family: 'Courier New', monospace; font-size: 12px; white-space: pre-wrap; word-wrap: break-word; margin: 0; background: #f8fafc; padding: 16px; border-radius: 4px; max-height: 400px; overflow-y: auto;">${extractedText.substring(0, 5000)}${extractedText.length > 5000 ? '\n\n... (truncated)' : ''}</pre>`;
     }
 
+    function renderFormattedPreview() {
+      if (!documentData || !documentData.pages || documentData.pages.length === 0) {
+        previewContent.innerHTML = '<p style="color: #94a3b8; text-align: center;">No document to preview</p>';
+        return;
+      }
+
+      let html = '';
+      
+      // Show first 3 pages max for preview
+      const maxPages = Math.min(3, documentData.pages.length);
+      
+      for (let p = 0; p < maxPages; p++) {
+        const page = documentData.pages[p];
+        
+        // Add page indicator
+        if (p > 0) {
+          html += `<div class="preview-page-break">— Page ${p + 1} —</div>`;
+        }
+        
+        // Combine text and images
+        const elements = [];
+        for (const line of page.lines) {
+          elements.push({ type: 'text', y: line.y, item: line });
+        }
+        for (const image of page.images) {
+          elements.push({ type: 'image', y: image.y / 1.5, item: image });
+        }
+        elements.sort((a, b) => a.y - b.y);
+        
+        let lastY = -9999;
+        
+        for (const element of elements) {
+          if (Math.abs(element.y - lastY) < 2) continue;
+          lastY = element.y;
+          
+          if (element.type === 'text') {
+            const line = element.item;
+            
+            const overlapsImage = page.images.some(img => {
+              const imgX = img.x / 1.5;
+              const imgY = img.y / 1.5;
+              const imgW = img.width / 1.5;
+              const imgH = img.height / 1.5;
+              return (line.x >= imgX - 2 && line.x <= imgX + imgW + 2 &&
+                      line.y >= imgY - 2 && line.y <= imgY + imgH + 2 &&
+                      line.width <= imgW + 10);
+            });
+            
+            if (!overlapsImage) {
+              const isHeading = line.isHeading || line.isAllCaps;
+              const isBold = line.isBold || isHeading;
+              
+              let text = line.text;
+              if (line.isBullet) text = text.replace(/^[•●▪◦\-*]\s*/, '');
+              
+              let className = 'preview-paragraph';
+              if (isHeading) {
+                if (line.fontSize >= 16) className = 'preview-heading';
+                else className = 'preview-subheading';
+              } else if (line.isBullet) {
+                className = 'preview-bullet';
+                text = '• ' + text;
+              } else if (line.isNumbered) {
+                className = 'preview-numbered';
+              }
+              
+              const boldHtml = isBold ? ' preview-bold' : '';
+              html += `<div class="${className}${boldHtml}">${text}</div>`;
+            }
+          } else {
+            // Image placeholder
+            html += `<div class="preview-image-placeholder">🖼️ Image (${Math.round(element.item.width / 1.5)} × ${Math.round(element.item.height / 1.5)} px)</div>`;
+          }
+        }
+      }
+      
+      if (documentData.pages.length > 3) {
+        html += `<div class="preview-page-break">... and ${documentData.pages.length - 3} more pages</div>`;
+      }
+      
+      previewContent.innerHTML = html || '<p style="color: #94a3b8; text-align: center;">No content to preview</p>';
+    }
+
+    // Load PDF.js
     async function loadPDFJS() {
       try {
         statusText.textContent = 'Loading PDF engine...';
@@ -392,7 +532,7 @@
       return { pageNumber, pageWidth: baseViewport.width, pageHeight: baseViewport.height, images: crops };
     }
 
-    // ===== EXTRACT DOCUMENT CONTENT - IMPROVED SORTING =====
+    // ===== EXTRACT DOCUMENT CONTENT =====
     async function extractDocumentContent(arrayBuffer, showProgress = true) {
       if (!pdfjsLib) await loadPDFJS();
 
@@ -407,7 +547,6 @@
         const viewport = page.getViewport({ scale: 1 });
         const textContent = await page.getTextContent();
 
-        // Extract text items with proper positioning
         const items = textContent.items.map(item => {
           const tx = pdfjsLib.Util.transform(viewport.transform, item.transform);
           const fontSize = Math.max(1, Math.sqrt(tx[2] * tx[2] + tx[3] * tx[3]));
@@ -420,7 +559,6 @@
           return { text, x, y, width: item.width || 0, height: item.height || fontSize, fontSize, isBold, fontName };
         }).filter(x => x.text.trim());
 
-        // Group items into lines by Y position - IMPROVED
         const lines = [];
         const tolerance = 2.5;
 
@@ -439,12 +577,10 @@
           foundLine.items.push(item);
         }
 
-        // Sort lines by Y (top to bottom)
         lines.sort((a, b) => a.y - b.y);
 
         const structured = [];
         for (const line of lines) {
-          // Sort items in line by X (left to right)
           line.items.sort((a, b) => a.x - b.x);
 
           let lineText = '';
@@ -517,7 +653,7 @@
       return Math.round(pt * 2);
     }
 
-    // ===== CREATE CLEAN DOCX =====
+    // ===== CREATE DOCX =====
     async function createStyledDOCX(documentData, filename) {
       if (typeof window.docx === 'undefined') {
         throw new Error('DOCX library not loaded. Please refresh the page.');
@@ -527,7 +663,6 @@
 
       const children = [];
 
-      // Add title
       if (filename) {
         children.push(new Paragraph({
           children: [new TextRun({ text: filename, size: 32, bold: true })],
@@ -539,32 +674,24 @@
       for (let p = 0; p < documentData.pages.length; p++) {
         const page = documentData.pages[p];
 
-        // Combine text and images into a single sorted list
         const elements = [];
-
         for (const line of page.lines) {
           elements.push({ type: 'text', y: line.y, item: line });
         }
-
         for (const image of page.images) {
           elements.push({ type: 'image', y: image.y / 1.5, item: image });
         }
-
-        // Sort by Y position (top to bottom)
         elements.sort((a, b) => a.y - b.y);
 
-        // Track last Y position to avoid duplicates
         let lastY = -9999;
 
         for (const element of elements) {
-          // Skip if too close to previous element (duplicate detection)
           if (Math.abs(element.y - lastY) < 2) continue;
           lastY = element.y;
 
           if (element.type === 'text') {
             const line = element.item;
 
-            // Check if text overlaps with an image
             const overlapsImage = page.images.some(img => {
               const imgX = img.x / 1.5;
               const imgY = img.y / 1.5;
@@ -610,7 +737,6 @@
               children.push(new Paragraph(options));
             }
           } else {
-            // Image element
             const img = element.item;
 
             const imageWidthIn = Math.min(5.5, Math.max(0.8, (img.width / 1.5) / 72));
@@ -638,7 +764,6 @@
           }
         }
 
-        // Add page break between pages
         if (p < documentData.pages.length - 1) {
           children.push(new Paragraph({ children: [new PageBreak()] }));
         }
@@ -738,14 +863,15 @@
         const wordCount = extractedText.split(/\s+/).filter(w => w.length > 0).length;
         charCount.textContent = `${extractedText.length.toLocaleString()} chars • ${wordCount.toLocaleString()} words • ${result.pageCount} pages`;
 
-        renderPreview('full');
+        // Show formatted preview
+        renderFormattedPreview();
         previewContainer.classList.remove('hidden');
 
         progressContainer.classList.add('hidden');
         statusText.textContent = '✅ Ready to convert';
       } catch (error) {
         console.error('Preview error:', error);
-        previewContent.textContent = '⚠️ Could not generate preview.';
+        previewContent.innerHTML = '<p style="color: #94a3b8; text-align: center;">⚠️ Could not generate preview. The PDF may be encrypted or corrupted.</p>';
         previewContainer.classList.remove('hidden');
         progressContainer.classList.add('hidden');
         statusText.textContent = '⚠️ Preview not available';
