@@ -12,8 +12,11 @@
   <!-- PDF.js for PDF parsing -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   
-  <!-- jsPDF for PDF creation -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <!-- html2pdf for PDF creation -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  
+  <!-- JSZip for ZIP downloads -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
   
   <style>
     .dropzone-highlight {
@@ -70,6 +73,8 @@
       margin: 2px auto;
       background: #f1f5f9;
       border-radius: 2px;
+      width: 40px;
+      height: auto;
     }
     .info-badge {
       display: inline-block;
@@ -103,6 +108,7 @@
     .split-result-item .info .name {
       font-weight: 500;
       color: #1e293b;
+      font-size: 0.9rem;
     }
     .split-result-item .info .pages {
       font-size: 0.75rem;
@@ -339,6 +345,7 @@
     let selectedPages = new Set();
     let splitResults = [];
     let totalPages = 0;
+    let pdfDoc = null;
 
     // DOM Elements
     const dropzone = document.getElementById('dropzone');
@@ -353,7 +360,7 @@
     const progressText = document.getElementById('progressText');
     const statusText = document.getElementById('statusText');
     const resultSection = document.getElementById('resultSection');
-    const splitResults = document.getElementById('splitResults');
+    const splitResultsContainer = document.getElementById('splitResults');
     const pageGrid = document.getElementById('pageGrid');
     const pageGridContainer = document.getElementById('pageGridContainer');
     const selectedCount = document.getElementById('selectedCount');
@@ -445,8 +452,8 @@
         progressText.textContent = '10%';
 
         const arrayBuffer = await file.arrayBuffer();
-        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-        totalPages = pdf.numPages;
+        pdfDoc = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+        totalPages = pdfDoc.numPages;
         pageCount.textContent = `📄 ${totalPages} pages`;
 
         pdfPages = [];
@@ -454,10 +461,9 @@
 
         // Render page thumbnails
         pageGrid.innerHTML = '';
-        const maxPreview = Math.min(totalPages, 20);
 
         for (let i = 1; i <= totalPages; i++) {
-          const page = await pdf.getPage(i);
+          const page = await pdfDoc.getPage(i);
           const viewport = page.getViewport({ scale: 0.3 });
           const canvas = document.createElement('canvas');
           canvas.width = viewport.width;
@@ -476,12 +482,8 @@
           thumb.dataset.page = i;
           thumb.innerHTML = `
             <span class="page-num">${i}</span>
-            <canvas class="page-preview" width="${viewport.width * 0.6}" height="${viewport.height * 0.6}" style="width: 40px; height: auto;"></canvas>
+            <img class="page-preview" src="${canvas.toDataURL('image/png')}" style="width: 40px; height: auto;">
           `;
-          
-          const previewCanvas = thumb.querySelector('canvas');
-          const previewCtx = previewCanvas.getContext('2d');
-          previewCtx.drawImage(canvas, 0, 0, previewCanvas.width, previewCanvas.height);
 
           thumb.addEventListener('click', function() {
             const pageNum = parseInt(this.dataset.page);
@@ -539,6 +541,7 @@
       pdfPages = [];
       selectedPages = new Set();
       splitResults = [];
+      pdfDoc = null;
       fileInput.value = '';
       fileInfo.classList.add('hidden');
       dropzone.classList.remove('hidden');
@@ -557,7 +560,7 @@
     }
 
     // ============================================
-    // SPLIT PDF
+    // SPLIT PDF - FIXED VERSION
     // ============================================
     async function splitPDF() {
       if (!currentFile) {
@@ -596,7 +599,6 @@
           return;
         }
         const sorted = Array.from(selectedPages).sort((a, b) => a - b);
-        // Group consecutive pages
         let start = sorted[0];
         let end = sorted[0];
         for (let i = 1; i < sorted.length; i++) {
@@ -632,7 +634,7 @@
 
         for (let r = 0; r < pageRangesList.length; r++) {
           const range = pageRangesList[r];
-          const pages = [];
+          const pageImages = [];
           
           for (let pageNum = range.start; pageNum <= range.end; pageNum++) {
             const page = await pdf.getPage(pageNum);
@@ -642,19 +644,23 @@
             canvas.height = viewport.height;
             const ctx = canvas.getContext('2d');
             await page.render({ canvasContext: ctx, viewport }).promise;
-            pages.push({ canvas: canvas, width: viewport.width, height: viewport.height });
+            pageImages.push({
+              dataUrl: canvas.toDataURL('image/jpeg', 0.92),
+              width: viewport.width,
+              height: viewport.height
+            });
           }
 
-          // Create PDF for this range
-          const blob = await createPDFFromPages(pages);
+          // Create PDF using html2pdf (more reliable)
+          const pdfBlob = await createPDFFromImages(pageImages);
           
           const baseName = currentFile.name.replace(/\.pdf$/i, '');
           const fileName = `${baseName}_part_${r + 1}.pdf`;
           
           splitResults.push({
-            blob: blob,
+            blob: pdfBlob,
             name: fileName,
-            pages: pages.length,
+            pages: pageImages.length,
             range: `${range.start}-${range.end}`
           });
 
@@ -707,45 +713,50 @@
       return ranges;
     }
 
-    async function createPDFFromPages(pages) {
-      const { jsPDF } = window.jspdf;
-      const firstPage = pages[0];
-      const orientation = firstPage.width > firstPage.height ? 'landscape' : 'portrait';
-      const format = [firstPage.width, firstPage.height];
+    async function createPDFFromImages(pageImages) {
+      // Build HTML with all images
+      let html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><style>
+        body { margin: 0; padding: 0; background: white; }
+        .page { page-break-after: always; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
+        .page img { max-width: 100%; max-height: 100vh; width: auto; height: auto; object-fit: contain; }
+        @page { margin: 0; }
+        @media print { .page { padding: 0; } }
+      </style></head><body>`;
 
-      const pdf = new jsPDF({
-        orientation: orientation,
-        unit: 'px',
-        format: format,
-        compress: true
-      });
-
-      for (let i = 0; i < pages.length; i++) {
-        const page = pages[i];
-        const imgData = page.canvas.toDataURL('image/jpeg', 0.92);
-        
-        if (i > 0) {
-          // Check if dimensions match
-          if (Math.abs(page.width - firstPage.width) > 1 || Math.abs(page.height - firstPage.height) > 1) {
-            const scaleX = firstPage.width / page.width;
-            const scaleY = firstPage.height / page.height;
-            const scale = Math.min(scaleX, scaleY);
-            const scaledWidth = page.width * scale;
-            const scaledHeight = page.height * scale;
-            const offsetX = (firstPage.width - scaledWidth) / 2;
-            const offsetY = (firstPage.height - scaledHeight) / 2;
-            pdf.addPage([firstPage.width, firstPage.height]);
-            pdf.addImage(imgData, 'JPEG', offsetX, offsetY, scaledWidth, scaledHeight);
-          } else {
-            pdf.addPage([firstPage.width, firstPage.height]);
-            pdf.addImage(imgData, 'JPEG', 0, 0, page.width, page.height);
-          }
-        } else {
-          pdf.addImage(imgData, 'JPEG', 0, 0, page.width, page.height);
-        }
+      for (const img of pageImages) {
+        html += `<div class="page"><img src="${img.dataUrl}"></div>`;
       }
 
-      return pdf.output('blob');
+      html += `</body></html>`;
+
+      // Create a temporary container
+      const container = document.createElement('div');
+      container.style.position = 'fixed';
+      container.style.left = '-9999px';
+      container.style.top = '0';
+      container.style.zIndex = '-9999';
+      container.innerHTML = html;
+      document.body.appendChild(container);
+
+      // Generate PDF using html2pdf
+      const opt = {
+        margin: 0,
+        filename: 'temp.pdf',
+        image: { type: 'jpeg', quality: 0.92 },
+        html2canvas: { scale: 2, useCORS: true, letterRendering: true },
+        jsPDF: { unit: 'px', format: 'a4', orientation: 'portrait' },
+        pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+      };
+
+      const pdfBlob = await html2pdf()
+        .set(opt)
+        .from(container)
+        .outputPdf('blob');
+
+      // Clean up
+      document.body.removeChild(container);
+
+      return pdfBlob;
     }
 
     function showResults() {
@@ -757,7 +768,7 @@
       resultBadgePages.textContent = `${totalPages} pages`;
 
       // Build results list
-      splitResults.innerHTML = '';
+      splitResultsContainer.innerHTML = '';
       for (let i = 0; i < splitResults.length; i++) {
         const result = splitResults[i];
         const div = document.createElement('div');
@@ -770,7 +781,7 @@
           </div>
           <button class="download-btn" onclick="downloadSplit(${i})">📥 Download</button>
         `;
-        splitResults.appendChild(div);
+        splitResultsContainer.appendChild(div);
       }
 
       resultSection.classList.remove('hidden');
@@ -806,52 +817,4 @@
           zip.file(result.name, result.blob);
         }
         zip.generateAsync({ type: 'blob' }).then(content => {
-          const url = URL.createObjectURL(content);
-          const link = document.createElement('a');
-          const baseName = currentFile?.name.replace(/\.pdf$/i, '') || 'split';
-          link.download = `${baseName}_split.zip`;
-          link.href = url;
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-          URL.revokeObjectURL(url);
-        });
-      } else {
-        // Fallback: download individually
-        for (let i = 0; i < splitResults.length; i++) {
-          setTimeout(() => {
-            downloadSplit(i);
-          }, i * 500);
-        }
-      }
-    }
-
-    // Load JSZip for zip downloads
-    function loadJSZip() {
-      return new Promise((resolve, reject) => {
-        if (typeof JSZip !== 'undefined') {
-          resolve();
-          return;
-        }
-        const script = document.createElement('script');
-        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';
-        script.onload = resolve;
-        script.onerror = reject;
-        document.head.appendChild(script);
-      });
-    }
-
-    document.addEventListener('DOMContentLoaded', () => {
-      loadJSZip();
-    });
-
-    // Keyboard shortcut: Enter to split
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' && !splitBtn.disabled && !splitBtn.textContent.includes('⏳')) {
-        splitPDF();
-      }
-    });
-  </script>
-
-</body>
-</html>
+          const url = URL.createObjectURL(content
