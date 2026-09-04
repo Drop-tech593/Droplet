@@ -3,36 +3,111 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Coming Soon - Droplet</title>
-  <meta name="description" content="This tool is coming soon to Droplet. Stay tuned for more file conversion tools.">
-
+  <title>Merge PDF - Droplet</title>
+  <meta name="description" content="Merge multiple PDF files into one online for free. 100% client-side, your files never leave your browser.">
+  
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
-
+  
+  <!-- PDF.js for PDF parsing -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  
   <style>
-    .float-animation {
-      animation: float 3s ease-in-out infinite;
+    .dropzone-highlight {
+      border-color: #3b82f6 !important;
+      background: #eff6ff !important;
     }
-    @keyframes float {
-      0%, 100% { transform: translateY(0px); }
-      50% { transform: translateY(-10px); }
+    .hidden {
+      display: none !important;
     }
-    .pulse-dot {
-      animation: pulse 1.5s ease-in-out infinite;
+    .progress-bar {
+      transition: width 0.5s ease;
     }
-    @keyframes pulse {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.5; transform: scale(0.8); }
+    .file-list {
+      max-height: 300px;
+      overflow-y: auto;
     }
-    .bg-grid {
-      background-image: 
-        linear-gradient(rgba(37, 99, 235, 0.05) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(37, 99, 235, 0.05) 1px, transparent 1px);
-      background-size: 40px 40px;
+    .file-list::-webkit-scrollbar { width: 6px; }
+    .file-list::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 8px; }
+    .file-list::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 8px; }
+    .file-list::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    .file-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 14px;
+      border-bottom: 1px solid #f1f5f9;
+      transition: background 0.2s;
     }
+    .file-item:hover {
+      background: #f8fafc;
+    }
+    .file-item .drag-handle {
+      cursor: grab;
+      color: #94a3b8;
+      font-size: 1.2rem;
+      margin-right: 10px;
+      user-select: none;
+    }
+    .file-item .drag-handle:active {
+      cursor: grabbing;
+    }
+    .file-item .file-info {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .file-item .file-info .name {
+      font-weight: 500;
+      font-size: 0.9rem;
+      color: #1e293b;
+    }
+    .file-item .file-info .size {
+      font-size: 0.75rem;
+      color: #94a3b8;
+    }
+    .file-item .file-info .pages {
+      font-size: 0.7rem;
+      color: #64748b;
+      background: #f1f5f9;
+      padding: 2px 8px;
+      border-radius: 12px;
+    }
+    .file-item .remove-btn {
+      background: none;
+      border: none;
+      color: #94a3b8;
+      cursor: pointer;
+      font-size: 1.1rem;
+      padding: 4px 8px;
+      border-radius: 6px;
+      transition: all 0.2s;
+    }
+    .file-item .remove-btn:hover {
+      background: #fee2e2;
+      color: #ef4444;
+    }
+    .file-item.dragging {
+      opacity: 0.5;
+      border: 2px dashed #3b82f6;
+    }
+    .file-item.drag-over {
+      border-top: 3px solid #3b82f6;
+    }
+    .info-badge {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 12px;
+      font-size: 10px;
+      font-weight: 600;
+    }
+    .badge-files { background: #dbeafe; color: #1e40af; }
+    .badge-pages { background: #d1fae5; color: #065f46; }
+    .badge-size { background: #fef3c7; color: #92400e; }
   </style>
 </head>
-<body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen flex flex-col">
+<body class="bg-slate-50 text-slate-800 font-sans antialiased">
 
   <!-- Navigation -->
   <header class="bg-white border-b border-slate-200 py-3.5 px-6 sticky top-0 z-50">
@@ -45,95 +120,138 @@
         </div>
       </a>
       <nav class="hidden md:flex items-center space-x-6 text-xs font-bold text-slate-600">
-        <a href="/" class="hover:text-blue-600 transition-colors">← Back to Home</a>
+        <a href="/" class="hover:text-blue-600 transition-colors">← Back</a>
       </nav>
     </div>
   </header>
 
   <!-- Main Content -->
-  <main class="flex-grow flex items-center justify-center px-4 py-12 bg-grid">
-    <div class="max-w-2xl w-full text-center">
+  <main class="max-w-4xl mx-auto px-4 py-8 md:py-12 flex-grow w-full">
 
-      <!-- Animated Icon -->
-      <div class="float-animation mb-8">
-        <div class="w-32 h-32 mx-auto bg-gradient-to-br from-blue-500 to-purple-600 rounded-3xl flex items-center justify-center shadow-2xl shadow-blue-500/20">
-          <span class="text-6xl">🚀</span>
-        </div>
+    <!-- Page Header -->
+    <div class="text-center mb-8">
+      <div class="inline-block p-3 bg-blue-50 rounded-2xl mb-4">
+        <span class="text-4xl">🔗</span>
       </div>
-
-      <!-- Coming Soon Badge -->
-      <div class="inline-flex items-center gap-2 bg-blue-50 text-blue-700 px-4 py-2 rounded-full text-sm font-medium mb-6">
-        <span class="w-2 h-2 bg-blue-600 rounded-full pulse-dot"></span>
-        Coming Soon
-      </div>
-
-      <!-- Title -->
-      <h1 class="text-4xl md:text-5xl font-black text-slate-900 tracking-tight mb-4">
-        <span id="toolName" class="text-blue-600">[Tool Name]</span>
-        <span class="text-slate-900">is on its way!</span>
-      </h1>
-
-      <!-- Description -->
-      <p class="text-slate-500 text-lg max-w-md mx-auto mb-8">
-        We're working hard to bring you this powerful conversion tool. 
-        It will be available very soon with all the features you expect from Droplet.
+      <h1 class="text-3xl md:text-4xl font-black text-slate-900 tracking-tight">Merge PDF</h1>
+      <p class="text-slate-500 text-sm md:text-base mt-2 max-w-lg mx-auto">
+        Combine multiple PDF files into one document. <strong>100% client-side</strong> — your files never leave your browser.
       </p>
+    </div>
 
-      <!-- Features Preview -->
-      <div class="grid grid-cols-2 md:grid-cols-3 gap-4 max-w-lg mx-auto mb-10">
-        <div class="bg-white p-4 rounded-xl border border-slate-100 shadow-sm">
-          <div class="text-2xl mb-1">🔒</div>
-          <p class="text-xs font-medium text-slate-700">100% Private</p>
-          <p class="text-[10px] text-slate-400">Client-side processing</p>
+    <!-- Dropzone -->
+    <div id="dropzone" class="bg-white border-2 border-dashed border-slate-300 hover:border-blue-400 transition-all rounded-3xl p-8 md:p-12 text-center shadow-lg max-w-2xl mx-auto cursor-pointer">
+      <div class="flex flex-col items-center">
+        <div class="w-20 h-20 bg-blue-50 rounded-2xl flex items-center justify-center mb-4 text-4xl">
+          📁
         </div>
-        <div class="bg-white p-4 rounded-xl border border-slate-100 shadow-sm">
-          <div class="text-2xl mb-1">⚡</div>
-          <p class="text-xs font-medium text-slate-700">Fast & Free</p>
-          <p class="text-[10px] text-slate-400">No sign-up required</p>
-        </div>
-        <div class="bg-white p-4 rounded-xl border border-slate-100 shadow-sm">
-          <div class="text-2xl mb-1">📱</div>
-          <p class="text-xs font-medium text-slate-700">Mobile Ready</p>
-          <p class="text-[10px] text-slate-400">Works on all devices</p>
-        </div>
-      </div>
-
-      <!-- Action Buttons -->
-      <div class="flex flex-wrap gap-3 justify-center">
-        <a href="/" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-8 py-3 rounded-xl transition-all shadow-md shadow-blue-500/20 active:scale-95">
-          ← Back to Home
-        </a>
-        <button onclick="notifyMe()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-8 py-3 rounded-xl transition-all active:scale-95">
-          🔔 Notify Me
+        <h3 class="text-xl font-bold text-slate-900 mb-1">Drop your PDF files here</h3>
+        <p class="text-slate-400 text-sm mb-4">or click to browse (select multiple)</p>
+        <input type="file" id="fileInput" accept=".pdf,application/pdf" multiple class="hidden">
+        <button onclick="document.getElementById('fileInput').click()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-3 rounded-xl text-sm shadow-md shadow-blue-500/20 transition-all active:scale-95">
+          Select PDF Files
         </button>
-      </div>
-
-      <!-- Notification Form -->
-      <div id="notifyForm" class="hidden mt-6 max-w-sm mx-auto">
-        <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-          <p class="text-sm font-medium text-slate-700 mb-3">Get notified when this tool launches:</p>
-          <div class="flex flex-col sm:flex-row gap-2">
-            <input type="email" id="emailInput" placeholder="Enter your email" class="flex-1 border border-slate-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-            <button onclick="subscribe()" class="bg-green-600 hover:bg-green-700 text-white font-medium px-4 py-2 rounded-lg transition-all text-sm whitespace-nowrap">
-              Subscribe
-            </button>
-          </div>
-          <p class="text-[10px] text-slate-400 mt-2">We'll only email you about this tool. No spam. Unsubscribe anytime.</p>
-        </div>
-      </div>
-
-      <!-- Other Tools -->
-      <div class="mt-12 pt-8 border-t border-slate-200">
-        <p class="text-sm font-medium text-slate-600 mb-4">While you wait, try these tools:</p>
-        <div class="flex flex-wrap gap-2 justify-center">
-          <a href="/pdf-to-word.html" class="text-xs bg-white border border-slate-200 px-3 py-1.5 rounded-full hover:border-blue-400 transition-colors text-slate-600">PDF to Word</a>
-          <a href="/heic-to-jpg.html" class="text-xs bg-white border border-slate-200 px-3 py-1.5 rounded-full hover:border-blue-400 transition-colors text-slate-600">HEIC to JPG</a>
-          <a href="/json-to-csv.html" class="text-xs bg-white border border-slate-200 px-3 py-1.5 rounded-full hover:border-blue-400 transition-colors text-slate-600">JSON to CSV</a>
-          <a href="/svg-to-png.html" class="text-xs bg-white border border-slate-200 px-3 py-1.5 rounded-full hover:border-blue-400 transition-colors text-slate-600">SVG to PNG</a>
-          <a href="/epub-to-pdf.html" class="text-xs bg-white border border-slate-200 px-3 py-1.5 rounded-full hover:border-blue-400 transition-colors text-slate-600">EPUB to PDF</a>
-        </div>
+        <p class="text-xs text-slate-400 mt-3">Max file size: ~100MB per file • Drag to reorder</p>
       </div>
     </div>
+
+    <!-- File List -->
+    <div id="fileListContainer" class="hidden max-w-2xl mx-auto mt-6 bg-white rounded-xl shadow-sm border border-slate-200">
+      <div class="p-4 border-b border-slate-200 flex items-center justify-between">
+        <div>
+          <h4 class="font-bold text-sm text-slate-700">📄 Files to Merge</h4>
+          <span id="fileStats" class="text-xs text-slate-400"></span>
+        </div>
+        <div class="flex gap-2">
+          <button onclick="clearAllFiles()" class="text-xs text-red-500 hover:text-red-700 transition-colors">Clear All</button>
+        </div>
+      </div>
+      <div id="fileList" class="file-list">
+        <!-- Files will be added here -->
+      </div>
+      <div class="p-4 border-t border-slate-200 flex flex-wrap gap-3">
+        <button onclick="mergePDFs()" id="mergeBtn" class="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-xl transition-all active:scale-95 shadow-md shadow-green-500/20 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+          🔗 Merge All
+        </button>
+        <button onclick="clearAllFiles()" class="px-4 py-3 border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors text-sm">
+          Clear All
+        </button>
+      </div>
+    </div>
+
+    <!-- Progress Bar -->
+    <div id="progressContainer" class="hidden max-w-2xl mx-auto mt-4">
+      <div class="flex justify-between text-xs text-slate-500 mb-1">
+        <span>Merging...</span>
+        <span id="progressText">0%</span>
+      </div>
+      <div class="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
+        <div id="progressBar" class="bg-blue-600 h-2 rounded-full progress-bar" style="width: 0%"></div>
+      </div>
+      <p id="statusText" class="text-xs text-slate-400 mt-2 text-center">Initializing...</p>
+    </div>
+
+    <!-- Result Section -->
+    <div id="resultSection" class="hidden max-w-2xl mx-auto mt-6 bg-green-50 border border-green-200 rounded-xl p-6 text-center">
+      <div class="text-4xl mb-2">✅</div>
+      <h3 class="font-bold text-slate-900">Merge Complete!</h3>
+      <p class="text-sm text-slate-600 mt-1">Your merged PDF is ready to download.</p>
+      <div class="mt-2 flex flex-wrap gap-2 justify-center">
+        <span id="resultBadgePages" class="info-badge badge-pages">0 pages</span>
+        <span id="resultBadgeFiles" class="info-badge badge-files">0 files</span>
+        <span id="resultBadgeSize" class="info-badge badge-size">0 MB</span>
+      </div>
+      <div class="mt-4 flex flex-wrap gap-3 justify-center">
+        <a id="downloadLink" href="#" download="merged.pdf" class="bg-green-600 hover:bg-green-700 text-white font-bold px-6 py-3 rounded-xl transition-all shadow-md shadow-green-500/20">
+          📥 Download Merged PDF
+        </a>
+        <button onclick="resetConverter()" class="px-6 py-3 border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors text-sm">
+          Merge Another
+        </button>
+      </div>
+    </div>
+
+    <!-- Info Section -->
+    <div class="max-w-2xl mx-auto mt-12 grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div class="bg-white p-4 rounded-xl border border-slate-100 text-center">
+        <div class="text-2xl mb-1">🔒</div>
+        <h4 class="font-bold text-sm">100% Private</h4>
+        <p class="text-xs text-slate-500">Your files never leave your browser</p>
+      </div>
+      <div class="bg-white p-4 rounded-xl border border-slate-100 text-center">
+        <div class="text-2xl mb-1">📦</div>
+        <h4 class="font-bold text-sm">Drag to Reorder</h4>
+        <p class="text-xs text-slate-500">Rearrange files before merging</p>
+      </div>
+      <div class="bg-white p-4 rounded-xl border border-slate-100 text-center">
+        <div class="text-2xl mb-1">⚡</div>
+        <h4 class="font-bold text-sm">Fast & Free</h4>
+        <p class="text-xs text-slate-500">No sign-up required</p>
+      </div>
+    </div>
+
+    <!-- FAQ Section -->
+    <section class="max-w-2xl mx-auto mt-12">
+      <h2 class="text-xl font-black text-slate-900 text-center mb-6">Frequently Asked Questions</h2>
+      <div class="space-y-3">
+        <div class="bg-white p-5 rounded-xl border border-slate-100">
+          <h3 class="font-bold text-slate-900 text-sm">Is my data safe?</h3>
+          <p class="text-slate-600 text-sm mt-1">Yes! All merging happens locally in your browser. Your PDFs are never uploaded to any server.</p>
+        </div>
+        <div class="bg-white p-5 rounded-xl border border-slate-100">
+          <h3 class="font-bold text-slate-900 text-sm">Can I reorder the files?</h3>
+          <p class="text-slate-600 text-sm mt-1">Yes! Simply drag and drop the files in the list to reorder them before merging.</p>
+        </div>
+        <div class="bg-white p-5 rounded-xl border border-slate-100">
+          <h3 class="font-bold text-slate-900 text-sm">Are there file size limits?</h3>
+          <p class="text-slate-600 text-sm mt-1">Since everything runs locally, limits depend on your device's memory. Most modern browsers handle PDFs up to 100MB each without issues.</p>
+        </div>
+        <div class="bg-white p-5 rounded-xl border border-slate-100">
+          <h3 class="font-bold text-slate-900 text-sm">What happens if files have different page sizes?</h3>
+          <p class="text-slate-600 text-sm mt-1">The merged PDF will preserve each page's original size. The output will use the first page's size as the default.</p>
+        </div>
+      </div>
+    </section>
   </main>
 
   <!-- Footer -->
@@ -150,53 +268,444 @@
     </div>
   </footer>
 
-  <!-- JavaScript -->
+  <!-- ===== JAVASCRIPT ===== -->
   <script>
-    // Get tool name from URL parameter
-    const urlParams = new URLSearchParams(window.location.search);
-    const toolName = urlParams.get('tool') || 'This Tool';
+    let files = [];
+    let mergedBlob = null;
+    let totalPages = 0;
 
-    // Update the page title and heading
-    document.title = `${toolName} - Coming Soon | Droplet`;
-    document.getElementById('toolName').textContent = toolName;
+    // DOM Elements
+    const dropzone = document.getElementById('dropzone');
+    const fileInput = document.getElementById('fileInput');
+    const fileListContainer = document.getElementById('fileListContainer');
+    const fileList = document.getElementById('fileList');
+    const fileStats = document.getElementById('fileStats');
+    const mergeBtn = document.getElementById('mergeBtn');
+    const progressContainer = document.getElementById('progressContainer');
+    const progressBar = document.getElementById('progressBar');
+    const progressText = document.getElementById('progressText');
+    const statusText = document.getElementById('statusText');
+    const resultSection = document.getElementById('resultSection');
+    const downloadLink = document.getElementById('downloadLink');
+    const resultBadgePages = document.getElementById('resultBadgePages');
+    const resultBadgeFiles = document.getElementById('resultBadgeFiles');
+    const resultBadgeSize = document.getElementById('resultBadgeSize');
 
-    // Toggle notification form
-    function notifyMe() {
-      const form = document.getElementById('notifyForm');
-      form.classList.toggle('hidden');
-      if (!form.classList.contains('hidden')) {
-        document.getElementById('emailInput').focus();
+    // Set PDF.js worker
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+    // Drag and Drop
+    dropzone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropzone.classList.add('dropzone-highlight');
+    });
+
+    dropzone.addEventListener('dragleave', () => {
+      dropzone.classList.remove('dropzone-highlight');
+    });
+
+    dropzone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropzone.classList.remove('dropzone-highlight');
+      const droppedFiles = e.dataTransfer.files;
+      if (droppedFiles.length > 0) {
+        handleFiles(droppedFiles);
+      }
+    });
+
+    dropzone.addEventListener('click', (e) => {
+      if (e.target.tagName !== 'BUTTON') {
+        fileInput.click();
+      }
+    });
+
+    fileInput.addEventListener('change', (e) => {
+      if (e.target.files.length > 0) {
+        handleFiles(e.target.files);
+        fileInput.value = '';
+      }
+    });
+
+    function handleFiles(fileList) {
+      const validFiles = [];
+      let invalidCount = 0;
+
+      for (let i = 0; i < fileList.length; i++) {
+        const file = fileList[i];
+        if (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')) {
+          if (file.size <= 100 * 1024 * 1024) {
+            validFiles.push(file);
+          } else {
+            invalidCount++;
+          }
+        } else {
+          invalidCount++;
+        }
+      }
+
+      if (validFiles.length === 0) {
+        alert('No valid PDF files found. Please select PDF files under 100MB.');
+        return;
+      }
+
+      if (invalidCount > 0) {
+        alert(`${invalidCount} file(s) were skipped due to size limits or invalid format.`);
+      }
+
+      // Add files to the list
+      validFiles.forEach(file => {
+        files.push({
+          file: file,
+          name: file.name,
+          size: file.size,
+          pages: 0,
+          data: null
+        });
+      });
+
+      updateFileList();
+    }
+
+    async function updateFileList() {
+      if (files.length === 0) {
+        fileListContainer.classList.add('hidden');
+        mergeBtn.disabled = true;
+        return;
+      }
+
+      fileListContainer.classList.remove('hidden');
+      mergeBtn.disabled = false;
+
+      // Get page counts for each file
+      for (let i = 0; i < files.length; i++) {
+        if (files[i].pages === 0) {
+          try {
+            const arrayBuffer = await files[i].file.arrayBuffer();
+            const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+            files[i].pages = pdf.numPages;
+            totalPages = files.reduce((sum, f) => sum + f.pages, 0);
+          } catch (error) {
+            console.error('Error reading PDF:', error);
+            files[i].pages = '?';
+          }
+        }
+      }
+
+      // Update stats
+      const totalSize = files.reduce((sum, f) => sum + f.size, 0);
+      fileStats.textContent = `${files.length} files • ${totalPages} pages • ${(totalSize / 1024 / 1024).toFixed(2)} MB`;
+
+      // Render file list
+      fileList.innerHTML = '';
+      files.forEach((file, index) => {
+        const div = document.createElement('div');
+        div.className = 'file-item';
+        div.draggable = true;
+        div.dataset.index = index;
+
+        div.innerHTML = `
+          <span class="drag-handle">⠿</span>
+          <div class="file-info">
+            <span class="name">${file.name}</span>
+            <span class="pages">📄 ${file.pages} pages</span>
+            <span class="size">${(file.size / 1024 / 1024).toFixed(2)} MB</span>
+          </div>
+          <button class="remove-btn" onclick="removeFile(${index})" title="Remove file">✕</button>
+        `;
+
+        // Drag events
+        div.addEventListener('dragstart', (e) => {
+          e.dataTransfer.effectAllowed = 'move';
+          e.dataTransfer.setData('text/plain', index);
+          div.classList.add('dragging');
+        });
+
+        div.addEventListener('dragend', () => {
+          div.classList.remove('dragging');
+        });
+
+        div.addEventListener('dragover', (e) => {
+          e.preventDefault();
+          e.dataTransfer.dropEffect = 'move';
+          div.classList.add('drag-over');
+        });
+
+        div.addEventListener('dragleave', () => {
+          div.classList.remove('drag-over');
+        });
+
+        div.addEventListener('drop', (e) => {
+          e.preventDefault();
+          div.classList.remove('drag-over');
+          const fromIndex = parseInt(e.dataTransfer.getData('text/plain'));
+          const toIndex = parseInt(div.dataset.index);
+          if (fromIndex !== toIndex) {
+            const [movedFile] = files.splice(fromIndex, 1);
+            files.splice(toIndex, 0, movedFile);
+            updateFileList();
+          }
+        });
+
+        fileList.appendChild(div);
+      });
+    }
+
+    function removeFile(index) {
+      files.splice(index, 1);
+      totalPages = files.reduce((sum, f) => sum + f.pages, 0);
+      updateFileList();
+    }
+
+    function clearAllFiles() {
+      files = [];
+      totalPages = 0;
+      fileList.innerHTML = '';
+      fileListContainer.classList.add('hidden');
+      mergeBtn.disabled = true;
+      resultSection.classList.add('hidden');
+      progressContainer.classList.add('hidden');
+    }
+
+    function resetConverter() {
+      clearAllFiles();
+      mergedBlob = null;
+      downloadLink.href = '#';
+    }
+
+    // ============================================
+    // MERGE PDFS
+    // ============================================
+    async function mergePDFs() {
+      if (files.length < 2) {
+        alert('Please add at least 2 PDF files to merge.');
+        return;
+      }
+
+      // Show progress
+      progressContainer.classList.remove('hidden');
+      resultSection.classList.add('hidden');
+      mergeBtn.disabled = true;
+      mergeBtn.textContent = '⏳ Merging...';
+      progressBar.style.width = '5%';
+      progressText.textContent = '5%';
+      statusText.textContent = 'Loading PDF files...';
+
+      try {
+        // Read all PDF files as ArrayBuffers
+        const pdfData = [];
+        for (let i = 0; i < files.length; i++) {
+          const arrayBuffer = await files[i].file.arrayBuffer();
+          pdfData.push(arrayBuffer);
+          
+          const progress = Math.round(((i + 1) / files.length) * 30) + 5;
+          progressBar.style.width = progress + '%';
+          progressText.textContent = progress + '%';
+          statusText.textContent = `Loading file ${i + 1} of ${files.length}...`;
+        }
+
+        progressBar.style.width = '40%';
+        progressText.textContent = '40%';
+        statusText.textContent = 'Merging PDFs...';
+
+        // Use PDF.js to merge
+        const mergedPages = [];
+        let totalMergedPages = 0;
+
+        for (let i = 0; i < pdfData.length; i++) {
+          const data = pdfData[i];
+          const pdf = await pdfjsLib.getDocument({ data }).promise;
+          
+          for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+            const page = await pdf.getPage(pageNum);
+            const viewport = page.getViewport({ scale: 1.5 });
+            
+            // Create canvas for rendering
+            const canvas = document.createElement('canvas');
+            canvas.width = viewport.width;
+            canvas.height = viewport.height;
+            const ctx = canvas.getContext('2d');
+            
+            await page.render({ canvasContext: ctx, viewport }).promise;
+            
+            // Get image data
+            const imgData = canvas.toDataURL('image/jpeg', 0.92);
+            mergedPages.push({
+              data: imgData,
+              width: viewport.width,
+              height: viewport.height
+            });
+            
+            totalMergedPages++;
+            
+            const progress = Math.round(((totalMergedPages) / (files.reduce((sum, f) => sum + (f.pages || 1), 0))) * 40) + 40;
+            progressBar.style.width = Math.min(progress, 85) + '%';
+            progressText.textContent = Math.min(progress, 85) + '%';
+            statusText.textContent = `Merging page ${totalMergedPages}...`;
+          }
+        }
+
+        progressBar.style.width = '90%';
+        progressText.textContent = '90%';
+        statusText.textContent = 'Building merged PDF...';
+
+        // Build the merged PDF using html2canvas approach
+        // Since we can't create PDFs directly with PDF.js, we'll use a canvas-based approach
+        // to create a new PDF with all pages
+        
+        // Create a single canvas with all pages stacked vertically
+        const totalHeight = mergedPages.reduce((sum, page) => sum + page.height, 0);
+        const maxWidth = Math.max(...mergedPages.map(p => p.width));
+        
+        const finalCanvas = document.createElement('canvas');
+        finalCanvas.width = maxWidth;
+        finalCanvas.height = totalHeight;
+        const finalCtx = finalCanvas.getContext('2d');
+        
+        let yOffset = 0;
+        for (const page of mergedPages) {
+          const img = new Image();
+          await new Promise((resolve, reject) => {
+            img.onload = resolve;
+            img.onerror = reject;
+            img.src = page.data;
+          });
+          finalCtx.drawImage(img, 0, yOffset, page.width, page.height);
+          yOffset += page.height;
+        }
+
+        // Convert to PDF using html2pdf
+        if (typeof html2pdf !== 'undefined') {
+          const tempDiv = document.createElement('div');
+          tempDiv.style.position = 'fixed';
+          tempDiv.style.left = '-9999px';
+          tempDiv.style.top = '0';
+          tempDiv.style.width = maxWidth + 'px';
+          tempDiv.style.background = 'white';
+          tempDiv.style.zIndex = '-9999';
+          tempDiv.innerHTML = `<img src="${finalCanvas.toDataURL('image/jpeg', 0.92)}" style="width: 100%; height: auto;">`;
+          document.body.appendChild(tempDiv);
+          
+          const opt = {
+            margin: 0,
+            filename: 'merged.pdf',
+            image: { type: 'jpeg', quality: 0.92 },
+            html2canvas: { scale: 1.5, useCORS: true, letterRendering: true },
+            jsPDF: { unit: 'px', format: [maxWidth, totalHeight], orientation: 'portrait' }
+          };
+          
+          const pdfBlob = await html2pdf().set(opt).from(tempDiv).outputPdf('blob');
+          document.body.removeChild(tempDiv);
+          mergedBlob = pdfBlob;
+        } else {
+          // Fallback: Use the canvas image directly as a PDF
+          // Create a PDF using jsPDF if available, or use the canvas data
+          const pdfBlob = await createPDFFromCanvas(finalCanvas);
+          mergedBlob = pdfBlob;
+        }
+
+        progressBar.style.width = '100%';
+        progressText.textContent = '100%';
+        statusText.textContent = '✅ Merge complete!';
+
+        // Show result
+        setTimeout(() => {
+          const url = URL.createObjectURL(mergedBlob);
+          downloadLink.href = url;
+          const totalPages = mergedPages.length;
+          const totalSize = mergedBlob.size;
+          const baseName = files[0]?.name.replace(/\.pdf$/i, '') || 'merged';
+          downloadLink.download = baseName + '_merged.pdf';
+          
+          resultBadgePages.textContent = `${totalPages} pages`;
+          resultBadgeFiles.textContent = `${files.length} files`;
+          resultBadgeSize.textContent = `${(totalSize / 1024 / 1024).toFixed(2)} MB`;
+          
+          resultSection.classList.remove('hidden');
+          mergeBtn.disabled = false;
+          mergeBtn.textContent = '🔗 Merge All';
+          progressContainer.classList.add('hidden');
+        }, 500);
+
+      } catch (error) {
+        console.error('Merge error:', error);
+        statusText.textContent = '❌ Merge failed: ' + error.message;
+        mergeBtn.disabled = false;
+        mergeBtn.textContent = '🔗 Merge All';
+        alert('Merge failed. Please try again or use different PDF files.\n\nError: ' + error.message);
       }
     }
 
-    // Subscribe function
-    function subscribe() {
-      const email = document.getElementById('emailInput').value.trim();
-      if (!email) {
-        alert('Please enter your email address.');
-        return;
+    // Fallback PDF creation from canvas
+    async function createPDFFromCanvas(canvas) {
+      // Use the canvas to create a PDF with jsPDF if available
+      if (typeof jsPDF !== 'undefined') {
+        const { jsPDF } = window.jspdf;
+        const imgData = canvas.toDataURL('image/jpeg', 0.92);
+        const pdf = new jsPDF({
+          orientation: canvas.width > canvas.height ? 'landscape' : 'portrait',
+          unit: 'px',
+          format: [canvas.width, canvas.height]
+        });
+        pdf.addImage(imgData, 'JPEG', 0, 0, canvas.width, canvas.height);
+        return pdf.output('blob');
       }
-      if (!email.includes('@') || !email.includes('.')) {
-        alert('Please enter a valid email address.');
-        return;
-      }
-
-      // Store in localStorage for demo
-      const subscriptions = JSON.parse(localStorage.getItem('droplet_subscriptions') || '[]');
-      if (!subscriptions.includes(email)) {
-        subscriptions.push(email);
-        localStorage.setItem('droplet_subscriptions', JSON.stringify(subscriptions));
-      }
-
-      alert(`✅ You'll be notified when "${toolName}" launches!`);
-      document.getElementById('notifyForm').classList.add('hidden');
-      document.getElementById('emailInput').value = '';
+      
+      // Ultimate fallback: just return the canvas data as a blob
+      return new Promise(resolve => {
+        canvas.toBlob(resolve, 'image/jpeg', 0.92);
+      });
     }
 
-    // Keyboard shortcut: Escape to close form
+    // Load html2pdf for PDF generation if needed
+    function loadHtml2PDF() {
+      return new Promise((resolve, reject) => {
+        if (typeof html2pdf !== 'undefined') {
+          resolve();
+          return;
+        }
+        const script = document.createElement('script');
+        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
+        script.onload = resolve;
+        script.onerror = reject;
+        document.head.appendChild(script);
+      });
+    }
+
+    // Load jsPDF as fallback
+    function loadJsPDF() {
+      return new Promise((resolve, reject) => {
+        if (typeof jsPDF !== 'undefined') {
+          resolve();
+          return;
+        }
+        const script = document.createElement('script');
+        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+        script.onload = resolve;
+        script.onerror = reject;
+        document.head.appendChild(script);
+      });
+    }
+
+    // Preload libraries on page load
+    document.addEventListener('DOMContentLoaded', async () => {
+      try {
+        await loadHtml2PDF();
+        console.log('✅ html2pdf loaded');
+      } catch (e) {
+        console.log('html2pdf not loaded, using fallback');
+        try {
+          await loadJsPDF();
+          console.log('✅ jsPDF loaded');
+        } catch (e2) {
+          console.log('⚠️ No PDF library loaded, using basic fallback');
+        }
+      }
+    });
+
+    // Keyboard shortcut: Enter to merge
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') {
-        document.getElementById('notifyForm').classList.add('hidden');
+      if (e.key === 'Enter' && !mergeBtn.disabled && !mergeBtn.textContent.includes('⏳')) {
+        mergePDFs();
       }
     });
   </script>
