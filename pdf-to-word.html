@@ -348,437 +348,129 @@
     }
 
     // ============================================
-    // MATRIX UTILITY FUNCTIONS
+    // SIMPLE TEXT EXTRACTION (WORKS RELIABLY)
     // ============================================
-    function matrixMultiply(a, b) {
-      return [
-        a[0] * b[0] + a[2] * b[1],
-        a[1] * b[0] + a[3] * b[1],
-        a[0] * b[2] + a[2] * b[3],
-        a[1] * b[2] + a[3] * b[3],
-        a[0] * b[4] + a[2] * b[5] + a[4],
-        a[1] * b[4] + a[3] * b[5] + a[5]
-      ];
-    }
-
-    function transformPoint(m, x, y) {
-      return {
-        x: m[0] * x + m[2] * y + m[4],
-        y: m[1] * x + m[3] * y + m[5]
-      };
-    }
-
-    function getTransformedBox(m, w = 1, h = 1) {
-      const pts = [
-        transformPoint(m, 0, 0),
-        transformPoint(m, w, 0),
-        transformPoint(m, 0, h),
-        transformPoint(m, w, h)
-      ];
-      return {
-        x: Math.min(...pts.map(p => p.x)),
-        y: Math.min(...pts.map(p => p.y)),
-        width: Math.max(...pts.map(p => p.x)) - Math.min(...pts.map(p => p.x)),
-        height: Math.max(...pts.map(p => p.y)) - Math.min(...pts.map(p => p.y))
-      };
-    }
-
-    function canvasToDataURL(canvas, quality = 0.92) {
-      return canvas.toDataURL('image/png', quality);
-    }
-
-    function dataURLToUint8Array(dataURL) {
-      const base64 = dataURL.split(',')[1];
-      const binary = atob(base64);
-      const bytes = new Uint8Array(binary.length);
-      for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
-      return bytes;
-    }
-
-    // ============================================
-    // RENDER PAGE AND FIND IMAGES
-    // ============================================
-    async function renderPageAndFindImages(page, pageNumber) {
-      const baseViewport = page.getViewport({ scale: 1 });
-      const renderScale = 1.5;
-      const viewport = page.getViewport({ scale: renderScale });
-
-      const canvas = document.createElement('canvas');
-      canvas.width = Math.ceil(viewport.width);
-      canvas.height = Math.ceil(viewport.height);
-      const ctx = canvas.getContext('2d', { alpha: false });
-
-      await page.render({
-        canvasContext: ctx,
-        viewport
-      }).promise;
-
-      const opList = await page.getOperatorList();
-      const OPS = pdfjsLib.OPS;
-
-      let ctm = [1, 0, 0, 1, 0, 0];
-      const stack = [];
-      const images = [];
-
-      for (let i = 0; i < opList.fnArray.length; i++) {
-        const fn = opList.fnArray[i];
-        const args = opList.argsArray[i];
-
-        if (fn === OPS.save) {
-          stack.push(ctm.slice());
-        } else if (fn === OPS.restore) {
-          ctm = stack.length ? stack.pop() : [1, 0, 0, 1, 0, 0];
-        } else if (fn === OPS.transform) {
-          ctm = matrixMultiply(ctm, args);
-        } else if (
-          fn === OPS.paintImageXObject ||
-          fn === OPS.paintImageMaskXObject ||
-          fn === OPS.paintImageXObjectRepeat
-        ) {
-          const box = getTransformedBox(ctm, 1, 1);
-
-          const x = box.x * renderScale;
-          const y = (baseViewport.height - box.y - box.height) * renderScale;
-          const w = Math.abs(box.width) * renderScale;
-          const h = Math.abs(box.height) * renderScale;
-
-          if (w >= 8 && h >= 8) {
-            images.push({
-              page: pageNumber,
-              x: Math.max(0, x),
-              y: Math.max(0, y),
-              width: Math.min(canvas.width - Math.max(0, x), w),
-              height: Math.min(canvas.height - Math.max(0, y), h)
-            });
-          }
-        }
-      }
-
-      const unique = [];
-      for (const img of images) {
-        const duplicate = unique.some(u =>
-          Math.abs(u.x - img.x) < 2 &&
-          Math.abs(u.y - img.y) < 2 &&
-          Math.abs(u.width - img.width) < 2 &&
-          Math.abs(u.height - img.height) < 2
-        );
-        if (!duplicate && img.width > 10 && img.height > 10) unique.push(img);
-      }
-
-      const crops = [];
-      for (const img of unique) {
-        const crop = document.createElement('canvas');
-        crop.width = Math.max(1, Math.round(img.width));
-        crop.height = Math.max(1, Math.round(img.height));
-        const cropCtx = crop.getContext('2d');
-
-        cropCtx.drawImage(
-          canvas,
-          Math.round(img.x), Math.round(img.y),
-          Math.round(img.width), Math.round(img.height),
-          0, 0,
-          crop.width, crop.height
-        );
-
-        crops.push({
-          ...img,
-          data: dataURLToUint8Array(canvasToDataURL(crop))
-        });
-      }
-
-      return {
-        pageNumber,
-        pageWidth: baseViewport.width,
-        pageHeight: baseViewport.height,
-        images: crops
-      };
-    }
-
-    // ============================================
-    // EXTRACT DOCUMENT CONTENT - FIXED ORDERING
-    // ============================================
-    async function extractDocumentContent(arrayBuffer, showProgress = true) {
-      if (!pdfjsLib) await loadPDFJS();
-
-      const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-      const pages = [];
-      let allLines = [];
-      let fullText = '';
-      let totalImages = 0;
-
-      for (let pageIndex = 1; pageIndex <= pdf.numPages; pageIndex++) {
-        const page = await pdf.getPage(pageIndex);
-        const viewport = page.getViewport({ scale: 1 });
-        const textContent = await page.getTextContent();
-
-        // Extract text items with proper positioning
-        const items = textContent.items.map(item => {
-          const tx = pdfjsLib.Util.transform(viewport.transform, item.transform);
-          const fontSize = Math.max(1, Math.sqrt(tx[2] * tx[2] + tx[3] * tx[3]));
-          const x = tx[4];
-          const y = viewport.height - tx[5];
-          const fontName = item.fontName || '';
-          const text = item.str || '';
-          const isBold = /bold|black|demi|heavy|semibold/i.test(fontName);
-
-          return {
-            text,
-            x,
-            y,
-            width: item.width || 0,
-            height: item.height || fontSize,
-            fontSize,
-            isBold,
-            fontName
-          };
-        }).filter(x => x.text.trim());
-
-        // Group items into lines by Y position
-        const lines = [];
-        const tolerance = 2.5;
-
-        for (const item of items) {
-          let foundLine = null;
-          for (const line of lines) {
-            if (Math.abs(line.y - item.y) <= tolerance) {
-              foundLine = line;
-              break;
-            }
-          }
-          if (!foundLine) {
-            foundLine = { y: item.y, items: [] };
-            lines.push(foundLine);
-          }
-          foundLine.items.push(item);
-        }
-
-        // Sort lines by Y (top to bottom)
-        lines.sort((a, b) => a.y - b.y);
-
-        const structured = [];
-        for (const line of lines) {
-          // Sort items in line by X (left to right)
-          line.items.sort((a, b) => a.x - b.x);
-
-          let lineText = '';
-          let lastRight = null;
-
-          for (const item of line.items) {
-            if (lastRight !== null) {
-              const gap = item.x - lastRight;
-              if (gap > Math.max(5, item.fontSize * 0.3)) lineText += ' ';
-            }
-            lineText += item.text;
-            lastRight = item.x + item.width;
-          }
-
-          lineText = lineText.trim();
-          if (!lineText) continue;
-
-          const maxFontSize = Math.max(...line.items.map(i => i.fontSize));
-          const hasBold = line.items.some(i => i.isBold);
-          const hasAllCaps = /^[A-Z0-9\s\-–—.,:;()]+$/.test(lineText) && /[A-Z]/.test(lineText);
-
-          const isHeading = maxFontSize >= 16 ||
-            (hasAllCaps && lineText.length < 80) ||
-            /^\d+(\.\d+)*[\s.)]+[A-Z]/.test(lineText) ||
-            /^[A-Z][A-Z\s]+$/.test(lineText);
-
-          structured.push({
-            text: lineText,
-            fontSize: maxFontSize,
-            isBold: hasBold,
-            isHeading: isHeading,
-            isBullet: /^[•●▪◦\-*]\s*/.test(lineText),
-            isNumbered: /^\d+[\.)]\s/.test(lineText),
-            isAllCaps: hasAllCaps,
-            page: pageIndex - 1,
-            x: Math.min(...line.items.map(i => i.x)),
-            y: line.y,
-            width: Math.max(...line.items.map(i => i.x + i.width)) - Math.min(...line.items.map(i => i.x))
+    async function extractTextFromPDF(arrayBuffer, showProgress = true) {
+      try {
+        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+        let fullText = '';
+        let allPages = [];
+        
+        for (let i = 1; i <= pdf.numPages; i++) {
+          const page = await pdf.getPage(i);
+          const textContent = await page.getTextContent();
+          
+          // Group by Y position to preserve lines
+          const lines = {};
+          textContent.items.forEach(item => {
+            const y = Math.round(item.transform[5] * 10) / 10;
+            if (!lines[y]) lines[y] = [];
+            lines[y].push({ text: item.str, x: item.transform[4] });
           });
-
-          fullText += lineText + '\n';
+          
+          // Sort lines by Y (top to bottom)
+          const sortedY = Object.keys(lines).sort((a, b) => b - a);
+          let pageText = '';
+          
+          sortedY.forEach(y => {
+            const items = lines[y].sort((a, b) => a.x - b.x);
+            const line = items.map(item => item.text).join(' ');
+            pageText += line.trim() + '\n';
+          });
+          
+          fullText += pageText + '\n';
+          allPages.push(pageText);
+          
+          if (showProgress) {
+            const progress = Math.round((i / pdf.numPages) * 60) + 30;
+            progressBar.style.width = progress + '%';
+            progressText.textContent = progress + '%';
+            statusText.textContent = `Processing page ${i} of ${pdf.numPages}...`;
+          }
         }
-
-        // Render page and find images
-        const visual = await renderPageAndFindImages(page, pageIndex - 1);
-        totalImages += visual.images.length;
-
-        pages.push({
-          page: pageIndex - 1,
-          width: visual.pageWidth,
-          height: visual.pageHeight,
-          lines: structured,
-          images: visual.images
-        });
-
-        allLines.push(...structured);
-
-        if (showProgress) {
-          const progress = Math.round((pageIndex / pdf.numPages) * 60) + 30;
-          progressBar.style.width = progress + '%';
-          progressText.textContent = progress + '%';
-          statusText.textContent =
-            `Processing page ${pageIndex} of ${pdf.numPages} • ${totalImages} images found`;
-        }
+        
+        return { text: fullText, pageCount: pdf.numPages, pages: allPages };
+      } catch (error) {
+        console.error('Text extraction error:', error);
+        throw error;
       }
-
-      return {
-        pages,
-        lines: allLines,
-        text: fullText,
-        pageCount: pdf.numPages,
-        imageCount: totalImages
-      };
-    }
-
-    function halfPointsFromPdf(fontSize, heading = false) {
-      const pt = Math.max(7, Math.min(36, fontSize || 11));
-      return Math.round(pt * 2);
-    }
-
-    function makeTextParagraph(docx, line) {
-      const { Paragraph, TextRun } = docx;
-
-      const baseSize = Math.max(7, Math.min(36, line.fontSize || 11));
-      const size = halfPointsFromPdf(line.fontSize, line.isHeading);
-
-      let text = line.text;
-      if (line.isBullet) text = text.replace(/^[•●▪◦\-*]\s*/, '');
-
-      const run = new TextRun({
-        text: line.isBullet ? '• ' + text : text,
-        size: size,
-        bold: !!(line.isBold || line.isHeading)
-      });
-
-      const options = {
-        children: [run],
-        spacing: {
-          before: line.isHeading ? 120 : 0,
-          after: line.isHeading ? 80 : 0,
-          line: Math.round(size * 1.08),
-          lineRule: 'auto'
-        }
-      };
-
-      if (line.isBullet || line.isNumbered) {
-        options.indent = { left: 360, hanging: 180 };
-      }
-
-      return new Paragraph(options);
     }
 
     // ============================================
-    // CREATE STYLED DOCX
+    // CREATE DOCX FROM TEXT (RELIABLE)
     // ============================================
-    async function createStyledDOCX(documentData, filename) {
+    async function createDOCXFromText(text, filename) {
       if (typeof window.docx === 'undefined') {
         throw new Error('DOCX library not loaded. Please refresh the page.');
       }
 
-      const {
-        Document, Packer, Paragraph, ImageRun,
-        AlignmentType, PageBreak, convertInchesToTwip
-      } = window.docx;
+      const { Document, Packer, Paragraph, TextRun, AlignmentType, PageBreak, convertInchesToTwip } = window.docx;
 
       const children = [];
 
       // Add title
       if (filename) {
-        children.push(new Paragraph({
-          children: [new TextRun({ text: filename, size: 32, bold: true })],
-          alignment: AlignmentType.CENTER,
-          spacing: { after: 400 }
-        }));
+        children.push(
+          new Paragraph({
+            children: [
+              new TextRun({
+                text: filename,
+                size: 32,
+                bold: true,
+              }),
+            ],
+            alignment: AlignmentType.CENTER,
+            spacing: { after: 400 },
+          })
+        );
       }
 
-      // Process each page
-      for (let p = 0; p < documentData.pages.length; p++) {
-        const page = documentData.pages[p];
+      // Split into paragraphs
+      const paragraphs = text.split(/\n\s*\n/).filter(p => p.trim().length > 0);
+      
+      // If no double newlines, split by single newline
+      const lines = paragraphs.length > 1 ? paragraphs : text.split('\n').filter(l => l.trim().length > 0);
 
-        // Combine text and images
-        const elements = [];
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i].trim();
+        if (!line) continue;
 
-        for (const line of page.lines) {
-          elements.push({
-            type: 'text',
-            y: line.y,
-            item: line
-          });
+        // Detect heading patterns
+        const isHeading = /^[A-Z][A-Z\s]+$/.test(line) || 
+                         /^\d+\.\s+[A-Z]/.test(line) ||
+                         /^[A-Z][a-z]+.*:$/.test(line) && line.length < 80;
+
+        const isBullet = line.startsWith('•') || line.startsWith('-') || line.startsWith('*');
+        const isNumbered = /^\d+\.\s/.test(line);
+
+        let textToUse = line;
+        if (isBullet) {
+          textToUse = '• ' + line.replace(/^[•\-*]\s*/, '');
         }
 
-        for (const image of page.images) {
-          elements.push({
-            type: 'image',
-            y: image.y / 1.5,
-            item: image
-          });
+        const options = {
+          children: [
+            new TextRun({
+              text: textToUse,
+              size: isHeading ? 28 : 22,
+              bold: isHeading || false,
+            }),
+          ],
+          spacing: {
+            before: isHeading ? 240 : 80,
+            after: isHeading ? 120 : 80,
+          },
+        };
+
+        if (!isHeading && !isBullet && !isNumbered) {
+          options.alignment = AlignmentType.JUSTIFIED;
         }
 
-        // Sort by Y position (top to bottom)
-        elements.sort((a, b) => a.y - b.y);
-
-        for (const element of elements) {
-          if (element.type === 'text') {
-            const line = element.item;
-
-            // Check if text overlaps with an image
-            const overlapsImage = page.images.some(img => {
-              const imgX = img.x / 1.5;
-              const imgY = img.y / 1.5;
-              const imgW = img.width / 1.5;
-              const imgH = img.height / 1.5;
-              return (
-                line.x >= imgX - 2 &&
-                line.x <= imgX + imgW + 2 &&
-                line.y >= imgY - 2 &&
-                line.y <= imgY + imgH + 2 &&
-                line.width <= imgW + 5
-              );
-            });
-
-            if (!overlapsImage) {
-              children.push(makeTextParagraph(window.docx, line));
-            }
-          } else {
-            // Image element
-            const img = element.item;
-
-            const imageWidthIn = Math.min(5.5, Math.max(0.8, (img.width / 1.5) / 72));
-            const imageHeightIn = Math.max(0.3, imageWidthIn * ((img.height / 1.5) / (img.width / 1.5)));
-
-            const widthPx = Math.round(imageWidthIn * 96);
-            const heightPx = Math.round(imageHeightIn * 96);
-
-            const cappedHeightPx = Math.min(heightPx, 600);
-            const cappedWidthPx = Math.round(widthPx * (cappedHeightPx / heightPx));
-
-            children.push(new Paragraph({
-              children: [
-                new ImageRun({
-                  data: img.data,
-                  transformation: {
-                    width: Math.max(60, cappedWidthPx),
-                    height: Math.max(30, cappedHeightPx)
-                  }
-                })
-              ],
-              alignment: AlignmentType.CENTER,
-              spacing: { before: 100, after: 120 }
-            }));
-          }
+        if (isBullet || isNumbered) {
+          options.indent = { left: 360, hanging: 180 };
         }
 
-        // Add page break between pages
-        if (p < documentData.pages.length - 1) {
-          children.push(
-            new Paragraph({
-              children: [new PageBreak()]
-            })
-          );
-        }
+        children.push(new Paragraph(options));
       }
 
       const doc = new Document({
@@ -791,12 +483,12 @@
                 top: convertInchesToTwip(0.75),
                 bottom: convertInchesToTwip(0.75),
                 left: convertInchesToTwip(0.8),
-                right: convertInchesToTwip(0.8)
-              }
-            }
+                right: convertInchesToTwip(0.8),
+              },
+            },
           },
-          children
-        }]
+          children: children,
+        }],
       });
 
       return await Packer.toBlob(doc);
@@ -874,10 +566,9 @@
         }
 
         const arrayBuffer = await file.arrayBuffer();
-        const result = await extractDocumentContent(arrayBuffer, false);
-        documentData = result;
+        const result = await extractTextFromPDF(arrayBuffer, false);
         extractedText = result.text;
-        pageCount.textContent = `📄 ${result.pageCount} pages • 🖼️ ${result.imageCount} images`;
+        pageCount.textContent = `📄 ${result.pageCount} pages`;
 
         const wordCount = extractedText.split(/\s+/).filter(w => w.length > 0).length;
         charCount.textContent = `${extractedText.length.toLocaleString()} chars • ${wordCount.toLocaleString()} words • ${result.pageCount} pages`;
@@ -934,24 +625,24 @@
       statusText.textContent = 'Reading PDF file...';
 
       try {
-        if (!documentData) {
+        // Make sure we have extracted text
+        if (!extractedText) {
           const arrayBuffer = await currentFile.arrayBuffer();
           if (!pdfjsLib) await loadPDFJS();
-          documentData = await extractDocumentContent(arrayBuffer, true);
-          extractedText = documentData.text;
+          const result = await extractTextFromPDF(arrayBuffer, true);
+          extractedText = result.text;
         }
 
-        if (!documentData || documentData.pages.length === 0) {
-          throw new Error('Could not read the PDF.');
+        if (!extractedText || extractedText.trim().length === 0) {
+          throw new Error('No text could be extracted from the PDF. The PDF might be scanned or image-based.');
         }
 
         progressBar.style.width = '60%';
         progressText.textContent = '60%';
-        statusText.textContent =
-          `Rebuilding editable Word document • ${documentData.imageCount} images...`;
+        statusText.textContent = 'Creating Word document...';
 
         const baseName = currentFile.name.replace(/\.pdf$/i, '');
-        const docxBlob = await createStyledDOCX(documentData, baseName);
+        const docxBlob = await createDOCXFromText(extractedText, baseName);
         
         convertedBlob = docxBlob;
 
