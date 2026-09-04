@@ -19,11 +19,13 @@
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    /* Dropdown Styles */
-    .dropdown-group:hover .dropdown-menu {
-      display: block;
+    /* ===== NAVIGATION STYLES ===== */
+    
+    /* Desktop Dropdown */
+    .dropdown-group {
+      position: relative;
     }
-    .dropdown-menu {
+    .dropdown-group .dropdown-menu {
       display: none;
       position: absolute;
       top: 100%;
@@ -35,6 +37,9 @@
       border: 1px solid #e2e8f0;
       padding: 0.5rem 0;
       z-index: 100;
+    }
+    .dropdown-group:hover .dropdown-menu {
+      display: block;
     }
     .dropdown-menu a {
       display: block;
@@ -59,22 +64,21 @@
       border-bottom: 1px solid #f1f5f9;
       margin-bottom: 0.25rem;
     }
-    .nav-link-with-dropdown {
-      position: relative;
-      cursor: pointer;
-    }
     .nav-link-with-dropdown > a {
       display: flex;
       align-items: center;
       gap: 0.25rem;
       text-decoration: none;
       color: #475569;
+      font-weight: 600;
     }
     .nav-link-with-dropdown > a::after {
       content: "▾";
       font-size: 0.6rem;
       opacity: 0.6;
     }
+
+    /* ===== MOBILE NAVIGATION ===== */
     .mobile-nav-toggle {
       display: none;
       background: none;
@@ -82,12 +86,135 @@
       font-size: 1.5rem;
       cursor: pointer;
       color: #1e293b;
-      padding: 0.25rem;
+      padding: 0.5rem;
+      border-radius: 8px;
+      transition: background 0.2s;
     }
+    .mobile-nav-toggle:hover {
+      background: #f1f5f9;
+    }
+
+    /* Mobile Nav Overlay */
+    .mobile-nav-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.3);
+      z-index: 999;
+    }
+    .mobile-nav-overlay.open {
+      display: block;
+    }
+
+    /* Mobile Nav Panel */
+    .mobile-nav-panel {
+      position: fixed;
+      top: 0;
+      right: -320px;
+      width: 300px;
+      max-width: 80%;
+      height: 100%;
+      background: white;
+      z-index: 1000;
+      transition: right 0.3s ease;
+      overflow-y: auto;
+      box-shadow: -4px 0 30px rgba(0,0,0,0.15);
+      padding: 1.5rem 1rem;
+    }
+    .mobile-nav-panel.open {
+      right: 0;
+    }
+
+    .mobile-nav-panel .close-btn {
+      background: none;
+      border: none;
+      font-size: 1.8rem;
+      cursor: pointer;
+      color: #64748b;
+      padding: 0.25rem 0.5rem;
+      float: right;
+      transition: color 0.2s;
+    }
+    .mobile-nav-panel .close-btn:hover {
+      color: #1e293b;
+    }
+
+    .mobile-nav-panel .mobile-logo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid #e2e8f0;
+      margin-bottom: 1rem;
+    }
+    .mobile-nav-panel .mobile-logo img {
+      height: 32px;
+      width: auto;
+      border-radius: 8px;
+    }
+    .mobile-nav-panel .mobile-logo span {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #1e293b;
+    }
+
+    .mobile-nav-panel .mobile-nav-item {
+      display: block;
+      padding: 0.75rem 0.5rem;
+      color: #334155;
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 0.95rem;
+      border-bottom: 1px solid #f1f5f9;
+      transition: color 0.2s;
+    }
+    .mobile-nav-panel .mobile-nav-item:hover {
+      color: #2563eb;
+    }
+
+    .mobile-nav-panel .mobile-nav-item .arrow {
+      float: right;
+      color: #94a3b8;
+      font-size: 0.8rem;
+    }
+
+    /* Mobile Sub-menu */
+    .mobile-nav-panel .mobile-submenu {
+      display: none;
+      padding-left: 1rem;
+      background: #f8fafc;
+      border-radius: 8px;
+      margin: 0.25rem 0;
+    }
+    .mobile-nav-panel .mobile-submenu.open {
+      display: block;
+    }
+    .mobile-nav-panel .mobile-submenu .mobile-nav-item {
+      border-bottom: none;
+      font-size: 0.85rem;
+      padding: 0.5rem 0.75rem;
+      color: #475569;
+    }
+    .mobile-nav-panel .mobile-submenu .mobile-nav-item:hover {
+      color: #2563eb;
+    }
+    .mobile-nav-panel .mobile-submenu .category-label {
+      font-size: 0.6rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: #94a3b8;
+      padding: 0.5rem 0.75rem 0.25rem;
+      letter-spacing: 0.05em;
+    }
+
     .tool-card-link {
       text-decoration: none;
       display: block;
     }
+
     /* PWA Install Button */
     #pwa-install-btn {
       transition: all 0.3s ease;
@@ -103,193 +230,271 @@
     #pwa-install-btn.visible {
       display: flex !important;
     }
+
+    /* ===== RESPONSIVE ===== */
     @media (max-width: 768px) {
-      .mobile-nav-toggle {
-        display: block;
-      }
       .desktop-nav {
         display: none !important;
-        flex-direction: column;
-        width: 100%;
-        padding: 1rem 0;
-        border-top: 1px solid #e2e8f0;
-        margin-top: 0.75rem;
       }
-      .desktop-nav.open {
-        display: flex !important;
-      }
-      .desktop-nav .nav-link-with-dropdown {
-        width: 100%;
-      }
-      .desktop-nav .nav-link-with-dropdown > a {
-        padding: 0.5rem 0;
-        border-bottom: 1px solid #f1f5f9;
-      }
-      .desktop-nav .dropdown-menu {
-        position: static;
-        box-shadow: none;
-        border: none;
-        padding-left: 1rem;
-        background: transparent;
-      }
-      .desktop-nav .dropdown-menu .category-label {
-        padding-left: 0;
-      }
-      .desktop-nav .dropdown-menu a {
-        padding: 0.35rem 0.75rem;
-        font-size: 0.75rem;
-      }
-      .nav-link-with-dropdown > a::after {
-        content: "▾";
-        margin-left: auto;
-      }
-      .nav-link-with-dropdown.open > a::after {
-        content: "▴";
+      .mobile-nav-toggle {
+        display: block;
       }
     }
     @media (min-width: 769px) {
       .desktop-nav {
         display: flex !important;
+        align-items: center;
+        gap: 1.5rem;
+      }
+      .mobile-nav-toggle {
+        display: none !important;
+      }
+      .mobile-nav-overlay,
+      .mobile-nav-panel {
+        display: none !important;
       }
     }
   </style>
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col antialiased">
 
-  <!-- Header Navigation -->
-  <header class="bg-white border-b border-slate-200 py-3.5 px-6 sticky top-0 z-50">
-    <div class="max-w-7xl mx-auto">
-      <div class="flex justify-between items-center">
-        <!-- Logo Branding -->
-        <a href="/" class="flex items-center gap-3 group flex-shrink-0">
-          <img src="Gemini_Generated_Image_sdu6v7sdu6v7sdu6.jpg" alt="Droplet Logo" class="h-9 w-auto rounded-xl shadow-sm group-hover:scale-105 transition-transform">
-        </a>
+  <!-- ===== HEADER NAVIGATION ===== -->
+  <header class="bg-white border-b border-slate-200 py-3 px-4 md:px-6 sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto flex justify-between items-center">
+      <!-- Logo -->
+      <a href="/" class="flex items-center gap-3 group flex-shrink-0">
+        <img src="Gemini_Generated_Image_sdu6v7sdu6v7sdu6.jpg" alt="Droplet Logo" class="h-8 md:h-9 w-auto rounded-xl shadow-sm group-hover:scale-105 transition-transform">
+      </a>
 
-        <!-- Mobile Nav Toggle -->
+      <!-- Desktop Nav -->
+      <nav class="desktop-nav" id="desktopNav">
+        <div class="nav-link-with-dropdown dropdown-group">
+          <a href="#all-tools">All Tools</a>
+          <div class="dropdown-menu">
+            <span class="category-label">📄 Core Documents</span>
+            <a href="/pdf-to-word.html">PDF to DOCX (Word)</a>
+            <a href="/word-to-pdf.html">Word (DOCX) to PDF</a>
+            <a href="/pdf-to-txt.html">PDF to TXT</a>
+            <a href="/epub-to-pdf.html">EPUB to PDF</a>
+            <a href="/txt-to-pdf.html">TXT to PDF</a>
+            <a href="/pdf-to-pdfa.html">PDF to PDF/A</a>
+            <a href="/pdf-to-powerpoint.html">PDF to POWERPOINT</a>
+            <a href="/pdf-to-excel.html">PDF to EXCEL</a>
+            <span class="category-label">🖼️ Image Converters</span>
+            <a href="/heic-to-jpg.html">HEIC to JPG</a>
+            <a href="/webp-to-jpg.html">WebP to JPG</a>
+            <a href="/avif-to-png.html">AVIF to PNG</a>
+            <a href="/gif-to-png.html">GIF to PNG</a>
+            <a href="/psd-to-png.html">PSD to PNG</a>
+            <a href="/raw-to-jpg.html">RAW to JPG</a>
+            <a href="/tiff-to-pdf.html">TIFF to PDF</a>
+            <a href="/jpg-to-pdf.html">JPG to PDF</a>
+            <a href="/pdf-to-jpg.html">PDF to JPG</a>
+          </div>
+        </div>
+
+        <div class="nav-link-with-dropdown dropdown-group">
+          <a href="#image-tools">Image Converter</a>
+          <div class="dropdown-menu">
+            <a href="/heic-to-jpg.html">🍎 HEIC to JPG</a>
+            <a href="/webp-to-jpg.html">🌐 WebP to JPG</a>
+            <a href="/avif-to-png.html">🖼️ AVIF to PNG</a>
+            <a href="/gif-to-png.html">🎞️ GIF to PNG</a>
+            <a href="/psd-to-png.html">🎨 PSD to PNG</a>
+            <a href="/raw-to-jpg.html">📸 RAW to JPG</a>
+            <a href="/tiff-to-pdf.html">📑 TIFF to PDF</a>
+            <a href="/jpg-to-pdf.html">🖼️ JPG to PDF</a>
+            <a href="/pdf-to-jpg.html">🖼️ PDF to JPG</a>
+            <a href="/svg-to-png.html">📐 SVG to PNG</a>
+            <a href="/eps-to-svg.html">✏️ EPS to SVG</a>
+          </div>
+        </div>
+
+        <div class="nav-link-with-dropdown dropdown-group">
+          <a href="#data-tools">Data Tools</a>
+          <div class="dropdown-menu">
+            <a href="/json-to-csv.html">📋 JSON to CSV</a>
+            <a href="/csv-to-json.html">📈 CSV to JSON</a>
+            <a href="/xml-to-json.html">🔗 XML to JSON</a>
+          </div>
+        </div>
+
+        <div class="nav-link-with-dropdown dropdown-group">
+          <a href="#doc-tools">Document Tools</a>
+          <div class="dropdown-menu">
+            <span class="category-label">📄 Core Documents</span>
+            <a href="/pdf-to-word.html">PDF to DOCX (Word)</a>
+            <a href="/word-to-pdf.html">Word (DOCX) to PDF</a>
+            <a href="/pdf-to-txt.html">PDF to TXT</a>
+            <a href="/epub-to-pdf.html">EPUB to PDF</a>
+            <a href="/txt-to-pdf.html">TXT to PDF</a>
+            <a href="/pdf-to-pdfa.html">PDF to PDF/A</a>
+            <a href="/pdf-to-powerpoint.html">PDF to POWERPOINT</a>
+            <a href="/pdf-to-excel.html">PDF to EXCEL</a>
+            <span class="category-label">📑 PDF Organize</span>
+            <a href="/merge-pdf.html">🔗 Merge PDF</a>
+            <a href="/split-pdf.html">✂️ Split PDF</a>
+            <a href="/remove-pages.html">🗑️ Remove pages</a>
+            <a href="/extract-pages.html">📤 Extract pages</a>
+            <a href="/organize-pdf.html">🗂️ Organize PDF</a>
+            <a href="/scan-to-pdf.html">📷 Scan to PDF</a>
+            <a href="/rotate-pdf.html">🔄 Rotate PDF</a>
+            <a href="/add-page-numbers.html">🔢 Add page numbers</a>
+            <span class="category-label">🧠 PDF Intelligence</span>
+            <a href="/ai-summarizer.html">🤖 AI Summarizer</a>
+            <a href="/translate-pdf.html">🌍 Translate PDF</a>
+            <a href="/pdf-to-markdown.html">📝 PDF to Markdown</a>
+            <span class="category-label">✨ PDF Editing & Security</span>
+            <a href="/add-watermark.html">💧 Add watermark</a>
+            <a href="/crop-pdf.html">✂️ Crop PDF</a>
+            <a href="/edit-pdf.html">✏️ Edit PDF</a>
+            <a href="/pdf-forms.html">📋 PDF Forms</a>
+            <span class="category-label">🔄 Convert to PDF</span>
+            <a href="/jpg-to-pdf.html">🖼️ JPG to PDF</a>
+            <a href="/word-to-pdf.html">📝 WORD to PDF</a>
+            <a href="/powerpoint-to-pdf.html">📊 POWERPOINT to PDF</a>
+            <a href="/excel-to-pdf.html">📈 EXCEL to PDF</a>
+            <a href="/html-to-pdf.html">🌐 HTML to PDF</a>
+            <span class="category-label">🔄 Convert from PDF</span>
+            <a href="/pdf-to-jpg.html">🖼️ PDF to JPG</a>
+            <a href="/pdf-to-word.html">📝 PDF to WORD</a>
+            <a href="/pdf-to-powerpoint.html">📊 PDF to POWERPOINT</a>
+            <a href="/pdf-to-excel.html">📈 PDF to EXCEL</a>
+            <a href="/pdf-to-pdfa.html">📄 PDF to PDF/A</a>
+          </div>
+        </div>
+
+        <a href="/faq.html" class="hover:text-blue-600 transition-colors flex items-center gap-1 font-semibold">
+          <span>❓</span> Help
+        </a>
+      </nav>
+
+      <!-- Right Side: Install Button + Mobile Toggle -->
+      <div class="flex items-center gap-2">
+        <div id="pwa-install-container" class="flex-shrink-0">
+          <button id="pwa-install-btn" class="bg-blue-50 text-blue-600 hover:bg-blue-100 font-bold text-xs px-3 py-1.5 md:px-3.5 md:py-2 rounded-lg transition-all border border-blue-200/60 flex items-center gap-1.5 shadow-sm">
+            <span>📲</span> <span class="hidden sm:inline">Install</span>
+          </button>
+        </div>
         <button class="mobile-nav-toggle" id="mobileNavToggle" aria-label="Toggle navigation">
           ☰
         </button>
-
-        <!-- Desktop Nav Links -->
-        <nav class="desktop-nav items-center space-x-4 text-xs font-bold text-slate-600" id="desktopNav">
-          
-          <!-- All Tools Dropdown -->
-          <div class="nav-link-with-dropdown dropdown-group">
-            <a href="#all-tools" class="hover:text-blue-600 transition-colors">All Tools</a>
-            <div class="dropdown-menu">
-              <span class="category-label">📄 Core Documents</span>
-              <a href="/pdf-to-word.html">PDF to DOCX (Word)</a>
-              <a href="/word-to-pdf.html">Word (DOCX) to PDF</a>
-              <a href="/pdf-to-txt.html">PDF to TXT</a>
-              <a href="/epub-to-pdf.html">EPUB to PDF</a>
-              <a href="/txt-to-pdf.html">TXT to PDF</a>
-              <a href="/pdf-to-pdfa.html">PDF to PDF/A</a>
-              <a href="/pdf-to-powerpoint.html">PDF to POWERPOINT</a>
-              <a href="/pdf-to-excel.html">PDF to EXCEL</a>
-              <span class="category-label">🖼️ Image Converters</span>
-              <a href="/heic-to-jpg.html">HEIC to JPG</a>
-              <a href="/webp-to-jpg.html">WebP to JPG</a>
-              <a href="/avif-to-png.html">AVIF to PNG</a>
-              <a href="/gif-to-png.html">GIF to PNG</a>
-              <a href="/psd-to-png.html">PSD to PNG</a>
-              <a href="/raw-to-jpg.html">RAW to JPG</a>
-              <a href="/tiff-to-pdf.html">TIFF to PDF</a>
-              <a href="/jpg-to-pdf.html">JPG to PDF</a>
-              <a href="/pdf-to-jpg.html">PDF to JPG</a>
-            </div>
-          </div>
-
-          <!-- Image Converter Dropdown -->
-          <div class="nav-link-with-dropdown dropdown-group">
-            <a href="#image-tools" class="hover:text-blue-600 transition-colors">Image Converter</a>
-            <div class="dropdown-menu">
-              <a href="/heic-to-jpg.html">🍎 HEIC to JPG</a>
-              <a href="/webp-to-jpg.html">🌐 WebP to JPG</a>
-              <a href="/avif-to-png.html">🖼️ AVIF to PNG</a>
-              <a href="/gif-to-png.html">🎞️ GIF to PNG</a>
-              <a href="/psd-to-png.html">🎨 PSD to PNG</a>
-              <a href="/raw-to-jpg.html">📸 RAW to JPG</a>
-              <a href="/tiff-to-pdf.html">📑 TIFF to PDF</a>
-              <a href="/jpg-to-pdf.html">🖼️ JPG to PDF</a>
-              <a href="/pdf-to-jpg.html">🖼️ PDF to JPG</a>
-              <a href="/svg-to-png.html">📐 SVG to PNG</a>
-              <a href="/eps-to-svg.html">✏️ EPS to SVG</a>
-            </div>
-          </div>
-
-          <!-- Data Tools Dropdown -->
-          <div class="nav-link-with-dropdown dropdown-group">
-            <a href="#data-tools" class="hover:text-blue-600 transition-colors">Data Tools</a>
-            <div class="dropdown-menu">
-              <a href="/json-to-csv.html">📋 JSON to CSV</a>
-              <a href="/csv-to-json.html">📈 CSV to JSON</a>
-              <a href="/xml-to-json.html">🔗 XML to JSON</a>
-            </div>
-          </div>
-
-          <!-- Document Tools Dropdown -->
-          <div class="nav-link-with-dropdown dropdown-group">
-            <a href="#doc-tools" class="hover:text-blue-600 transition-colors">Document Tools</a>
-            <div class="dropdown-menu">
-              <span class="category-label">📄 Core Documents</span>
-              <a href="/pdf-to-word.html">PDF to DOCX (Word)</a>
-              <a href="/word-to-pdf.html">Word (DOCX) to PDF</a>
-              <a href="/pdf-to-txt.html">PDF to TXT</a>
-              <a href="/epub-to-pdf.html">EPUB to PDF</a>
-              <a href="/txt-to-pdf.html">TXT to PDF</a>
-              <a href="/pdf-to-pdfa.html">PDF to PDF/A</a>
-              <a href="/pdf-to-powerpoint.html">PDF to POWERPOINT</a>
-              <a href="/pdf-to-excel.html">PDF to EXCEL</a>
-              <span class="category-label">📑 PDF Organize</span>
-              <a href="/merge-pdf.html">🔗 Merge PDF</a>
-              <a href="/split-pdf.html">✂️ Split PDF</a>
-              <a href="/remove-pages.html">🗑️ Remove pages</a>
-              <a href="/extract-pages.html">📤 Extract pages</a>
-              <a href="/organize-pdf.html">🗂️ Organize PDF</a>
-              <a href="/scan-to-pdf.html">📷 Scan to PDF</a>
-              <a href="/rotate-pdf.html">🔄 Rotate PDF</a>
-              <a href="/add-page-numbers.html">🔢 Add page numbers</a>
-              <span class="category-label">🧠 PDF Intelligence</span>
-              <a href="/ai-summarizer.html">🤖 AI Summarizer</a>
-              <a href="/translate-pdf.html">🌍 Translate PDF</a>
-              <a href="/pdf-to-markdown.html">📝 PDF to Markdown</a>
-              <span class="category-label">✨ PDF Editing & Security</span>
-              <a href="/add-watermark.html">💧 Add watermark</a>
-              <a href="/crop-pdf.html">✂️ Crop PDF</a>
-              <a href="/edit-pdf.html">✏️ Edit PDF</a>
-              <a href="/pdf-forms.html">📋 PDF Forms</a>
-              <span class="category-label">🔄 Convert to PDF</span>
-              <a href="/jpg-to-pdf.html">🖼️ JPG to PDF</a>
-              <a href="/word-to-pdf.html">📝 WORD to PDF</a>
-              <a href="/powerpoint-to-pdf.html">📊 POWERPOINT to PDF</a>
-              <a href="/excel-to-pdf.html">📈 EXCEL to PDF</a>
-              <a href="/html-to-pdf.html">🌐 HTML to PDF</a>
-              <span class="category-label">🔄 Convert from PDF</span>
-              <a href="/pdf-to-jpg.html">🖼️ PDF to JPG</a>
-              <a href="/pdf-to-word.html">📝 PDF to WORD</a>
-              <a href="/pdf-to-powerpoint.html">📊 PDF to POWERPOINT</a>
-              <a href="/pdf-to-excel.html">📈 PDF to EXCEL</a>
-              <a href="/pdf-to-pdfa.html">📄 PDF to PDF/A</a>
-            </div>
-          </div>
-
-          <!-- Help -->
-          <a href="/faq.html" class="hover:text-blue-600 transition-colors flex items-center gap-1">
-            <span>❓</span> Help
-          </a>
-        </nav>
-
-        <!-- PWA Install Button -->
-        <div id="pwa-install-container" class="flex-shrink-0">
-          <button id="pwa-install-btn" class="bg-blue-50 text-blue-600 hover:bg-blue-100 font-bold text-xs px-3.5 py-2 rounded-lg transition-all border border-blue-200/60 flex items-center gap-1.5 shadow-sm">
-            <span>📲</span> <span class="hidden sm:inline">Install</span> App
-          </button>
-        </div>
       </div>
     </div>
   </header>
 
-  <!-- Main Hero & Active Upload Zone -->
+  <!-- ===== MOBILE NAV OVERLAY ===== -->
+  <div class="mobile-nav-overlay" id="mobileOverlay"></div>
+
+  <!-- ===== MOBILE NAV PANEL ===== -->
+  <div class="mobile-nav-panel" id="mobilePanel">
+    <button class="close-btn" id="mobileCloseBtn">✕</button>
+    
+    <div class="mobile-logo">
+      <img src="Gemini_Generated_Image_sdu6v7sdu6v7sdu6.jpg" alt="Droplet Logo">
+      <span>Droplet</span>
+    </div>
+
+    <!-- All Tools -->
+    <div class="mobile-nav-item" onclick="toggleMobileSubmenu('sub-all-tools')">
+      All Tools <span class="arrow">▾</span>
+    </div>
+    <div class="mobile-submenu" id="sub-all-tools">
+      <div class="category-label">📄 Core Documents</div>
+      <a href="/pdf-to-word.html" class="mobile-nav-item">PDF to DOCX (Word)</a>
+      <a href="/word-to-pdf.html" class="mobile-nav-item">Word (DOCX) to PDF</a>
+      <a href="/pdf-to-txt.html" class="mobile-nav-item">PDF to TXT</a>
+      <a href="/epub-to-pdf.html" class="mobile-nav-item">EPUB to PDF</a>
+      <a href="/txt-to-pdf.html" class="mobile-nav-item">TXT to PDF</a>
+      <a href="/pdf-to-pdfa.html" class="mobile-nav-item">PDF to PDF/A</a>
+      <a href="/pdf-to-powerpoint.html" class="mobile-nav-item">PDF to POWERPOINT</a>
+      <a href="/pdf-to-excel.html" class="mobile-nav-item">PDF to EXCEL</a>
+      <div class="category-label">🖼️ Image Converters</div>
+      <a href="/heic-to-jpg.html" class="mobile-nav-item">HEIC to JPG</a>
+      <a href="/webp-to-jpg.html" class="mobile-nav-item">WebP to JPG</a>
+      <a href="/avif-to-png.html" class="mobile-nav-item">AVIF to PNG</a>
+      <a href="/gif-to-png.html" class="mobile-nav-item">GIF to PNG</a>
+      <a href="/psd-to-png.html" class="mobile-nav-item">PSD to PNG</a>
+      <a href="/raw-to-jpg.html" class="mobile-nav-item">RAW to JPG</a>
+      <a href="/tiff-to-pdf.html" class="mobile-nav-item">TIFF to PDF</a>
+      <a href="/jpg-to-pdf.html" class="mobile-nav-item">JPG to PDF</a>
+      <a href="/pdf-to-jpg.html" class="mobile-nav-item">PDF to JPG</a>
+      <a href="/svg-to-png.html" class="mobile-nav-item">SVG to PNG</a>
+      <a href="/eps-to-svg.html" class="mobile-nav-item">EPS to SVG</a>
+    </div>
+
+    <!-- Image Converter -->
+    <div class="mobile-nav-item" onclick="toggleMobileSubmenu('sub-image')">
+      Image Converter <span class="arrow">▾</span>
+    </div>
+    <div class="mobile-submenu" id="sub-image">
+      <a href="/heic-to-jpg.html" class="mobile-nav-item">🍎 HEIC to JPG</a>
+      <a href="/webp-to-jpg.html" class="mobile-nav-item">🌐 WebP to JPG</a>
+      <a href="/avif-to-png.html" class="mobile-nav-item">🖼️ AVIF to PNG</a>
+      <a href="/gif-to-png.html" class="mobile-nav-item">🎞️ GIF to PNG</a>
+      <a href="/psd-to-png.html" class="mobile-nav-item">🎨 PSD to PNG</a>
+      <a href="/raw-to-jpg.html" class="mobile-nav-item">📸 RAW to JPG</a>
+      <a href="/tiff-to-pdf.html" class="mobile-nav-item">📑 TIFF to PDF</a>
+      <a href="/jpg-to-pdf.html" class="mobile-nav-item">🖼️ JPG to PDF</a>
+      <a href="/pdf-to-jpg.html" class="mobile-nav-item">🖼️ PDF to JPG</a>
+      <a href="/svg-to-png.html" class="mobile-nav-item">📐 SVG to PNG</a>
+      <a href="/eps-to-svg.html" class="mobile-nav-item">✏️ EPS to SVG</a>
+    </div>
+
+    <!-- Data Tools -->
+    <div class="mobile-nav-item" onclick="toggleMobileSubmenu('sub-data')">
+      Data Tools <span class="arrow">▾</span>
+    </div>
+    <div class="mobile-submenu" id="sub-data">
+      <a href="/json-to-csv.html" class="mobile-nav-item">📋 JSON to CSV</a>
+      <a href="/csv-to-json.html" class="mobile-nav-item">📈 CSV to JSON</a>
+      <a href="/xml-to-json.html" class="mobile-nav-item">🔗 XML to JSON</a>
+    </div>
+
+    <!-- Document Tools -->
+    <div class="mobile-nav-item" onclick="toggleMobileSubmenu('sub-document')">
+      Document Tools <span class="arrow">▾</span>
+    </div>
+    <div class="mobile-submenu" id="sub-document">
+      <div class="category-label">📄 Core Documents</div>
+      <a href="/pdf-to-word.html" class="mobile-nav-item">PDF to DOCX (Word)</a>
+      <a href="/word-to-pdf.html" class="mobile-nav-item">Word (DOCX) to PDF</a>
+      <a href="/pdf-to-txt.html" class="mobile-nav-item">PDF to TXT</a>
+      <a href="/epub-to-pdf.html" class="mobile-nav-item">EPUB to PDF</a>
+      <a href="/txt-to-pdf.html" class="mobile-nav-item">TXT to PDF</a>
+      <a href="/pdf-to-pdfa.html" class="mobile-nav-item">PDF to PDF/A</a>
+      <a href="/pdf-to-powerpoint.html" class="mobile-nav-item">PDF to POWERPOINT</a>
+      <a href="/pdf-to-excel.html" class="mobile-nav-item">PDF to EXCEL</a>
+      <div class="category-label">📑 PDF Organize</div>
+      <a href="/merge-pdf.html" class="mobile-nav-item">🔗 Merge PDF</a>
+      <a href="/split-pdf.html" class="mobile-nav-item">✂️ Split PDF</a>
+      <a href="/remove-pages.html" class="mobile-nav-item">🗑️ Remove pages</a>
+      <a href="/extract-pages.html" class="mobile-nav-item">📤 Extract pages</a>
+      <a href="/organize-pdf.html" class="mobile-nav-item">🗂️ Organize PDF</a>
+      <a href="/scan-to-pdf.html" class="mobile-nav-item">📷 Scan to PDF</a>
+      <a href="/rotate-pdf.html" class="mobile-nav-item">🔄 Rotate PDF</a>
+      <a href="/add-page-numbers.html" class="mobile-nav-item">🔢 Add page numbers</a>
+      <div class="category-label">🧠 PDF Intelligence</div>
+      <a href="/ai-summarizer.html" class="mobile-nav-item">🤖 AI Summarizer</a>
+      <a href="/translate-pdf.html" class="mobile-nav-item">🌍 Translate PDF</a>
+      <a href="/pdf-to-markdown.html" class="mobile-nav-item">📝 PDF to Markdown</a>
+      <div class="category-label">✨ PDF Editing & Security</div>
+      <a href="/add-watermark.html" class="mobile-nav-item">💧 Add watermark</a>
+      <a href="/crop-pdf.html" class="mobile-nav-item">✂️ Crop PDF</a>
+      <a href="/edit-pdf.html" class="mobile-nav-item">✏️ Edit PDF</a>
+      <a href="/pdf-forms.html" class="mobile-nav-item">📋 PDF Forms</a>
+    </div>
+
+    <!-- Help -->
+    <a href="/faq.html" class="mobile-nav-item">❓ Help</a>
+
+    <!-- Install Button in Mobile Menu -->
+    <button id="mobileInstallBtn" class="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl text-sm transition-all shadow-md shadow-blue-500/20">
+      📲 Install App
+    </button>
+  </div>
+
+  <!-- ===== MAIN CONTENT ===== -->
   <main class="max-w-5xl mx-auto px-4 py-8 md:py-12 flex-grow w-full">
     
     <!-- Headline Section -->
@@ -298,7 +503,7 @@
       <p class="text-slate-500 text-sm md:text-base mt-2 max-w-md mx-auto">100% Client-Side. Your files never leave your browser or get uploaded to a server.</p>
     </div>
 
-    <!-- Active Blue Dropzone Box -->
+    <!-- Dropzone -->
     <div id="dropzone" class="bg-white border-2 border-dashed border-blue-400 hover:border-blue-600 transition-all rounded-3xl p-8 md:p-14 text-center shadow-lg shadow-blue-500/5 max-w-2xl mx-auto cursor-pointer group relative overflow-hidden">
       <img src="Untitled design.png" alt="Droplet Logo" class="h-20 w-auto mx-auto mb-4 group-hover:scale-110 transition-transform shadow-lg rounded-2xl">
       <h3 class="text-2xl md:text-3xl font-black text-slate-900 mb-1">Ready to convert?</h3>
@@ -310,7 +515,7 @@
       </button>
     </div>
 
-    <!-- Popular Converters Section -->
+    <!-- Popular Converters -->
     <section id="all-tools" class="mt-16">
       <div class="flex items-center justify-between mb-6">
         <div>
@@ -319,9 +524,7 @@
         </div>
       </div>
       
-      <!-- 8 Popular Converter Cards - All clickable links -->
       <div class="grid grid-cols-2 md:grid-cols-4 gap-3.5">
-        <!-- Image Card - HEIC to JPG -->
         <a href="/heic-to-jpg.html" class="tool-card-link">
           <div class="bg-blue-500 hover:bg-blue-600 text-white p-4 md:p-5 rounded-2xl shadow-sm transition-all cursor-pointer group flex flex-col justify-between min-h-[120px]">
             <div class="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center text-lg mb-2">📸</div>
@@ -332,7 +535,6 @@
           </div>
         </a>
 
-        <!-- Spreadsheet / Data Card - JSON to CSV -->
         <a href="/json-to-csv.html" class="tool-card-link">
           <div class="bg-blue-500 hover:bg-blue-600 text-white p-4 md:p-5 rounded-2xl shadow-sm transition-all cursor-pointer group flex flex-col justify-between min-h-[120px]">
             <div class="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center text-lg mb-2">📊</div>
@@ -343,7 +545,6 @@
           </div>
         </a>
 
-        <!-- Book / E-Book Card - EPUB to PDF -->
         <a href="/epub-to-pdf.html" class="tool-card-link">
           <div class="bg-blue-500 hover:bg-blue-600 text-white p-4 md:p-5 rounded-2xl shadow-sm transition-all cursor-pointer group flex flex-col justify-between min-h-[120px]">
             <div class="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center text-lg mb-2">📚</div>
@@ -354,7 +555,6 @@
           </div>
         </a>
 
-        <!-- Vector Card - SVG to PNG -->
         <a href="/svg-to-png.html" class="tool-card-link">
           <div class="bg-blue-500 hover:bg-blue-600 text-white p-4 md:p-5 rounded-2xl shadow-sm transition-all cursor-pointer group flex flex-col justify-between min-h-[120px]">
             <div class="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center text-lg mb-2">📐</div>
@@ -365,7 +565,6 @@
           </div>
         </a>
 
-        <!-- Document Card - PDF to DOCX (Word) -->
         <a href="/pdf-to-word.html" class="tool-card-link">
           <div class="bg-blue-500 hover:bg-blue-600 text-white p-4 md:p-5 rounded-2xl shadow-sm transition-all cursor-pointer group flex flex-col justify-between min-h-[120px]">
             <div class="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center text-lg mb-2">📄</div>
@@ -376,7 +575,6 @@
           </div>
         </a>
 
-        <!-- Web Image Card - WebP to PNG -->
         <a href="/webp-to-png.html" class="tool-card-link">
           <div class="bg-blue-500 hover:bg-blue-600 text-white p-4 md:p-5 rounded-2xl shadow-sm transition-all cursor-pointer group flex flex-col justify-between min-h-[120px]">
             <div class="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center text-lg mb-2">🖼️</div>
@@ -387,7 +585,6 @@
           </div>
         </a>
 
-        <!-- Photoshop Card - PSD to PNG -->
         <a href="/psd-to-png.html" class="tool-card-link">
           <div class="bg-blue-500 hover:bg-blue-600 text-white p-4 md:p-5 rounded-2xl shadow-sm transition-all cursor-pointer group flex flex-col justify-between min-h-[120px]">
             <div class="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center text-lg mb-2">🎨</div>
@@ -398,7 +595,6 @@
           </div>
         </a>
 
-        <!-- Animation Card - GIF to PNG -->
         <a href="/gif-to-png.html" class="tool-card-link">
           <div class="bg-blue-500 hover:bg-blue-600 text-white p-4 md:p-5 rounded-2xl shadow-sm transition-all cursor-pointer group flex flex-col justify-between min-h-[120px]">
             <div class="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center text-lg mb-2">👾</div>
@@ -453,25 +649,74 @@
     </div>
   </footer>
 
-  <!-- Full JavaScript with PWA Support -->
+  <!-- ===== JAVASCRIPT ===== -->
   <script>
     // ============================================
-    // 1. PWA INSTALLATION
+    // 1. MOBILE NAVIGATION
+    // ============================================
+    
+    const toggleBtn = document.getElementById('mobileNavToggle');
+    const closeBtn = document.getElementById('mobileCloseBtn');
+    const overlay = document.getElementById('mobileOverlay');
+    const panel = document.getElementById('mobilePanel');
+
+    function openMobileNav() {
+      panel.classList.add('open');
+      overlay.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeMobileNav() {
+      panel.classList.remove('open');
+      overlay.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    toggleBtn.addEventListener('click', openMobileNav);
+    closeBtn.addEventListener('click', closeMobileNav);
+    overlay.addEventListener('click', closeMobileNav);
+
+    // Close on escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeMobileNav();
+    });
+
+    // Toggle mobile submenu
+    function toggleMobileSubmenu(id) {
+      const submenu = document.getElementById(id);
+      if (submenu) {
+        submenu.classList.toggle('open');
+        // Close other submenus
+        document.querySelectorAll('.mobile-submenu').forEach(el => {
+          if (el.id !== id) el.classList.remove('open');
+        });
+      }
+    }
+
+    // Close mobile nav on link click
+    document.querySelectorAll('.mobile-nav-panel a, #mobileInstallBtn').forEach(link => {
+      link.addEventListener('click', closeMobileNav);
+    });
+
+    // ============================================
+    // 2. PWA INSTALLATION
     // ============================================
     
     let deferredPrompt;
     const installBtn = document.getElementById('pwa-install-btn');
+    const mobileInstallBtn = document.getElementById('mobileInstallBtn');
 
-    // Listen for the beforeinstallprompt event
+    // Show install button when available
     window.addEventListener('beforeinstallprompt', (e) => {
       e.preventDefault();
       deferredPrompt = e;
       installBtn.classList.add('visible');
+      mobileInstallBtn.style.display = 'block';
       console.log('📲 App can be installed');
     });
 
-    // Handle the install button click
-    installBtn.addEventListener('click', async () => {
+    // Install function
+    async function installApp() {
       if (deferredPrompt) {
         deferredPrompt.prompt();
         const choiceResult = await deferredPrompt.userChoice;
@@ -481,25 +726,27 @@
           installBtn.innerHTML = '✅ Installed';
           installBtn.classList.add('installed');
           installBtn.disabled = true;
+          mobileInstallBtn.innerHTML = '✅ Installed';
+          mobileInstallBtn.style.background = '#d1fae5';
+          mobileInstallBtn.style.color = '#065f46';
+          mobileInstallBtn.disabled = true;
         } else {
           console.log('❌ User dismissed the install prompt');
         }
         deferredPrompt = null;
       } else {
-        // Check if already installed
         if (window.matchMedia('(display-mode: standalone)').matches) {
-          installBtn.innerHTML = '✅ Installed';
-          installBtn.classList.add('installed');
-          installBtn.disabled = true;
+          alert('✅ Droplet is already installed on your device!');
           return;
         }
-        
-        // Show helpful installation instructions
         showManualInstallInstructions();
       }
-    });
+    }
 
-    // Show manual installation instructions
+    installBtn.addEventListener('click', installApp);
+    mobileInstallBtn.addEventListener('click', installApp);
+
+    // Manual installation instructions
     function showManualInstallInstructions() {
       const isAndroid = /Android/i.test(navigator.userAgent);
       const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
@@ -511,81 +758,46 @@
       } else if (isIOS) {
         instructions = '📱 On iOS:\n1. Tap the Share button (⬆️)\n2. Scroll down and select "Add to Home Screen"\n3. Tap "Add" in the top-right corner';
       } else {
-        instructions = '💻 On Desktop:\n1. Look for the install icon (➕) in the address bar\n2. Or use Chrome menu → "Install Droplet"\n3. Or use Edge menu → "Apps" → "Install this site as an app"';
+        instructions = '💻 On Desktop:\n1. Look for the install icon (➕) in the address bar\n2. Or use Chrome menu → "Install Droplet"';
       }
       
       alert(`📲 Install Droplet as an App\n\n${instructions}\n\n💡 Tip: You can also use Droplet directly in your browser!`);
     }
 
-    // Listen for the appinstalled event
+    // App installed event
     window.addEventListener('appinstalled', () => {
       console.log('🎉 App installed successfully!');
       installBtn.innerHTML = '✅ Installed';
       installBtn.classList.add('installed');
       installBtn.disabled = true;
+      mobileInstallBtn.innerHTML = '✅ Installed';
+      mobileInstallBtn.style.background = '#d1fae5';
+      mobileInstallBtn.style.color = '#065f46';
+      mobileInstallBtn.disabled = true;
     });
 
-    // Check if the app is already installed on load
+    // Check if already installed
     window.addEventListener('load', async () => {
-      // Check if running in standalone mode
       if (window.matchMedia('(display-mode: standalone)').matches) {
         installBtn.innerHTML = '✅ Installed';
         installBtn.classList.add('installed');
         installBtn.disabled = true;
+        mobileInstallBtn.innerHTML = '✅ Installed';
+        mobileInstallBtn.style.background = '#d1fae5';
+        mobileInstallBtn.style.color = '#065f46';
+        mobileInstallBtn.disabled = true;
         console.log('📲 App is running in standalone mode');
-        return;
       }
       
       // Register Service Worker
       if ('serviceWorker' in navigator) {
         try {
-          const registration = await navigator.serviceWorker.register('/sw.js');
-          console.log('✅ Service Worker registered successfully:', registration);
+          await navigator.serviceWorker.register('/sw.js');
+          console.log('✅ Service Worker registered');
         } catch (err) {
           console.log('❌ Service Worker registration failed:', err);
         }
       }
-      
-      // Check if manifest is loaded
-      try {
-        const response = await fetch('/site.webmanifest');
-        if (response.ok) {
-          console.log('✅ Manifest loaded successfully');
-        } else {
-          console.log('❌ Manifest not found');
-        }
-      } catch (err) {
-        console.log('❌ Could not load manifest');
-      }
-    });
-
-    // ============================================
-    // 2. MOBILE NAVIGATION
-    // ============================================
-    
-    const toggleBtn = document.getElementById('mobileNavToggle');
-    const nav = document.getElementById('desktopNav');
-    
-    toggleBtn.addEventListener('click', () => {
-      nav.classList.toggle('open');
-      toggleBtn.textContent = nav.classList.contains('open') ? '✕' : '☰';
-    });
-
-    document.querySelectorAll('.dropdown-menu a, .desktop-nav > .nav-link-with-dropdown > a, .desktop-nav > a').forEach(link => {
-      link.addEventListener('click', () => {
-        nav.classList.remove('open');
-        toggleBtn.textContent = '☰';
-      });
-    });
-
-    document.querySelectorAll('.nav-link-with-dropdown > a').forEach(link => {
-      link.addEventListener('click', (e) => {
-        if (window.innerWidth <= 768) {
-          e.preventDefault();
-          const parent = link.parentElement;
-          parent.classList.toggle('open');
-        }
-      });
     });
 
     // ============================================
