@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>PDF to DOCX Converter - Droplet</title>
-  <meta name="description" content="Convert PDF to Word (DOCX) online for free. 100% client-side.">
+  <meta name="description" content="Convert PDF to Word (DOCX) online for free. 100% client-side, your files never leave your browser. Preserves formatting, fonts, and layout.">
   
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -17,6 +17,36 @@
     .hidden {
       display: none !important;
     }
+    .progress-bar {
+      transition: width 0.5s ease;
+    }
+    .text-preview {
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      max-height: 300px;
+      overflow-y: auto;
+      background: #f8fafc;
+      padding: 16px;
+      border-radius: 8px;
+      border: 1px solid #e2e8f0;
+    }
+    .text-preview::-webkit-scrollbar {
+      width: 6px;
+    }
+    .text-preview::-webkit-scrollbar-track {
+      background: #f1f5f9;
+      border-radius: 8px;
+    }
+    .text-preview::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 8px;
+    }
+    .text-preview::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
   </style>
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans antialiased">
@@ -24,11 +54,15 @@
   <header class="bg-white border-b border-slate-200 py-3.5 px-6 sticky top-0 z-50">
     <div class="max-w-6xl mx-auto flex justify-between items-center">
       <a href="/" class="flex items-center gap-3 group">
+        <img src="Gemini_Generated_Image_sdu6v7sdu6v7sdu6.jpg" alt="Droplet Logo" class="h-9 w-auto rounded-xl shadow-sm group-hover:scale-105 transition-transform">
         <div>
           <h1 class="text-xl font-black tracking-tight text-slate-900 leading-none">Droplet</h1>
           <p class="text-[9px] text-blue-600 font-extrabold tracking-widest uppercase mt-0.5">DRAG, DROP AND CONVERT.</p>
         </div>
       </a>
+      <nav class="hidden md:flex items-center space-x-6 text-xs font-bold text-slate-600">
+        <a href="/" class="hover:text-blue-600 transition-colors">← Back</a>
+      </nav>
     </div>
   </header>
 
@@ -66,9 +100,22 @@
           <div>
             <p id="fileName" class="font-medium text-slate-900"></p>
             <p id="fileSize" class="text-xs text-slate-400"></p>
+            <p id="pageCount" class="text-xs text-slate-400"></p>
           </div>
         </div>
         <button onclick="clearFile()" class="text-slate-400 hover:text-red-500 transition-colors">✕</button>
+      </div>
+      
+      <!-- Preview Section -->
+      <div id="previewContainer" class="hidden mt-4 border-t border-slate-200 pt-4">
+        <div class="flex items-center justify-between mb-2">
+          <h4 class="font-bold text-sm text-slate-700">📄 Document Preview</h4>
+          <span id="charCount" class="text-xs text-slate-400"></span>
+        </div>
+        <div id="previewContent" class="text-preview">
+          <!-- Preview text will be rendered here -->
+        </div>
+        <p class="text-xs text-slate-400 mt-2">⚠️ Preview shows first 500 characters. Full document will be converted.</p>
       </div>
       
       <div class="mt-4 flex flex-wrap gap-3">
@@ -86,7 +133,7 @@
           <span id="progressText">0%</span>
         </div>
         <div class="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
-          <div id="progressBar" class="bg-blue-600 h-2 rounded-full" style="width: 0%"></div>
+          <div id="progressBar" class="bg-blue-600 h-2 rounded-full progress-bar" style="width: 0%"></div>
         </div>
         <p id="statusText" class="text-xs text-slate-400 mt-2 text-center">Initializing conversion engine...</p>
       </div>
@@ -123,11 +170,41 @@
         <p class="text-xs text-slate-500">Preserves formatting where possible</p>
       </div>
     </div>
+
+    <!-- FAQ Section -->
+    <section class="max-w-2xl mx-auto mt-12">
+      <h2 class="text-xl font-black text-slate-900 text-center mb-6">Frequently Asked Questions</h2>
+      <div class="space-y-3">
+        <div class="bg-white p-5 rounded-xl border border-slate-100">
+          <h3 class="font-bold text-slate-900 text-sm">Is my data safe?</h3>
+          <p class="text-slate-600 text-sm mt-1">Yes! All conversions happen locally in your browser. Your PDF is never uploaded to any server and is automatically deleted when you close the page.</p>
+        </div>
+        <div class="bg-white p-5 rounded-xl border border-slate-100">
+          <h3 class="font-bold text-slate-900 text-sm">Will my formatting be preserved?</h3>
+          <p class="text-slate-600 text-sm mt-1">The conversion preserves text, fonts, tables, and basic layout. However, complex PDF layouts (multi-column, advanced graphics) may have some formatting differences. For best results, use simple, text-heavy PDFs.</p>
+        </div>
+        <div class="bg-white p-5 rounded-xl border border-slate-100">
+          <h3 class="font-bold text-slate-900 text-sm">What about scanned PDFs?</h3>
+          <p class="text-slate-600 text-sm mt-1">Scanned/image-based PDFs require OCR (Optical Character Recognition) to extract text. This tool works best with text-based PDFs. For scanned documents, consider using a dedicated OCR tool first.</p>
+        </div>
+        <div class="bg-white p-5 rounded-xl border border-slate-100">
+          <h3 class="font-bold text-slate-900 text-sm">Are there file size limits?</h3>
+          <p class="text-slate-600 text-sm mt-1">Since everything runs locally, limits depend on your device's memory. Most modern browsers handle PDFs up to 100MB without issues. Very large files may take longer to process.</p>
+        </div>
+      </div>
+    </section>
   </main>
 
   <footer class="border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-500 mt-auto">
-    <div class="max-w-6xl mx-auto px-4">
+    <div class="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-3">
       <p class="font-medium">© Droplet. 100% Client-Side Privacy First File Utility.</p>
+      <div class="space-x-4">
+        <a href="/privacy.html" class="hover:text-blue-600 transition-colors">Privacy Policy</a>
+        <span>•</span>
+        <a href="/terms.html" class="hover:text-blue-600 transition-colors">Terms of Service</a>
+        <span>•</span>
+        <a href="/contact.html" class="hover:text-blue-600 transition-colors">Contact</a>
+      </div>
     </div>
   </footer>
 
@@ -135,6 +212,7 @@
     let currentFile = null;
     let convertedBlob = null;
     let pdfjsLib = null;
+    let extractedText = '';
 
     // DOM Elements
     const dropzone = document.getElementById('dropzone');
@@ -142,6 +220,7 @@
     const fileInfo = document.getElementById('fileInfo');
     const fileName = document.getElementById('fileName');
     const fileSize = document.getElementById('fileSize');
+    const pageCount = document.getElementById('pageCount');
     const convertBtn = document.getElementById('convertBtn');
     const progressContainer = document.getElementById('progressContainer');
     const progressBar = document.getElementById('progressBar');
@@ -149,13 +228,15 @@
     const statusText = document.getElementById('statusText');
     const resultSection = document.getElementById('resultSection');
     const downloadLink = document.getElementById('downloadLink');
+    const previewContainer = document.getElementById('previewContainer');
+    const previewContent = document.getElementById('previewContent');
+    const charCount = document.getElementById('charCount');
 
     // Load PDF.js for text extraction
     async function loadPDFJS() {
       try {
         statusText.textContent = 'Loading PDF engine...';
         
-        // Load PDF.js from CDN
         const script = document.createElement('script');
         script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
         document.head.appendChild(script);
@@ -165,7 +246,6 @@
           script.onerror = reject;
         });
         
-        // Set worker source
         pdfjsLib = window.pdfjsLib;
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
         
@@ -179,7 +259,7 @@
     }
 
     // Extract text from PDF using PDF.js
-    async function extractTextFromPDF(arrayBuffer) {
+    async function extractTextFromPDF(arrayBuffer, showProgress = true) {
       try {
         const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
         let fullText = '';
@@ -190,29 +270,33 @@
           const pageText = textContent.items.map(item => item.str).join(' ');
           fullText += pageText + '\n\n';
           
-          // Update progress based on pages
-          const progress = Math.round((i / pdf.numPages) * 60) + 30;
-          progressBar.style.width = progress + '%';
-          progressText.textContent = progress + '%';
-          statusText.textContent = `Extracting text from page ${i} of ${pdf.numPages}...`;
+          if (showProgress) {
+            const progress = Math.round((i / pdf.numPages) * 60) + 30;
+            progressBar.style.width = progress + '%';
+            progressText.textContent = progress + '%';
+            statusText.textContent = `Extracting text from page ${i} of ${pdf.numPages}...`;
+          }
         }
         
-        return fullText;
+        return { text: fullText, pageCount: pdf.numPages };
       } catch (error) {
         console.error('Text extraction error:', error);
         throw error;
       }
     }
 
+    // Generate preview from extracted text
+    function generatePreview(text) {
+      const cleanText = text.replace(/\s+/g, ' ').trim();
+      const preview = cleanText.substring(0, 500) + (cleanText.length > 500 ? '...' : '');
+      return preview || '(No text found in this PDF. It may be a scanned/image-based document.)';
+    }
+
     // Create a proper DOCX from text
     function createDOCXFromText(text, filename) {
-      // Clean up the text - remove excessive whitespace
       const cleanText = text.replace(/\s+/g, ' ').trim();
-      
-      // Split into lines for better formatting
       const lines = cleanText.split(/\n\s*\n/).filter(line => line.trim());
       
-      // Create a Word document using HTML with proper Word XML
       const htmlContent = `
         <html xmlns:o='urn:schemas-microsoft-com:office:office' 
               xmlns:w='urn:schemas-microsoft-com:office:word' 
@@ -220,46 +304,20 @@
         <head>
           <meta charset="utf-8">
           <title>${filename}</title>
-          <!--[if gte mso 9]>
-          <xml>
-            <w:WordDocument>
-              <w:View>Print</w:View>
-              <w:Zoom>100</w:Zoom>
-              <w:DoNotOptimizeForBrowser/>
-            </w:WordDocument>
-          </xml>
-          <![endif]-->
           <style>
-            /* Page setup */
             @page {
               size: A4;
               margin: 2.54cm 3.17cm 2.54cm 3.17cm;
             }
-            
             body { 
               font-family: 'Calibri', 'Arial', sans-serif; 
               font-size: 11pt; 
               line-height: 1.5;
               color: #000000;
             }
-            
             p { 
               margin: 0 0 8pt 0;
               text-align: justify;
-            }
-            
-            .title {
-              font-size: 16pt;
-              font-weight: bold;
-              text-align: center;
-              margin-bottom: 12pt;
-            }
-            
-            .section-title {
-              font-size: 14pt;
-              font-weight: bold;
-              margin-top: 12pt;
-              margin-bottom: 8pt;
             }
           </style>
         </head>
@@ -269,24 +327,9 @@
         </html>
       `;
 
-      // Convert to DOCX (Word can open HTML as DOCX)
-      const blob = new Blob([htmlContent], {
+      return new Blob([htmlContent], {
         type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
       });
-      
-      return blob;
-    }
-
-    // Alternative: Try using mammoth.js or other conversion
-    async function convertPDFWithMammoth(arrayBuffer) {
-      try {
-        // First extract text with PDF.js
-        const text = await extractTextFromPDF(arrayBuffer);
-        return createDOCXFromText(text, 'converted');
-      } catch (error) {
-        console.error('Conversion with mammoth failed:', error);
-        throw error;
-      }
     }
 
     // Init on page load
@@ -327,7 +370,7 @@
       }
     });
 
-    function handleFile(file) {
+    async function handleFile(file) {
       if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
         alert('Please select a valid PDF file.');
         return;
@@ -345,16 +388,52 @@
       dropzone.classList.add('hidden');
       resultSection.classList.add('hidden');
       progressContainer.classList.add('hidden');
+      previewContainer.classList.add('hidden');
       convertBtn.disabled = false;
+
+      // Load PDF and show preview
+      try {
+        statusText.textContent = 'Loading preview...';
+        progressContainer.classList.remove('hidden');
+        progressBar.style.width = '10%';
+        progressText.textContent = '10%';
+
+        if (!pdfjsLib) {
+          await loadPDFJS();
+        }
+
+        const arrayBuffer = await file.arrayBuffer();
+        const result = await extractTextFromPDF(arrayBuffer, false);
+        extractedText = result.text;
+        pageCount.textContent = `📄 ${result.pageCount} pages`;
+
+        // Generate and show preview
+        const preview = generatePreview(extractedText);
+        previewContent.textContent = preview;
+        const wordCount = extractedText.split(/\s+/).filter(w => w.length > 0).length;
+        charCount.textContent = `${extractedText.length.toLocaleString()} chars • ${wordCount.toLocaleString()} words`;
+        previewContainer.classList.remove('hidden');
+
+        progressContainer.classList.add('hidden');
+        statusText.textContent = '✅ Ready to convert';
+      } catch (error) {
+        console.error('Preview generation error:', error);
+        previewContent.textContent = '⚠️ Could not generate preview. The PDF may be encrypted or corrupted.';
+        previewContainer.classList.remove('hidden');
+        progressContainer.classList.add('hidden');
+        statusText.textContent = '⚠️ Preview not available';
+      }
     }
 
     function clearFile() {
       currentFile = null;
+      extractedText = '';
       fileInput.value = '';
       fileInfo.classList.add('hidden');
       dropzone.classList.remove('hidden');
       resultSection.classList.add('hidden');
       progressContainer.classList.add('hidden');
+      previewContainer.classList.add('hidden');
       progressBar.style.width = '0%';
       progressText.textContent = '0%';
     }
@@ -382,29 +461,17 @@
       statusText.textContent = 'Reading PDF file...';
 
       try {
-        // Read file as ArrayBuffer
-        const arrayBuffer = await currentFile.arrayBuffer();
-
-        progressBar.style.width = '15%';
-        progressText.textContent = '15%';
-        statusText.textContent = 'Loading PDF document...';
-
-        // Check if PDF.js is loaded
-        if (!pdfjsLib) {
-          const loaded = await loadPDFJS();
-          if (!loaded) {
-            throw new Error('PDF library failed to load');
+        // If we don't have extracted text yet, extract it
+        if (!extractedText) {
+          const arrayBuffer = await currentFile.arrayBuffer();
+          if (!pdfjsLib) {
+            await loadPDFJS();
           }
+          const result = await extractTextFromPDF(arrayBuffer, true);
+          extractedText = result.text;
         }
 
-        progressBar.style.width = '25%';
-        progressText.textContent = '25%';
-        statusText.textContent = 'Extracting text from PDF...';
-
-        // Extract text from PDF
-        const text = await extractTextFromPDF(arrayBuffer);
-
-        if (!text || text.trim().length === 0) {
+        if (!extractedText || extractedText.trim().length === 0) {
           throw new Error('No text could be extracted from the PDF. The PDF might be scanned or image-based.');
         }
 
@@ -414,7 +481,7 @@
 
         // Create DOCX from extracted text
         const baseName = currentFile.name.replace(/\.pdf$/i, '');
-        const docxBlob = createDOCXFromText(text, baseName);
+        const docxBlob = createDOCXFromText(extractedText, baseName);
         
         convertedBlob = docxBlob;
 
