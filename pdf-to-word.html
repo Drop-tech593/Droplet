@@ -23,18 +23,18 @@
     .text-preview {
       font-family: 'Courier New', monospace;
       font-size: 13px;
-      line-height: 1.6;
+      line-height: 1.8;
       white-space: pre-wrap;
       word-wrap: break-word;
-      max-height: 300px;
+      max-height: 500px;
       overflow-y: auto;
       background: #f8fafc;
-      padding: 16px;
+      padding: 20px;
       border-radius: 8px;
       border: 1px solid #e2e8f0;
     }
     .text-preview::-webkit-scrollbar {
-      width: 6px;
+      width: 8px;
     }
     .text-preview::-webkit-scrollbar-track {
       background: #f1f5f9;
@@ -46,6 +46,44 @@
     }
     .text-preview::-webkit-scrollbar-thumb:hover {
       background: #94a3b8;
+    }
+    .preview-controls {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .preview-controls button {
+      padding: 4px 12px;
+      font-size: 12px;
+      border-radius: 6px;
+      border: 1px solid #e2e8f0;
+      background: white;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .preview-controls button:hover {
+      background: #f1f5f9;
+    }
+    .preview-controls button.active {
+      background: #2563eb;
+      color: white;
+      border-color: #2563eb;
+    }
+    .preview-controls .info-text {
+      font-size: 12px;
+      color: #94a3b8;
+      margin-left: auto;
+    }
+    @media (max-width: 640px) {
+      .preview-controls {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .preview-controls .info-text {
+        margin-left: 0;
+        text-align: center;
+      }
     }
   </style>
 </head>
@@ -112,10 +150,19 @@
           <h4 class="font-bold text-sm text-slate-700">📄 Document Preview</h4>
           <span id="charCount" class="text-xs text-slate-400"></span>
         </div>
+        
+        <!-- Preview Controls -->
+        <div class="preview-controls mb-3">
+          <button class="active" onclick="setPreviewMode('full')" id="btnFull">📄 Full Document</button>
+          <button onclick="setPreviewMode('first')" id="btnFirst">📃 First 500 Chars</button>
+          <button onclick="setPreviewMode('last')" id="btnLast">📃 Last 500 Chars</button>
+          <span class="info-text" id="previewInfo">Showing all content</span>
+        </div>
+        
         <div id="previewContent" class="text-preview">
           <!-- Preview text will be rendered here -->
         </div>
-        <p class="text-xs text-slate-400 mt-2">⚠️ Preview shows first 500 characters. Full document will be converted.</p>
+        <p class="text-xs text-slate-400 mt-2">💡 Preview shows extracted text. Actual Word document may have better formatting.</p>
       </div>
       
       <div class="mt-4 flex flex-wrap gap-3">
@@ -213,6 +260,7 @@
     let convertedBlob = null;
     let pdfjsLib = null;
     let extractedText = '';
+    let currentPreviewMode = 'full';
 
     // DOM Elements
     const dropzone = document.getElementById('dropzone');
@@ -231,6 +279,45 @@
     const previewContainer = document.getElementById('previewContainer');
     const previewContent = document.getElementById('previewContent');
     const charCount = document.getElementById('charCount');
+    const previewInfo = document.getElementById('previewInfo');
+
+    // Preview mode buttons
+    function setPreviewMode(mode) {
+      currentPreviewMode = mode;
+      
+      // Update button states
+      document.querySelectorAll('.preview-controls button').forEach(btn => btn.classList.remove('active'));
+      if (mode === 'full') {
+        document.getElementById('btnFull').classList.add('active');
+        previewInfo.textContent = 'Showing all content';
+        renderPreview('full');
+      } else if (mode === 'first') {
+        document.getElementById('btnFirst').classList.add('active');
+        previewInfo.textContent = 'Showing first 500 characters';
+        renderPreview('first');
+      } else if (mode === 'last') {
+        document.getElementById('btnLast').classList.add('active');
+        previewInfo.textContent = 'Showing last 500 characters';
+        renderPreview('last');
+      }
+    }
+
+    function renderPreview(mode) {
+      if (!extractedText) return;
+      
+      let displayText = '';
+      const totalLength = extractedText.length;
+      
+      if (mode === 'full') {
+        displayText = extractedText || '(No text found)';
+      } else if (mode === 'first') {
+        displayText = extractedText.substring(0, 500) + (totalLength > 500 ? '\n\n... (truncated)' : '');
+      } else if (mode === 'last') {
+        displayText = (totalLength > 500 ? '... (truncated)\n\n' : '') + extractedText.substring(Math.max(0, totalLength - 500));
+      }
+      
+      previewContent.textContent = displayText || '(No text found in this PDF. It may be a scanned/image-based document.)';
+    }
 
     // Load PDF.js for text extraction
     async function loadPDFJS() {
@@ -258,7 +345,7 @@
       }
     }
 
-    // Extract text from PDF using PDF.js
+    // Extract text with better formatting preservation
     async function extractTextFromPDF(arrayBuffer, showProgress = true) {
       try {
         const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
@@ -267,7 +354,53 @@
         for (let i = 1; i <= pdf.numPages; i++) {
           const page = await pdf.getPage(i);
           const textContent = await page.getTextContent();
-          const pageText = textContent.items.map(item => item.str).join(' ');
+          
+          // Get text with positioning info for better formatting
+          const items = textContent.items.map(item => ({
+            text: item.str,
+            x: item.transform[4],
+            y: item.transform[5],
+            width: item.width,
+            height: item.height
+          }));
+          
+          // Sort by Y position (top to bottom) then X position (left to right)
+          items.sort((a, b) => {
+            const yDiff = b.y - a.y;
+            if (Math.abs(yDiff) < 3) {
+              return a.x - b.x;
+            }
+            return b.y - a.y;
+          });
+          
+          let pageText = '';
+          let lastY = null;
+          let lineText = '';
+          let lastX = 0;
+          
+          for (let j = 0; j < items.length; j++) {
+            const item = items[j];
+            const currentY = Math.round(item.y / 2) * 2;
+            
+            if (lastY !== null && Math.abs(currentY - lastY) > 3) {
+              pageText += lineText.trim() + '\n';
+              lineText = '';
+              lastX = 0;
+            }
+            
+            if (lastX > 0 && (item.x - lastX) > 20) {
+              lineText += '  ';
+            }
+            
+            lineText += item.text;
+            lastX = item.x + (item.width || 0);
+            lastY = currentY;
+          }
+          
+          if (lineText.trim()) {
+            pageText += lineText.trim() + '\n';
+          }
+          
           fullText += pageText + '\n\n';
           
           if (showProgress) {
@@ -285,17 +418,41 @@
       }
     }
 
-    // Generate preview from extracted text
-    function generatePreview(text) {
-      const cleanText = text.replace(/\s+/g, ' ').trim();
-      const preview = cleanText.substring(0, 500) + (cleanText.length > 500 ? '...' : '');
-      return preview || '(No text found in this PDF. It may be a scanned/image-based document.)';
-    }
-
-    // Create a proper DOCX from text
+    // Create a proper DOCX from text with better formatting
     function createDOCXFromText(text, filename) {
-      const cleanText = text.replace(/\s+/g, ' ').trim();
-      const lines = cleanText.split(/\n\s*\n/).filter(line => line.trim());
+      let paragraphs = text.split(/\n\s*\n/).filter(p => p.trim().length > 0);
+      
+      if (paragraphs.length <= 1) {
+        paragraphs = text.split(/\n/).filter(p => p.trim().length > 0);
+      }
+      
+      paragraphs = paragraphs.map(p => p.trim());
+      
+      let bodyHtml = '';
+      
+      if (filename) {
+        bodyHtml += `<p style="font-size: 16pt; font-weight: bold; text-align: center; margin-bottom: 12pt;">${filename}</p>`;
+      }
+      
+      for (let i = 0; i < paragraphs.length; i++) {
+        let p = paragraphs[i];
+        
+        if (p.match(/^[A-Z][A-Z\s]+$/) && p.length > 3 && p.length < 100) {
+          bodyHtml += `<p style="font-size: 14pt; font-weight: bold; margin-top: 12pt; margin-bottom: 6pt;">${p}</p>`;
+        } else if (p.match(/^\d+\.\s+[A-Z]/) || p.match(/^\d+\.\d+\s+[A-Z]/)) {
+          bodyHtml += `<p style="font-size: 13pt; font-weight: bold; margin-top: 10pt; margin-bottom: 4pt;">${p}</p>`;
+        } else if (p.match(/^[A-Z][a-z]+.*:$/) && p.length < 80) {
+          bodyHtml += `<p style="font-size: 12pt; font-weight: bold; margin-top: 8pt; margin-bottom: 4pt;">${p}</p>`;
+        } else if (p.startsWith('•') || p.startsWith('-') || p.startsWith('*')) {
+          bodyHtml += `<p style="margin-left: 20pt; margin-bottom: 2pt;">${p}</p>`;
+        } else if (p.match(/^\d+\.\s/)) {
+          bodyHtml += `<p style="margin-left: 20pt; margin-bottom: 2pt;">${p}</p>`;
+        } else if (p.includes('Table') && p.includes(':')) {
+          bodyHtml += `<p style="font-weight: bold; margin-top: 8pt; margin-bottom: 4pt;">${p}</p>`;
+        } else {
+          bodyHtml += `<p style="margin-bottom: 6pt; text-align: justify;">${p}</p>`;
+        }
+      }
       
       const htmlContent = `
         <html xmlns:o='urn:schemas-microsoft-com:office:office' 
@@ -316,13 +473,13 @@
               color: #000000;
             }
             p { 
-              margin: 0 0 8pt 0;
-              text-align: justify;
+              margin: 0;
+              padding: 0;
             }
           </style>
         </head>
         <body>
-          ${lines.map(line => `<p>${line}</p>`).join('')}
+          ${bodyHtml}
         </body>
         </html>
       `;
@@ -391,7 +548,6 @@
       previewContainer.classList.add('hidden');
       convertBtn.disabled = false;
 
-      // Load PDF and show preview
       try {
         statusText.textContent = 'Loading preview...';
         progressContainer.classList.remove('hidden');
@@ -407,11 +563,12 @@
         extractedText = result.text;
         pageCount.textContent = `📄 ${result.pageCount} pages`;
 
-        // Generate and show preview
-        const preview = generatePreview(extractedText);
-        previewContent.textContent = preview;
+        // Show full document preview
         const wordCount = extractedText.split(/\s+/).filter(w => w.length > 0).length;
-        charCount.textContent = `${extractedText.length.toLocaleString()} chars • ${wordCount.toLocaleString()} words`;
+        charCount.textContent = `${extractedText.length.toLocaleString()} chars • ${wordCount.toLocaleString()} words • ${result.pageCount} pages`;
+        
+        // Render the full preview
+        renderPreview('full');
         previewContainer.classList.remove('hidden');
 
         progressContainer.classList.add('hidden');
@@ -451,7 +608,6 @@
         return;
       }
 
-      // Show progress
       progressContainer.classList.remove('hidden');
       resultSection.classList.add('hidden');
       convertBtn.disabled = true;
@@ -461,7 +617,6 @@
       statusText.textContent = 'Reading PDF file...';
 
       try {
-        // If we don't have extracted text yet, extract it
         if (!extractedText) {
           const arrayBuffer = await currentFile.arrayBuffer();
           if (!pdfjsLib) {
@@ -479,7 +634,6 @@
         progressText.textContent = '70%';
         statusText.textContent = 'Creating Word document...';
 
-        // Create DOCX from extracted text
         const baseName = currentFile.name.replace(/\.pdf$/i, '');
         const docxBlob = createDOCXFromText(extractedText, baseName);
         
@@ -489,7 +643,6 @@
         progressText.textContent = '90%';
         statusText.textContent = 'Finalizing...';
 
-        // Show result
         setTimeout(() => {
           const url = URL.createObjectURL(convertedBlob);
           downloadLink.href = url;
