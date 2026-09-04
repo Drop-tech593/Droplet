@@ -6,21 +6,13 @@
   <title>PDF to DOCX Converter - Droplet</title>
   <meta name="description" content="Convert PDF to Word (DOCX) online for free. 100% client-side, your files never leave your browser.">
   
-  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
-  
-  <!-- DOCX Library -->
   <script src="https://unpkg.com/docx@8.5.0/build/index.umd.js"></script>
   
   <style>
-    .dropzone-highlight {
-      border-color: #3b82f6 !important;
-      background: #eff6ff !important;
-    }
+    .dropzone-highlight { border-color: #3b82f6 !important; background: #eff6ff !important; }
     .hidden { display: none !important; }
     .progress-bar { transition: width 0.5s ease; }
-    
-    /* ===== PREVIEW STYLES ===== */
     .preview-container {
       font-family: 'Segoe UI', 'Calibri', Arial, sans-serif;
       font-size: 11pt;
@@ -36,88 +28,17 @@
     .preview-container::-webkit-scrollbar { width: 8px; }
     .preview-container::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 8px; }
     .preview-container::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 8px; }
-    .preview-container::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-    
-    .preview-container .preview-title {
-      font-size: 16pt;
-      font-weight: bold;
-      text-align: center;
-      margin-bottom: 16pt;
-      color: #0f172a;
-    }
-    .preview-container .preview-heading {
-      font-size: 14pt;
-      font-weight: bold;
-      margin-top: 12pt;
-      margin-bottom: 6pt;
-      color: #0f172a;
-    }
-    .preview-container .preview-subheading {
-      font-size: 12pt;
-      font-weight: bold;
-      margin-top: 10pt;
-      margin-bottom: 4pt;
-      color: #0f172a;
-    }
-    .preview-container .preview-paragraph {
-      margin-bottom: 4pt;
-      text-align: justify;
-      color: #1e293b;
-    }
-    .preview-container .preview-bullet {
-      margin-bottom: 2pt;
-      padding-left: 20pt;
-      color: #1e293b;
-    }
-    .preview-container .preview-numbered {
-      margin-bottom: 2pt;
-      padding-left: 20pt;
-      color: #1e293b;
-    }
-    .preview-container .preview-bold {
-      font-weight: bold;
-    }
-    .preview-container .preview-page-break {
-      border-top: 2px dashed #e2e8f0;
-      margin: 20pt 0;
-      text-align: center;
-      color: #94a3b8;
-      font-size: 9pt;
-    }
-    .preview-container .preview-image-placeholder {
-      background: #f1f5f9;
-      border: 2px dashed #cbd5e1;
-      border-radius: 8px;
-      padding: 20px;
-      text-align: center;
-      color: #94a3b8;
-      margin: 10pt 0;
-      font-size: 10pt;
-    }
-
-    .preview-controls {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-    .preview-controls button {
-      padding: 4px 12px;
-      font-size: 12px;
-      border-radius: 6px;
-      border: 1px solid #e2e8f0;
-      background: white;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
+    .preview-container .preview-heading { font-size: 14pt; font-weight: bold; margin-top: 12pt; margin-bottom: 6pt; color: #0f172a; }
+    .preview-container .preview-paragraph { margin-bottom: 4pt; text-align: justify; color: #1e293b; }
+    .preview-container .preview-bullet { margin-bottom: 2pt; padding-left: 20pt; color: #1e293b; }
+    .preview-container .preview-page-break { border-top: 2px dashed #e2e8f0; margin: 20pt 0; text-align: center; color: #94a3b8; font-size: 9pt; }
+    .preview-container .preview-image-placeholder { background: #f1f5f9; border: 2px dashed #cbd5e1; border-radius: 8px; padding: 20px; text-align: center; color: #94a3b8; margin: 10pt 0; }
+    .preview-controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .preview-controls button { padding: 4px 12px; font-size: 12px; border-radius: 6px; border: 1px solid #e2e8f0; background: white; cursor: pointer; }
     .preview-controls button:hover { background: #f1f5f9; }
     .preview-controls button.active { background: #2563eb; color: white; border-color: #2563eb; }
     .preview-controls .info-text { font-size: 12px; color: #94a3b8; margin-left: auto; }
-    @media (max-width: 640px) {
-      .preview-controls { flex-direction: column; align-items: stretch; }
-      .preview-controls .info-text { margin-left: 0; text-align: center; }
-      .preview-container { padding: 15px 20px; }
-    }
+    @media (max-width: 640px) { .preview-controls { flex-direction: column; align-items: stretch; } .preview-container { padding: 15px 20px; } }
   </style>
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans antialiased">
@@ -138,15 +59,10 @@
   </header>
 
   <main class="max-w-4xl mx-auto px-4 py-8 md:py-12 flex-grow w-full">
-    
     <div class="text-center mb-8">
-      <div class="inline-block p-3 bg-blue-50 rounded-2xl mb-4">
-        <span class="text-4xl">📄</span>
-      </div>
+      <div class="inline-block p-3 bg-blue-50 rounded-2xl mb-4"><span class="text-4xl">📄</span></div>
       <h1 class="text-3xl md:text-4xl font-black text-slate-900 tracking-tight">PDF to DOCX (Word) Converter</h1>
-      <p class="text-slate-500 text-sm md:text-base mt-2 max-w-lg mx-auto">
-        Convert your PDF files to editable Word documents. <strong>100% client-side</strong> — your files never leave your browser.
-      </p>
+      <p class="text-slate-500 text-sm md:text-base mt-2 max-w-lg mx-auto">Convert your PDF files to editable Word documents. <strong>100% client-side</strong> — your files never leave your browser.</p>
     </div>
 
     <div id="dropzone" class="bg-white border-2 border-dashed border-slate-300 hover:border-blue-400 transition-all rounded-3xl p-8 md:p-12 text-center shadow-lg max-w-2xl mx-auto cursor-pointer">
@@ -155,9 +71,7 @@
         <h3 class="text-xl font-bold text-slate-900 mb-1">Drop your PDF here</h3>
         <p class="text-slate-400 text-sm mb-4">or click to browse</p>
         <input type="file" id="fileInput" accept=".pdf,application/pdf" class="hidden">
-        <button onclick="document.getElementById('fileInput').click()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-3 rounded-xl text-sm shadow-md shadow-blue-500/20 transition-all active:scale-95">
-          Select PDF File
-        </button>
+        <button onclick="document.getElementById('fileInput').click()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-3 rounded-xl text-sm shadow-md shadow-blue-500/20 transition-all active:scale-95">Select PDF File</button>
         <p class="text-xs text-slate-400 mt-3">Max file size: ~100MB</p>
       </div>
     </div>
@@ -175,40 +89,28 @@
         <button onclick="clearFile()" class="text-slate-400 hover:text-red-500 transition-colors">✕</button>
       </div>
       
-      <!-- Preview Section -->
       <div id="previewContainer" class="hidden mt-4 border-t border-slate-200 pt-4">
         <div class="flex items-center justify-between mb-2">
           <h4 class="font-bold text-sm text-slate-700">📄 Document Preview</h4>
           <span id="charCount" class="text-xs text-slate-400"></span>
         </div>
-        
         <div class="preview-controls mb-3">
           <button class="active" onclick="setPreviewMode('formatted')" id="btnFormatted">📝 Formatted</button>
           <button onclick="setPreviewMode('raw')" id="btnRaw">📃 Raw Text</button>
           <span class="info-text" id="previewInfo">Showing formatted preview</span>
         </div>
-        
-        <div id="previewContent" class="preview-container">
-          <!-- Preview will be rendered here -->
-        </div>
-        <p class="text-xs text-slate-400 mt-2">💡 Preview shows how the document will look in Word. Images are shown as placeholders.</p>
+        <div id="previewContent" class="preview-container"></div>
+        <p class="text-xs text-slate-400 mt-2">💡 Preview shows how the document will look in Word.</p>
       </div>
       
       <div class="mt-4 flex flex-wrap gap-3">
-        <button onclick="convertPDF()" id="convertBtn" class="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-xl transition-all active:scale-95 shadow-md shadow-green-500/20">
-          🔄 Convert to DOCX
-        </button>
+        <button onclick="convertPDF()" id="convertBtn" class="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-xl transition-all active:scale-95 shadow-md shadow-green-500/20">🔄 Convert to DOCX</button>
         <button onclick="clearFile()" class="px-4 py-3 border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors text-sm">Change File</button>
       </div>
       
       <div id="progressContainer" class="hidden mt-4">
-        <div class="flex justify-between text-xs text-slate-500 mb-1">
-          <span>Converting...</span>
-          <span id="progressText">0%</span>
-        </div>
-        <div class="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
-          <div id="progressBar" class="bg-blue-600 h-2 rounded-full progress-bar" style="width: 0%"></div>
-        </div>
+        <div class="flex justify-between text-xs text-slate-500 mb-1"><span>Converting...</span><span id="progressText">0%</span></div>
+        <div class="w-full bg-slate-200 rounded-full h-2 overflow-hidden"><div id="progressBar" class="bg-blue-600 h-2 rounded-full progress-bar" style="width: 0%"></div></div>
         <p id="statusText" class="text-xs text-slate-400 mt-2 text-center">Initializing...</p>
       </div>
     </div>
@@ -218,48 +120,22 @@
       <h3 class="font-bold text-slate-900">Conversion Complete!</h3>
       <p class="text-sm text-slate-600 mt-1">Your Word document is ready to download.</p>
       <div class="mt-4 flex flex-wrap gap-3 justify-center">
-        <a id="downloadLink" href="#" download="converted.docx" class="bg-green-600 hover:bg-green-700 text-white font-bold px-6 py-3 rounded-xl transition-all shadow-md shadow-green-500/20">
-          📥 Download DOCX
-        </a>
+        <a id="downloadLink" href="#" download="converted.docx" class="bg-green-600 hover:bg-green-700 text-white font-bold px-6 py-3 rounded-xl transition-all shadow-md shadow-green-500/20">📥 Download DOCX</a>
         <button onclick="resetConverter()" class="px-6 py-3 border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors text-sm">Convert Another</button>
       </div>
     </div>
 
-    <!-- Info Cards -->
     <div class="max-w-2xl mx-auto mt-12 grid grid-cols-1 md:grid-cols-3 gap-4">
-      <div class="bg-white p-4 rounded-xl border border-slate-100 text-center">
-        <div class="text-2xl mb-1">🔒</div>
-        <h4 class="font-bold text-sm">100% Private</h4>
-        <p class="text-xs text-slate-500">Your files never leave your browser</p>
-      </div>
-      <div class="bg-white p-4 rounded-xl border border-slate-100 text-center">
-        <div class="text-2xl mb-1">⚡</div>
-        <h4 class="font-bold text-sm">Fast & Free</h4>
-        <p class="text-xs text-slate-500">No sign-up required</p>
-      </div>
-      <div class="bg-white p-4 rounded-xl border border-slate-100 text-center">
-        <div class="text-2xl mb-1">📝</div>
-        <h4 class="font-bold text-sm">Editable DOCX</h4>
-        <p class="text-xs text-slate-500">Preserves text, bold, headings &amp; images</p>
-      </div>
+      <div class="bg-white p-4 rounded-xl border border-slate-100 text-center"><div class="text-2xl mb-1">🔒</div><h4 class="font-bold text-sm">100% Private</h4><p class="text-xs text-slate-500">Your files never leave your browser</p></div>
+      <div class="bg-white p-4 rounded-xl border border-slate-100 text-center"><div class="text-2xl mb-1">⚡</div><h4 class="font-bold text-sm">Fast & Free</h4><p class="text-xs text-slate-500">No sign-up required</p></div>
+      <div class="bg-white p-4 rounded-xl border border-slate-100 text-center"><div class="text-2xl mb-1">📝</div><h4 class="font-bold text-sm">Editable DOCX</h4><p class="text-xs text-slate-500">Preserves text, bold, headings &amp; images</p></div>
     </div>
 
-    <!-- FAQ Section -->
     <section class="max-w-2xl mx-auto mt-12">
       <h2 class="text-xl font-black text-slate-900 text-center mb-6">Frequently Asked Questions</h2>
       <div class="space-y-3">
-        <div class="bg-white p-5 rounded-xl border border-slate-100">
-          <h3 class="font-bold text-slate-900 text-sm">Is my data safe?</h3>
-          <p class="text-slate-600 text-sm mt-1">Yes! All conversions happen locally in your browser. Your PDF is never uploaded to any server.</p>
-        </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100">
-          <h3 class="font-bold text-slate-900 text-sm">Will my formatting be preserved?</h3>
-          <p class="text-slate-600 text-sm mt-1">The converter preserves editable text, bold, font sizes, headings, page breaks, and images. Tables and complex layouts may have limitations.</p>
-        </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100">
-          <h3 class="font-bold text-slate-900 text-sm">What about scanned PDFs?</h3>
-          <p class="text-slate-600 text-sm mt-1">Scanned PDFs require OCR. This tool works best with text-based PDFs.</p>
-        </div>
+        <div class="bg-white p-5 rounded-xl border border-slate-100"><h3 class="font-bold text-slate-900 text-sm">Is my data safe?</h3><p class="text-slate-600 text-sm mt-1">Yes! All conversions happen locally in your browser. Your PDF is never uploaded to any server.</p></div>
+        <div class="bg-white p-5 rounded-xl border border-slate-100"><h3 class="font-bold text-slate-900 text-sm">Will my formatting be preserved?</h3><p class="text-slate-600 text-sm mt-1">The converter preserves editable text, bold, font sizes, headings, page breaks, and images. Tables and complex layouts may have limitations.</p></div>
       </div>
     </section>
   </main>
@@ -278,37 +154,21 @@
   </footer>
 
   <script>
-    let currentFile = null;
-    let convertedBlob = null;
-    let pdfjsLib = null;
-    let documentData = null;
-    let extractedText = '';
-    let currentPreviewMode = 'formatted';
+    let currentFile = null, convertedBlob = null, pdfjsLib = null, documentData = null, extractedText = '', currentPreviewMode = 'formatted';
 
-    // DOM Elements
-    const dropzone = document.getElementById('dropzone');
-    const fileInput = document.getElementById('fileInput');
-    const fileInfo = document.getElementById('fileInfo');
-    const fileName = document.getElementById('fileName');
-    const fileSize = document.getElementById('fileSize');
-    const pageCount = document.getElementById('pageCount');
-    const convertBtn = document.getElementById('convertBtn');
-    const progressContainer = document.getElementById('progressContainer');
-    const progressBar = document.getElementById('progressBar');
-    const progressText = document.getElementById('progressText');
-    const statusText = document.getElementById('statusText');
-    const resultSection = document.getElementById('resultSection');
-    const downloadLink = document.getElementById('downloadLink');
-    const previewContainer = document.getElementById('previewContainer');
-    const previewContent = document.getElementById('previewContent');
-    const charCount = document.getElementById('charCount');
+    const dropzone = document.getElementById('dropzone'), fileInput = document.getElementById('fileInput');
+    const fileInfo = document.getElementById('fileInfo'), fileName = document.getElementById('fileName');
+    const fileSize = document.getElementById('fileSize'), pageCount = document.getElementById('pageCount');
+    const convertBtn = document.getElementById('convertBtn'), progressContainer = document.getElementById('progressContainer');
+    const progressBar = document.getElementById('progressBar'), progressText = document.getElementById('progressText');
+    const statusText = document.getElementById('statusText'), resultSection = document.getElementById('resultSection');
+    const downloadLink = document.getElementById('downloadLink'), previewContainer = document.getElementById('previewContainer');
+    const previewContent = document.getElementById('previewContent'), charCount = document.getElementById('charCount');
     const previewInfo = document.getElementById('previewInfo');
 
-    // Preview mode buttons
     function setPreviewMode(mode) {
       currentPreviewMode = mode;
-      document.querySelectorAll('.preview-controls button').forEach(btn => btn.classList.remove('active'));
-      
+      document.querySelectorAll('.preview-controls button').forEach(b => b.classList.remove('active'));
       if (mode === 'formatted') {
         document.getElementById('btnFormatted').classList.add('active');
         previewInfo.textContent = 'Showing formatted preview';
@@ -321,97 +181,30 @@
     }
 
     function renderRawPreview() {
-      if (!extractedText) {
-        previewContent.innerHTML = '<p style="color: #94a3b8; text-align: center;">No text to preview</p>';
-        return;
-      }
-      previewContent.innerHTML = `<pre style="font-family: 'Courier New', monospace; font-size: 12px; white-space: pre-wrap; word-wrap: break-word; margin: 0; background: #f8fafc; padding: 16px; border-radius: 4px; max-height: 400px; overflow-y: auto;">${extractedText.substring(0, 5000)}${extractedText.length > 5000 ? '\n\n... (truncated)' : ''}</pre>`;
+      previewContent.innerHTML = extractedText ? `<pre style="font-family:'Courier New',monospace;font-size:12px;white-space:pre-wrap;word-wrap:break-word;margin:0;background:#f8fafc;padding:16px;border-radius:4px;max-height:400px;overflow-y:auto;">${extractedText.substring(0,5000)}${extractedText.length>5000?'\n\n... (truncated)':''}</pre>` : '<p style="color:#94a3b8;text-align:center;">No text to preview</p>';
     }
 
     function renderFormattedPreview() {
       if (!documentData || !documentData.pages || documentData.pages.length === 0) {
-        previewContent.innerHTML = '<p style="color: #94a3b8; text-align: center;">No document to preview</p>';
+        previewContent.innerHTML = '<p style="color:#94a3b8;text-align:center;">No document to preview</p>';
         return;
       }
-
       let html = '';
-      
-      // Show first 3 pages max for preview
       const maxPages = Math.min(3, documentData.pages.length);
-      
       for (let p = 0; p < maxPages; p++) {
         const page = documentData.pages[p];
-        
-        // Add page indicator
-        if (p > 0) {
-          html += `<div class="preview-page-break">— Page ${p + 1} —</div>`;
-        }
-        
-        // Combine text and images
-        const elements = [];
+        if (p > 0) html += `<div class="preview-page-break">— Page ${p + 1} —</div>`;
         for (const line of page.lines) {
-          elements.push({ type: 'text', y: line.y, item: line });
+          if (line.isHeading) html += `<div class="preview-heading">${line.text}</div>`;
+          else if (line.isBullet) html += `<div class="preview-bullet">• ${line.text.replace(/^[•●▪◦\-*]\s*/, '')}</div>`;
+          else html += `<div class="preview-paragraph">${line.text}</div>`;
         }
-        for (const image of page.images) {
-          elements.push({ type: 'image', y: image.y / 1.5, item: image });
-        }
-        elements.sort((a, b) => a.y - b.y);
-        
-        let lastY = -9999;
-        
-        for (const element of elements) {
-          if (Math.abs(element.y - lastY) < 2) continue;
-          lastY = element.y;
-          
-          if (element.type === 'text') {
-            const line = element.item;
-            
-            const overlapsImage = page.images.some(img => {
-              const imgX = img.x / 1.5;
-              const imgY = img.y / 1.5;
-              const imgW = img.width / 1.5;
-              const imgH = img.height / 1.5;
-              return (line.x >= imgX - 2 && line.x <= imgX + imgW + 2 &&
-                      line.y >= imgY - 2 && line.y <= imgY + imgH + 2 &&
-                      line.width <= imgW + 10);
-            });
-            
-            if (!overlapsImage) {
-              const isHeading = line.isHeading || line.isAllCaps;
-              const isBold = line.isBold || isHeading;
-              
-              let text = line.text;
-              if (line.isBullet) text = text.replace(/^[•●▪◦\-*]\s*/, '');
-              
-              let className = 'preview-paragraph';
-              if (isHeading) {
-                if (line.fontSize >= 16) className = 'preview-heading';
-                else className = 'preview-subheading';
-              } else if (line.isBullet) {
-                className = 'preview-bullet';
-                text = '• ' + text;
-              } else if (line.isNumbered) {
-                className = 'preview-numbered';
-              }
-              
-              const boldHtml = isBold ? ' preview-bold' : '';
-              html += `<div class="${className}${boldHtml}">${text}</div>`;
-            }
-          } else {
-            // Image placeholder
-            html += `<div class="preview-image-placeholder">🖼️ Image (${Math.round(element.item.width / 1.5)} × ${Math.round(element.item.height / 1.5)} px)</div>`;
-          }
-        }
+        if (page.images.length > 0) html += `<div class="preview-image-placeholder">🖼️ ${page.images.length} image(s) on this page</div>`;
       }
-      
-      if (documentData.pages.length > 3) {
-        html += `<div class="preview-page-break">... and ${documentData.pages.length - 3} more pages</div>`;
-      }
-      
-      previewContent.innerHTML = html || '<p style="color: #94a3b8; text-align: center;">No content to preview</p>';
+      if (documentData.pages.length > 3) html += `<div class="preview-page-break">... and ${documentData.pages.length - 3} more pages</div>`;
+      previewContent.innerHTML = html || '<p style="color:#94a3b8;text-align:center;">No content to preview</p>';
     }
 
-    // Load PDF.js
     async function loadPDFJS() {
       try {
         statusText.textContent = 'Loading PDF engine...';
@@ -430,115 +223,67 @@
       }
     }
 
-    // ===== MATRIX UTILITY FUNCTIONS =====
     function matrixMultiply(a, b) {
-      return [
-        a[0]*b[0] + a[2]*b[1], a[1]*b[0] + a[3]*b[1],
-        a[0]*b[2] + a[2]*b[3], a[1]*b[2] + a[3]*b[3],
-        a[0]*b[4] + a[2]*b[5] + a[4], a[1]*b[4] + a[3]*b[5] + a[5]
-      ];
+      return [a[0]*b[0]+a[2]*b[1], a[1]*b[0]+a[3]*b[1], a[0]*b[2]+a[2]*b[3], a[1]*b[2]+a[3]*b[3], a[0]*b[4]+a[2]*b[5]+a[4], a[1]*b[4]+a[3]*b[5]+a[5]];
     }
 
-    function transformPoint(m, x, y) {
-      return { x: m[0]*x + m[2]*y + m[4], y: m[1]*x + m[3]*y + m[5] };
-    }
+    function transformPoint(m, x, y) { return { x: m[0]*x + m[2]*y + m[4], y: m[1]*x + m[3]*y + m[5] }; }
 
     function getTransformedBox(m, w = 1, h = 1) {
-      const pts = [
-        transformPoint(m, 0, 0), transformPoint(m, w, 0),
-        transformPoint(m, 0, h), transformPoint(m, w, h)
-      ];
-      return {
-        x: Math.min(...pts.map(p => p.x)),
-        y: Math.min(...pts.map(p => p.y)),
-        width: Math.max(...pts.map(p => p.x)) - Math.min(...pts.map(p => p.x)),
-        height: Math.max(...pts.map(p => p.y)) - Math.min(...pts.map(p => p.y))
-      };
+      const pts = [transformPoint(m,0,0), transformPoint(m,w,0), transformPoint(m,0,h), transformPoint(m,w,h)];
+      return { x: Math.min(...pts.map(p=>p.x)), y: Math.min(...pts.map(p=>p.y)), width: Math.max(...pts.map(p=>p.x)) - Math.min(...pts.map(p=>p.x)), height: Math.max(...pts.map(p=>p.y)) - Math.min(...pts.map(p=>p.y)) };
     }
 
-    function canvasToDataURL(canvas, quality = 0.92) { return canvas.toDataURL('image/png', quality); }
+    function canvasToDataURL(canvas) { return canvas.toDataURL('image/png', 0.92); }
 
     function dataURLToUint8Array(dataURL) {
-      const base64 = dataURL.split(',')[1];
-      const binary = atob(base64);
-      const bytes = new Uint8Array(binary.length);
+      const base64 = dataURL.split(',')[1], binary = atob(base64), bytes = new Uint8Array(binary.length);
       for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
       return bytes;
     }
 
-    // ===== RENDER PAGE AND FIND IMAGES =====
     async function renderPageAndFindImages(page, pageNumber) {
-      const baseViewport = page.getViewport({ scale: 1 });
-      const renderScale = 1.5;
-      const viewport = page.getViewport({ scale: renderScale });
-
+      const baseViewport = page.getViewport({ scale: 1 }), renderScale = 1.5, viewport = page.getViewport({ scale: renderScale });
       const canvas = document.createElement('canvas');
-      canvas.width = Math.ceil(viewport.width);
-      canvas.height = Math.ceil(viewport.height);
+      canvas.width = Math.ceil(viewport.width); canvas.height = Math.ceil(viewport.height);
       const ctx = canvas.getContext('2d', { alpha: false });
-
       await page.render({ canvasContext: ctx, viewport }).promise;
-
-      const opList = await page.getOperatorList();
-      const OPS = pdfjsLib.OPS;
-
-      let ctm = [1, 0, 0, 1, 0, 0];
-      const stack = [];
-      const images = [];
-
+      const opList = await page.getOperatorList(), OPS = pdfjsLib.OPS;
+      let ctm = [1,0,0,1,0,0]; const stack = [], images = [];
       for (let i = 0; i < opList.fnArray.length; i++) {
-        const fn = opList.fnArray[i];
-        const args = opList.argsArray[i];
-
-        if (fn === OPS.save) { stack.push(ctm.slice()); }
-        else if (fn === OPS.restore) { ctm = stack.length ? stack.pop() : [1, 0, 0, 1, 0, 0]; }
-        else if (fn === OPS.transform) { ctm = matrixMultiply(ctm, args); }
+        const fn = opList.fnArray[i], args = opList.argsArray[i];
+        if (fn === OPS.save) stack.push(ctm.slice());
+        else if (fn === OPS.restore) ctm = stack.length ? stack.pop() : [1,0,0,1,0,0];
+        else if (fn === OPS.transform) ctm = matrixMultiply(ctm, args);
         else if (fn === OPS.paintImageXObject || fn === OPS.paintImageMaskXObject || fn === OPS.paintImageXObjectRepeat) {
           const box = getTransformedBox(ctm, 1, 1);
-          const x = box.x * renderScale;
-          const y = (baseViewport.height - box.y - box.height) * renderScale;
-          const w = Math.abs(box.width) * renderScale;
-          const h = Math.abs(box.height) * renderScale;
-          if (w >= 8 && h >= 8) {
-            images.push({
-              page: pageNumber,
-              x: Math.max(0, x), y: Math.max(0, y),
-              width: Math.min(canvas.width - Math.max(0, x), w),
-              height: Math.min(canvas.height - Math.max(0, y), h)
-            });
-          }
+          const x = box.x * renderScale, y = (baseViewport.height - box.y - box.height) * renderScale;
+          const w = Math.abs(box.width) * renderScale, h = Math.abs(box.height) * renderScale;
+          if (w >= 8 && h >= 8) images.push({ page: pageNumber, x: Math.max(0,x), y: Math.max(0,y), width: Math.min(canvas.width - Math.max(0,x), w), height: Math.min(canvas.height - Math.max(0,y), h) });
         }
       }
-
       const unique = [];
       for (const img of images) {
-        const duplicate = unique.some(u =>
-          Math.abs(u.x - img.x) < 2 && Math.abs(u.y - img.y) < 2 &&
-          Math.abs(u.width - img.width) < 2 && Math.abs(u.height - img.height) < 2
-        );
+        const duplicate = unique.some(u => Math.abs(u.x-img.x)<2 && Math.abs(u.y-img.y)<2 && Math.abs(u.width-img.width)<2 && Math.abs(u.height-img.height)<2);
         if (!duplicate && img.width > 10 && img.height > 10) unique.push(img);
       }
-
       const crops = [];
       for (const img of unique) {
         const crop = document.createElement('canvas');
-        crop.width = Math.max(1, Math.round(img.width));
-        crop.height = Math.max(1, Math.round(img.height));
+        crop.width = Math.max(1, Math.round(img.width)); crop.height = Math.max(1, Math.round(img.height));
         const cropCtx = crop.getContext('2d');
         cropCtx.drawImage(canvas, Math.round(img.x), Math.round(img.y), Math.round(img.width), Math.round(img.height), 0, 0, crop.width, crop.height);
         crops.push({ ...img, data: dataURLToUint8Array(canvasToDataURL(crop)) });
       }
-
       return { pageNumber, pageWidth: baseViewport.width, pageHeight: baseViewport.height, images: crops };
     }
 
-    // ===== EXTRACT DOCUMENT CONTENT =====
+    // ===== FIXED: Proper text extraction with correct ordering =====
     async function extractDocumentContent(arrayBuffer, showProgress = true) {
       if (!pdfjsLib) await loadPDFJS();
 
       const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
       const pages = [];
-      let allLines = [];
       let fullText = '';
       let totalImages = 0;
 
@@ -547,83 +292,66 @@
         const viewport = page.getViewport({ scale: 1 });
         const textContent = await page.getTextContent();
 
+        // Extract items with position and formatting
         const items = textContent.items.map(item => {
           const tx = pdfjsLib.Util.transform(viewport.transform, item.transform);
           const fontSize = Math.max(1, Math.sqrt(tx[2] * tx[2] + tx[3] * tx[3]));
           const x = tx[4];
           const y = viewport.height - tx[5];
-          const fontName = item.fontName || '';
-          const text = item.str || '';
-          const isBold = /bold|black|demi|heavy|semibold/i.test(fontName);
+          const isBold = /bold|black|demi|heavy|semibold/i.test(item.fontName || '');
+          return { text: item.str || '', x, y, width: item.width || 0, height: item.height || fontSize, fontSize, isBold };
+        }).filter(item => item.text.trim());
 
-          return { text, x, y, width: item.width || 0, height: item.height || fontSize, fontSize, isBold, fontName };
-        }).filter(x => x.text.trim());
-
+        // Group items by Y position (lines)
         const lines = [];
         const tolerance = 2.5;
-
         for (const item of items) {
-          let foundLine = null;
+          let found = null;
           for (const line of lines) {
-            if (Math.abs(line.y - item.y) <= tolerance) {
-              foundLine = line;
-              break;
-            }
+            if (Math.abs(line.y - item.y) <= tolerance) { found = line; break; }
           }
-          if (!foundLine) {
-            foundLine = { y: item.y, items: [] };
-            lines.push(foundLine);
-          }
-          foundLine.items.push(item);
+          if (!found) { found = { y: item.y, items: [] }; lines.push(found); }
+          found.items.push(item);
         }
 
+        // Sort lines by Y (top to bottom)
         lines.sort((a, b) => a.y - b.y);
 
-        const structured = [];
+        const structuredLines = [];
         for (const line of lines) {
+          // Sort items in line by X (left to right)
           line.items.sort((a, b) => a.x - b.x);
 
           let lineText = '';
-          let lastRight = null;
-
+          let lastRight = 0;
           for (const item of line.items) {
-            if (lastRight !== null) {
-              const gap = item.x - lastRight;
-              if (gap > Math.max(5, item.fontSize * 0.3)) lineText += ' ';
-            }
+            if (lastRight > 0 && (item.x - lastRight) > 5) lineText += ' ';
             lineText += item.text;
             lastRight = item.x + item.width;
           }
-
           lineText = lineText.trim();
           if (!lineText) continue;
 
           const maxFontSize = Math.max(...line.items.map(i => i.fontSize));
           const hasBold = line.items.some(i => i.isBold);
-          const hasAllCaps = /^[A-Z0-9\s\-–—.,:;()]+$/.test(lineText) && /[A-Z]/.test(lineText);
+          const isAllCaps = /^[A-Z0-9\s\-–—.,:;()]+$/.test(lineText) && /[A-Z]/.test(lineText);
+          const isHeading = maxFontSize >= 16 || (isAllCaps && lineText.length < 100) || /^\d+(\.\d+)*[\s.)]+[A-Z]/.test(lineText) || /^[A-Z][A-Z\s]+$/.test(lineText);
 
-          const isHeading = maxFontSize >= 16 ||
-            (hasAllCaps && lineText.length < 80) ||
-            /^\d+(\.\d+)*[\s.)]+[A-Z]/.test(lineText) ||
-            /^[A-Z][A-Z\s]+$/.test(lineText);
-
-          structured.push({
+          structuredLines.push({
             text: lineText,
             fontSize: maxFontSize,
             isBold: hasBold,
             isHeading: isHeading,
             isBullet: /^[•●▪◦\-*]\s*/.test(lineText),
             isNumbered: /^\d+[\.)]\s/.test(lineText),
-            isAllCaps: hasAllCaps,
             page: pageIndex - 1,
-            x: Math.min(...line.items.map(i => i.x)),
-            y: line.y,
-            width: Math.max(...line.items.map(i => i.x + i.width)) - Math.min(...line.items.map(i => i.x))
+            y: line.y
           });
 
           fullText += lineText + '\n';
         }
 
+        // Get images
         const visual = await renderPageAndFindImages(page, pageIndex - 1);
         totalImages += visual.images.length;
 
@@ -631,11 +359,9 @@
           page: pageIndex - 1,
           width: visual.pageWidth,
           height: visual.pageHeight,
-          lines: structured,
+          lines: structuredLines,
           images: visual.images
         });
-
-        allLines.push(...structured);
 
         if (showProgress) {
           const progress = Math.round((pageIndex / pdf.numPages) * 60) + 30;
@@ -645,7 +371,7 @@
         }
       }
 
-      return { pages, lines: allLines, text: fullText, pageCount: pdf.numPages, imageCount: totalImages };
+      return { pages, text: fullText, pageCount: pdf.numPages, imageCount: totalImages };
     }
 
     function halfPointsFromPdf(fontSize) {
@@ -653,14 +379,10 @@
       return Math.round(pt * 2);
     }
 
-    // ===== CREATE DOCX =====
     async function createStyledDOCX(documentData, filename) {
-      if (typeof window.docx === 'undefined') {
-        throw new Error('DOCX library not loaded. Please refresh the page.');
-      }
+      if (typeof window.docx === 'undefined') throw new Error('DOCX library not loaded. Please refresh the page.');
 
       const { Document, Packer, Paragraph, TextRun, ImageRun, AlignmentType, PageBreak, convertInchesToTwip } = window.docx;
-
       const children = [];
 
       if (filename) {
@@ -674,94 +396,56 @@
       for (let p = 0; p < documentData.pages.length; p++) {
         const page = documentData.pages[p];
 
-        const elements = [];
-        for (const line of page.lines) {
-          elements.push({ type: 'text', y: line.y, item: line });
-        }
-        for (const image of page.images) {
-          elements.push({ type: 'image', y: image.y / 1.5, item: image });
-        }
-        elements.sort((a, b) => a.y - b.y);
+        // Sort lines by Y position (top to bottom)
+        const sortedLines = [...page.lines].sort((a, b) => a.y - b.y);
 
-        let lastY = -9999;
+        for (const line of sortedLines) {
+          const size = halfPointsFromPdf(line.fontSize);
+          const isHeading = line.isHeading;
 
-        for (const element of elements) {
-          if (Math.abs(element.y - lastY) < 2) continue;
-          lastY = element.y;
+          let text = line.text;
+          if (line.isBullet) text = text.replace(/^[•●▪◦\-*]\s*/, '');
 
-          if (element.type === 'text') {
-            const line = element.item;
+          const run = new TextRun({
+            text: line.isBullet ? '• ' + text : text,
+            size: size,
+            bold: !!(line.isBold || isHeading)
+          });
 
-            const overlapsImage = page.images.some(img => {
-              const imgX = img.x / 1.5;
-              const imgY = img.y / 1.5;
-              const imgW = img.width / 1.5;
-              const imgH = img.height / 1.5;
-              return (
-                line.x >= imgX - 2 && line.x <= imgX + imgW + 2 &&
-                line.y >= imgY - 2 && line.y <= imgY + imgH + 2 &&
-                line.width <= imgW + 10
-              );
-            });
-
-            if (!overlapsImage) {
-              const size = halfPointsFromPdf(line.fontSize);
-              const isHeading = line.isHeading || line.isAllCaps;
-
-              let text = line.text;
-              if (line.isBullet) text = text.replace(/^[•●▪◦\-*]\s*/, '');
-
-              const run = new TextRun({
-                text: line.isBullet ? '• ' + text : text,
-                size: size,
-                bold: !!(line.isBold || isHeading)
-              });
-
-              const options = {
-                children: [run],
-                spacing: {
-                  before: isHeading ? 200 : 60,
-                  after: isHeading ? 100 : 60,
-                  line: Math.round(size * 1.2)
-                }
-              };
-
-              if (!isHeading && !line.isBullet && !line.isNumbered) {
-                options.alignment = AlignmentType.JUSTIFIED;
-              }
-
-              if (line.isBullet || line.isNumbered) {
-                options.indent = { left: 360, hanging: 180 };
-              }
-
-              children.push(new Paragraph(options));
+          const options = {
+            children: [run],
+            spacing: {
+              before: isHeading ? 200 : 60,
+              after: isHeading ? 100 : 60,
+              line: Math.round(size * 1.2)
             }
-          } else {
-            const img = element.item;
+          };
 
-            const imageWidthIn = Math.min(5.5, Math.max(0.8, (img.width / 1.5) / 72));
-            const imageHeightIn = Math.max(0.3, imageWidthIn * ((img.height / 1.5) / (img.width / 1.5)));
-
-            const widthPx = Math.round(imageWidthIn * 96);
-            const heightPx = Math.round(imageHeightIn * 96);
-
-            const cappedHeightPx = Math.min(heightPx, 600);
-            const cappedWidthPx = Math.round(widthPx * (cappedHeightPx / heightPx));
-
-            children.push(new Paragraph({
-              children: [
-                new ImageRun({
-                  data: img.data,
-                  transformation: {
-                    width: Math.max(60, cappedWidthPx),
-                    height: Math.max(30, cappedHeightPx)
-                  }
-                })
-              ],
-              alignment: AlignmentType.CENTER,
-              spacing: { before: 80, after: 80 }
-            }));
+          if (!isHeading && !line.isBullet && !line.isNumbered) {
+            options.alignment = AlignmentType.JUSTIFIED;
           }
+
+          if (line.isBullet || line.isNumbered) {
+            options.indent = { left: 360, hanging: 180 };
+          }
+
+          children.push(new Paragraph(options));
+        }
+
+        // Add images after text on the page
+        for (const img of page.images) {
+          const imageWidthIn = Math.min(5.5, Math.max(0.8, (img.width / 1.5) / 72));
+          const imageHeightIn = Math.max(0.3, imageWidthIn * ((img.height / 1.5) / (img.width / 1.5)));
+          const widthPx = Math.round(imageWidthIn * 96);
+          const heightPx = Math.round(imageHeightIn * 96);
+          const cappedHeightPx = Math.min(heightPx, 600);
+          const cappedWidthPx = Math.round(widthPx * (cappedHeightPx / heightPx));
+
+          children.push(new Paragraph({
+            children: [new ImageRun({ data: img.data, transformation: { width: Math.max(60, cappedWidthPx), height: Math.max(30, cappedHeightPx) } })],
+            alignment: AlignmentType.CENTER,
+            spacing: { before: 80, after: 80 }
+          }));
         }
 
         if (p < documentData.pages.length - 1) {
@@ -775,12 +459,7 @@
             page: {
               width: convertInchesToTwip(8.27),
               height: convertInchesToTwip(11.69),
-              margin: {
-                top: convertInchesToTwip(0.75),
-                bottom: convertInchesToTwip(0.75),
-                left: convertInchesToTwip(0.8),
-                right: convertInchesToTwip(0.8)
-              }
+              margin: { top: convertInchesToTwip(0.75), bottom: convertInchesToTwip(0.75), left: convertInchesToTwip(0.8), right: convertInchesToTwip(0.8) }
             }
           },
           children
@@ -790,51 +469,23 @@
       return await Packer.toBlob(doc);
     }
 
-    // ===== EVENT HANDLERS =====
     document.addEventListener('DOMContentLoaded', () => { loadPDFJS(); });
 
-    dropzone.addEventListener('dragover', (e) => {
-      e.preventDefault();
-      dropzone.classList.add('dropzone-highlight');
-    });
-
-    dropzone.addEventListener('dragleave', () => {
-      dropzone.classList.remove('dropzone-highlight');
-    });
-
+    dropzone.addEventListener('dragover', (e) => { e.preventDefault(); dropzone.classList.add('dropzone-highlight'); });
+    dropzone.addEventListener('dragleave', () => { dropzone.classList.remove('dropzone-highlight'); });
     dropzone.addEventListener('drop', (e) => {
       e.preventDefault();
       dropzone.classList.remove('dropzone-highlight');
       const files = e.dataTransfer.files;
-      if (files.length > 0 && files[0].type === 'application/pdf') {
-        handleFile(files[0]);
-      } else {
-        alert('Please drop a PDF file.');
-      }
+      if (files.length > 0 && files[0].type === 'application/pdf') handleFile(files[0]);
+      else alert('Please drop a PDF file.');
     });
-
-    dropzone.addEventListener('click', (e) => {
-      if (e.target.tagName !== 'BUTTON' && !fileInfo.classList.contains('hidden')) {
-        fileInput.click();
-      }
-    });
-
-    fileInput.addEventListener('change', (e) => {
-      if (e.target.files.length > 0) {
-        handleFile(e.target.files[0]);
-      }
-    });
+    dropzone.addEventListener('click', (e) => { if (e.target.tagName !== 'BUTTON' && !fileInfo.classList.contains('hidden')) fileInput.click(); });
+    fileInput.addEventListener('change', (e) => { if (e.target.files.length > 0) handleFile(e.target.files[0]); });
 
     async function handleFile(file) {
-      if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
-        alert('Please select a valid PDF file.');
-        return;
-      }
-
-      if (file.size > 100 * 1024 * 1024) {
-        alert('File is too large. Please use a PDF under 100MB.');
-        return;
-      }
+      if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) { alert('Please select a valid PDF file.'); return; }
+      if (file.size > 100 * 1024 * 1024) { alert('File is too large. Please use a PDF under 100MB.'); return; }
 
       currentFile = file;
       fileName.textContent = file.name;
@@ -852,7 +503,7 @@
         progressBar.style.width = '10%';
         progressText.textContent = '10%';
 
-        if (!pdfjsLib) { await loadPDFJS(); }
+        if (!pdfjsLib) await loadPDFJS();
 
         const arrayBuffer = await file.arrayBuffer();
         const result = await extractDocumentContent(arrayBuffer, false);
@@ -863,15 +514,13 @@
         const wordCount = extractedText.split(/\s+/).filter(w => w.length > 0).length;
         charCount.textContent = `${extractedText.length.toLocaleString()} chars • ${wordCount.toLocaleString()} words • ${result.pageCount} pages`;
 
-        // Show formatted preview
         renderFormattedPreview();
         previewContainer.classList.remove('hidden');
-
         progressContainer.classList.add('hidden');
         statusText.textContent = '✅ Ready to convert';
       } catch (error) {
         console.error('Preview error:', error);
-        previewContent.innerHTML = '<p style="color: #94a3b8; text-align: center;">⚠️ Could not generate preview. The PDF may be encrypted or corrupted.</p>';
+        previewContent.innerHTML = '<p style="color:#94a3b8;text-align:center;">⚠️ Could not generate preview.</p>';
         previewContainer.classList.remove('hidden');
         progressContainer.classList.add('hidden');
         statusText.textContent = '⚠️ Preview not available';
@@ -879,31 +528,16 @@
     }
 
     function clearFile() {
-      currentFile = null;
-      extractedText = '';
-      documentData = null;
-      fileInput.value = '';
-      fileInfo.classList.add('hidden');
-      dropzone.classList.remove('hidden');
-      resultSection.classList.add('hidden');
-      progressContainer.classList.add('hidden');
-      previewContainer.classList.add('hidden');
-      progressBar.style.width = '0%';
-      progressText.textContent = '0%';
+      currentFile = null; extractedText = ''; documentData = null; fileInput.value = '';
+      fileInfo.classList.add('hidden'); dropzone.classList.remove('hidden'); resultSection.classList.add('hidden');
+      progressContainer.classList.add('hidden'); previewContainer.classList.add('hidden');
+      progressBar.style.width = '0%'; progressText.textContent = '0%';
     }
 
-    function resetConverter() {
-      clearFile();
-      convertedBlob = null;
-      downloadLink.href = '#';
-    }
+    function resetConverter() { clearFile(); convertedBlob = null; downloadLink.href = '#'; }
 
-    // ===== MAIN CONVERSION =====
     async function convertPDF() {
-      if (!currentFile) {
-        alert('Please select a PDF file first.');
-        return;
-      }
+      if (!currentFile) { alert('Please select a PDF file first.'); return; }
 
       progressContainer.classList.remove('hidden');
       resultSection.classList.add('hidden');
@@ -921,9 +555,7 @@
           extractedText = documentData.text;
         }
 
-        if (!documentData || documentData.pages.length === 0) {
-          throw new Error('Could not read the PDF.');
-        }
+        if (!documentData || documentData.pages.length === 0) throw new Error('Could not read the PDF.');
 
         progressBar.style.width = '60%';
         progressText.textContent = '60%';
@@ -931,7 +563,6 @@
 
         const baseName = currentFile.name.replace(/\.pdf$/i, '');
         const docxBlob = await createStyledDOCX(documentData, baseName);
-
         convertedBlob = docxBlob;
 
         progressBar.style.width = '90%';
@@ -961,9 +592,7 @@
     }
 
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' && !fileInfo.classList.contains('hidden') && !convertBtn.disabled) {
-        convertPDF();
-      }
+      if (e.key === 'Enter' && !fileInfo.classList.contains('hidden') && !convertBtn.disabled) convertPDF();
     });
   </script>
 
