@@ -14,16 +14,9 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
   <style>
-    .dropzone-highlight {
-      border-color: #3b82f6 !important;
-      background: #eff6ff !important;
-    }
-    .progress-bar {
-      transition: width 0.5s ease;
-    }
-    .hidden {
-      display: none !important;
-    }
+    .dropzone-highlight { border-color: #3b82f6 !important; background: #eff6ff !important; }
+    .progress-bar { transition: width 0.5s ease; }
+    .hidden { display: none !important; }
     .docx-preview {
       font-family: Georgia, serif;
       line-height: 1.6;
@@ -48,16 +41,39 @@
       padding: 8px;
       text-align: left;
     }
-    .docx-preview img {
-      max-width: 100%;
-      height: auto;
+    .docx-preview img { max-width: 100%; height: auto; }
+    .docx-preview ul, .docx-preview ol { padding-left: 2em; }
+    .docx-preview p { margin: 0.5em 0; }
+    /* PDF container – hidden from view but rendered */
+    #pdf-container {
+      position: fixed;
+      left: 0;
+      top: 0;
+      width: 794px;          /* A4 width at 96dpi */
+      background: white;
+      padding: 20mm 25mm;
+      box-sizing: border-box;
+      opacity: 0;
+      pointer-events: none;
+      z-index: -1;
+      font-family: 'Times New Roman', Georgia, serif;
+      font-size: 11pt;
+      line-height: 1.6;
+      color: #111;
+      overflow: visible;     /* allow content to expand */
     }
-    .docx-preview ul, .docx-preview ol {
-      padding-left: 2em;
-    }
-    .docx-preview p {
-      margin: 0.5em 0;
-    }
+    #pdf-container h1 { font-size: 18pt; margin: 20pt 0 10pt; }
+    #pdf-container h2 { font-size: 15pt; margin: 16pt 0 8pt; }
+    #pdf-container h3 { font-size: 12pt; margin: 12pt 0 6pt; }
+    #pdf-container h4 { font-size: 11pt; margin: 10pt 0 4pt; }
+    #pdf-container p { margin: 0.5em 0; text-align: justify; }
+    #pdf-container table { border-collapse: collapse; width: 100%; margin: 10pt 0; }
+    #pdf-container td, #pdf-container th { border: 1px solid #aaa; padding: 4pt 8pt; text-align: left; }
+    #pdf-container img { max-width: 100%; height: auto; display: block; margin: 5pt auto; }
+    #pdf-container ul, #pdf-container ol { padding-left: 2em; margin: 0.5em 0; }
+    #pdf-container li { margin: 0.25em 0; }
+    #pdf-container blockquote { margin: 10pt 20pt; border-left: 3px solid #ccc; padding-left: 15pt; }
+    .page-break { page-break-after: always; break-after: page; }
   </style>
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans antialiased">
@@ -229,6 +245,9 @@
     </div>
   </footer>
 
+  <!-- Hidden container for PDF rendering -->
+  <div id="pdf-container"></div>
+
   <!-- ===== JAVASCRIPT ===== -->
   <script>
     let currentFile = null;
@@ -250,36 +269,30 @@
     const downloadLink = document.getElementById('downloadLink');
     const previewContainer = document.getElementById('previewContainer');
     const previewContent = document.getElementById('previewContent');
+    const pdfContainer = document.getElementById('pdf-container');
 
     // File handling
     dropzone.addEventListener('click', function(e) {
-      if (e.target.tagName !== 'BUTTON') {
-        fileInput.click();
-      }
+      if (e.target.tagName !== 'BUTTON') fileInput.click();
     });
-
     document.querySelector('#dropzone button').addEventListener('click', function(e) {
       e.stopPropagation();
       fileInput.click();
     });
-
     fileInput.addEventListener('change', function(e) {
       if (this.files.length > 0) {
         handleFile(this.files[0]);
         this.value = '';
       }
     });
-
     dropzone.addEventListener('dragover', function(e) {
       e.preventDefault();
       this.classList.add('dropzone-highlight');
     });
-
     dropzone.addEventListener('dragleave', function(e) {
       e.preventDefault();
       this.classList.remove('dropzone-highlight');
     });
-
     dropzone.addEventListener('drop', function(e) {
       e.preventDefault();
       this.classList.remove('dropzone-highlight');
@@ -296,12 +309,10 @@
         alert('Please select a valid .docx Word file.');
         return;
       }
-
       if (file.size > 50 * 1024 * 1024) {
         alert('File is too large. Please use a Word file under 50MB.');
         return;
       }
-
       currentFile = file;
       fileName.textContent = file.name;
       fileSize.textContent = (file.size / 1024 / 1024).toFixed(2) + ' MB';
@@ -312,7 +323,6 @@
       previewContainer.classList.add('hidden');
       convertBtn.disabled = false;
       convertBtn.textContent = '🔄 Convert to PDF';
-
       showPreview(file);
     }
 
@@ -323,26 +333,16 @@
           arrayBuffer,
           convertImage: mammoth.images.imgElement(function(image) {
             return image.read("base64").then(function(imageBuffer) {
-              return {
-                src: "data:" + image.contentType + ";base64," + imageBuffer
-              };
+              return { src: "data:" + image.contentType + ";base64," + imageBuffer };
             });
           })
         });
-
         docxContent = result.value;
-
         let htmlContent = docxContent;
-        if (!htmlContent.trim().startsWith('<')) {
-          htmlContent = `<p>${htmlContent}</p>`;
-        }
-
+        if (!htmlContent.trim().startsWith('<')) htmlContent = `<p>${htmlContent}</p>`;
         previewContent.innerHTML = htmlContent;
         previewContainer.classList.remove('hidden');
-
-        if (result.messages && result.messages.length > 0) {
-          console.warn('Mammoth warnings:', result.messages);
-        }
+        if (result.messages && result.messages.length > 0) console.warn('Mammoth warnings:', result.messages);
       } catch (error) {
         console.error('Preview error:', error);
         previewContent.innerHTML = '<p class="text-red-500">⚠️ Could not generate preview. The file may be corrupted or unsupported.</p>';
@@ -362,6 +362,7 @@
       progressText.textContent = '0%';
       previewContent.innerHTML = '';
       docxContent = '';
+      pdfContainer.innerHTML = '';
     }
 
     function resetConverter() {
@@ -371,14 +372,13 @@
     }
 
     // ============================================
-    // MAIN CONVERSION - FIXED (no transform)
+    // MAIN CONVERSION – RELIABLE FULL‑PAGE CAPTURE
     // ============================================
     async function convertWordToPDF() {
       if (!currentFile) {
         alert('Please select a Word file first.');
         return;
       }
-
       if (typeof html2pdf === 'undefined') {
         alert('PDF library not loaded. Please refresh the page and try again.');
         return;
@@ -395,16 +395,13 @@
       try {
         // Get HTML content
         let htmlContent = docxContent;
-
         if (!htmlContent) {
           const arrayBuffer = await currentFile.arrayBuffer();
           const result = await mammoth.convertToHtml({
             arrayBuffer,
             convertImage: mammoth.images.imgElement(function(image) {
               return image.read("base64").then(function(imageBuffer) {
-                return {
-                  src: "data:" + image.contentType + ";base64," + imageBuffer
-                };
+                return { src: "data:" + image.contentType + ";base64," + imageBuffer };
               });
             })
           });
@@ -415,8 +412,6 @@
         if (!htmlContent || htmlContent.trim().length === 0) {
           throw new Error('No content could be extracted from the Word document.');
         }
-
-        // Wrap content if needed
         if (!htmlContent.trim().startsWith('<')) {
           htmlContent = `<p>${htmlContent}</p>`;
         }
@@ -425,85 +420,35 @@
         progressText.textContent = '30%';
         statusText.textContent = 'Rendering document...';
 
-        // --- CREATE A CENTERED CONTAINER (no transform) ---
-        const containerWidth = 794; // A4 width at 96dpi
-        const container = document.createElement('div');
-        // Center using left:50% + negative margin-left (no transform)
-        container.style.position = 'absolute';
-        container.style.left = '50%';
-        container.style.marginLeft = `-${containerWidth / 2}px`;
-        container.style.top = '0';
-        container.style.width = containerWidth + 'px';
-        container.style.background = 'white';
-        container.style.zIndex = '9999';
-        container.style.padding = '20mm 25mm';
-        container.style.boxSizing = 'border-box';
-        container.style.fontFamily = "'Times New Roman', Georgia, serif";
-        container.style.fontSize = '11pt';
-        container.style.lineHeight = '1.6';
-        container.style.color = '#111';
+        // --- Populate the hidden container ---
+        pdfContainer.innerHTML = htmlContent;
 
-        // Build the HTML content with styles inside
-        container.innerHTML = `
-          <style>
-            body { 
-              margin: 0;
-              padding: 0;
-              background: white;
-            }
-            h1 { font-size: 18pt; margin: 20pt 0 10pt; }
-            h2 { font-size: 15pt; margin: 16pt 0 8pt; }
-            h3 { font-size: 12pt; margin: 12pt 0 6pt; }
-            h4 { font-size: 11pt; margin: 10pt 0 4pt; }
-            p { margin: 0.5em 0; text-align: justify; }
-            table { border-collapse: collapse; width: 100%; margin: 10pt 0; }
-            td, th { border: 1px solid #aaa; padding: 4pt 8pt; text-align: left; }
-            img { max-width: 100%; height: auto; display: block; margin: 5pt auto; }
-            ul, ol { padding-left: 2em; margin: 0.5em 0; }
-            li { margin: 0.25em 0; }
-            blockquote { margin: 10pt 20pt; border-left: 3px solid #ccc; padding-left: 15pt; }
-            .page-break { page-break-after: always; break-after: page; }
-          </style>
-          ${htmlContent}
-        `;
+        // Force reflow so the container expands to its content
+        pdfContainer.style.height = 'auto';
+        const rect = pdfContainer.getBoundingClientRect();
+        // Set height to the full scroll height so html2canvas captures everything
+        pdfContainer.style.height = pdfContainer.scrollHeight + 'px';
 
-        document.body.appendChild(container);
-
-        // Wait for rendering – multiple frames and font loading
-        await new Promise(resolve => {
-          requestAnimationFrame(() => {
-            requestAnimationFrame(() => {
-              setTimeout(resolve, 300);
-            });
-          });
-        });
-
+        // Wait for layout, fonts, and images
+        await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
         if (document.fonts && document.fonts.ready) {
-          try {
-            await document.fonts.ready;
-          } catch (e) { /* ignore */ }
+          try { await document.fonts.ready; } catch(e) {}
         }
-
-        // Load images
-        const images = Array.from(container.querySelectorAll('img'));
-        await Promise.all(
-          images.map(img => {
-            if (img.complete) return Promise.resolve();
-            return new Promise(resolve => {
-              img.onload = resolve;
-              img.onerror = resolve;
-            });
-          })
-        );
-
-        // Extra layout delay
-        await new Promise(resolve => setTimeout(resolve, 200));
+        const images = Array.from(pdfContainer.querySelectorAll('img'));
+        await Promise.all(images.map(img => {
+          if (img.complete) return Promise.resolve();
+          return new Promise(resolve => { img.onload = resolve; img.onerror = resolve; });
+        }));
+        await new Promise(resolve => setTimeout(resolve, 300));
 
         progressBar.style.width = '60%';
         progressText.textContent = '60%';
         statusText.textContent = 'Generating PDF...';
 
-        // --- PDF options ---
+        // --- Use html2pdf with explicit dimensions ---
+        const containerWidth = pdfContainer.scrollWidth;
+        const containerHeight = pdfContainer.scrollHeight;
+
         const opt = {
           margin: 0,
           filename: 'converted.pdf',
@@ -514,9 +459,12 @@
             allowTaint: true,
             backgroundColor: '#ffffff',
             logging: false,
-            // Do NOT set explicit width/height – auto-detect from container
+            width: containerWidth,
+            height: containerHeight,
             scrollX: 0,
-            scrollY: 0
+            scrollY: 0,
+            windowWidth: containerWidth,
+            windowHeight: containerHeight
           },
           jsPDF: {
             unit: 'mm',
@@ -527,16 +475,15 @@
           pagebreak: { mode: ['css', 'legacy'] }
         };
 
-        // Generate PDF
         const pdfBlob = await html2pdf()
           .set(opt)
-          .from(container)
+          .from(pdfContainer)
           .outputPdf('blob');
 
         // Clean up
-        document.body.removeChild(container);
+        pdfContainer.innerHTML = '';
+        pdfContainer.style.height = 'auto';
 
-        // Check if PDF has content (size > 1KB)
         if (pdfBlob.size < 1024) {
           throw new Error('Generated PDF is too small (likely empty). Please check your document content.');
         }
@@ -547,7 +494,6 @@
         progressText.textContent = '100%';
         statusText.textContent = '✅ Conversion complete!';
 
-        // Show result
         setTimeout(() => {
           const url = URL.createObjectURL(pdfBlob);
           downloadLink.href = url;
@@ -565,9 +511,8 @@
         convertBtn.disabled = false;
         convertBtn.textContent = '🔄 Convert to PDF';
         alert('Conversion failed: ' + error.message);
-        // Remove any leftover container
-        const leftover = document.querySelector('div[style*="z-index: 9999"]');
-        if (leftover) leftover.remove();
+        pdfContainer.innerHTML = '';
+        pdfContainer.style.height = 'auto';
       }
     }
 
@@ -580,6 +525,5 @@
 
     console.log('Word to PDF tool loaded successfully!');
   </script>
-
 </body>
 </html>
