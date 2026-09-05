@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Word (DOCX) to PDF Converter - Droplet</title>
-  <meta name="description" content="Convert Word DOCX to PDF online for free. 100% client-side, your files never leave your browser. Preserves formatting, fonts, and layout.">
+  <meta name="description" content="Convert Word DOCX to PDF online for free. 100% client-side, your files never leave your browser.">
 
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -58,10 +58,6 @@
     .docx-preview p {
       margin: 0.5em 0;
     }
-    @media print {
-      .no-print { display: none !important; }
-      .docx-preview { padding: 0; }
-    }
   </style>
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans antialiased">
@@ -85,17 +81,6 @@
   <!-- Main Content -->
   <main class="max-w-4xl mx-auto px-4 py-8 md:py-12 flex-grow w-full">
 
-    <!-- Back Button -->
-    <div class="max-w-2xl mx-auto mb-4 flex justify-start">
-      <a href="/" class="inline-flex items-center gap-2 bg-white hover:bg-slate-50 border border-slate-200 shadow-sm rounded-full px-5 py-2.5 text-sm font-medium text-slate-700 transition-all hover:shadow-md hover:border-slate-300 active:scale-95">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-        </svg>
-        Back to Home
-      </a>
-    </div>
-
-    <!-- Page Header -->
     <div class="text-center mb-8">
       <div class="inline-block p-3 bg-blue-50 rounded-2xl mb-4">
         <span class="text-4xl">📝</span>
@@ -337,7 +322,6 @@
 
         docxContent = result.value;
         
-        // Ensure content is wrapped properly
         let htmlContent = docxContent;
         if (!htmlContent.trim().startsWith('<')) {
           htmlContent = `<p>${htmlContent}</p>`;
@@ -422,87 +406,61 @@
         progressText.textContent = '30%';
         statusText.textContent = 'Rendering document...';
 
-        // Create the full HTML document with proper styling
-        const fullHtml = `
-          <!DOCTYPE html>
-          <html>
-          <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <style>
-              /* Reset and base styles */
-              * { box-sizing: border-box; margin: 0; padding: 0; }
-              body {
-                font-family: 'Times New Roman', Georgia, serif;
-                font-size: 11pt;
-                line-height: 1.6;
-                color: #111;
-                background: white;
-                padding: 40px 50px;
-                max-width: 210mm;
-                margin: 0 auto;
-              }
-              h1 { font-size: 18pt; margin: 20pt 0 10pt; }
-              h2 { font-size: 15pt; margin: 16pt 0 8pt; }
-              h3 { font-size: 12pt; margin: 12pt 0 6pt; }
-              h4 { font-size: 11pt; margin: 10pt 0 4pt; }
-              p { margin: 0.5em 0; text-align: justify; }
-              table { border-collapse: collapse; width: 100%; margin: 10pt 0; }
-              td, th { border: 1px solid #aaa; padding: 4pt 8pt; text-align: left; }
-              img { max-width: 100%; height: auto; display: block; margin: 5pt auto; }
-              ul, ol { padding-left: 2em; margin: 0.5em 0; }
-              li { margin: 0.25em 0; }
-              blockquote { margin: 10pt 20pt; border-left: 3px solid #ccc; padding-left: 15pt; }
-              .page-break { page-break-after: always; break-after: page; }
-              .title-page { text-align: center; padding: 60pt 0; }
-              .title-page h1 { font-size: 24pt; }
-              
-              /* Print styles */
-              @page {
-                size: A4;
-                margin: 20mm 25mm;
-              }
-              @media print {
-                body { padding: 0; }
-                .no-print { display: none !important; }
-              }
-            </style>
-          </head>
-          <body>
-            ${htmlContent}
-          </body>
-          </html>
-        `;
-
-        progressBar.style.width = '50%';
-        progressText.textContent = '50%';
-        statusText.textContent = 'Building PDF...';
-
-        // Create container visible to the browser
+        // Create a visible container for PDF generation
         const container = document.createElement('div');
         container.style.position = 'absolute';
-        container.style.left = '-9999px';
+        container.style.left = '0';
         container.style.top = '0';
         container.style.width = '210mm';
         container.style.background = 'white';
-        container.style.zIndex = '-9999';
-        container.innerHTML = fullHtml;
+        container.style.zIndex = '9999';
+        container.style.padding = '20mm 25mm';
+        container.style.boxSizing = 'border-box';
+        
+        // Build the HTML content with proper styles
+        container.innerHTML = `
+          <style>
+            body { 
+              font-family: 'Times New Roman', Georgia, serif;
+              font-size: 11pt;
+              line-height: 1.6;
+              color: #111;
+              margin: 0;
+              padding: 0;
+              background: white;
+            }
+            h1 { font-size: 18pt; margin: 20pt 0 10pt; }
+            h2 { font-size: 15pt; margin: 16pt 0 8pt; }
+            h3 { font-size: 12pt; margin: 12pt 0 6pt; }
+            h4 { font-size: 11pt; margin: 10pt 0 4pt; }
+            p { margin: 0.5em 0; text-align: justify; }
+            table { border-collapse: collapse; width: 100%; margin: 10pt 0; }
+            td, th { border: 1px solid #aaa; padding: 4pt 8pt; text-align: left; }
+            img { max-width: 100%; height: auto; display: block; margin: 5pt auto; }
+            ul, ol { padding-left: 2em; margin: 0.5em 0; }
+            li { margin: 0.25em 0; }
+            blockquote { margin: 10pt 20pt; border-left: 3px solid #ccc; padding-left: 15pt; }
+            .page-break { page-break-after: always; break-after: page; }
+          </style>
+          ${htmlContent}
+        `;
+
         document.body.appendChild(container);
 
-        // Wait for rendering - multiple frames to ensure content loads
+        // Wait for rendering - multiple frames
         await new Promise(resolve => {
           requestAnimationFrame(() => {
             requestAnimationFrame(() => {
-              setTimeout(resolve, 100);
+              setTimeout(resolve, 300);
             });
           });
         });
 
-        progressBar.style.width = '70%';
-        progressText.textContent = '70%';
+        progressBar.style.width = '60%';
+        progressText.textContent = '60%';
         statusText.textContent = 'Generating PDF...';
 
-        // PDF options
+        // PDF options - use the container directly
         const opt = {
           margin: 0,
           filename: 'converted.pdf',
@@ -514,7 +472,9 @@
             backgroundColor: '#ffffff',
             logging: false,
             width: container.scrollWidth || 794,
-            height: container.scrollHeight || 1123
+            height: container.scrollHeight || 1123,
+            x: 0,
+            y: 0
           },
           jsPDF: {
             unit: 'mm',
