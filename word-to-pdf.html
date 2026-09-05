@@ -17,6 +17,7 @@
     .dropzone-highlight { border-color: #3b82f6 !important; background: #eff6ff !important; }
     .progress-bar { transition: width 0.5s ease; }
     .hidden { display: none !important; }
+
     .docx-preview {
       font-family: Georgia, serif;
       line-height: 1.6;
@@ -44,14 +45,15 @@
     .docx-preview img { max-width: 100%; height: auto; }
     .docx-preview ul, .docx-preview ol { padding-left: 2em; }
     .docx-preview p { margin: 0.5em 0; }
-    /* PDF container – hidden from view but rendered */
+
+    /* PDF container – hidden but fully rendered */
     #pdf-container {
       position: fixed;
       left: 0;
       top: 0;
-      width: 794px;          /* A4 width at 96dpi */
+      width: 794px;           /* A4 width at 96dpi */
       background: white;
-      padding: 20mm 25mm;
+      padding: 20mm 25mm;     /* A4 margins */
       box-sizing: border-box;
       opacity: 0;
       pointer-events: none;
@@ -60,7 +62,7 @@
       font-size: 11pt;
       line-height: 1.6;
       color: #111;
-      overflow: visible;     /* allow content to expand */
+      height: auto;           /* Let content determine height */
     }
     #pdf-container h1 { font-size: 18pt; margin: 20pt 0 10pt; }
     #pdf-container h2 { font-size: 15pt; margin: 16pt 0 8pt; }
@@ -172,7 +174,7 @@
           <span class="text-xs text-slate-400">(For quality check)</span>
         </div>
         <div id="previewContent" class="docx-preview border border-slate-200 rounded-lg bg-white p-4">
-          <!-- Preview will be rendered here -->
+          <!-- Preview rendered here -->
         </div>
       </div>
     </div>
@@ -372,7 +374,7 @@
     }
 
     // ============================================
-    // MAIN CONVERSION – RELIABLE FULL‑PAGE CAPTURE
+    // MAIN CONVERSION – FIXED (full content, paginated)
     // ============================================
     async function convertWordToPDF() {
       if (!currentFile) {
@@ -420,16 +422,11 @@
         progressText.textContent = '30%';
         statusText.textContent = 'Rendering document...';
 
-        // --- Populate the hidden container ---
+        // --- Populate the hidden container (height: auto) ---
         pdfContainer.innerHTML = htmlContent;
 
-        // Force reflow so the container expands to its content
-        pdfContainer.style.height = 'auto';
-        const rect = pdfContainer.getBoundingClientRect();
-        // Set height to the full scroll height so html2canvas captures everything
-        pdfContainer.style.height = pdfContainer.scrollHeight + 'px';
-
-        // Wait for layout, fonts, and images
+        // Force layout: the container has height: auto, so it grows with content.
+        // Wait for rendering, fonts, and images to load.
         await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
         if (document.fonts && document.fonts.ready) {
           try { await document.fonts.ready; } catch(e) {}
@@ -439,32 +436,24 @@
           if (img.complete) return Promise.resolve();
           return new Promise(resolve => { img.onload = resolve; img.onerror = resolve; });
         }));
-        await new Promise(resolve => setTimeout(resolve, 300));
+        await new Promise(resolve => setTimeout(resolve, 400));
 
         progressBar.style.width = '60%';
         progressText.textContent = '60%';
-        statusText.textContent = 'Generating PDF...';
+        statusText.textContent = 'Generating PDF (paginated)...';
 
-        // --- Use html2pdf with explicit dimensions ---
-        const containerWidth = pdfContainer.scrollWidth;
-        const containerHeight = pdfContainer.scrollHeight;
-
+        // --- html2pdf options: let it handle pagination ---
         const opt = {
           margin: 0,
           filename: 'converted.pdf',
-          image: { type: 'jpeg', quality: 0.98 },
+          image: { type: 'jpeg', quality: 0.95 },
           html2canvas: {
-            scale: 2,
+            scale: 1.5,
             useCORS: true,
             allowTaint: true,
             backgroundColor: '#ffffff',
-            logging: false,
-            width: containerWidth,
-            height: containerHeight,
-            scrollX: 0,
-            scrollY: 0,
-            windowWidth: containerWidth,
-            windowHeight: containerHeight
+            logging: false
+            // NO width/height – auto-detect full element
           },
           jsPDF: {
             unit: 'mm',
@@ -472,7 +461,9 @@
             orientation: 'portrait',
             compress: true
           },
-          pagebreak: { mode: ['css', 'legacy'] }
+          pagebreak: {
+            mode: ['css', 'legacy']  // auto-split content across pages
+          }
         };
 
         const pdfBlob = await html2pdf()
@@ -482,7 +473,6 @@
 
         // Clean up
         pdfContainer.innerHTML = '';
-        pdfContainer.style.height = 'auto';
 
         if (pdfBlob.size < 1024) {
           throw new Error('Generated PDF is too small (likely empty). Please check your document content.');
@@ -512,7 +502,6 @@
         convertBtn.textContent = '🔄 Convert to PDF';
         alert('Conversion failed: ' + error.message);
         pdfContainer.innerHTML = '';
-        pdfContainer.style.height = 'auto';
       }
     }
 
@@ -525,5 +514,6 @@
 
     console.log('Word to PDF tool loaded successfully!');
   </script>
+
 </body>
 </html>
