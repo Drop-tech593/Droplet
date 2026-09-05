@@ -1,3 +1,4 @@
+try 1
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -428,7 +429,9 @@
       downloadLink.href = '#';
     }
 
-    // ===== MAIN CONVERSION =====
+    // ============================================
+    // MAIN CONVERSION - FIXED BLANK PAGE ISSUE
+    // ============================================
     async function convertToPDF() {
       if (!currentFile) {
         alert('Please select a Word file first.');
@@ -461,91 +464,100 @@
         const orient = orientation.value;
         const qual = parseFloat(quality.value);
 
-        progressBar.style.width = '20%';
-        progressPercent.textContent = '20%';
+        progressBar.style.width = '15%';
+        progressPercent.textContent = '15%';
         progressLabel.textContent = 'Rendering...';
         statusText.textContent = 'Building document preview...';
 
-        // Create container
+        // Create a temporary container in the DOM (visible)
         const container = document.createElement('div');
+        container.id = 'pdf-container';
         container.style.cssText = `
-          position: absolute;
+          position: fixed;
           left: 0;
           top: 0;
           width: 210mm;
           min-height: 297mm;
           margin: 0;
-          padding: 20mm 22mm;
+          padding: 20mm 20mm;
           box-sizing: border-box;
           background: white;
-          z-index: 9999;
+          z-index: 99999;
+          overflow: visible;
+          font-family: 'Times New Roman', Georgia, serif;
+          font-size: 11pt;
+          line-height: 1.6;
+          color: #111;
         `;
 
+        // Build content with proper styling
         container.innerHTML = `
-          <style>
-            .doc-content {
-              font-family: 'Times New Roman', Georgia, serif;
-              font-size: 11pt;
-              line-height: 1.6;
-              color: #111;
-              max-width: 166mm;
-              margin: 0 auto;
-            }
-            .doc-content h1 { font-size: 18pt; font-weight: bold; margin: 20pt 0 10pt; }
-            .doc-content h2 { font-size: 15pt; font-weight: bold; margin: 16pt 0 8pt; }
-            .doc-content h3 { font-size: 12pt; font-weight: bold; margin: 12pt 0 6pt; }
-            .doc-content p { margin: 6pt 0; text-align: justify; }
-            .doc-content table { width: 100%; border-collapse: collapse; margin: 8pt 0; }
-            .doc-content td, .doc-content th { border: 1px solid #aaa; padding: 4pt 8pt; }
-            .doc-content img { max-width: 100%; height: auto; display: block; margin: 6pt auto; }
-            .doc-content ul, .doc-content ol { padding-left: 2em; }
-            .doc-content li { margin: 3pt 0; }
-            .doc-content blockquote { margin: 8pt 20pt; border-left: 3px solid #ccc; padding-left: 15pt; }
-          </style>
-          <div class="doc-content">
+          <div style="max-width: 170mm; margin: 0 auto; font-family: 'Times New Roman', Georgia, serif; font-size: 11pt; line-height: 1.6; color: #111;">
             ${htmlContent}
           </div>
         `;
 
         document.body.appendChild(container);
 
-        // Wait for rendering
-        await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(() => setTimeout(r, 350))));
+        // Force browser to render
+        await new Promise(r => setTimeout(r, 100));
+        
+        // Get dimensions
+        const rect = container.getBoundingClientRect();
+        const width = rect.width || 794;
+        const height = rect.height || 1123;
 
-        progressBar.style.width = '50%';
-        progressPercent.textContent = '50%';
-        progressLabel.textContent = 'Generating PDF...';
-        statusText.textContent = 'Converting to PDF...';
+        progressBar.style.width = '40%';
+        progressPercent.textContent = '40%';
+        progressLabel.textContent = 'Capturing...';
+        statusText.textContent = 'Capturing document...';
 
-        // PDF options
-        const opt = {
-          margin: 0,
-          filename: 'converted.pdf',
-          image: { type: 'jpeg', quality: qual },
-          html2canvas: {
-            scale: 2,
-            useCORS: true,
-            backgroundColor: '#ffffff',
-            logging: false,
-            scrollX: 0,
-            scrollY: 0,
-            windowWidth: container.scrollWidth || 794,
-            windowHeight: container.scrollHeight || 1123
-          },
-          jsPDF: {
-            unit: 'mm',
-            format: size,
-            orientation: orient,
-            compress: true
-          },
-          pagebreak: { mode: ['css', 'legacy'] }
-        };
+        // Use html2canvas directly (not html2pdf)
+        const { default: html2canvas } = await import('https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.esm.js');
 
-        const pdfBlob = await html2pdf()
-          .set(opt)
-          .from(container)
-          .outputPdf('blob');
+        // Capture with canvas
+        const canvas = await html2canvas(container, {
+          scale: 2,
+          useCORS: true,
+          allowTaint: true,
+          backgroundColor: '#ffffff',
+          logging: false,
+          width: width,
+          height: height,
+          windowWidth: width,
+          windowHeight: height
+        });
 
+        progressBar.style.width = '65%';
+        progressPercent.textContent = '65%';
+        progressLabel.textContent = 'Creating PDF...';
+        statusText.textContent = 'Generating PDF from captured content...';
+
+        // Create PDF from canvas
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF({
+          unit: 'mm',
+          format: size,
+          orientation: orient,
+          compress: true
+        });
+
+        const imgData = canvas.toDataURL('image/jpeg', qual);
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const pdfHeight = pdf.internal.pageSize.getHeight();
+        const imgWidth = canvas.width;
+        const imgHeight = canvas.height;
+        const ratio = Math.min(pdfWidth / (imgWidth / 2), pdfHeight / (imgHeight / 2));
+        const finalWidth = imgWidth / 2 * ratio;
+        const finalHeight = imgHeight / 2 * ratio;
+        const x = (pdfWidth - finalWidth) / 2;
+        const y = (pdfHeight - finalHeight) / 2;
+
+        pdf.addImage(imgData, 'JPEG', x, y, finalWidth, finalHeight);
+
+        const pdfBlob = pdf.output('blob');
+
+        // Clean up
         document.body.removeChild(container);
 
         convertedBlob = pdfBlob;
