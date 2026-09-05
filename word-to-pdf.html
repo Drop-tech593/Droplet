@@ -324,7 +324,7 @@
         
         let htmlContent = docxContent;
         if (!htmlContent.trim().startsWith('<')) {
-          htmlContent = `<p>${htmlContent}</p>`;
+          htmlContent = `<p>${htmlContent}</p>';
         }
         
         previewContent.innerHTML = htmlContent;
@@ -361,7 +361,7 @@
     }
 
     // ============================================
-    // MAIN CONVERSION - FIXED
+    // MAIN CONVERSION - FULLY FIXED
     // ============================================
     async function convertWordToPDF() {
       if (!currentFile) {
@@ -406,21 +406,23 @@
         progressText.textContent = '30%';
         statusText.textContent = 'Rendering document...';
 
-        // Create a visible container for PDF generation
+        // Create container with proper styling
         const container = document.createElement('div');
         container.style.position = 'absolute';
         container.style.left = '0';
         container.style.top = '0';
         container.style.width = '210mm';
-        container.style.background = 'white';
-        container.style.zIndex = '9999';
-        container.style.padding = '20mm 25mm';
+        container.style.minHeight = '297mm';
+        container.style.margin = '0';
+        container.style.padding = '20mm 20mm';
         container.style.boxSizing = 'border-box';
+        container.style.background = '#ffffff';
+        container.style.zIndex = '9999';
         
-        // Build the HTML content with proper styles
+        // Build the HTML content with proper CSS class
         container.innerHTML = `
           <style>
-            body { 
+            .pdf-content {
               font-family: 'Times New Roman', Georgia, serif;
               font-size: 11pt;
               line-height: 1.6;
@@ -428,21 +430,65 @@
               margin: 0;
               padding: 0;
               background: white;
+              width: 100%;
+              max-width: 170mm;
             }
-            h1 { font-size: 18pt; margin: 20pt 0 10pt; }
-            h2 { font-size: 15pt; margin: 16pt 0 8pt; }
-            h3 { font-size: 12pt; margin: 12pt 0 6pt; }
-            h4 { font-size: 11pt; margin: 10pt 0 4pt; }
-            p { margin: 0.5em 0; text-align: justify; }
-            table { border-collapse: collapse; width: 100%; margin: 10pt 0; }
-            td, th { border: 1px solid #aaa; padding: 4pt 8pt; text-align: left; }
-            img { max-width: 100%; height: auto; display: block; margin: 5pt auto; }
-            ul, ol { padding-left: 2em; margin: 0.5em 0; }
-            li { margin: 0.25em 0; }
-            blockquote { margin: 10pt 20pt; border-left: 3px solid #ccc; padding-left: 15pt; }
-            .page-break { page-break-after: always; break-after: page; }
+            .pdf-content h1 {
+              font-size: 18pt;
+              margin: 20pt 0 10pt;
+            }
+            .pdf-content h2 {
+              font-size: 15pt;
+              margin: 16pt 0 8pt;
+            }
+            .pdf-content h3 {
+              font-size: 12pt;
+              margin: 12pt 0 6pt;
+            }
+            .pdf-content h4 {
+              font-size: 11pt;
+              margin: 10pt 0 4pt;
+            }
+            .pdf-content p {
+              margin: 0.5em 0;
+              text-align: justify;
+            }
+            .pdf-content table {
+              border-collapse: collapse;
+              width: 100%;
+              margin: 10pt 0;
+            }
+            .pdf-content td, .pdf-content th {
+              border: 1px solid #aaa;
+              padding: 4pt 8pt;
+              text-align: left;
+            }
+            .pdf-content img {
+              max-width: 100%;
+              height: auto;
+              display: block;
+              margin: 5pt auto;
+            }
+            .pdf-content ul, .pdf-content ol {
+              padding-left: 2em;
+              margin: 0.5em 0;
+            }
+            .pdf-content li {
+              margin: 0.25em 0;
+            }
+            .pdf-content blockquote {
+              margin: 10pt 20pt;
+              border-left: 3px solid #ccc;
+              padding-left: 15pt;
+            }
+            .pdf-content .page-break {
+              page-break-after: always;
+              break-after: page;
+            }
           </style>
-          ${htmlContent}
+          <div class="pdf-content">
+            ${htmlContent}
+          </div>
         `;
 
         document.body.appendChild(container);
@@ -460,21 +506,24 @@
         progressText.textContent = '60%';
         statusText.textContent = 'Generating PDF...';
 
-        // PDF options - use the container directly
+        // PDF options - DO NOT force width/height
         const opt = {
           margin: 0,
           filename: 'converted.pdf',
-          image: { type: 'jpeg', quality: 0.98 },
+          image: {
+            type: 'jpeg',
+            quality: 0.98
+          },
           html2canvas: {
             scale: 2,
             useCORS: true,
             allowTaint: true,
             backgroundColor: '#ffffff',
             logging: false,
-            width: container.scrollWidth || 794,
-            height: container.scrollHeight || 1123,
-            x: 0,
-            y: 0
+            scrollX: 0,
+            scrollY: 0,
+            windowWidth: container.scrollWidth || 794,
+            windowHeight: container.scrollHeight || 1123
           },
           jsPDF: {
             unit: 'mm',
@@ -482,7 +531,9 @@
             orientation: 'portrait',
             compress: true
           },
-          pagebreak: { mode: ['css', 'legacy'] }
+          pagebreak: {
+            mode: ['css', 'legacy']
+          }
         };
 
         // Generate PDF
