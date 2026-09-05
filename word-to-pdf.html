@@ -398,7 +398,6 @@
               });
             })
           });
-
           htmlContent = result.value;
           docxContent = htmlContent;
         }
@@ -416,48 +415,102 @@
         progressText.textContent = '30%';
         statusText.textContent = 'Rendering document...';
 
-        // Create a visible container for PDF generation
+        // Create a dedicated A4 rendering container.
+        // Keep it in the document so html2canvas can render it reliably.
         const container = document.createElement('div');
+
         container.style.position = 'absolute';
         container.style.left = '0';
         container.style.top = '0';
         container.style.width = '210mm';
-        container.style.background = 'white';
+        container.style.minHeight = '297mm';
+        container.style.margin = '0';
+        container.style.padding = '20mm';
+        container.style.background = '#ffffff';
+        container.style.color = '#111111';
         container.style.zIndex = '9999';
-        container.style.padding = '20mm 25mm';
         container.style.boxSizing = 'border-box';
-        
-        // Build the HTML content with proper styles
+        container.style.overflow = 'visible';
+
+        // Put the converted Mammoth HTML inside a real wrapper.
+        // This avoids putting a <body> rule inside a <div>.
         container.innerHTML = `
-          <style>
-            body { 
-              font-family: 'Times New Roman', Georgia, serif;
-              font-size: 11pt;
-              line-height: 1.6;
-              color: #111;
-              margin: 0;
-              padding: 0;
-              background: white;
-            }
-            h1 { font-size: 18pt; margin: 20pt 0 10pt; }
-            h2 { font-size: 15pt; margin: 16pt 0 8pt; }
-            h3 { font-size: 12pt; margin: 12pt 0 6pt; }
-            h4 { font-size: 11pt; margin: 10pt 0 4pt; }
-            p { margin: 0.5em 0; text-align: justify; }
-            table { border-collapse: collapse; width: 100%; margin: 10pt 0; }
-            td, th { border: 1px solid #aaa; padding: 4pt 8pt; text-align: left; }
-            img { max-width: 100%; height: auto; display: block; margin: 5pt auto; }
-            ul, ol { padding-left: 2em; margin: 0.5em 0; }
-            li { margin: 0.25em 0; }
-            blockquote { margin: 10pt 20pt; border-left: 3px solid #ccc; padding-left: 15pt; }
-            .page-break { page-break-after: always; break-after: page; }
-          </style>
-          ${htmlContent}
+          <div class="pdf-content">
+            ${htmlContent}
+          </div>
         `;
 
+        // Add PDF-only styles to the document head.
+        const pdfStyle = document.createElement('style');
+        pdfStyle.textContent = `
+          .pdf-content {
+            box-sizing: border-box;
+            width: 100%;
+            min-height: 257mm;
+            margin: 0;
+            padding: 0;
+            background: #ffffff;
+            color: #111111;
+            font-family: "Times New Roman", Georgia, serif;
+            font-size: 11pt;
+            line-height: 1.6;
+          }
+
+          .pdf-content h1 { font-size: 18pt; margin: 20pt 0 10pt; }
+          .pdf-content h2 { font-size: 15pt; margin: 16pt 0 8pt; }
+          .pdf-content h3 { font-size: 12pt; margin: 12pt 0 6pt; }
+          .pdf-content h4 { font-size: 11pt; margin: 10pt 0 4pt; }
+
+          .pdf-content p {
+            margin: 0.5em 0;
+            text-align: justify;
+          }
+
+          .pdf-content table {
+            border-collapse: collapse;
+            width: 100%;
+            max-width: 100%;
+            margin: 10pt 0;
+          }
+
+          .pdf-content td,
+          .pdf-content th {
+            border: 1px solid #aaa;
+            padding: 4pt 8pt;
+            text-align: left;
+          }
+
+          .pdf-content img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 5pt auto;
+          }
+
+          .pdf-content ul,
+          .pdf-content ol {
+            padding-left: 2em;
+            margin: 0.5em 0;
+          }
+
+          .pdf-content li { margin: 0.25em 0; }
+
+          .pdf-content blockquote {
+            margin: 10pt 20pt;
+            border-left: 3px solid #ccc;
+            padding-left: 15pt;
+          }
+
+          .pdf-content .page-break {
+            page-break-after: always;
+            break-after: page;
+          }
+        `;
+
+        document.head.appendChild(pdfStyle);
         document.body.appendChild(container);
 
-        // Wait for layout, fonts, and all converted images before capturing.
+        // Wait for layout, fonts, and embedded images before capture.
         await new Promise(resolve => {
           requestAnimationFrame(() => {
             requestAnimationFrame(resolve);
@@ -485,7 +538,6 @@
           })
         );
 
-        // Give the browser one final layout pass after images/fonts settle.
         await new Promise(resolve => setTimeout(resolve, 100));
 
         progressBar.style.width = '60%';
@@ -505,14 +557,10 @@
             logging: false,
             scrollX: 0,
             scrollY: 0,
-            windowWidth: Math.max(
-              document.documentElement.clientWidth,
-              container.scrollWidth
-            ),
-            windowHeight: Math.max(
-              document.documentElement.clientHeight,
-              container.scrollHeight
-            )
+            // Let html2canvas determine the target dimensions from the actual
+            // rendered element. Do not force scrollWidth/scrollHeight here.
+            windowWidth: document.documentElement.clientWidth,
+            windowHeight: document.documentElement.clientHeight
           },
           jsPDF: {
             unit: 'mm',
@@ -523,20 +571,19 @@
           pagebreak: { mode: ['css', 'legacy'] }
         };
 
-        // Sanity-check the actual rendered content before html2pdf captures it.
-        if (!container.querySelector('.pdf-content') ||
-            container.querySelector('.pdf-content').innerHTML.trim().length === 0) {
-          throw new Error('The PDF rendering container is empty.');
-        }
-
         // Generate PDF
         const pdfBlob = await html2pdf()
           .set(opt)
           .from(container)
           .outputPdf('blob');
 
-        // Clean up
-        document.body.removeChild(container);
+        // Clean up the temporary rendering elements.
+        if (container.parentNode) {
+          container.parentNode.removeChild(container);
+        }
+        if (pdfStyle.parentNode) {
+          pdfStyle.parentNode.removeChild(pdfStyle);
+        }
 
         convertedBlob = pdfBlob;
 
