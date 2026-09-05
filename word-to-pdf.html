@@ -14,10 +14,16 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
   <style>
-    .dropzone-highlight { border-color: #3b82f6 !important; background: #eff6ff !important; }
-    .progress-bar { transition: width 0.5s ease; }
-    .hidden { display: none !important; }
-
+    .dropzone-highlight {
+      border-color: #3b82f6 !important;
+      background: #eff6ff !important;
+    }
+    .progress-bar {
+      transition: width 0.5s ease;
+    }
+    .hidden {
+      display: none !important;
+    }
     .docx-preview {
       font-family: Georgia, serif;
       line-height: 1.6;
@@ -42,40 +48,16 @@
       padding: 8px;
       text-align: left;
     }
-    .docx-preview img { max-width: 100%; height: auto; }
-    .docx-preview ul, .docx-preview ol { padding-left: 2em; }
-    .docx-preview p { margin: 0.5em 0; }
-
-    /* PDF container – hidden but rendered */
-    #pdf-container {
-      position: fixed;
-      left: 0;
-      top: 0;
-      width: 794px;
-      background: white;
-      padding: 20mm 25mm;
-      box-sizing: border-box;
-      opacity: 0;
-      pointer-events: none;
-      z-index: -1;
-      font-family: 'Times New Roman', Georgia, serif;
-      font-size: 11pt;
-      line-height: 1.6;
-      color: #111;
+    .docx-preview img {
+      max-width: 100%;
       height: auto;
     }
-    #pdf-container h1 { font-size: 18pt; margin: 20pt 0 10pt; }
-    #pdf-container h2 { font-size: 15pt; margin: 16pt 0 8pt; }
-    #pdf-container h3 { font-size: 12pt; margin: 12pt 0 6pt; }
-    #pdf-container h4 { font-size: 11pt; margin: 10pt 0 4pt; }
-    #pdf-container p { margin: 0.5em 0; text-align: justify; }
-    #pdf-container table { border-collapse: collapse; width: 100%; margin: 10pt 0; }
-    #pdf-container td, #pdf-container th { border: 1px solid #aaa; padding: 4pt 8pt; text-align: left; }
-    #pdf-container img { max-width: 100%; height: auto; display: block; margin: 5pt auto; }
-    #pdf-container ul, #pdf-container ol { padding-left: 2em; margin: 0.5em 0; }
-    #pdf-container li { margin: 0.25em 0; }
-    #pdf-container blockquote { margin: 10pt 20pt; border-left: 3px solid #ccc; padding-left: 15pt; }
-    .page-break { page-break-after: always; break-after: page; }
+    .docx-preview ul, .docx-preview ol {
+      padding-left: 2em;
+    }
+    .docx-preview p {
+      margin: 0.5em 0;
+    }
   </style>
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans antialiased">
@@ -98,16 +80,6 @@
 
   <!-- Main Content -->
   <main class="max-w-4xl mx-auto px-4 py-8 md:py-12 flex-grow w-full">
-
-    <!-- ===== BACK BUTTON (prominent & visible) ===== -->
-    <div class="max-w-2xl mx-auto mb-6 flex justify-start">
-      <a href="/" class="inline-flex items-center gap-2 bg-white hover:bg-slate-50 border border-slate-200 shadow-sm rounded-full px-5 py-2.5 text-sm font-medium text-slate-700 transition-all hover:shadow-md hover:border-slate-300 active:scale-95">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-        </svg>
-        Back to Home
-      </a>
-    </div>
 
     <div class="text-center mb-8">
       <div class="inline-block p-3 bg-blue-50 rounded-2xl mb-4">
@@ -174,7 +146,7 @@
           <span class="text-xs text-slate-400">(For quality check)</span>
         </div>
         <div id="previewContent" class="docx-preview border border-slate-200 rounded-lg bg-white p-4">
-          <!-- Preview rendered here -->
+          <!-- Preview will be rendered here -->
         </div>
       </div>
     </div>
@@ -247,14 +219,11 @@
     </div>
   </footer>
 
-  <!-- Hidden container for PDF rendering -->
-  <div id="pdf-container"></div>
-
   <!-- ===== JAVASCRIPT ===== -->
   <script>
     let currentFile = null;
     let convertedBlob = null;
-    let docxContent = '';          // stores the HTML from mammoth
+    let docxContent = '';
 
     // DOM Elements
     const dropzone = document.getElementById('dropzone');
@@ -271,30 +240,36 @@
     const downloadLink = document.getElementById('downloadLink');
     const previewContainer = document.getElementById('previewContainer');
     const previewContent = document.getElementById('previewContent');
-    const pdfContainer = document.getElementById('pdf-container');
 
     // File handling
     dropzone.addEventListener('click', function(e) {
-      if (e.target.tagName !== 'BUTTON') fileInput.click();
+      if (e.target.tagName !== 'BUTTON') {
+        fileInput.click();
+      }
     });
+
     document.querySelector('#dropzone button').addEventListener('click', function(e) {
       e.stopPropagation();
       fileInput.click();
     });
+
     fileInput.addEventListener('change', function(e) {
       if (this.files.length > 0) {
         handleFile(this.files[0]);
         this.value = '';
       }
     });
+
     dropzone.addEventListener('dragover', function(e) {
       e.preventDefault();
       this.classList.add('dropzone-highlight');
     });
+
     dropzone.addEventListener('dragleave', function(e) {
       e.preventDefault();
       this.classList.remove('dropzone-highlight');
     });
+
     dropzone.addEventListener('drop', function(e) {
       e.preventDefault();
       this.classList.remove('dropzone-highlight');
@@ -306,14 +281,12 @@
       }
     });
 
-    // ------------------------------------------------------------------
-    // 1. Handle file upload – convert to HTML once and store in docxContent
-    // ------------------------------------------------------------------
     function handleFile(file) {
       if (!file.name.toLowerCase().endsWith('.docx') && file.type !== 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
         alert('Please select a valid .docx Word file.');
         return;
       }
+
       if (file.size > 50 * 1024 * 1024) {
         alert('File is too large. Please use a Word file under 50MB.');
         return;
@@ -330,18 +303,13 @@
       convertBtn.disabled = false;
       convertBtn.textContent = '🔄 Convert to PDF';
 
-      // Convert the file to HTML once (with images)
-      convertFileToHTML(file);
+      showPreview(file);
     }
 
-    // ------------------------------------------------------------------
-    // 2. Use mammoth to convert DOCX -> HTML (with embedded images)
-    //    Store result in docxContent and display preview
-    // ------------------------------------------------------------------
-    async function convertFileToHTML(file) {
+    async function showPreview(file) {
       try {
         const arrayBuffer = await file.arrayBuffer();
-        const result = await mammoth.convertToHtml({
+        const result = await mammoth.convertToHtml({ 
           arrayBuffer,
           convertImage: mammoth.images.imgElement(function(image) {
             return image.read("base64").then(function(imageBuffer) {
@@ -352,37 +320,26 @@
           })
         });
 
-        let html = result.value;
-        // If the result is empty or only whitespace, throw an error
-        if (!html || html.trim().length === 0) {
-          throw new Error('No content could be extracted from the document.');
+        docxContent = result.value;
+        
+        let htmlContent = docxContent;
+        if (!htmlContent.trim().startsWith('<')) {
+          htmlContent = `<p>${htmlContent}</p>`;
         }
-
-        // Wrap in a <div> if it doesn't start with a tag
-        if (!html.trim().startsWith('<')) {
-          html = `<p>${html}</p>`;
-        }
-
-        docxContent = html;   // store for later use
-
-        // Show preview
-        previewContent.innerHTML = html;
+        
+        previewContent.innerHTML = htmlContent;
         previewContainer.classList.remove('hidden');
 
         if (result.messages && result.messages.length > 0) {
           console.warn('Mammoth warnings:', result.messages);
         }
       } catch (error) {
-        console.error('Conversion error:', error);
-        previewContent.innerHTML = '<p class="text-red-500">⚠️ Could not convert the document. The file may be corrupted or unsupported.</p>';
+        console.error('Preview error:', error);
+        previewContent.innerHTML = '<p class="text-red-500">⚠️ Could not generate preview. The file may be corrupted or unsupported.</p>';
         previewContainer.classList.remove('hidden');
-        docxContent = '';   // clear to prevent broken PDF generation
       }
     }
 
-    // ------------------------------------------------------------------
-    // 3. Clear / reset functions
-    // ------------------------------------------------------------------
     function clearFile() {
       currentFile = null;
       fileInput.value = '';
@@ -395,7 +352,6 @@
       progressText.textContent = '0%';
       previewContent.innerHTML = '';
       docxContent = '';
-      pdfContainer.innerHTML = '';
     }
 
     function resetConverter() {
@@ -404,22 +360,17 @@
       downloadLink.href = '#';
     }
 
-    // ------------------------------------------------------------------
-    // 4. MAIN CONVERSION – generate PDF from stored HTML
-    // ------------------------------------------------------------------
+    // ============================================
+    // MAIN CONVERSION - FIXED
+    // ============================================
     async function convertWordToPDF() {
       if (!currentFile) {
         alert('Please select a Word file first.');
         return;
       }
+
       if (typeof html2pdf === 'undefined') {
         alert('PDF library not loaded. Please refresh the page and try again.');
-        return;
-      }
-
-      // If docxContent is empty, it means the preview/conversion failed – abort.
-      if (!docxContent || docxContent.trim().length === 0) {
-        alert('No document content available. Please re-upload the file.');
         return;
       }
 
@@ -432,15 +383,31 @@
       statusText.textContent = 'Preparing document...';
 
       try {
-        // Use the stored HTML
+        // Get HTML content
         let htmlContent = docxContent;
 
-        // Validate content again (should not be empty)
-        if (!htmlContent || htmlContent.trim().length === 0) {
-          throw new Error('No content to convert.');
+        if (!htmlContent) {
+          const arrayBuffer = await currentFile.arrayBuffer();
+          const result = await mammoth.convertToHtml({
+            arrayBuffer,
+            convertImage: mammoth.images.imgElement(function(image) {
+              return image.read("base64").then(function(imageBuffer) {
+                return {
+                  src: "data:" + image.contentType + ";base64," + imageBuffer
+                };
+              });
+            })
+          });
+
+          htmlContent = result.value;
+          docxContent = htmlContent;
         }
 
-        // Ensure it starts with a tag
+        if (!htmlContent || htmlContent.trim().length === 0) {
+          throw new Error('No content could be extracted from the Word document.');
+        }
+
+        // Wrap content if needed
         if (!htmlContent.trim().startsWith('<')) {
           htmlContent = `<p>${htmlContent}</p>`;
         }
@@ -449,36 +416,103 @@
         progressText.textContent = '30%';
         statusText.textContent = 'Rendering document...';
 
-        // --- Populate the hidden container ---
-        pdfContainer.innerHTML = htmlContent;
+        // Create a visible container for PDF generation
+        const container = document.createElement('div');
+        container.style.position = 'absolute';
+        container.style.left = '0';
+        container.style.top = '0';
+        container.style.width = '210mm';
+        container.style.background = 'white';
+        container.style.zIndex = '9999';
+        container.style.padding = '20mm 25mm';
+        container.style.boxSizing = 'border-box';
+        
+        // Build the HTML content with proper styles
+        container.innerHTML = `
+          <style>
+            body { 
+              font-family: 'Times New Roman', Georgia, serif;
+              font-size: 11pt;
+              line-height: 1.6;
+              color: #111;
+              margin: 0;
+              padding: 0;
+              background: white;
+            }
+            h1 { font-size: 18pt; margin: 20pt 0 10pt; }
+            h2 { font-size: 15pt; margin: 16pt 0 8pt; }
+            h3 { font-size: 12pt; margin: 12pt 0 6pt; }
+            h4 { font-size: 11pt; margin: 10pt 0 4pt; }
+            p { margin: 0.5em 0; text-align: justify; }
+            table { border-collapse: collapse; width: 100%; margin: 10pt 0; }
+            td, th { border: 1px solid #aaa; padding: 4pt 8pt; text-align: left; }
+            img { max-width: 100%; height: auto; display: block; margin: 5pt auto; }
+            ul, ol { padding-left: 2em; margin: 0.5em 0; }
+            li { margin: 0.25em 0; }
+            blockquote { margin: 10pt 20pt; border-left: 3px solid #ccc; padding-left: 15pt; }
+            .page-break { page-break-after: always; break-after: page; }
+          </style>
+          ${htmlContent}
+        `;
 
-        // Force layout: container has height: auto
-        await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+        document.body.appendChild(container);
+
+        // Wait for layout, fonts, and all converted images before capturing.
+        await new Promise(resolve => {
+          requestAnimationFrame(() => {
+            requestAnimationFrame(resolve);
+          });
+        });
+
         if (document.fonts && document.fonts.ready) {
-          try { await document.fonts.ready; } catch(e) {}
+          try {
+            await document.fonts.ready;
+          } catch (e) {
+            console.warn('Font loading wait skipped:', e);
+          }
         }
-        const images = Array.from(pdfContainer.querySelectorAll('img'));
-        await Promise.all(images.map(img => {
-          if (img.complete) return Promise.resolve();
-          return new Promise(resolve => { img.onload = resolve; img.onerror = resolve; });
-        }));
-        await new Promise(resolve => setTimeout(resolve, 400));
+
+        const images = Array.from(container.querySelectorAll('img'));
+
+        await Promise.all(
+          images.map(img => {
+            if (img.complete) return Promise.resolve();
+
+            return new Promise(resolve => {
+              img.onload = resolve;
+              img.onerror = resolve;
+            });
+          })
+        );
+
+        // Give the browser one final layout pass after images/fonts settle.
+        await new Promise(resolve => setTimeout(resolve, 100));
 
         progressBar.style.width = '60%';
         progressText.textContent = '60%';
         statusText.textContent = 'Generating PDF...';
 
-        // --- html2pdf options ---
+        // PDF options - use the container directly
         const opt = {
           margin: 0,
           filename: 'converted.pdf',
-          image: { type: 'jpeg', quality: 0.95 },
+          image: { type: 'jpeg', quality: 0.98 },
           html2canvas: {
-            scale: 1.5,
+            scale: 2,
             useCORS: true,
             allowTaint: true,
             backgroundColor: '#ffffff',
-            logging: false
+            logging: false,
+            scrollX: 0,
+            scrollY: 0,
+            windowWidth: Math.max(
+              document.documentElement.clientWidth,
+              container.scrollWidth
+            ),
+            windowHeight: Math.max(
+              document.documentElement.clientHeight,
+              container.scrollHeight
+            )
           },
           jsPDF: {
             unit: 'mm',
@@ -486,23 +520,23 @@
             orientation: 'portrait',
             compress: true
           },
-          pagebreak: {
-            mode: ['css', 'legacy']
-          }
+          pagebreak: { mode: ['css', 'legacy'] }
         };
 
+        // Sanity-check the actual rendered content before html2pdf captures it.
+        if (!container.querySelector('.pdf-content') ||
+            container.querySelector('.pdf-content').innerHTML.trim().length === 0) {
+          throw new Error('The PDF rendering container is empty.');
+        }
+
+        // Generate PDF
         const pdfBlob = await html2pdf()
           .set(opt)
-          .from(pdfContainer)
+          .from(container)
           .outputPdf('blob');
 
         // Clean up
-        pdfContainer.innerHTML = '';
-
-        // Check if PDF has content (size > 1KB)
-        if (pdfBlob.size < 1024) {
-          throw new Error('Generated PDF is too small (likely empty).');
-        }
+        document.body.removeChild(container);
 
         convertedBlob = pdfBlob;
 
@@ -510,6 +544,7 @@
         progressText.textContent = '100%';
         statusText.textContent = '✅ Conversion complete!';
 
+        // Show result
         setTimeout(() => {
           const url = URL.createObjectURL(pdfBlob);
           downloadLink.href = url;
@@ -527,7 +562,6 @@
         convertBtn.disabled = false;
         convertBtn.textContent = '🔄 Convert to PDF';
         alert('Conversion failed: ' + error.message);
-        pdfContainer.innerHTML = '';
       }
     }
 
