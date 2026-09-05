@@ -1,4 +1,4 @@
-try 1
+try 2
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -13,7 +13,7 @@ try 1
   <!-- Mammoth.js for Word parsing -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.8.0/mammoth.browser.min.js"></script>
 
-  <!-- html2pdf for PDF generation -->
+  <!-- html2pdf for PDF generation (includes jsPDF and html2canvas) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
   <style>
@@ -430,7 +430,7 @@ try 1
     }
 
     // ============================================
-    // MAIN CONVERSION - FIXED BLANK PAGE ISSUE
+    // MAIN CONVERSION - USING html2pdf (RELIABLE)
     // ============================================
     async function convertToPDF() {
       if (!currentFile) {
@@ -464,98 +464,92 @@ try 1
         const orient = orientation.value;
         const qual = parseFloat(quality.value);
 
-        progressBar.style.width = '15%';
-        progressPercent.textContent = '15%';
+        progressBar.style.width = '20%';
+        progressPercent.textContent = '20%';
         progressLabel.textContent = 'Rendering...';
         statusText.textContent = 'Building document preview...';
 
-        // Create a temporary container in the DOM (visible)
-        const container = document.createElement('div');
-        container.id = 'pdf-container';
-        container.style.cssText = `
-          position: fixed;
-          left: 0;
-          top: 0;
-          width: 210mm;
-          min-height: 297mm;
-          margin: 0;
-          padding: 20mm 20mm;
-          box-sizing: border-box;
-          background: white;
-          z-index: 99999;
-          overflow: visible;
-          font-family: 'Times New Roman', Georgia, serif;
-          font-size: 11pt;
-          line-height: 1.6;
-          color: #111;
-        `;
-
-        // Build content with proper styling
-        container.innerHTML = `
-          <div style="max-width: 170mm; margin: 0 auto; font-family: 'Times New Roman', Georgia, serif; font-size: 11pt; line-height: 1.6; color: #111;">
+        // Create a clean document with proper HTML structure
+        const doc = document.createElement('html');
+        doc.innerHTML = `
+          <head>
+            <meta charset="UTF-8">
+            <style>
+              body {
+                font-family: 'Times New Roman', Georgia, serif;
+                font-size: 11pt;
+                line-height: 1.6;
+                color: #111;
+                margin: 0;
+                padding: 20mm 22mm;
+                background: white;
+                max-width: 170mm;
+              }
+              h1 { font-size: 18pt; font-weight: bold; margin: 20pt 0 10pt; }
+              h2 { font-size: 15pt; font-weight: bold; margin: 16pt 0 8pt; }
+              h3 { font-size: 12pt; font-weight: bold; margin: 12pt 0 6pt; }
+              h4 { font-size: 11pt; font-weight: bold; margin: 10pt 0 4pt; }
+              p { margin: 6pt 0; text-align: justify; }
+              table { width: 100%; border-collapse: collapse; margin: 8pt 0; }
+              td, th { border: 1px solid #aaa; padding: 4pt 8pt; }
+              img { max-width: 100%; height: auto; display: block; margin: 6pt auto; }
+              ul, ol { padding-left: 2em; }
+              li { margin: 3pt 0; }
+              blockquote { margin: 8pt 20pt; border-left: 3px solid #ccc; padding-left: 15pt; }
+              .page-break { page-break-after: always; }
+            </style>
+          </head>
+          <body>
             ${htmlContent}
-          </div>
+          </body>
         `;
 
+        // Create a temporary container
+        const container = document.createElement('div');
+        container.style.position = 'fixed';
+        container.style.left = '0';
+        container.style.top = '0';
+        container.style.width = '210mm';
+        container.style.background = 'white';
+        container.style.zIndex = '99999';
+        container.style.overflow = 'visible';
+        container.appendChild(doc);
         document.body.appendChild(container);
 
-        // Force browser to render
-        await new Promise(r => setTimeout(r, 100));
-        
-        // Get dimensions
-        const rect = container.getBoundingClientRect();
-        const width = rect.width || 794;
-        const height = rect.height || 1123;
+        // Wait for rendering
+        await new Promise(r => setTimeout(r, 300));
 
-        progressBar.style.width = '40%';
-        progressPercent.textContent = '40%';
-        progressLabel.textContent = 'Capturing...';
-        statusText.textContent = 'Capturing document...';
+        progressBar.style.width = '45%';
+        progressPercent.textContent = '45%';
+        progressLabel.textContent = 'Generating PDF...';
+        statusText.textContent = 'Converting to PDF...';
 
-        // Use html2canvas directly (not html2pdf)
-        const { default: html2canvas } = await import('https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.esm.js');
+        // Use html2pdf with proper settings
+        const opt = {
+          margin: 0,
+          filename: 'converted.pdf',
+          image: { type: 'jpeg', quality: qual },
+          html2canvas: {
+            scale: 2,
+            useCORS: true,
+            backgroundColor: '#ffffff',
+            logging: false,
+            width: container.scrollWidth || 794,
+            height: container.scrollHeight || 1123
+          },
+          jsPDF: {
+            unit: 'mm',
+            format: size,
+            orientation: orient,
+            compress: true
+          },
+          pagebreak: { mode: ['css', 'legacy'] }
+        };
 
-        // Capture with canvas
-        const canvas = await html2canvas(container, {
-          scale: 2,
-          useCORS: true,
-          allowTaint: true,
-          backgroundColor: '#ffffff',
-          logging: false,
-          width: width,
-          height: height,
-          windowWidth: width,
-          windowHeight: height
-        });
-
-        progressBar.style.width = '65%';
-        progressPercent.textContent = '65%';
-        progressLabel.textContent = 'Creating PDF...';
-        statusText.textContent = 'Generating PDF from captured content...';
-
-        // Create PDF from canvas
-        const { jsPDF } = window.jspdf;
-        const pdf = new jsPDF({
-          unit: 'mm',
-          format: size,
-          orientation: orient,
-          compress: true
-        });
-
-        const imgData = canvas.toDataURL('image/jpeg', qual);
-        const pdfWidth = pdf.internal.pageSize.getWidth();
-        const pdfHeight = pdf.internal.pageSize.getHeight();
-        const imgWidth = canvas.width;
-        const imgHeight = canvas.height;
-        const ratio = Math.min(pdfWidth / (imgWidth / 2), pdfHeight / (imgHeight / 2));
-        const finalWidth = imgWidth / 2 * ratio;
-        const finalHeight = imgHeight / 2 * ratio;
-        const x = (pdfWidth - finalWidth) / 2;
-        const y = (pdfHeight - finalHeight) / 2;
-
-        pdf.addImage(imgData, 'JPEG', x, y, finalWidth, finalHeight);
-
-        const pdfBlob = pdf.output('blob');
+        const pdfBlob = await html2pdf()
+          .set(opt)
+          .from(container)
+          .outputPdf('blob');
 
         // Clean up
         document.body.removeChild(container);
@@ -586,7 +580,13 @@ try 1
         statusText.textContent = '❌ Error: ' + error.message;
         convertBtn.disabled = false;
         convertBtn.textContent = '🔄 Convert to PDF';
-        alert('Conversion failed: ' + error.message);
+        
+        // Show more helpful error
+        let errorMsg = 'Conversion failed: ' + error.message;
+        if (error.message.includes('html2canvas')) {
+          errorMsg = 'PDF rendering failed. Please try again or use a simpler document.';
+        }
+        alert(errorMsg);
       }
     }
 
