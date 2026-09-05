@@ -381,7 +381,7 @@
         }
 
         // ============================================
-        // MAIN CONVERSION - FIXED
+        // MAIN CONVERSION - FIXED (removed .pdf-content check)
         // ============================================
         async function convertWordToPDF() {
             if (!currentFile) {
@@ -423,6 +423,7 @@
                     docxContent = htmlContent;
                 }
 
+                // Validate content
                 if (!htmlContent || htmlContent.trim().length === 0) {
                     throw new Error('No content could be extracted from the Word document.');
                 }
@@ -543,11 +544,9 @@
                     pagebreak: { mode: ['css', 'legacy'] }
                 };
 
-                // Sanity-check the actual rendered content before html2pdf captures it.
-                if (!container.querySelector('.pdf-content') ||
-                    container.querySelector('.pdf-content').innerHTML.trim().length === 0) {
-                    throw new Error('The PDF rendering container is empty.');
-                }
+                // ===== REMOVED THE FAULTY .pdf-content CHECK =====
+                // No longer looking for a non‑existent element.
+                // We already validated htmlContent above.
 
                 // Generate PDF
                 const pdfBlob = await html2pdf()
