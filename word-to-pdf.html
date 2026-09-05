@@ -65,6 +65,77 @@
         .docx-preview p {
             margin: 0.5em 0;
         }
+        /* Ensure the PDF container is visible and has a background */
+        #pdf-container {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 100vw;
+            min-height: 100vh;
+            background: white;
+            z-index: -1;
+            opacity: 0;
+            pointer-events: none;
+            padding: 20mm 25mm;
+            box-sizing: border-box;
+            font-family: 'Times New Roman', Georgia, serif;
+            font-size: 11pt;
+            line-height: 1.6;
+        }
+        #pdf-container h1 {
+            font-size: 18pt;
+            margin: 20pt 0 10pt;
+        }
+        #pdf-container h2 {
+            font-size: 15pt;
+            margin: 16pt 0 8pt;
+        }
+        #pdf-container h3 {
+            font-size: 12pt;
+            margin: 12pt 0 6pt;
+        }
+        #pdf-container h4 {
+            font-size: 11pt;
+            margin: 10pt 0 4pt;
+        }
+        #pdf-container p {
+            margin: 0.5em 0;
+            text-align: justify;
+        }
+        #pdf-container table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 10pt 0;
+        }
+        #pdf-container td,
+        #pdf-container th {
+            border: 1px solid #aaa;
+            padding: 4pt 8pt;
+            text-align: left;
+        }
+        #pdf-container img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 5pt auto;
+        }
+        #pdf-container ul,
+        #pdf-container ol {
+            padding-left: 2em;
+            margin: 0.5em 0;
+        }
+        #pdf-container li {
+            margin: 0.25em 0;
+        }
+        #pdf-container blockquote {
+            margin: 10pt 20pt;
+            border-left: 3px solid #ccc;
+            padding-left: 15pt;
+        }
+        .page-break {
+            page-break-after: always;
+            break-after: page;
+        }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans antialiased">
@@ -88,7 +159,7 @@
     <!-- Main Content -->
     <main class="max-w-4xl mx-auto px-4 py-8 md:py-12 flex-grow w-full">
 
-        <!-- ===== BACK BUTTON (prominent & visible) ===== -->
+        <!-- ===== BACK BUTTON ===== -->
         <div class="max-w-2xl mx-auto mb-6 flex justify-start">
             <a href="/" class="inline-flex items-center gap-2 bg-white hover:bg-slate-50 border border-slate-200 shadow-sm rounded-full px-5 py-2.5 text-sm font-medium text-slate-700 transition-all hover:shadow-md hover:border-slate-300 active:scale-95">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -236,6 +307,9 @@
         </div>
     </footer>
 
+    <!-- Hidden container for PDF rendering -->
+    <div id="pdf-container"></div>
+
     <!-- ===== JAVASCRIPT ===== -->
     <script>
         let currentFile = null;
@@ -257,6 +331,7 @@
         const downloadLink = document.getElementById('downloadLink');
         const previewContainer = document.getElementById('previewContainer');
         const previewContent = document.getElementById('previewContent');
+        const pdfContainer = document.getElementById('pdf-container');
 
         // File handling
         dropzone.addEventListener('click', function(e) {
@@ -372,6 +447,7 @@
             progressText.textContent = '0%';
             previewContent.innerHTML = '';
             docxContent = '';
+            pdfContainer.innerHTML = '';
         }
 
         function resetConverter() {
@@ -381,7 +457,7 @@
         }
 
         // ============================================
-        // MAIN CONVERSION - FIXED (removed .pdf-content check)
+        // MAIN CONVERSION - IMPROVED
         // ============================================
         async function convertWordToPDF() {
             if (!currentFile) {
@@ -437,48 +513,17 @@
                 progressText.textContent = '30%';
                 statusText.textContent = 'Rendering document...';
 
-                // Create a visible container for PDF generation
-                const container = document.createElement('div');
-                container.style.position = 'absolute';
-                container.style.left = '0';
-                container.style.top = '0';
-                container.style.width = '210mm';
-                container.style.background = 'white';
-                container.style.zIndex = '9999';
-                container.style.padding = '20mm 25mm';
-                container.style.boxSizing = 'border-box';
+                // Populate the hidden container (it's fixed, covers viewport, has bg)
+                pdfContainer.innerHTML = htmlContent;
 
-                // Build the HTML content with proper styles
-                container.innerHTML = `
-              <style>
-                body { 
-                  font-family: 'Times New Roman', Georgia, serif;
-                  font-size: 11pt;
-                  line-height: 1.6;
-                  color: #111;
-                  margin: 0;
-                  padding: 0;
-                  background: white;
-                }
-                h1 { font-size: 18pt; margin: 20pt 0 10pt; }
-                h2 { font-size: 15pt; margin: 16pt 0 8pt; }
-                h3 { font-size: 12pt; margin: 12pt 0 6pt; }
-                h4 { font-size: 11pt; margin: 10pt 0 4pt; }
-                p { margin: 0.5em 0; text-align: justify; }
-                table { border-collapse: collapse; width: 100%; margin: 10pt 0; }
-                td, th { border: 1px solid #aaa; padding: 4pt 8pt; text-align: left; }
-                img { max-width: 100%; height: auto; display: block; margin: 5pt auto; }
-                ul, ol { padding-left: 2em; margin: 0.5em 0; }
-                li { margin: 0.25em 0; }
-                blockquote { margin: 10pt 20pt; border-left: 3px solid #ccc; padding-left: 15pt; }
-                .page-break { page-break-after: always; break-after: page; }
-              </style>
-              ${htmlContent}
-            `;
+                // Force a reflow to ensure everything is painted
+                pdfContainer.style.opacity = '0'; // keep it invisible
+                pdfContainer.style.zIndex = '-1';
+                pdfContainer.style.pointerEvents = 'none';
+                // Ensure it's visible to the renderer (opacity 0 still renders)
+                // We'll capture it with html2canvas
 
-                document.body.appendChild(container);
-
-                // Wait for layout, fonts, and all converted images before capturing.
+                // Wait for layout and images
                 await new Promise(resolve => {
                     requestAnimationFrame(() => {
                         requestAnimationFrame(resolve);
@@ -488,17 +533,13 @@
                 if (document.fonts && document.fonts.ready) {
                     try {
                         await document.fonts.ready;
-                    } catch (e) {
-                        console.warn('Font loading wait skipped:', e);
-                    }
+                    } catch (e) { /* ignore */ }
                 }
 
-                const images = Array.from(container.querySelectorAll('img'));
-
+                const images = Array.from(pdfContainer.querySelectorAll('img'));
                 await Promise.all(
                     images.map(img => {
                         if (img.complete) return Promise.resolve();
-
                         return new Promise(resolve => {
                             img.onload = resolve;
                             img.onerror = resolve;
@@ -506,14 +547,14 @@
                     })
                 );
 
-                // Give the browser one final layout pass after images/fonts settle.
-                await new Promise(resolve => setTimeout(resolve, 100));
+                // Extra delay for layout
+                await new Promise(resolve => setTimeout(resolve, 200));
 
                 progressBar.style.width = '60%';
                 progressText.textContent = '60%';
                 statusText.textContent = 'Generating PDF...';
 
-                // PDF options - use the container directly
+                // PDF options - capture the container
                 const opt = {
                     margin: 0,
                     filename: 'converted.pdf',
@@ -526,14 +567,8 @@
                         logging: false,
                         scrollX: 0,
                         scrollY: 0,
-                        windowWidth: Math.max(
-                            document.documentElement.clientWidth,
-                            container.scrollWidth
-                        ),
-                        windowHeight: Math.max(
-                            document.documentElement.clientHeight,
-                            container.scrollHeight
-                        )
+                        windowWidth: window.innerWidth,
+                        windowHeight: window.innerHeight
                     },
                     jsPDF: {
                         unit: 'mm',
@@ -544,18 +579,16 @@
                     pagebreak: { mode: ['css', 'legacy'] }
                 };
 
-                // ===== REMOVED THE FAULTY .pdf-content CHECK =====
-                // No longer looking for a non‑existent element.
-                // We already validated htmlContent above.
-
                 // Generate PDF
                 const pdfBlob = await html2pdf()
                     .set(opt)
-                    .from(container)
+                    .from(pdfContainer)
                     .outputPdf('blob');
 
-                // Clean up
-                document.body.removeChild(container);
+                // Check if the PDF has any real content (size > 1KB)
+                if (pdfBlob.size < 1024) {
+                    throw new Error('Generated PDF is too small (likely empty). Please check your document content.');
+                }
 
                 convertedBlob = pdfBlob;
 
@@ -573,6 +606,8 @@
                     convertBtn.disabled = false;
                     convertBtn.textContent = '🔄 Convert to PDF';
                     progressContainer.classList.add('hidden');
+                    // Clear container to free memory
+                    pdfContainer.innerHTML = '';
                 }, 500);
 
             } catch (error) {
@@ -581,6 +616,7 @@
                 convertBtn.disabled = false;
                 convertBtn.textContent = '🔄 Convert to PDF';
                 alert('Conversion failed: ' + error.message);
+                pdfContainer.innerHTML = '';
             }
         }
 
