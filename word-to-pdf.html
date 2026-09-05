@@ -371,7 +371,7 @@
     }
 
     // ============================================
-    // MAIN CONVERSION - FIXED WIDTH & CENTERING
+    // MAIN CONVERSION - FIXED (no transform)
     // ============================================
     async function convertWordToPDF() {
       if (!currentFile) {
@@ -425,18 +425,18 @@
         progressText.textContent = '30%';
         statusText.textContent = 'Rendering document...';
 
-        // --- CREATE A CENTERED CONTAINER WITH FIXED A4 WIDTH ---
+        // --- CREATE A CENTERED CONTAINER (no transform) ---
+        const containerWidth = 794; // A4 width at 96dpi
         const container = document.createElement('div');
-        // Use a fixed pixel width that corresponds to A4 at 96dpi (794px)
-        // and center it horizontally.
+        // Center using left:50% + negative margin-left (no transform)
         container.style.position = 'absolute';
         container.style.left = '50%';
-        container.style.transform = 'translateX(-50%)';
+        container.style.marginLeft = `-${containerWidth / 2}px`;
         container.style.top = '0';
-        container.style.width = '794px';          // exactly 210mm at 96dpi
+        container.style.width = containerWidth + 'px';
         container.style.background = 'white';
         container.style.zIndex = '9999';
-        container.style.padding = '20mm 25mm';    // margins as in a Word doc
+        container.style.padding = '20mm 25mm';
         container.style.boxSizing = 'border-box';
         container.style.fontFamily = "'Times New Roman', Georgia, serif";
         container.style.fontSize = '11pt';
@@ -484,7 +484,7 @@
           } catch (e) { /* ignore */ }
         }
 
-        // Load any images inside
+        // Load images
         const images = Array.from(container.querySelectorAll('img'));
         await Promise.all(
           images.map(img => {
@@ -514,11 +514,9 @@
             allowTaint: true,
             backgroundColor: '#ffffff',
             logging: false,
-            // Use the container's rendered dimensions (should be 794px wide)
-            width: container.scrollWidth,
-            height: container.scrollHeight,
-            x: 0,
-            y: 0
+            // Do NOT set explicit width/height – auto-detect from container
+            scrollX: 0,
+            scrollY: 0
           },
           jsPDF: {
             unit: 'mm',
