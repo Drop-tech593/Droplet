@@ -46,14 +46,14 @@
     .docx-preview ul, .docx-preview ol { padding-left: 2em; }
     .docx-preview p { margin: 0.5em 0; }
 
-    /* PDF container – hidden but fully rendered */
+    /* PDF container – hidden but rendered */
     #pdf-container {
       position: fixed;
       left: 0;
       top: 0;
-      width: 794px;           /* A4 width at 96dpi */
+      width: 794px;
       background: white;
-      padding: 20mm 25mm;     /* A4 margins */
+      padding: 20mm 25mm;
       box-sizing: border-box;
       opacity: 0;
       pointer-events: none;
@@ -62,7 +62,7 @@
       font-size: 11pt;
       line-height: 1.6;
       color: #111;
-      height: auto;           /* Let content determine height */
+      height: auto;
     }
     #pdf-container h1 { font-size: 18pt; margin: 20pt 0 10pt; }
     #pdf-container h2 { font-size: 15pt; margin: 16pt 0 8pt; }
@@ -254,7 +254,7 @@
   <script>
     let currentFile = null;
     let convertedBlob = null;
-    let docxContent = '';
+    let docxContent = '';          // stores the HTML from mammoth
 
     // DOM Elements
     const dropzone = document.getElementById('dropzone');
@@ -306,6 +306,9 @@
       }
     });
 
+    // ------------------------------------------------------------------
+    // 1. Handle file upload – convert to HTML once and store in docxContent
+    // ------------------------------------------------------------------
     function handleFile(file) {
       if (!file.name.toLowerCase().endsWith('.docx') && file.type !== 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
         alert('Please select a valid .docx Word file.');
@@ -315,6 +318,7 @@
         alert('File is too large. Please use a Word file under 50MB.');
         return;
       }
+
       currentFile = file;
       fileName.textContent = file.name;
       fileSize.textContent = (file.size / 1024 / 1024).toFixed(2) + ' MB';
@@ -325,33 +329,60 @@
       previewContainer.classList.add('hidden');
       convertBtn.disabled = false;
       convertBtn.textContent = '🔄 Convert to PDF';
-      showPreview(file);
+
+      // Convert the file to HTML once (with images)
+      convertFileToHTML(file);
     }
 
-    async function showPreview(file) {
+    // ------------------------------------------------------------------
+    // 2. Use mammoth to convert DOCX -> HTML (with embedded images)
+    //    Store result in docxContent and display preview
+    // ------------------------------------------------------------------
+    async function convertFileToHTML(file) {
       try {
         const arrayBuffer = await file.arrayBuffer();
         const result = await mammoth.convertToHtml({
           arrayBuffer,
           convertImage: mammoth.images.imgElement(function(image) {
             return image.read("base64").then(function(imageBuffer) {
-              return { src: "data:" + image.contentType + ";base64," + imageBuffer };
+              return {
+                src: "data:" + image.contentType + ";base64," + imageBuffer
+              };
             });
           })
         });
-        docxContent = result.value;
-        let htmlContent = docxContent;
-        if (!htmlContent.trim().startsWith('<')) htmlContent = `<p>${htmlContent}</p>`;
-        previewContent.innerHTML = htmlContent;
+
+        let html = result.value;
+        // If the result is empty or only whitespace, throw an error
+        if (!html || html.trim().length === 0) {
+          throw new Error('No content could be extracted from the document.');
+        }
+
+        // Wrap in a <div> if it doesn't start with a tag
+        if (!html.trim().startsWith('<')) {
+          html = `<p>${html}</p>`;
+        }
+
+        docxContent = html;   // store for later use
+
+        // Show preview
+        previewContent.innerHTML = html;
         previewContainer.classList.remove('hidden');
-        if (result.messages && result.messages.length > 0) console.warn('Mammoth warnings:', result.messages);
+
+        if (result.messages && result.messages.length > 0) {
+          console.warn('Mammoth warnings:', result.messages);
+        }
       } catch (error) {
-        console.error('Preview error:', error);
-        previewContent.innerHTML = '<p class="text-red-500">⚠️ Could not generate preview. The file may be corrupted or unsupported.</p>';
+        console.error('Conversion error:', error);
+        previewContent.innerHTML = '<p class="text-red-500">⚠️ Could not convert the document. The file may be corrupted or unsupported.</p>';
         previewContainer.classList.remove('hidden');
+        docxContent = '';   // clear to prevent broken PDF generation
       }
     }
 
+    // ------------------------------------------------------------------
+    // 3. Clear / reset functions
+    // ------------------------------------------------------------------
     function clearFile() {
       currentFile = null;
       fileInput.value = '';
@@ -373,9 +404,9 @@
       downloadLink.href = '#';
     }
 
-    // ============================================
-    // MAIN CONVERSION – FIXED (full content, paginated)
-    // ============================================
+    // ------------------------------------------------------------------
+    // 4. MAIN CONVERSION – generate PDF from stored HTML
+    // ------------------------------------------------------------------
     async function convertWordToPDF() {
       if (!currentFile) {
         alert('Please select a Word file first.');
@@ -383,6 +414,12 @@
       }
       if (typeof html2pdf === 'undefined') {
         alert('PDF library not loaded. Please refresh the page and try again.');
+        return;
+      }
+
+      // If docxContent is empty, it means the preview/conversion failed – abort.
+      if (!docxContent || docxContent.trim().length === 0) {
+        alert('No document content available. Please re-upload the file.');
         return;
       }
 
@@ -395,25 +432,15 @@
       statusText.textContent = 'Preparing document...';
 
       try {
-        // Get HTML content
+        // Use the stored HTML
         let htmlContent = docxContent;
-        if (!htmlContent) {
-          const arrayBuffer = await currentFile.arrayBuffer();
-          const result = await mammoth.convertToHtml({
-            arrayBuffer,
-            convertImage: mammoth.images.imgElement(function(image) {
-              return image.read("base64").then(function(imageBuffer) {
-                return { src: "data:" + image.contentType + ";base64," + imageBuffer };
-              });
-            })
-          });
-          htmlContent = result.value;
-          docxContent = htmlContent;
+
+        // Validate content again (should not be empty)
+        if (!htmlContent || htmlContent.trim().length === 0) {
+          throw new Error('No content to convert.');
         }
 
-        if (!htmlContent || htmlContent.trim().length === 0) {
-          throw new Error('No content could be extracted from the Word document.');
-        }
+        // Ensure it starts with a tag
         if (!htmlContent.trim().startsWith('<')) {
           htmlContent = `<p>${htmlContent}</p>`;
         }
@@ -422,11 +449,10 @@
         progressText.textContent = '30%';
         statusText.textContent = 'Rendering document...';
 
-        // --- Populate the hidden container (height: auto) ---
+        // --- Populate the hidden container ---
         pdfContainer.innerHTML = htmlContent;
 
-        // Force layout: the container has height: auto, so it grows with content.
-        // Wait for rendering, fonts, and images to load.
+        // Force layout: container has height: auto
         await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
         if (document.fonts && document.fonts.ready) {
           try { await document.fonts.ready; } catch(e) {}
@@ -440,9 +466,9 @@
 
         progressBar.style.width = '60%';
         progressText.textContent = '60%';
-        statusText.textContent = 'Generating PDF (paginated)...';
+        statusText.textContent = 'Generating PDF...';
 
-        // --- html2pdf options: let it handle pagination ---
+        // --- html2pdf options ---
         const opt = {
           margin: 0,
           filename: 'converted.pdf',
@@ -453,7 +479,6 @@
             allowTaint: true,
             backgroundColor: '#ffffff',
             logging: false
-            // NO width/height – auto-detect full element
           },
           jsPDF: {
             unit: 'mm',
@@ -462,7 +487,7 @@
             compress: true
           },
           pagebreak: {
-            mode: ['css', 'legacy']  // auto-split content across pages
+            mode: ['css', 'legacy']
           }
         };
 
@@ -474,8 +499,9 @@
         // Clean up
         pdfContainer.innerHTML = '';
 
+        // Check if PDF has content (size > 1KB)
         if (pdfBlob.size < 1024) {
-          throw new Error('Generated PDF is too small (likely empty). Please check your document content.');
+          throw new Error('Generated PDF is too small (likely empty).');
         }
 
         convertedBlob = pdfBlob;
