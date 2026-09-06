@@ -20,6 +20,22 @@
     .progress-bar { transition: width .5s ease; }
     .hidden { display: none !important; }
     
+    /* ============================================ */
+    /* PDF RENDER HOST - COMPLETELY OFF-SCREEN */
+    /* ============================================ */
+    #pdfRenderHost {
+      position: fixed;
+      left: -100000px;
+      top: 0;
+      width: 210mm;
+      min-height: 297mm;
+      background: #ffffff;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: -9999;
+      opacity: 0;
+    }
+
     .preview-box {
       max-height: 450px;
       overflow-y: auto;
@@ -524,8 +540,8 @@
     </div>
   </footer>
 
-  <!-- PDF Render Host -->
-  <div id="pdfRenderHost" aria-hidden="true" style="position:absolute;left:0;top:0;width:210mm;min-height:297mm;background:#fff;z-index:-1000;pointer-events:none;"></div>
+  <!-- PDF Render Host - COMPLETELY OFF-SCREEN -->
+  <div id="pdfRenderHost" aria-hidden="true"></div>
 
   <script>
     // ============================================
