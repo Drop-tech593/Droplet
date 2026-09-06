@@ -1,4 +1,4 @@
-try 7
+try 8
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,6 +9,7 @@ try 7
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.8.0/mammoth.browser.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
     .dropzone-active{border-color:#3b82f6!important;background:#eff6ff!important}
     .progress-bar{transition:width .5s ease}
@@ -179,63 +180,97 @@ async function convertToPDF(){
   const host=document.getElementById('pdfRenderHost');let root=null;
   try{
     await ensureLibraries();
-    // If preview failed, convert directly from the original DOCX now.
     if(!htmlContent){
       setProgress(10,'Reading Word file...','Preparing document content...');
       const arrayBuffer=await currentFile.arrayBuffer();
-      const result=await mammoth.convertToHtml({arrayBuffer,convertImage:mammoth.images.imgElement(image=>image.read('base64').then(data=>({src:'data:'+image.contentType+';base64,'+data})))});
+      const result=await mammoth.convertToHtml({arrayBuffer,convertImage:mammoth.images.imgElement(image=>image.read('base64').then(data=>({src:'data:'+image.contentType+';base64,'+data}))) });
       htmlContent=result.value||'<p>No content found.</p>';
       pageCount=Math.max(1,Math.ceil(htmlContent.replace(/<[^>]*>/g,' ').split(/\s+/).filter(Boolean).length/300));
     }
+
     const m=pageMetrics(pageSize.value,orientation.value);
-    setProgress(15,'Preparing layout','Creating isolated page...')
-    host.innerHTML='';host.style.width=m.wPx+'px';host.style.height='auto';
+    setProgress(15,'Preparing layout','Creating exact-size rendering page...');
+    host.innerHTML='';host.style.width=Math.round(m.wPx)+'px';host.style.height='auto';
 
-    /* TRY 3 CORE FIX:
-       1. No nested <html>/<head>/<body>.
-       2. Exact page width in pixels.
-       3. No max-width or margin:auto.
-       4. html2canvas uses the same exact width.
-       5. No scrollWidth/scrollHeight coordinate guessing.
-    */
-    root=document.createElement('div');root.className='pdf-render-root';
-    root.style.width=m.wPx+'px';root.style.minHeight=m.hPx+'px';root.style.padding='20mm 20mm';
-    root.style.margin='0';root.style.boxSizing='border-box';root.innerHTML=htmlContent;host.appendChild(root);
+    // TRY 5: render directly with html2canvas, then place the rendered
+    // image slices directly into jsPDF. html2pdf is NOT used for placement.
+    root=document.createElement('div');
+    root.className='pdf-render-root';
+    root.style.width=Math.round(m.wPx)+'px';
+    root.style.minHeight=Math.round(m.hPx)+'px';
+    root.style.padding='20mm 20mm';
+    root.style.margin='0';
+    root.style.boxSizing='border-box';
+    root.style.position='relative';
+    root.style.left='0';root.style.right='auto';root.style.transform='none';
+    root.innerHTML=htmlContent;
+    host.appendChild(root);
 
-    await waitForFonts();await waitForImages(root);
+    await waitForFonts();
+    await waitForImages(root);
     await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
 
     root.querySelectorAll('img').forEach(img=>{img.style.maxWidth='100%';img.style.height='auto'});
     root.querySelectorAll('table').forEach(t=>{t.style.maxWidth='100%';t.style.width='100%'});
 
-    const actualWidth=Math.round(root.getBoundingClientRect().width);
-    if(actualWidth!==Math.round(m.wPx))console.warn('Try 3 renderer width:',actualWidth,'expected:',m.wPx);
+    const cssWidth=Math.round(m.wPx);
+    const cssHeight=Math.max(Math.round(root.getBoundingClientRect().height),Math.round(m.hPx));
+    // Keep the browser canvas safely below common maximum canvas dimensions.
+    const scale=Math.min(1.5,30000/cssHeight);
 
-    setProgress(40,'Rendering...','Converting the document to PDF...')
-    const qual=parseFloat(quality.value);
-    const opt={
-      margin:0,
-      filename:'converted.pdf',
-      image:{type:'jpeg',quality:qual},
-      html2canvas:{
-        scale:2,useCORS:true,allowTaint:false,backgroundColor:'#ffffff',logging:false,
-        width:Math.round(m.wPx),windowWidth:Math.round(m.wPx),scrollX:0,scrollY:0
-      },
-      jsPDF:{unit:'mm',format:pageSize.value,orientation:orientation.value,compress:true},
-      pagebreak:{mode:['css','legacy']}
-    };
+    setProgress(35,'Rendering...','Rendering the document at the exact page width...');
+    const canvas=await html2canvas(root,{
+      scale:scale,
+      useCORS:true,
+      allowTaint:false,
+      backgroundColor:'#ffffff',
+      logging:false,
+      width:cssWidth,
+      height:cssHeight,
+      windowWidth:cssWidth,
+      windowHeight:cssHeight,
+      x:0,y:0,
+      scrollX:0,scrollY:0
+    });
 
-    const pdfBlob=await html2pdf().set(opt).from(root).outputPdf('blob');
+    setProgress(65,'Building PDF...','Placing rendered pages directly into PDF...');
+    const jsPDFCtor=window.jspdf && window.jspdf.jsPDF;
+    if(!jsPDFCtor)throw new Error('jsPDF library could not be loaded.');
+    const pdf=new jsPDFCtor({unit:'mm',format:pageSize.value,orientation:orientation.value,compress:true});
+
+    const pageW=m.wMm,pageH=m.hMm;
+    const pagePxW=canvas.width;
+    const pagePxH=Math.round((m.hMm/m.wMm)*pagePxW);
+    let sourceY=0,pageNo=0;
+    const qualityNum=parseFloat(quality.value)||0.85;
+    const totalPages=Math.max(1,Math.ceil(canvas.height/pagePxH));
+
+    while(sourceY < canvas.height-1){
+      pageNo++;
+      const sliceH=Math.min(pagePxH,canvas.height-sourceY);
+      const slice=document.createElement('canvas');
+      slice.width=pagePxW;slice.height=sliceH;
+      const ctx=slice.getContext('2d');
+      ctx.fillStyle='#ffffff';ctx.fillRect(0,0,slice.width,slice.height);
+      ctx.drawImage(canvas,0,sourceY,pagePxW,sliceH,0,0,pagePxW,sliceH);
+      if(pageNo>1)pdf.addPage(pageW,pageH);
+      const imgData=slice.toDataURL('image/jpeg',qualityNum);
+      const renderedH=pageW*(sliceH/pagePxW);
+      pdf.addImage(imgData,'JPEG',0,0,pageW,renderedH,undefined,'FAST');
+      sourceY+=sliceH;
+      setProgress(65+Math.round((sourceY/canvas.height)*30),'Building PDF...',`Page ${pageNo} of ${totalPages}`);
+    }
+
+    const pdfBlob=pdf.output('blob');
     convertedBlob=pdfBlob;host.innerHTML='';
-
     setProgress(100,'Done!','✅ Conversion complete!');
     const url=URL.createObjectURL(pdfBlob);downloadLink.href=url;
     const baseName=currentFile.name.replace(/\.docx$/i,'');downloadLink.download=baseName+'.pdf';
-    resultPages.textContent=`${pageCount||'?'} pages`;resultSize.textContent=formatSize(pdfBlob.size);resultSection.classList.remove('hidden');
+    resultPages.textContent=`${pageNo} pages`;resultSize.textContent=formatSize(pdfBlob.size);resultSection.classList.remove('hidden');
     convertBtn.disabled=false;convertBtn.textContent='🔄 Convert to PDF';progressSection.classList.add('hidden');
   }catch(error){
-    console.error('Try 3 conversion error:',error);if(host)host.innerHTML='';
-    statusText.textContent='❌ Error: '+error.message;controlsSection.classList.remove('hidden');convertBtn.disabled=false;convertBtn.textContent='🔄 Convert to PDF';
+    console.error('Try 5 conversion error:',error);if(host)host.innerHTML='';
+    statusText.textContent='❌ Error: '+error.message;controlsSection.classList.remove('hidden');convertBtn.disabled=false;convertBtn.textContent='🔄 Convert to PDF';progressSection.classList.add('hidden');
     alert('Conversion failed: '+error.message)
   }
 }
