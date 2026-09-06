@@ -1,4 +1,4 @@
-try 2
+try 4
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -102,13 +102,6 @@ try 2
       border: none;
       border-top: 2px dashed #d1d5db;
       margin: 30px 0;
-    }
-    .epub-preview .table-of-contents {
-      font-size: 0.95em;
-    }
-    .epub-preview .table-of-contents li {
-      list-style: none;
-      padding: 4px 0;
     }
 
     /* Dark mode overrides */
@@ -305,7 +298,7 @@ try 2
   <!-- Main Content -->
   <main class="max-w-4xl mx-auto px-4 py-8 md:py-12 flex-grow w-full">
 
-    <!-- Back Button (prominent & visible) -->
+    <!-- Back Button -->
     <div class="max-w-2xl mx-auto mb-4 flex justify-start">
       <a href="/" class="back-home-btn inline-flex items-center gap-2 bg-white hover:bg-slate-50 border border-slate-200 shadow-sm rounded-full px-5 py-2.5 text-sm font-medium text-slate-700 transition-all hover:shadow-md hover:border-slate-300 active:scale-95">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -342,7 +335,7 @@ try 2
       </div>
     </div>
 
-    <!-- File Info & Conversion Controls -->
+    <!-- File Info -->
     <div id="fileInfo" class="hidden max-w-2xl mx-auto mt-6 bg-white rounded-xl shadow-sm border border-slate-200 p-6 transition-colors duration-200">
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-3">
@@ -429,23 +422,19 @@ try 2
       <div class="space-y-3">
         <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
           <h3 class="font-bold text-slate-900 text-sm">Is my data safe?</h3>
-          <p class="text-slate-600 text-sm mt-1">Yes! All conversions happen locally in your browser. Your EPUB file is never uploaded to any server and is automatically deleted when you close the page.</p>
+          <p class="text-slate-600 text-sm mt-1">Yes! All conversions happen locally in your browser. Your EPUB file is never uploaded to any server.</p>
         </div>
         <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
           <h3 class="font-bold text-slate-900 text-sm">Will my formatting be preserved?</h3>
-          <p class="text-slate-600 text-sm mt-1">The conversion preserves fonts, headings, paragraphs, tables, and images. The layout is designed to look like a professionally formatted book with proper margins and page breaks.</p>
+          <p class="text-slate-600 text-sm mt-1">The conversion preserves fonts, headings, paragraphs, tables, and images with proper margins and page breaks.</p>
         </div>
         <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
           <h3 class="font-bold text-slate-900 text-sm">What about DRM-protected EPUBs?</h3>
-          <p class="text-slate-600 text-sm mt-1">This tool cannot convert DRM-protected EPUB files. You'll need to remove the DRM first using appropriate tools.</p>
+          <p class="text-slate-600 text-sm mt-1">This tool cannot convert DRM-protected EPUB files. You'll need to remove the DRM first.</p>
         </div>
         <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
           <h3 class="font-bold text-slate-900 text-sm">Are there file size limits?</h3>
-          <p class="text-slate-600 text-sm mt-1">Since everything runs locally, limits depend on your device's memory. Most modern browsers handle EPUBs up to 50MB without issues. Very large files with many images may take longer to process.</p>
-        </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">How does the conversion work?</h3>
-          <p class="text-slate-600 text-sm mt-1">EPUB files are ZIP archives containing HTML content. This tool extracts the HTML, renders it beautifully, and converts it to PDF. All processing stays in your browser.</p>
+          <p class="text-slate-600 text-sm mt-1">Most modern browsers handle EPUBs up to 50MB. Very large files with many images may take longer to process.</p>
         </div>
       </div>
     </section>
@@ -499,9 +488,10 @@ try 2
     // CONVERTER LOGIC
     // ============================================
     let currentFile = null;
-    let convertedBlob = null;
     let fullEpubHTML = '';
     let epubMetadata = {};
+    let zipFileRef = null;
+    let imageMap = {};
 
     // DOM Elements
     const dropzone = document.getElementById('dropzone');
@@ -591,12 +581,12 @@ try 2
       previewContent.innerHTML = '';
       fullEpubHTML = '';
       epubMetadata = {};
+      imageMap = {};
+      zipFileRef = null;
     }
 
     function resetConverter() {
       clearFile();
-      convertedBlob = null;
-      downloadLink.href = '#';
     }
 
     async function parseEPUB(file) {
@@ -608,6 +598,7 @@ try 2
 
         const arrayBuffer = await file.arrayBuffer();
         const zip = await JSZip.loadAsync(arrayBuffer);
+        zipFileRef = zip;
 
         progressBar.style.width = '25%';
         progressText.textContent = '25%';
@@ -618,43 +609,43 @@ try 2
 
         const opfXml = await zip.file(opfPath).async('text');
 
-        const titleMatch = opfXml.match(/<dc:title[^>]*>([^<]+)<\/dc:title>/);
-        const authorMatch = opfXml.match(/<dc:creator[^>]*>([^<]+)<\/dc:creator>/);
-        const publisherMatch = opfXml.match(/<dc:publisher[^>]*>([^<]+)<\/dc:publisher>/);
+        // Use DOMParser instead of regex (Fix 2 & 3)
+        const parser = new DOMParser();
+        const opfDoc = parser.parseFromString(opfXml, 'application/xml');
+
+        // Extract metadata
+        const titleNode = opfDoc.querySelector('metadata > title') || opfDoc.querySelector('dc\\:title');
+        const authorNode = opfDoc.querySelector('metadata > creator') || opfDoc.querySelector('dc\\:creator');
+        const publisherNode = opfDoc.querySelector('metadata > publisher') || opfDoc.querySelector('dc\\:publisher');
 
         epubMetadata = {
-          title: titleMatch ? titleMatch[1] : 'Unknown Title',
-          author: authorMatch ? authorMatch[1] : 'Unknown Author',
-          publisher: publisherMatch ? publisherMatch[1] : ''
+          title: titleNode ? titleNode.textContent : 'Unknown Title',
+          author: authorNode ? authorNode.textContent : 'Unknown Author',
+          publisher: publisherNode ? publisherNode.textContent : ''
         };
 
         metadata.textContent = `📝 ${epubMetadata.title} • ✍️ ${epubMetadata.author}`;
 
-        // Get spine
-        const spineMatch = opfXml.match(/<spine[^>]*>(.*?)<\/spine>/s);
-        let itemRefs = [];
-        if (spineMatch) {
-          const refs = spineMatch[1].match(/<itemref[^>]*idref="([^"]+)"/g);
-          if (refs) {
-            itemRefs = refs.map(ref => ref.match(/idref="([^"]+)"/)[1]);
+        // Parse manifest with DOMParser
+        const manifest = {};
+        const manifestItems = opfDoc.querySelectorAll('manifest item');
+        manifestItems.forEach(item => {
+          const id = item.getAttribute('id');
+          const href = item.getAttribute('href');
+          const mediaType = item.getAttribute('media-type');
+          if (id && href) {
+            manifest[id] = { href, mediaType };
           }
-        }
+        });
 
-        // Get manifest
-        const manifestMatches = opfXml.match(/<manifest[^>]*>(.*?)<\/manifest>/s);
-        let manifest = {};
-        if (manifestMatches) {
-          const items = manifestMatches[1].match(/<item[^>]*id="([^"]+)"[^>]*href="([^"]+)"/g);
-          if (items) {
-            items.forEach(item => {
-              const idMatch = item.match(/id="([^"]+)"/);
-              const hrefMatch = item.match(/href="([^"]+)"/);
-              if (idMatch && hrefMatch) {
-                manifest[idMatch[1]] = hrefMatch[1];
-              }
-            });
+        // Parse spine with DOMParser
+        const itemRefs = [];
+        opfDoc.querySelectorAll('spine itemref').forEach(item => {
+          const idref = item.getAttribute('idref');
+          if (idref) {
+            itemRefs.push(idref);
           }
-        }
+        });
 
         progressBar.style.width = '45%';
         progressText.textContent = '45%';
@@ -662,17 +653,17 @@ try 2
 
         let allContent = '';
         const opfDir = opfPath.substring(0, opfPath.lastIndexOf('/') + 1);
-        const maxChapters = Math.min(8, itemRefs.length);
-
-        for (let i = 0; i < maxChapters; i++) {
+        
+        // Process all chapters (no limit - Fix 4)
+        for (let i = 0; i < itemRefs.length; i++) {
           const itemId = itemRefs[i];
-          if (manifest[itemId]) {
-            const filePath = opfDir + manifest[itemId];
+          const itemData = manifest[itemId];
+          if (itemData) {
+            const filePath = opfDir + itemData.href;
             const file = zip.file(filePath);
             if (file) {
               const content = await file.async('text');
               let bodyContent = content;
-              // Try to extract body content
               const bodyMatch = content.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
               if (bodyMatch) {
                 bodyContent = bodyMatch[1];
@@ -680,15 +671,54 @@ try 2
               // Remove scripts and styles
               bodyContent = bodyContent.replace(/<script[\s\S]*?<\/script>/gi, '');
               bodyContent = bodyContent.replace(/<style[\s\S]*?<\/style>/gi, '');
+              
+              // Replace image references with data URLs (Fix 4)
+              const imgMatches = bodyContent.match(/<img[^>]+src=["']([^"']+)["']/g);
+              if (imgMatches) {
+                for (const imgTag of imgMatches) {
+                  const srcMatch = imgTag.match(/src=["']([^"']+)["']/);
+                  if (srcMatch) {
+                    const imgSrc = srcMatch[1];
+                    // Resolve image path
+                    let imgPath = imgSrc;
+                    if (!imgPath.startsWith('/') && !imgPath.startsWith('http')) {
+                      // Relative path - resolve against opf directory
+                      const imgDir = opfDir + imgSrc;
+                      imgPath = imgDir;
+                    }
+                    try {
+                      const imageFile = zip.file(imgPath);
+                      if (imageFile) {
+                        const imageData = await imageFile.async('base64');
+                        const ext = imgPath.split('.').pop().toLowerCase();
+                        const mimeType = ext === 'jpg' || ext === 'jpeg' ? 'image/jpeg' : 
+                                         ext === 'png' ? 'image/png' : 
+                                         ext === 'gif' ? 'image/gif' : 
+                                         ext === 'svg' ? 'image/svg+xml' : 'image/png';
+                        const dataUrl = `data:${mimeType};base64,${imageData}`;
+                        // Replace the src in the body content
+                        const escapedSrc = imgSrc.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                        bodyContent = bodyContent.replace(
+                          new RegExp(`src=["']${escapedSrc}["']`, 'g'),
+                          `src="${dataUrl}"`
+                        );
+                      }
+                    } catch (e) {
+                      console.log('Could not load image:', imgPath, e);
+                    }
+                  }
+                }
+              }
+              
               allContent += `<div class="chapter">${bodyContent}</div>`;
-              if (i < maxChapters - 1) {
+              if (i < itemRefs.length - 1) {
                 allContent += `<div class="page-break"></div>`;
               }
             }
           }
         }
 
-        // If we didn't get any content from the spine, try to find all HTML files
+        // If we didn't get any content, try fallback
         if (!allContent.trim()) {
           statusText.textContent = 'Trying alternative extraction...';
           const htmlFiles = [];
@@ -698,9 +728,8 @@ try 2
             }
           });
           
-          // Sort and process first few HTML files
           const sortedFiles = htmlFiles.sort();
-          for (let i = 0; i < Math.min(6, sortedFiles.length); i++) {
+          for (let i = 0; i < Math.min(sortedFiles.length); i++) {
             try {
               const content = await zip.file(sortedFiles[i]).async('text');
               let bodyContent = content;
@@ -724,7 +753,6 @@ try 2
         progressText.textContent = '70%';
         statusText.textContent = 'Building preview...';
 
-        // Build preview with actual content
         const previewHtml = `
           <div class="title-page">
             <h1>${epubMetadata.title}</h1>
@@ -778,7 +806,6 @@ try 2
       try {
         if (!fullEpubHTML) {
           await parseEPUB(currentFile);
-          // If still empty, create fallback content
           if (!fullEpubHTML) {
             fullEpubHTML = `<p>No content could be extracted. The EPUB may be DRM-protected.</p>`;
           }
@@ -788,6 +815,7 @@ try 2
         progressText.textContent = '40%';
         statusText.textContent = 'Rendering document...';
 
+        // Build the document for PDF (Fix 1 - render on screen, not off-screen)
         const printHtml = `
           <!DOCTYPE html>
           <html>
@@ -813,6 +841,7 @@ try 2
               }
               .content {
                 max-width: 100%;
+                padding: 20px;
               }
               h1 { 
                 font-size: 22pt; 
@@ -941,18 +970,23 @@ try 2
         progressText.textContent = '60%';
         statusText.textContent = 'Generating PDF...';
 
+        // Create container ON-SCREEN (Fix 1 - no off-screen rendering)
         const tempContainer = document.createElement('div');
         tempContainer.innerHTML = printHtml;
-        tempContainer.style.position = 'fixed';
-        tempContainer.style.left = '-9999px';
+        tempContainer.style.position = 'absolute';
+        tempContainer.style.left = '0';
         tempContainer.style.top = '0';
         tempContainer.style.width = '794px';
-        tempContainer.style.background = '#ffffff';
-        tempContainer.style.zIndex = '-9999';
+        tempContainer.style.backgroundColor = '#ffffff';
+        tempContainer.style.color = '#000000';
+        tempContainer.style.padding = '40px';
+        tempContainer.style.boxSizing = 'border-box';
+        tempContainer.style.zIndex = '-1';
+        tempContainer.style.overflow = 'visible';
         document.body.appendChild(tempContainer);
 
-        // Wait for images to load
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        // Wait for images to load and content to render
+        await new Promise(resolve => setTimeout(resolve, 1500));
 
         const opt = {
           margin: 0,
@@ -963,7 +997,9 @@ try 2
             useCORS: true,
             letterRendering: true,
             backgroundColor: '#ffffff',
-            width: tempContainer.scrollWidth || 794
+            width: tempContainer.scrollWidth || 794,
+            height: tempContainer.scrollHeight || 1123,
+            logging: false
           },
           jsPDF: {
             unit: 'mm',
@@ -982,6 +1018,7 @@ try 2
           .from(tempContainer)
           .outputPdf('blob');
 
+        // Clean up
         document.body.removeChild(tempContainer);
 
         progressBar.style.width = '100%';
