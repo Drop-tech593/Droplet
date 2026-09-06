@@ -1,4 +1,4 @@
-try 1
+try 2
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -536,12 +536,13 @@ try 1
     });
 
     // ============================================
-    // PDF TO TXT CONVERTER WITH OCR FALLBACK
+    // PDF TO TXT CONVERTER WITH PAGE-BY-PAGE OCR
     // ============================================
     let currentFile = null;
     let extractedText = '';
     let totalPages = 0;
     let usedOCR = false;
+    let ocrPagesCount = 0;
 
     // DOM Elements
     const dropzone = document.getElementById('dropzone');
@@ -619,6 +620,7 @@ try 1
       convertBtn.disabled = false;
       convertBtn.textContent = '🔄 Extract Text';
       usedOCR = false;
+      ocrPagesCount = 0;
 
       getPageCount(file);
     }
@@ -647,6 +649,7 @@ try 1
       textPreview.textContent = '';
       extractedText = '';
       usedOCR = false;
+      ocrPagesCount = 0;
     }
 
     function resetConverter() {
@@ -657,7 +660,7 @@ try 1
     // OCR FUNCTION
     // ============================================
     async function runOCR(pdf, pageNum, page) {
-      const viewport = page.getViewport({ scale: 2.5 }); // Higher scale = better OCR
+      const viewport = page.getViewport({ scale: 3 });
       const canvas = document.createElement('canvas');
       const context = canvas.getContext('2d');
       canvas.width = Math.ceil(viewport.width);
@@ -673,7 +676,7 @@ try 1
             logger: (message) => {
               if (message.status === 'recognizing text') {
                 const percent = Math.round(message.progress * 100);
-                const progress = 60 + Math.round((pageNum / totalPages) * 35);
+                const progress = 20 + Math.round((pageNum / totalPages) * 75);
                 progressBar.style.width = progress + '%';
                 progressText.textContent = progress + '%';
                 statusText.textContent = `OCR page ${pageNum}/${totalPages}: ${percent}%`;
@@ -689,7 +692,7 @@ try 1
     }
 
     // ============================================
-    // MAIN CONVERSION FUNCTION
+    // MAIN CONVERSION FUNCTION - PAGE BY PAGE
     // ============================================
     async function convertPDFtoTXT() {
       if (!currentFile) {
@@ -710,12 +713,13 @@ try 1
       progressText.textContent = '5%';
       statusText.textContent = 'Loading PDF...';
       usedOCR = false;
+      ocrPagesCount = 0;
 
       try {
         const arrayBuffer = await currentFile.arrayBuffer();
 
-        progressBar.style.width = '15%';
-        progressText.textContent = '15%';
+        progressBar.style.width = '10%';
+        progressText.textContent = '10%';
         statusText.textContent = 'Parsing document...';
 
         const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
@@ -723,85 +727,71 @@ try 1
         pageCount.textContent = `📄 ${totalPages} pages`;
 
         let fullText = '';
-        let hasText = false;
+        let textPages = 0;
 
-        // FIRST: Try to extract embedded text with PDF.js
+        // ==========================================
+        // PAGE-BY-PAGE EXTRACTION
+        // ==========================================
         for (let pageNum = 1; pageNum <= totalPages; pageNum++) {
           const page = await pdf.getPage(pageNum);
+
+          statusText.textContent = `Analyzing page ${pageNum} of ${totalPages}...`;
+
+          // 1. TRY NORMAL PDF TEXT EXTRACTION
           const textContent = await page.getTextContent();
 
-          // Better text extraction - preserve spaces and structure
-          let pageText = '';
-          let lastX = null;
-          let lastY = null;
+          let pageText = textContent.items
+            .map(item => item.str)
+            .join(' ')
+            .replace(/[ \t]{2,}/g, ' ')
+            .trim();
 
-          const sortedItems = textContent.items.sort((a, b) => {
-            if (Math.abs(a.transform[5] - b.transform[5]) > 2) {
-              return b.transform[5] - a.transform[5];
-            }
-            return a.transform[4] - b.transform[4];
-          });
+          // Determine if the extracted text is actually useful
+          // Stronger detection: need at least 80 chars, 40 letters, 10 words
+          const letters = (pageText.match(/[A-Za-z0-9]/g) || []).length;
+          const words = pageText.split(/\s+/).filter(word => word.length > 1);
+          const usefulText = pageText.length >= 80 && letters >= 40 && words.length >= 10;
 
-          for (const item of sortedItems) {
-            const x = item.transform[4];
-            const y = item.transform[5];
-            
-            if (lastY !== null && Math.abs(y - lastY) > 2) {
-              pageText += '\n';
-            } else if (lastX !== null && x - lastX > 5) {
-              pageText += ' ';
+          // 2. USE EMBEDDED TEXT IF IT LOOKS REAL
+          if (usefulText) {
+            console.log(`Page ${pageNum}: using embedded PDF text (${pageText.length} chars)`);
+            fullText += pageText + '\n\n';
+            textPages++;
+          } else {
+            // 3. FALL BACK TO OCR FOR THIS PAGE ONLY
+            console.log(`Page ${pageNum}: poor/no text layer. Running OCR.`);
+            usedOCR = true;
+            ocrPagesCount++;
+
+            statusText.textContent = `🔍 OCR scanning page ${pageNum} of ${totalPages}...`;
+
+            const ocrResult = await runOCR(pdf, pageNum, page);
+
+            const cleanedOCR = ocrResult
+              .replace(/[ \t]{2,}/g, ' ')
+              .replace(/\n{3,}/g, '\n\n')
+              .trim();
+
+            if (cleanedOCR.length > 0) {
+              fullText += cleanedOCR + '\n\n';
             }
-            
-            pageText += item.str;
-            lastX = x;
-            lastY = y;
           }
 
-          if (pageText.trim()) {
-            hasText = true;
-          }
-
-          fullText += pageText + '\n\n';
-
-          const progress = Math.round((pageNum / totalPages) * 40) + 20;
+          // Update progress
+          const progress = 15 + Math.round((pageNum / totalPages) * 80);
           progressBar.style.width = progress + '%';
           progressText.textContent = progress + '%';
-          statusText.textContent = `Extracting page ${pageNum} of ${totalPages}...`;
         }
 
-        // Check if we have enough text
-        const cleanText = fullText.replace(/\s/g, '').trim();
-        const hasEnoughText = cleanText.length > 20;
-
-        // If no text found, run OCR
-        if (!hasEnoughText) {
-          statusText.textContent = '🔍 No embedded text detected. Running OCR...';
-          progressBar.style.width = '50%';
-          progressText.textContent = '50%';
-          usedOCR = true;
-
-          let ocrText = '';
-
-          for (let pageNum = 1; pageNum <= totalPages; pageNum++) {
-            const page = await pdf.getPage(pageNum);
-            statusText.textContent = `OCR scanning page ${pageNum} of ${totalPages}...`;
-            
-            const pageOcrText = await runOCR(pdf, pageNum, page);
-            if (pageOcrText) {
-              ocrText += pageOcrText.trim() + '\n\n';
-            }
-          }
-
-          fullText = ocrText;
-        }
-
-        // Clean up the text - preserve international characters
+        // ==========================================
+        // CLEANUP
+        // ==========================================
         extractedText = fullText
           .replace(/\n{4,}/g, '\n\n')
           .replace(/[ \t]{3,}/g, '  ')
           .trim();
 
-        // Final check
+        // Final check - if still empty, show helpful message
         if (!extractedText || extractedText.length < 10) {
           extractedText = 'No readable text could be found in this PDF. ' +
             'The document may be encrypted, damaged, or contain only images that OCR could not recognize.';
@@ -812,9 +802,20 @@ try 1
         progressText.textContent = '100%';
         statusText.textContent = '✅ Extraction complete!';
 
+        // ==========================================
+        // SHOW RESULTS
+        // ==========================================
         setTimeout(() => {
-          const source = usedOCR ? 'OCR (scanned PDF)' : 'embedded text';
-          resultSummary.textContent = `Text extracted from ${totalPages} pages using ${source}.`;
+          let sourceInfo = '';
+          if (usedOCR && ocrPagesCount > 0) {
+            sourceInfo = `OCR used on ${ocrPagesCount} page${ocrPagesCount > 1 ? 's' : ''}`;
+            if (textPages > 0) {
+              sourceInfo += `, ${textPages} page${textPages > 1 ? 's' : ''} from embedded text`;
+            }
+          } else {
+            sourceInfo = `${textPages} page${textPages > 1 ? 's' : ''} of embedded text`;
+          }
+          resultSummary.textContent = `Text extracted from ${totalPages} pages using ${sourceInfo}.`;
           displayResult(extractedText);
           convertBtn.disabled = false;
           convertBtn.textContent = '🔄 Extract Text';
@@ -891,7 +892,7 @@ try 1
       }
     });
 
-    console.log('📃 PDF to TXT Converter loaded - OCR fallback enabled');
+    console.log('📃 PDF to TXT Converter loaded - Page-by-page OCR enabled');
   </script>
 
 </body>
