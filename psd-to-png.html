@@ -1,4 +1,4 @@
-try 2
+try 4
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -12,9 +12,6 @@ try 2
 
   <!-- JSZip for ZIP downloads -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-
-  <!-- ag-psd for PSD parsing -->
-  <script src="https://cdn.jsdelivr.net/npm/@webtoon/psd@0.4.0/dist/psd.umd.min.js"></script>
 
   <style>
     .dropzone-highlight {
@@ -445,7 +442,7 @@ try 2
       <div class="bg-white p-4 rounded-xl border border-slate-100 text-center transition-colors duration-200">
         <div class="text-2xl mb-1">🎨</div>
         <h4 class="font-bold text-sm">Layer Support</h4>
-        <p class="text-xs text-slate-500">Proper PSD parsing with ag-psd</p>
+        <p class="text-xs text-slate-500">Proper PSD parsing</p>
       </div>
       <div class="bg-white p-4 rounded-xl border border-slate-100 text-center transition-colors duration-200">
         <div class="text-2xl mb-1">⚡</div>
@@ -491,11 +488,11 @@ try 2
       <div class="space-y-3">
         <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
           <h3 class="font-bold text-slate-900 text-sm">Is my data safe?</h3>
-          <p class="text-slate-600 text-sm mt-1">Yes! All conversions happen locally in your browser. Your PSD files are never uploaded to any server and are automatically deleted when you close the page.</p>
+          <p class="text-slate-600 text-sm mt-1">Yes! All conversions happen locally in your browser. Your PSD files are never uploaded to any server.</p>
         </div>
         <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
           <h3 class="font-bold text-slate-900 text-sm">How does this work?</h3>
-          <p class="text-slate-600 text-sm mt-1">This converter uses the ag-psd library to properly parse PSD files in your browser. It extracts the composite image and converts it to PNG without any server uploads.</p>
+          <p class="text-slate-600 text-sm mt-1">This converter uses a PSD parsing library to extract the composite image and convert it to PNG without any server uploads.</p>
         </div>
         <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
           <h3 class="font-bold text-slate-900 text-sm">What about layers?</h3>
@@ -503,11 +500,11 @@ try 2
         </div>
         <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
           <h3 class="font-bold text-slate-900 text-sm">Will I lose image quality?</h3>
-          <p class="text-slate-600 text-sm mt-1">No! PNG is a lossless format, so no quality is lost during conversion. The converted image will be a perfect pixel-for-pixel representation of your PSD.</p>
+          <p class="text-slate-600 text-sm mt-1">No! PNG is a lossless format, so no quality is lost during conversion.</p>
         </div>
         <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
           <h3 class="font-bold text-slate-900 text-sm">Can I convert multiple files at once?</h3>
-          <p class="text-slate-600 text-sm mt-1">Yes! Drag and drop multiple PSD files or select multiple files using the file picker. Each file will be converted individually, and you can download them all at once as a ZIP file.</p>
+          <p class="text-slate-600 text-sm mt-1">Yes! Drag and drop multiple PSD files or select multiple files using the file picker.</p>
         </div>
       </div>
     </section>
@@ -526,6 +523,11 @@ try 2
       </div>
     </div>
   </footer>
+
+  <!-- ============================================ -->
+  <!-- PSD PARSING - Using UMD build from CDN -->
+  <!-- ============================================ -->
+  <script src="https://unpkg.com/@webtoon/psd@0.4.0/dist/psd.umd.min.js"></script>
 
   <!-- Conversion JavaScript -->
   <script>
@@ -558,6 +560,40 @@ try 2
     });
 
     // ============================================
+    // CHECK IF PSD LIBRARY LOADED
+    // ============================================
+    let psdLoaded = false;
+    
+    function checkPsdLoaded() {
+      return typeof PSD !== 'undefined' && typeof PSD.parse === 'function';
+    }
+
+    // Wait for library to load
+    function waitForPsd() {
+      return new Promise((resolve) => {
+        if (checkPsdLoaded()) {
+          psdLoaded = true;
+          resolve(true);
+          return;
+        }
+        
+        let attempts = 0;
+        const maxAttempts = 30;
+        const interval = setInterval(() => {
+          attempts++;
+          if (checkPsdLoaded()) {
+            psdLoaded = true;
+            clearInterval(interval);
+            resolve(true);
+          } else if (attempts >= maxAttempts) {
+            clearInterval(interval);
+            resolve(false);
+          }
+        }, 200);
+      });
+    }
+
+    // ============================================
     // CONVERTER LOGIC
     // ============================================
     let files = [];
@@ -585,9 +621,6 @@ try 2
     const conversionMode = document.getElementById('conversionMode');
     const imageSize = document.getElementById('imageSize');
     const colorMode = document.getElementById('colorMode');
-
-    // Check if ag-psd is loaded
-    const isPsdLoaded = typeof PSD !== 'undefined';
 
     // Drag and Drop
     dropzone.addEventListener('dragover', (e) => {
@@ -673,13 +706,14 @@ try 2
         const sizeKB = (file.size / 1024).toFixed(1);
         let previewImg = '';
         
-        if (isPSD && isPsdLoaded) {
+        if (isPSD && psdLoaded) {
           try {
             const buffer = await file.arrayBuffer();
             const psd = PSD.parse(buffer);
-            const canvas = psd.imageData.canvas;
-            const dataUrl = canvas.toDataURL('image/png');
-            previewImg = dataUrl;
+            if (psd && psd.imageData && psd.imageData.canvas) {
+              const canvas = psd.imageData.canvas;
+              previewImg = canvas.toDataURL('image/png');
+            }
           } catch (e) {
             console.warn('Could not preview PSD:', e);
             previewImg = '';
@@ -733,7 +767,7 @@ try 2
     }
 
     // ============================================
-    // PSD CONVERSION USING ag-psd
+    // PSD CONVERSION
     // ============================================
     async function convertPSDtoPNG() {
       if (files.length === 0) {
@@ -741,17 +775,28 @@ try 2
         return;
       }
 
-      if (!isPsdLoaded) {
-        alert('PSD library not loaded. Please refresh the page.');
-        return;
+      // Wait for PSD library to load
+      if (!psdLoaded) {
+        statusText.textContent = 'Loading PSD library...';
+        progressContainer.classList.remove('hidden');
+        progressBar.style.width = '5%';
+        progressText.textContent = '5%';
+        
+        const loaded = await waitForPsd();
+        if (!loaded) {
+          alert('PSD library failed to load. Please refresh the page and try again.');
+          progressContainer.classList.add('hidden');
+          return;
+        }
+        psdLoaded = true;
       }
 
       progressContainer.classList.remove('hidden');
       resultSection.classList.add('hidden');
       convertBtn.disabled = true;
       convertBtn.textContent = '⏳ Converting...';
-      progressBar.style.width = '5%';
-      progressText.textContent = '5%';
+      progressBar.style.width = '10%';
+      progressText.textContent = '10%';
       statusText.textContent = 'Initializing...';
 
       convertedFiles = [];
@@ -768,7 +813,7 @@ try 2
           
           statusText.textContent = `Processing ${i + 1} of ${files.length}: ${file.name}`;
 
-          const progress = Math.round(((i) / files.length) * 80) + 10;
+          const progress = Math.round(((i) / files.length) * 70) + 15;
           progressBar.style.width = progress + '%';
           progressText.textContent = progress + '%';
 
@@ -776,7 +821,7 @@ try 2
             const buffer = await file.arrayBuffer();
             let sourceCanvas;
 
-            if (isPSD) {
+            if (isPSD && psdLoaded) {
               // Parse PSD using ag-psd
               const psd = PSD.parse(buffer);
               
@@ -785,7 +830,7 @@ try 2
               }
               
               sourceCanvas = psd.imageData.canvas;
-            } else {
+            } else if (!isPSD) {
               // For non-PSD images, use Image object
               const img = await loadImage(file);
               const canvas = document.createElement('canvas');
@@ -794,6 +839,8 @@ try 2
               const ctx = canvas.getContext('2d');
               ctx.drawImage(img, 0, 0);
               sourceCanvas = canvas;
+            } else {
+              throw new Error('PSD library not available');
             }
 
             let width = sourceCanvas.width;
@@ -860,7 +907,6 @@ try 2
           } catch (err) {
             console.error(`Error converting ${file.name}:`, err);
             failCount++;
-            // Store error info but don't add to downloadable files
           }
         }
 
@@ -1022,6 +1068,16 @@ try 2
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' && !fileInfo.classList.contains('hidden') && !convertBtn.disabled) {
         convertPSDtoPNG();
+      }
+    });
+
+    // Pre-load PSD library on page load
+    waitForPsd().then(loaded => {
+      if (loaded) {
+        console.log('✅ PSD library loaded successfully');
+        psdLoaded = true;
+      } else {
+        console.warn('⚠️ PSD library not loaded');
       }
     });
   </script>
