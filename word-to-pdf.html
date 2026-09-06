@@ -1,10 +1,10 @@
-try 6
+try 7
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Word to PDF Converter - Droplet (Try 3)</title>
+  <title>Word to PDF Converter - Droplet (Try 4)</title>
   <meta name="description" content="Convert Word DOCX files to PDF online for free. 100% client-side.">
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.8.0/mammoth.browser.min.js"></script>
@@ -92,6 +92,21 @@ try 6
   <div id="pdfRenderHost" aria-hidden="true"></div>
 
 <script>
+// Robust CDN fallback: if a library fails to load from the first CDN, retry from unpkg.
+function loadScriptFallback(src){
+  return new Promise((resolve,reject)=>{
+    const sc=document.createElement('script'); sc.src=src; sc.onload=resolve; sc.onerror=()=>reject(new Error('Could not load '+src)); document.head.appendChild(sc);
+  });
+}
+async function ensureLibraries(){
+  if(typeof mammoth==='undefined'){
+    try{await loadScriptFallback('https://unpkg.com/mammoth@1.8.0/mammoth.browser.min.js')}catch(e){throw new Error('Word conversion library could not be loaded. Please refresh and try again.')}
+  }
+  if(typeof html2pdf==='undefined'){
+    try{await loadScriptFallback('https://unpkg.com/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js')}catch(e){throw new Error('PDF conversion library could not be loaded. Please refresh and try again.')}
+  }
+}
+
 let currentFile=null,htmlContent='',convertedBlob=null,pageCount=0;
 const dropzone=document.getElementById('dropzone'),fileInput=document.getElementById('fileInput'),fileSection=document.getElementById('fileSection'),
 fileName=document.getElementById('fileName'),fileSize=document.getElementById('fileSize'),previewSection=document.getElementById('previewSection'),
@@ -115,16 +130,29 @@ fileInput.addEventListener('change',e=>{if(e.target.files.length){handleFile(e.t
 async function handleFile(file){
   if(!isDocx(file)){alert('Please select a .docx file.');return}
   if(file.size>50*1024*1024){alert('File is too large. Please use a file under 50MB.');return}
-  currentFile=file;fileName.textContent=file.name;fileSize.textContent=formatSize(file.size);
+  currentFile=file;htmlContent='';fileName.textContent=file.name;fileSize.textContent=formatSize(file.size);
   fileSection.classList.remove('hidden');dropzone.classList.add('hidden');resultSection.classList.add('hidden');progressSection.classList.add('hidden');
-  convertBtn.disabled=false;convertBtn.textContent='🔄 Convert to PDF';await loadPreview(file)
+  // IMPORTANT: show conversion controls immediately. Preview is optional and must not block conversion.
+  controlsSection.classList.remove('hidden');
+  convertBtn.disabled=false;convertBtn.textContent='🔄 Convert to PDF';
+  await loadPreview(file);
 }
+
 async function loadPreview(file){
   try{
-    const result=await mammoth.convertToHtml({arrayBuffer:await file.arrayBuffer(),convertImage:mammoth.images.imgElement(image=>image.read('base64').then(data=>({src:'data:'+image.contentType+';base64,'+data})))});
-    htmlContent=result.value||'<p>No content found.</p>';previewContent.innerHTML=htmlContent;previewSection.classList.remove('hidden');controlsSection.classList.remove('hidden');
+    await ensureLibraries();
+    const arrayBuffer=await file.arrayBuffer();
+    const result=await mammoth.convertToHtml({arrayBuffer,convertImage:mammoth.images.imgElement(image=>image.read('base64').then(data=>({src:'data:'+image.contentType+';base64,'+data})))});
+    htmlContent=result.value||'<p>No content found.</p>';
+    previewContent.innerHTML=htmlContent;previewSection.classList.remove('hidden');controlsSection.classList.remove('hidden');
     pageCount=Math.max(1,Math.ceil(htmlContent.replace(/<[^>]*>/g,' ').split(/\s+/).filter(Boolean).length/300));
-  }catch(e){console.error(e);previewContent.innerHTML='<p class="text-red-500">⚠️ Could not preview this file.</p>';previewSection.classList.remove('hidden')}
+  }catch(e){
+    console.error('Preview error:',e);
+    // Preview failure must NEVER hide the Convert button. Conversion will retry Mammoth independently.
+    previewContent.innerHTML='<p class="text-amber-600">⚠️ Preview is unavailable, but you can still convert this Word file to PDF.</p>';
+    previewSection.classList.remove('hidden');
+    controlsSection.classList.remove('hidden');
+  }
 }
 function clearFile(){
   currentFile=null;htmlContent='';convertedBlob=null;fileInput.value='';fileSection.classList.add('hidden');dropzone.classList.remove('hidden');
@@ -147,12 +175,18 @@ function waitForFonts(){return document.fonts&&document.fonts.ready?document.fon
 
 async function convertToPDF(){
   if(!currentFile){alert('Please select a Word file first.');return}
-  if(!htmlContent){alert('No content to convert. Please try again.');return}
-  if(typeof html2pdf==='undefined'){alert('PDF library not loaded. Please refresh the page.');return}
-
   progressSection.classList.remove('hidden');resultSection.classList.add('hidden');convertBtn.disabled=true;convertBtn.textContent='⏳ Converting...';setProgress(5,'Preparing...','Reading Word document...')
   const host=document.getElementById('pdfRenderHost');let root=null;
   try{
+    await ensureLibraries();
+    // If preview failed, convert directly from the original DOCX now.
+    if(!htmlContent){
+      setProgress(10,'Reading Word file...','Preparing document content...');
+      const arrayBuffer=await currentFile.arrayBuffer();
+      const result=await mammoth.convertToHtml({arrayBuffer,convertImage:mammoth.images.imgElement(image=>image.read('base64').then(data=>({src:'data:'+image.contentType+';base64,'+data})))});
+      htmlContent=result.value||'<p>No content found.</p>';
+      pageCount=Math.max(1,Math.ceil(htmlContent.replace(/<[^>]*>/g,' ').split(/\s+/).filter(Boolean).length/300));
+    }
     const m=pageMetrics(pageSize.value,orientation.value);
     setProgress(15,'Preparing layout','Creating isolated page...')
     host.innerHTML='';host.style.width=m.wPx+'px';host.style.height='auto';
@@ -201,7 +235,7 @@ async function convertToPDF(){
     convertBtn.disabled=false;convertBtn.textContent='🔄 Convert to PDF';progressSection.classList.add('hidden');
   }catch(error){
     console.error('Try 3 conversion error:',error);if(host)host.innerHTML='';
-    statusText.textContent='❌ Error: '+error.message;convertBtn.disabled=false;convertBtn.textContent='🔄 Convert to PDF';
+    statusText.textContent='❌ Error: '+error.message;controlsSection.classList.remove('hidden');convertBtn.disabled=false;convertBtn.textContent='🔄 Convert to PDF';
     alert('Conversion failed: '+error.message)
   }
 }
