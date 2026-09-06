@@ -1,4 +1,3 @@
-try 4
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -22,7 +21,7 @@ try 4
       background: #eff6ff !important;
     }
     .progress-bar {
-      transition: width 0.5s ease;
+      transition: width 0.3s ease;
     }
     .hidden {
       display: none !important;
@@ -272,6 +271,28 @@ try 4
       background: #334155 !important;
       border-color: #3b82f6 !important;
     }
+
+    /* Hide scrollbar during conversion to prevent glitch */
+    .converting {
+      overflow: hidden !important;
+    }
+    .converting .epub-preview {
+      opacity: 0.5;
+      pointer-events: none;
+    }
+    #pdf-render-container {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 794px;
+      background: #ffffff;
+      color: #000000;
+      padding: 40px;
+      box-sizing: border-box;
+      z-index: -1;
+      overflow: visible;
+      pointer-events: none;
+    }
   </style>
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans antialiased transition-colors duration-200">
@@ -491,7 +512,6 @@ try 4
     let fullEpubHTML = '';
     let epubMetadata = {};
     let zipFileRef = null;
-    let imageMap = {};
 
     // DOM Elements
     const dropzone = document.getElementById('dropzone');
@@ -581,7 +601,6 @@ try 4
       previewContent.innerHTML = '';
       fullEpubHTML = '';
       epubMetadata = {};
-      imageMap = {};
       zipFileRef = null;
     }
 
@@ -609,11 +628,9 @@ try 4
 
         const opfXml = await zip.file(opfPath).async('text');
 
-        // Use DOMParser instead of regex (Fix 2 & 3)
         const parser = new DOMParser();
         const opfDoc = parser.parseFromString(opfXml, 'application/xml');
 
-        // Extract metadata
         const titleNode = opfDoc.querySelector('metadata > title') || opfDoc.querySelector('dc\\:title');
         const authorNode = opfDoc.querySelector('metadata > creator') || opfDoc.querySelector('dc\\:creator');
         const publisherNode = opfDoc.querySelector('metadata > publisher') || opfDoc.querySelector('dc\\:publisher');
@@ -626,19 +643,16 @@ try 4
 
         metadata.textContent = `📝 ${epubMetadata.title} • ✍️ ${epubMetadata.author}`;
 
-        // Parse manifest with DOMParser
         const manifest = {};
         const manifestItems = opfDoc.querySelectorAll('manifest item');
         manifestItems.forEach(item => {
           const id = item.getAttribute('id');
           const href = item.getAttribute('href');
-          const mediaType = item.getAttribute('media-type');
           if (id && href) {
-            manifest[id] = { href, mediaType };
+            manifest[id] = { href };
           }
         });
 
-        // Parse spine with DOMParser
         const itemRefs = [];
         opfDoc.querySelectorAll('spine itemref').forEach(item => {
           const idref = item.getAttribute('idref');
@@ -654,7 +668,6 @@ try 4
         let allContent = '';
         const opfDir = opfPath.substring(0, opfPath.lastIndexOf('/') + 1);
         
-        // Process all chapters (no limit - Fix 4)
         for (let i = 0; i < itemRefs.length; i++) {
           const itemId = itemRefs[i];
           const itemData = manifest[itemId];
@@ -668,21 +681,18 @@ try 4
               if (bodyMatch) {
                 bodyContent = bodyMatch[1];
               }
-              // Remove scripts and styles
               bodyContent = bodyContent.replace(/<script[\s\S]*?<\/script>/gi, '');
               bodyContent = bodyContent.replace(/<style[\s\S]*?<\/style>/gi, '');
               
-              // Replace image references with data URLs (Fix 4)
+              // Replace image references with data URLs
               const imgMatches = bodyContent.match(/<img[^>]+src=["']([^"']+)["']/g);
               if (imgMatches) {
                 for (const imgTag of imgMatches) {
                   const srcMatch = imgTag.match(/src=["']([^"']+)["']/);
                   if (srcMatch) {
                     const imgSrc = srcMatch[1];
-                    // Resolve image path
                     let imgPath = imgSrc;
                     if (!imgPath.startsWith('/') && !imgPath.startsWith('http')) {
-                      // Relative path - resolve against opf directory
                       const imgDir = opfDir + imgSrc;
                       imgPath = imgDir;
                     }
@@ -696,7 +706,6 @@ try 4
                                          ext === 'gif' ? 'image/gif' : 
                                          ext === 'svg' ? 'image/svg+xml' : 'image/png';
                         const dataUrl = `data:${mimeType};base64,${imageData}`;
-                        // Replace the src in the body content
                         const escapedSrc = imgSrc.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
                         bodyContent = bodyContent.replace(
                           new RegExp(`src=["']${escapedSrc}["']`, 'g'),
@@ -704,7 +713,7 @@ try 4
                         );
                       }
                     } catch (e) {
-                      console.log('Could not load image:', imgPath, e);
+                      console.log('Could not load image:', imgPath);
                     }
                   }
                 }
@@ -718,7 +727,7 @@ try 4
           }
         }
 
-        // If we didn't get any content, try fallback
+        // Fallback if no content found
         if (!allContent.trim()) {
           statusText.textContent = 'Trying alternative extraction...';
           const htmlFiles = [];
@@ -795,6 +804,9 @@ try 4
         return;
       }
 
+      // Prevent glitch by disabling interactions during conversion
+      document.body.classList.add('converting');
+      
       progressContainer.classList.remove('hidden');
       resultSection.classList.add('hidden');
       convertBtn.disabled = true;
@@ -815,7 +827,6 @@ try 4
         progressText.textContent = '40%';
         statusText.textContent = 'Rendering document...';
 
-        // Build the document for PDF (Fix 1 - render on screen, not off-screen)
         const printHtml = `
           <!DOCTYPE html>
           <html>
@@ -937,18 +948,6 @@ try 4
               .chapter {
                 margin-top: 10pt;
               }
-              .figure {
-                text-align: center;
-                margin: 16pt 0;
-              }
-              .figure img {
-                max-width: 80%;
-              }
-              .figure .caption {
-                font-size: 10pt;
-                color: #555;
-                margin-top: 6pt;
-              }
             </style>
           </head>
           <body>
@@ -970,23 +969,29 @@ try 4
         progressText.textContent = '60%';
         statusText.textContent = 'Generating PDF...';
 
-        // Create container ON-SCREEN (Fix 1 - no off-screen rendering)
-        const tempContainer = document.createElement('div');
+        // Create container - use a dedicated container to avoid UI glitches
+        const containerId = 'pdf-render-container';
+        let tempContainer = document.getElementById(containerId);
+        if (!tempContainer) {
+          tempContainer = document.createElement('div');
+          tempContainer.id = containerId;
+          tempContainer.style.position = 'absolute';
+          tempContainer.style.left = '0';
+          tempContainer.style.top = '0';
+          tempContainer.style.width = '794px';
+          tempContainer.style.backgroundColor = '#ffffff';
+          tempContainer.style.color = '#000000';
+          tempContainer.style.padding = '40px';
+          tempContainer.style.boxSizing = 'border-box';
+          tempContainer.style.zIndex = '-1';
+          tempContainer.style.overflow = 'visible';
+          tempContainer.style.pointerEvents = 'none';
+          document.body.appendChild(tempContainer);
+        }
         tempContainer.innerHTML = printHtml;
-        tempContainer.style.position = 'absolute';
-        tempContainer.style.left = '0';
-        tempContainer.style.top = '0';
-        tempContainer.style.width = '794px';
-        tempContainer.style.backgroundColor = '#ffffff';
-        tempContainer.style.color = '#000000';
-        tempContainer.style.padding = '40px';
-        tempContainer.style.boxSizing = 'border-box';
-        tempContainer.style.zIndex = '-1';
-        tempContainer.style.overflow = 'visible';
-        document.body.appendChild(tempContainer);
 
-        // Wait for images to load and content to render
-        await new Promise(resolve => setTimeout(resolve, 1500));
+        // Small delay for rendering
+        await new Promise(resolve => setTimeout(resolve, 800));
 
         const opt = {
           margin: 0,
@@ -997,8 +1002,7 @@ try 4
             useCORS: true,
             letterRendering: true,
             backgroundColor: '#ffffff',
-            width: tempContainer.scrollWidth || 794,
-            height: tempContainer.scrollHeight || 1123,
+            width: 794,
             logging: false
           },
           jsPDF: {
@@ -1018,9 +1022,6 @@ try 4
           .from(tempContainer)
           .outputPdf('blob');
 
-        // Clean up
-        document.body.removeChild(tempContainer);
-
         progressBar.style.width = '100%';
         progressText.textContent = '100%';
         statusText.textContent = '✅ Conversion complete!';
@@ -1034,6 +1035,7 @@ try 4
           convertBtn.disabled = false;
           convertBtn.textContent = '🔄 Convert to PDF';
           progressContainer.classList.add('hidden');
+          document.body.classList.remove('converting');
         }, 500);
 
       } catch (error) {
@@ -1041,6 +1043,7 @@ try 4
         statusText.textContent = '❌ Conversion failed: ' + error.message;
         convertBtn.disabled = false;
         convertBtn.textContent = '🔄 Convert to PDF';
+        document.body.classList.remove('converting');
         alert('Conversion failed. Please try again or use a different EPUB file.\n\nError: ' + error.message);
       }
     }
