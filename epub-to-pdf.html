@@ -1,4 +1,4 @@
-try 1 
+try 2
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -109,10 +109,6 @@ try 1
     .epub-preview .table-of-contents li {
       list-style: none;
       padding: 4px 0;
-    }
-    .epub-preview .table-of-contents .toc-dots {
-      float: right;
-      color: #9ca3af;
     }
 
     /* Dark mode overrides */
@@ -449,7 +445,7 @@ try 1
         </div>
         <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
           <h3 class="font-bold text-slate-900 text-sm">How does the conversion work?</h3>
-          <p class="text-slate-600 text-sm mt-1">EPUB files are ZIP archives containing HTML content. This tool extracts the HTML, renders it beautifully, and converts it to PDF using the same technology used for the EPUB to PDF converter. All processing stays in your browser.</p>
+          <p class="text-slate-600 text-sm mt-1">EPUB files are ZIP archives containing HTML content. This tool extracts the HTML, renders it beautifully, and converts it to PDF. All processing stays in your browser.</p>
         </div>
       </div>
     </section>
@@ -504,7 +500,7 @@ try 1
     // ============================================
     let currentFile = null;
     let convertedBlob = null;
-    let epubHTML = '';
+    let fullEpubHTML = '';
     let epubMetadata = {};
 
     // DOM Elements
@@ -593,7 +589,7 @@ try 1
       progressBar.style.width = '0%';
       progressText.textContent = '0%';
       previewContent.innerHTML = '';
-      epubHTML = '';
+      fullEpubHTML = '';
       epubMetadata = {};
     }
 
@@ -613,8 +609,8 @@ try 1
         const arrayBuffer = await file.arrayBuffer();
         const zip = await JSZip.loadAsync(arrayBuffer);
 
-        progressBar.style.width = '30%';
-        progressText.textContent = '30%';
+        progressBar.style.width = '25%';
+        progressText.textContent = '25%';
         statusText.textContent = 'Parsing EPUB structure...';
 
         const containerXml = await zip.file('META-INF/container.xml').async('text');
@@ -660,13 +656,13 @@ try 1
           }
         }
 
-        progressBar.style.width = '50%';
-        progressText.textContent = '50%';
+        progressBar.style.width = '45%';
+        progressText.textContent = '45%';
         statusText.textContent = 'Processing content...';
 
-        let htmlContent = '';
+        let allContent = '';
         const opfDir = opfPath.substring(0, opfPath.lastIndexOf('/') + 1);
-        const maxChapters = Math.min(6, itemRefs.length);
+        const maxChapters = Math.min(8, itemRefs.length);
 
         for (let i = 0; i < maxChapters; i++) {
           const itemId = itemRefs[i];
@@ -675,23 +671,60 @@ try 1
             const file = zip.file(filePath);
             if (file) {
               const content = await file.async('text');
-              // Extract body content with style preservation
               let bodyContent = content;
-              // Try to extract body
-              const bodyMatch = content.match(/<body[^>]*>(.*?)<\/body>/s);
+              // Try to extract body content
+              const bodyMatch = content.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
               if (bodyMatch) {
                 bodyContent = bodyMatch[1];
               }
-              // Clean up and preserve structure
-              htmlContent += `<div class="chapter">${bodyContent}</div>`;
+              // Remove scripts and styles
+              bodyContent = bodyContent.replace(/<script[\s\S]*?<\/script>/gi, '');
+              bodyContent = bodyContent.replace(/<style[\s\S]*?<\/style>/gi, '');
+              allContent += `<div class="chapter">${bodyContent}</div>`;
               if (i < maxChapters - 1) {
-                htmlContent += `<div class="page-break"></div>`;
+                allContent += `<div class="page-break"></div>`;
               }
             }
           }
         }
 
-        // Build enhanced preview with academic styling
+        // If we didn't get any content from the spine, try to find all HTML files
+        if (!allContent.trim()) {
+          statusText.textContent = 'Trying alternative extraction...';
+          const htmlFiles = [];
+          zip.forEach((relativePath, file) => {
+            if (relativePath.endsWith('.html') || relativePath.endsWith('.xhtml') || relativePath.endsWith('.htm')) {
+              htmlFiles.push(relativePath);
+            }
+          });
+          
+          // Sort and process first few HTML files
+          const sortedFiles = htmlFiles.sort();
+          for (let i = 0; i < Math.min(6, sortedFiles.length); i++) {
+            try {
+              const content = await zip.file(sortedFiles[i]).async('text');
+              let bodyContent = content;
+              const bodyMatch = content.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
+              if (bodyMatch) {
+                bodyContent = bodyMatch[1];
+              }
+              bodyContent = bodyContent.replace(/<script[\s\S]*?<\/script>/gi, '');
+              bodyContent = bodyContent.replace(/<style[\s\S]*?<\/style>/gi, '');
+              if (bodyContent.trim()) {
+                allContent += `<div class="chapter">${bodyContent}</div>`;
+                allContent += `<div class="page-break"></div>`;
+              }
+            } catch (e) {
+              console.log('Skipping file:', sortedFiles[i]);
+            }
+          }
+        }
+
+        progressBar.style.width = '70%';
+        progressText.textContent = '70%';
+        statusText.textContent = 'Building preview...';
+
+        // Build preview with actual content
         const previewHtml = `
           <div class="title-page">
             <h1>${epubMetadata.title}</h1>
@@ -700,13 +733,13 @@ try 1
             <p style="margin-top: 20px; font-size: 0.8em; color: #9ca3af;">Converted by Droplet</p>
           </div>
           <div class="page-break"></div>
-          ${htmlContent}
+          ${allContent || '<p>No content could be extracted from this EPUB file. It may be DRM-protected or in an unsupported format.</p>'}
         `;
 
         previewContent.innerHTML = previewHtml;
         previewContainer.classList.remove('hidden');
 
-        epubHTML = previewHtml;
+        fullEpubHTML = allContent;
 
         progressBar.style.width = '100%';
         progressText.textContent = '100%';
@@ -718,7 +751,8 @@ try 1
       } catch (error) {
         console.error('EPUB parsing error:', error);
         statusText.textContent = '❌ Failed to parse EPUB: ' + error.message;
-        alert('Failed to parse EPUB file. Please make sure it is a valid EPUB file.\n\nError: ' + error.message);
+        previewContent.innerHTML = `<p style="color: red;">Error parsing EPUB: ${error.message}</p><p>Please make sure the file is a valid EPUB (not DRM-protected).</p>`;
+        previewContainer.classList.remove('hidden');
       }
     }
 
@@ -742,15 +776,18 @@ try 1
       statusText.textContent = 'Preparing document...';
 
       try {
-        if (!epubHTML) {
+        if (!fullEpubHTML) {
           await parseEPUB(currentFile);
+          // If still empty, create fallback content
+          if (!fullEpubHTML) {
+            fullEpubHTML = `<p>No content could be extracted. The EPUB may be DRM-protected.</p>`;
+          }
         }
 
         progressBar.style.width = '40%';
         progressText.textContent = '40%';
         statusText.textContent = 'Rendering document...';
 
-        // Clean academic-style PDF with black text on white A4
         const printHtml = `
           <!DOCTYPE html>
           <html>
@@ -861,11 +898,6 @@ try 1
                 color: #666;
                 margin-top: 30pt;
               }
-              .title-page .date {
-                font-size: 11pt;
-                color: #666;
-                margin-top: 20pt;
-              }
               .page-break {
                 page-break-after: always;
                 border: none;
@@ -873,26 +905,8 @@ try 1
                 padding: 0;
                 height: 0;
               }
-              .table-of-contents {
-                margin: 20pt 0;
-              }
-              .table-of-contents ul {
-                list-style: none;
-                padding: 0;
-              }
-              .table-of-contents li {
-                padding: 4pt 0;
-                border-bottom: 1px dotted #ddd;
-              }
-              .table-of-contents .toc-dots {
-                float: right;
-                color: #999;
-              }
               .chapter {
-                margin-top: 20pt;
-              }
-              .chapter h1, .chapter h2 {
-                text-align: center;
+                margin-top: 10pt;
               }
               .figure {
                 text-align: center;
@@ -910,7 +924,14 @@ try 1
           </head>
           <body>
             <div class="content">
-              ${epubHTML}
+              <div class="title-page">
+                <h1>${epubMetadata.title || 'EPUB Document'}</h1>
+                ${epubMetadata.author ? `<p class="author">By ${epubMetadata.author}</p>` : ''}
+                ${epubMetadata.publisher ? `<p class="publisher">${epubMetadata.publisher}</p>` : ''}
+                <p style="margin-top: 40pt; font-size: 10pt; color: #999;">Converted by Droplet</p>
+              </div>
+              <div class="page-break"></div>
+              ${fullEpubHTML || '<p>No content could be extracted. The EPUB may be DRM-protected or in an unsupported format.</p>'}
             </div>
           </body>
           </html>
@@ -925,22 +946,24 @@ try 1
         tempContainer.style.position = 'fixed';
         tempContainer.style.left = '-9999px';
         tempContainer.style.top = '0';
-        tempContainer.style.width = '210mm';
+        tempContainer.style.width = '794px';
         tempContainer.style.background = '#ffffff';
         tempContainer.style.zIndex = '-9999';
         document.body.appendChild(tempContainer);
+
+        // Wait for images to load
+        await new Promise(resolve => setTimeout(resolve, 1000));
 
         const opt = {
           margin: 0,
           filename: 'converted.pdf',
           image: { type: 'jpeg', quality: 0.98 },
           html2canvas: {
-            scale: 3,
+            scale: 2,
             useCORS: true,
             letterRendering: true,
             backgroundColor: '#ffffff',
-            width: tempContainer.scrollWidth || 794,
-            height: tempContainer.scrollHeight || 1123
+            width: tempContainer.scrollWidth || 794
           },
           jsPDF: {
             unit: 'mm',
@@ -954,7 +977,7 @@ try 1
         progressText.textContent = '80%';
         statusText.textContent = 'Finalizing PDF...';
 
-        const pdf = await html2pdf()
+        const pdfBlob = await html2pdf()
           .set(opt)
           .from(tempContainer)
           .outputPdf('blob');
@@ -966,7 +989,7 @@ try 1
         statusText.textContent = '✅ Conversion complete!';
 
         setTimeout(() => {
-          const url = URL.createObjectURL(pdf);
+          const url = URL.createObjectURL(pdfBlob);
           downloadLink.href = url;
           const baseName = currentFile.name.replace(/\.epub$/i, '');
           downloadLink.download = baseName + '.pdf';
