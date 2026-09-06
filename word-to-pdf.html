@@ -1,14 +1,17 @@
-try 8
+try 9
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Word to PDF Converter - Droplet (Try 4)</title>
+  <title>Word to PDF Converter - Droplet (Try 5 Fixed)</title>
   <meta name="description" content="Convert Word DOCX files to PDF online for free. 100% client-side.">
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.8.0/mammoth.browser.min.js"></script>
+  <!-- html2pdf is no longer used for PDF placement, but kept for compatibility. -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <!-- TRY 5 FIX: html2canvas must be loaded directly because html2pdf does not reliably expose it as window.html2canvas. -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
     .dropzone-active{border-color:#3b82f6!important;background:#eff6ff!important}
@@ -104,7 +107,20 @@ async function ensureLibraries(){
     try{await loadScriptFallback('https://unpkg.com/mammoth@1.8.0/mammoth.browser.min.js')}catch(e){throw new Error('Word conversion library could not be loaded. Please refresh and try again.')}
   }
   if(typeof html2pdf==='undefined'){
-    try{await loadScriptFallback('https://unpkg.com/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js')}catch(e){throw new Error('PDF conversion library could not be loaded. Please refresh and try again.')}
+    try{await loadScriptFallback('https://unpkg.com/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js')}catch(e){/* html2pdf is not required by Try 5 */}
+  }
+  if(typeof html2canvas==='undefined'){
+    try{await loadScriptFallback('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js')}
+    catch(e1){
+      try{await loadScriptFallback('https://unpkg.com/html2canvas@1.4.1/dist/html2canvas.min.js')}
+      catch(e2){throw new Error('html2canvas could not be loaded. Please check your internet connection and refresh the page.')}
+    }
+  }
+  if(!(window.jspdf && window.jspdf.jsPDF)){
+    try{await loadScriptFallback('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js')}catch(e){
+      try{await loadScriptFallback('https://unpkg.com/jspdf@2.5.1/dist/jspdf.umd.min.js')}
+      catch(e2){throw new Error('jsPDF could not be loaded. Please check your internet connection and refresh the page.')}
+    }
   }
 }
 
@@ -275,7 +291,7 @@ async function convertToPDF(){
   }
 }
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&!convertBtn.disabled&&!controlsSection.classList.contains('hidden'))convertToPDF()});
-console.log('📝 Droplet Word to PDF Converter - Try 3 loaded');
+console.log('📝 Droplet Word to PDF Converter - Try 5 Fixed loaded');
 </script>
 </body>
 </html>
