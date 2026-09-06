@@ -27,32 +27,38 @@
       display: none !important;
     }
     .epub-preview {
-      font-family: Georgia, serif;
+      font-family: 'Times New Roman', Georgia, serif;
       line-height: 1.8;
-      max-height: 450px;
+      max-height: 500px;
       overflow-y: auto;
-      background: #f8fafc;
-      padding: 24px;
+      background: #ffffff;
+      padding: 30px 35px;
       border-radius: 8px;
       border: 1px solid #e2e8f0;
+      color: #1a1a1a;
+      font-size: 14px;
     }
     .epub-preview h1 {
       font-size: 2em;
       margin: 0.8em 0 0.5em;
       font-weight: 700;
+      color: #1a1a1a;
     }
     .epub-preview h2 {
       font-size: 1.6em;
       margin: 0.8em 0 0.5em;
       font-weight: 600;
+      color: #1a1a1a;
     }
     .epub-preview h3 {
       font-size: 1.2em;
       margin: 0.6em 0 0.4em;
       font-weight: 600;
+      color: #1a1a1a;
     }
     .epub-preview p {
       margin: 0.6em 0;
+      color: #1a1a1a;
     }
     .epub-preview img {
       max-width: 100%;
@@ -80,15 +86,32 @@
     }
     .epub-preview .title-page {
       text-align: center;
-      padding: 30px 0;
+      padding: 40px 0 30px;
     }
     .epub-preview .title-page h1 {
       font-size: 2.4em;
       margin-bottom: 0.3em;
+      color: #1a1a1a;
     }
     .epub-preview .title-page .author {
       font-size: 1.2em;
-      color: #6b7280;
+      color: #4b5563;
+    }
+    .epub-preview .page-break {
+      border: none;
+      border-top: 2px dashed #d1d5db;
+      margin: 30px 0;
+    }
+    .epub-preview .table-of-contents {
+      font-size: 0.95em;
+    }
+    .epub-preview .table-of-contents li {
+      list-style: none;
+      padding: 4px 0;
+    }
+    .epub-preview .table-of-contents .toc-dots {
+      float: right;
+      color: #9ca3af;
     }
 
     /* Dark mode overrides */
@@ -204,14 +227,27 @@
       box-shadow: 0 10px 15px -3px rgba(0,0,0,0.4) !important;
     }
     html.dark .epub-preview {
-      background: #0f172a;
+      background: #1e293b;
       border-color: #334155;
+      color: #e2e8f0;
+    }
+    html.dark .epub-preview h1,
+    html.dark .epub-preview h2,
+    html.dark .epub-preview h3,
+    html.dark .epub-preview p {
+      color: #e2e8f0;
     }
     html.dark .epub-preview blockquote {
       color: #94a3b8;
     }
     html.dark .epub-preview td, .epub-preview th {
       border-color: #475569;
+    }
+    html.dark .epub-preview .title-page h1 {
+      color: #e2e8f0;
+    }
+    html.dark .epub-preview .title-page .author {
+      color: #94a3b8;
     }
 
     /* Theme toggle in header */
@@ -348,7 +384,7 @@
       <div id="previewContainer" class="hidden mt-4 border-t border-slate-200 pt-4">
         <div class="flex items-center justify-between mb-2">
           <h4 class="font-bold text-sm text-slate-700">📖 EPUB Preview</h4>
-          <span class="text-xs text-slate-400">(First 3 chapters)</span>
+          <span class="text-xs text-slate-400">(First chapters)</span>
         </div>
         <div id="previewContent" class="epub-preview">
           <!-- Preview will be rendered here -->
@@ -597,6 +633,7 @@
 
         metadata.textContent = `📝 ${epubMetadata.title} • ✍️ ${epubMetadata.author}`;
 
+        // Get spine
         const spineMatch = opfXml.match(/<spine[^>]*>(.*?)<\/spine>/s);
         let itemRefs = [];
         if (spineMatch) {
@@ -606,6 +643,7 @@
           }
         }
 
+        // Get manifest
         const manifestMatches = opfXml.match(/<manifest[^>]*>(.*?)<\/manifest>/s);
         let manifest = {};
         if (manifestMatches) {
@@ -627,7 +665,7 @@
 
         let htmlContent = '';
         const opfDir = opfPath.substring(0, opfPath.lastIndexOf('/') + 1);
-        const maxChapters = Math.min(4, itemRefs.length);
+        const maxChapters = Math.min(6, itemRefs.length);
 
         for (let i = 0; i < maxChapters; i++) {
           const itemId = itemRefs[i];
@@ -636,22 +674,31 @@
             const file = zip.file(filePath);
             if (file) {
               const content = await file.async('text');
+              // Extract body content with style preservation
+              let bodyContent = content;
+              // Try to extract body
               const bodyMatch = content.match(/<body[^>]*>(.*?)<\/body>/s);
               if (bodyMatch) {
-                htmlContent += bodyMatch[1];
+                bodyContent = bodyMatch[1];
+              }
+              // Clean up and preserve structure
+              htmlContent += `<div class="chapter">${bodyContent}</div>`;
+              if (i < maxChapters - 1) {
+                htmlContent += `<div class="page-break"></div>`;
               }
             }
           }
         }
 
-        // Enhanced preview with proper styling
+        // Build enhanced preview with academic styling
         const previewHtml = `
           <div class="title-page">
             <h1>${epubMetadata.title}</h1>
             ${epubMetadata.author ? `<p class="author">By ${epubMetadata.author}</p>` : ''}
-            ${epubMetadata.publisher ? `<p style="color: #9ca3af;">${epubMetadata.publisher}</p>` : ''}
+            ${epubMetadata.publisher ? `<p style="color: #9ca3af; font-size: 0.9em;">${epubMetadata.publisher}</p>` : ''}
+            <p style="margin-top: 20px; font-size: 0.8em; color: #9ca3af;">Converted by Droplet</p>
           </div>
-          <hr style="border: 1px solid #e5e7eb; margin: 20px 0;">
+          <div class="page-break"></div>
           ${htmlContent}
         `;
 
@@ -702,6 +749,7 @@
         progressText.textContent = '40%';
         statusText.textContent = 'Rendering document...';
 
+        // Clean academic-style PDF with black text on white A4
         const printHtml = `
           <!DOCTYPE html>
           <html>
@@ -710,67 +758,88 @@
             <style>
               @page { 
                 size: A4; 
-                margin: 20mm 25mm;
+                margin: 25mm 30mm 25mm 30mm;
               }
               @media print {
                 * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-                .page-break { page-break-after: always; }
+                .page-break { page-break-after: always; border: none; margin: 0; padding: 0; height: 0; }
               }
               body {
-                font-family: Georgia, 'Times New Roman', serif;
-                font-size: 11pt;
+                font-family: 'Times New Roman', Georgia, serif;
+                font-size: 12pt;
                 line-height: 1.8;
-                color: #1a1a1a;
-                background: white;
-                padding: 20px;
-                max-width: 160mm;
-                margin: 0 auto;
+                color: #000000;
+                background: #ffffff;
+                padding: 0;
+                margin: 0;
+              }
+              .content {
+                max-width: 100%;
               }
               h1 { 
-                font-size: 20pt; 
-                margin: 20pt 0 10pt; 
+                font-size: 22pt; 
+                margin: 24pt 0 12pt; 
+                font-weight: 700;
+                color: #000000;
                 text-align: center;
-                font-weight: bold;
               }
               h2 { 
-                font-size: 16pt; 
-                margin: 16pt 0 8pt; 
-                font-weight: bold;
+                font-size: 18pt; 
+                margin: 20pt 0 10pt; 
+                font-weight: 600;
+                color: #000000;
               }
               h3 { 
-                font-size: 13pt; 
+                font-size: 14pt; 
+                margin: 16pt 0 8pt; 
+                font-weight: 600;
+                color: #000000;
+              }
+              h4 { 
+                font-size: 12pt; 
                 margin: 12pt 0 6pt; 
-                font-weight: bold;
+                font-weight: 600;
+                color: #000000;
               }
               p { 
-                margin: 0.5em 0; 
+                margin: 0.6em 0; 
                 text-align: justify;
-                text-justify: inter-word;
+                color: #000000;
               }
               table { 
                 border-collapse: collapse; 
                 width: 100%; 
-                margin: 10pt 0; 
+                margin: 12pt 0; 
               }
               td, th { 
-                border: 1px solid #aaa; 
+                border: 1px solid #000000; 
                 padding: 4pt 8pt; 
                 text-align: left; 
+                color: #000000;
+              }
+              th {
+                background: #f5f5f5;
+                font-weight: 600;
               }
               img { 
                 max-width: 100%; 
                 height: auto; 
                 display: block;
-                margin: 10pt auto;
+                margin: 12pt auto;
               }
               ul, ol { 
                 padding-left: 2em; 
+                color: #000000;
+              }
+              li {
+                color: #000000;
               }
               blockquote { 
                 margin: 10pt 20pt; 
-                border-left: 3px solid #ccc; 
+                border-left: 3px solid #999; 
                 padding-left: 15pt; 
                 font-style: italic;
+                color: #333;
               }
               .title-page {
                 text-align: center;
@@ -778,16 +847,23 @@
               }
               .title-page h1 {
                 font-size: 28pt;
-                margin-bottom: 20pt;
+                margin-bottom: 16pt;
+                text-align: center;
               }
               .title-page .author {
                 font-size: 16pt;
-                color: #555;
+                color: #333;
+                margin: 8pt 0;
               }
               .title-page .publisher {
-                font-size: 12pt;
-                color: #777;
+                font-size: 11pt;
+                color: #666;
                 margin-top: 30pt;
+              }
+              .title-page .date {
+                font-size: 11pt;
+                color: #666;
+                margin-top: 20pt;
               }
               .page-break {
                 page-break-after: always;
@@ -796,17 +872,45 @@
                 padding: 0;
                 height: 0;
               }
+              .table-of-contents {
+                margin: 20pt 0;
+              }
+              .table-of-contents ul {
+                list-style: none;
+                padding: 0;
+              }
+              .table-of-contents li {
+                padding: 4pt 0;
+                border-bottom: 1px dotted #ddd;
+              }
+              .table-of-contents .toc-dots {
+                float: right;
+                color: #999;
+              }
+              .chapter {
+                margin-top: 20pt;
+              }
+              .chapter h1, .chapter h2 {
+                text-align: center;
+              }
+              .figure {
+                text-align: center;
+                margin: 16pt 0;
+              }
+              .figure img {
+                max-width: 80%;
+              }
+              .figure .caption {
+                font-size: 10pt;
+                color: #555;
+                margin-top: 6pt;
+              }
             </style>
           </head>
           <body>
-            <div class="title-page">
-              <h1>${epubMetadata.title || 'EPUB Document'}</h1>
-              ${epubMetadata.author ? `<p class="author">By ${epubMetadata.author}</p>` : ''}
-              ${epubMetadata.publisher ? `<p class="publisher">${epubMetadata.publisher}</p>` : ''}
-              <p style="margin-top: 40pt; font-size: 10pt; color: #999;">Converted by Droplet</p>
+            <div class="content">
+              ${epubHTML}
             </div>
-            <div class="page-break"></div>
-            ${epubHTML}
           </body>
           </html>
         `;
@@ -821,18 +925,19 @@
         tempContainer.style.left = '-9999px';
         tempContainer.style.top = '0';
         tempContainer.style.width = '210mm';
-        tempContainer.style.background = 'white';
+        tempContainer.style.background = '#ffffff';
         tempContainer.style.zIndex = '-9999';
         document.body.appendChild(tempContainer);
 
         const opt = {
-          margin: 10,
+          margin: 0,
           filename: 'converted.pdf',
           image: { type: 'jpeg', quality: 0.98 },
           html2canvas: {
             scale: 3,
             useCORS: true,
             letterRendering: true,
+            backgroundColor: '#ffffff',
             width: tempContainer.scrollWidth || 794,
             height: tempContainer.scrollHeight || 1123
           },
