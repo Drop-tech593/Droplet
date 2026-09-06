@@ -1,4 +1,4 @@
-try 10
+try 11
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,9 +8,7 @@ try 10
   <meta name="description" content="Convert Word DOCX files to PDF online for free. 100% client-side.">
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.8.0/mammoth.browser.min.js"></script>
-  <!-- html2pdf is no longer used for PDF placement, but kept for compatibility. -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-  <!-- TRY 5 FIX: html2canvas must be loaded directly because html2pdf does not reliably expose it as window.html2canvas. -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
@@ -21,7 +19,6 @@ try 10
     .preview-box h1{font-size:18pt;font-weight:bold;margin:16pt 0 8pt}.preview-box h2{font-size:15pt;font-weight:bold;margin:14pt 0 6pt}.preview-box h3{font-size:12pt;font-weight:bold;margin:12pt 0 4pt}.preview-box p{margin:6pt 0}.preview-box table{width:100%;border-collapse:collapse;margin:8pt 0}.preview-box td,.preview-box th{border:1px solid #ddd;padding:6px 8px}.preview-box img{max-width:100%;height:auto}.preview-box ul,.preview-box ol{padding-left:2em}
     .file-item{display:flex;align-items:center;gap:12px;padding:10px 14px;background:#f8fafc;border-radius:10px;border:1px solid #e2e8f0}.file-item .icon{font-size:24px}.file-item .info{flex:1}.file-item .info .name{font-weight:600;color:#1e293b}.file-item .info .size{font-size:12px;color:#94a3b8}
 
-    /* TRY 3: isolated PDF coordinate system */
     #pdfRenderHost{position:absolute;left:0;top:0;margin:0;padding:0;background:#fff;z-index:-1;pointer-events:none}
     .pdf-render-root{margin:0!important;box-sizing:border-box!important;background:#fff!important;color:#111!important;max-width:none!important;min-width:0!important;overflow:visible!important;font-family:"Times New Roman",Georgia,serif!important;font-size:11pt!important;line-height:1.6!important}
     .pdf-render-root,.pdf-render-root *{box-sizing:border-box}
@@ -149,7 +146,6 @@ async function handleFile(file){
   if(file.size>50*1024*1024){alert('File is too large. Please use a file under 50MB.');return}
   currentFile=file;htmlContent='';fileName.textContent=file.name;fileSize.textContent=formatSize(file.size);
   fileSection.classList.remove('hidden');dropzone.classList.add('hidden');resultSection.classList.add('hidden');progressSection.classList.add('hidden');
-  // IMPORTANT: show conversion controls immediately. Preview is optional and must not block conversion.
   controlsSection.classList.remove('hidden');
   convertBtn.disabled=false;convertBtn.textContent='🔄 Convert to PDF';
   await loadPreview(file);
@@ -165,7 +161,6 @@ async function loadPreview(file){
     pageCount=Math.max(1,Math.ceil(htmlContent.replace(/<[^>]*>/g,' ').split(/\s+/).filter(Boolean).length/300));
   }catch(e){
     console.error('Preview error:',e);
-    // Preview failure must NEVER hide the Convert button. Conversion will retry Mammoth independently.
     previewContent.innerHTML='<p class="text-amber-600">⚠️ Preview is unavailable, but you can still convert this Word file to PDF.</p>';
     previewSection.classList.remove('hidden');
     controlsSection.classList.remove('hidden');
@@ -199,7 +194,7 @@ async function convertToPDF(){
     if(!htmlContent){
       setProgress(10,'Reading Word file...','Preparing document content...');
       const arrayBuffer=await currentFile.arrayBuffer();
-      const result=await mammoth.convertToHtml({arrayBuffer,convertImage:mammoth.images.imgElement(image=>image.read('base64').then(data=>({src:'data:'+image.contentType+';base64,'+data}))) });
+      const result=await mammoth.convertToHtml({arrayBuffer,convertImage:mammoth.images.imgElement(image=>image.read('base64').then(data=>({src:'data:'+image.contentType+';base64,'+data})))});
       htmlContent=result.value||'<p>No content found.</p>';
       pageCount=Math.max(1,Math.ceil(htmlContent.replace(/<[^>]*>/g,' ').split(/\s+/).filter(Boolean).length/300));
     }
@@ -208,8 +203,6 @@ async function convertToPDF(){
     setProgress(15,'Preparing layout','Creating exact-size rendering page...');
     host.innerHTML='';host.style.width=Math.round(m.wPx)+'px';host.style.height='auto';
 
-    // TRY 5: render directly with html2canvas, then place the rendered
-    // image slices directly into jsPDF. html2pdf is NOT used for placement.
     root=document.createElement('div');
     root.className='pdf-render-root';
     root.style.width=Math.round(m.wPx)+'px';
@@ -231,7 +224,6 @@ async function convertToPDF(){
 
     const cssWidth=Math.round(m.wPx);
     const cssHeight=Math.max(Math.round(root.getBoundingClientRect().height),Math.round(m.hPx));
-    // Keep the browser canvas safely below common maximum canvas dimensions.
     const scale=Math.min(1.5,30000/cssHeight);
 
     setProgress(35,'Rendering...','Rendering the document at the exact page width...');
@@ -270,9 +262,15 @@ async function convertToPDF(){
       ctx.fillStyle='#ffffff';ctx.fillRect(0,0,slice.width,slice.height);
       ctx.drawImage(canvas,0,sourceY,pagePxW,sliceH,0,0,pagePxW,sliceH);
       if(pageNo>1)pdf.addPage(pageW,pageH);
-      const imgData=slice.toDataURL('image/jpeg',qualityNum);
-      const renderedH=pageW*(sliceH/pagePxW);
-      pdf.addImage(imgData,'JPEG',0,0,pageW,renderedH,undefined,'FAST');
+      
+      // FIXED: Properly handle image data for jsPDF
+      const imgData = slice.toDataURL('image/jpeg', qualityNum);
+      const renderedH = pageW * (sliceH / pagePxW);
+      
+      // jsPDF expects base64 data without the data URL prefix
+      const base64Data = imgData.split(',')[1];
+      pdf.addImage(base64Data, 'JPEG', 0, 0, pageW, renderedH, undefined, 'FAST');
+      
       sourceY+=sliceH;
       setProgress(65+Math.round((sourceY/canvas.height)*30),'Building PDF...',`Page ${pageNo} of ${totalPages}`);
     }
