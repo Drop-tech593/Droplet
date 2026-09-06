@@ -64,12 +64,202 @@
     .badge-rows { background: #dbeafe; color: #1e40af; }
     .badge-cols { background: #d1fae5; color: #065f46; }
     .badge-size { background: #fef3c7; color: #92400e; }
+
+    /* Dark mode overrides */
+    html.dark body {
+      background: #0f172a;
+      color: #e2e8f0;
+    }
+    html.dark header {
+      background: #1e293b;
+      border-color: #334155;
+    }
+    html.dark header h1 {
+      color: #f1f5f9;
+    }
+    html.dark header p {
+      color: #60a5fa !important;
+    }
+    html.dark header nav a {
+      color: #94a3b8;
+    }
+    html.dark header nav a:hover {
+      color: #f1f5f9;
+    }
+    html.dark #dropzone {
+      background: #1e293b;
+      border-color: #475569;
+    }
+    html.dark #dropzone:hover {
+      border-color: #3b82f6;
+    }
+    html.dark #dropzone h3 {
+      color: #f1f5f9;
+    }
+    html.dark #dropzone p {
+      color: #94a3b8;
+    }
+    html.dark .bg-white {
+      background: #1e293b !important;
+    }
+    html.dark .border-slate-200 {
+      border-color: #334155 !important;
+    }
+    html.dark .border-slate-100 {
+      border-color: #334155 !important;
+    }
+    html.dark .text-slate-900 {
+      color: #f1f5f9 !important;
+    }
+    html.dark .text-slate-700 {
+      color: #cbd5e1 !important;
+    }
+    html.dark .text-slate-500 {
+      color: #94a3b8 !important;
+    }
+    html.dark .text-slate-400 {
+      color: #94a3b8 !important;
+    }
+    html.dark .text-slate-600 {
+      color: #94a3b8 !important;
+    }
+    html.dark .bg-slate-50 {
+      background: #0f172a !important;
+    }
+    html.dark .bg-blue-50 {
+      background: #1e3a5f !important;
+    }
+    html.dark .border-blue-200 {
+      border-color: #2563eb !important;
+    }
+    html.dark .text-blue-900 {
+      color: #93c5fd !important;
+    }
+    html.dark .text-blue-700 {
+      color: #60a5fa !important;
+    }
+    html.dark .bg-slate-100 {
+      background: #334155 !important;
+    }
+    html.dark .bg-slate-100:hover {
+      background: #475569 !important;
+    }
+    html.dark .text-slate-700 {
+      color: #e2e8f0 !important;
+    }
+    html.dark .hover\:bg-slate-50:hover {
+      background: #334155 !important;
+    }
+    html.dark .hover\:bg-slate-200:hover {
+      background: #475569 !important;
+    }
+    html.dark footer {
+      background: #0f172a !important;
+      border-color: #334155 !important;
+    }
+    html.dark footer a {
+      color: #94a3b8;
+    }
+    html.dark footer a:hover {
+      color: #f1f5f9;
+    }
+    html.dark .shadow-sm {
+      box-shadow: 0 1px 2px 0 rgba(0,0,0,0.3) !important;
+    }
+    html.dark .shadow-lg {
+      box-shadow: 0 10px 15px -3px rgba(0,0,0,0.4) !important;
+    }
+    html.dark .data-preview {
+      background: #0f172a;
+      border-color: #334155;
+    }
+    html.dark .data-preview th {
+      background: #1e293b;
+      border-bottom-color: #334155;
+      color: #e2e8f0;
+    }
+    html.dark .data-preview td {
+      border-bottom-color: #1e293b;
+      color: #cbd5e1;
+    }
+    html.dark .data-preview tr:hover td {
+      background: #1e293b;
+    }
+    html.dark .info-badge.badge-rows {
+      background: #1e3a5f;
+      color: #93c5fd;
+    }
+    html.dark .info-badge.badge-cols {
+      background: #0f3a2e;
+      color: #6ee7b7;
+    }
+    html.dark .info-badge.badge-size {
+      background: #3b2e1e;
+      color: #fcd34d;
+    }
+    html.dark #fileInfo {
+      background: #1e293b;
+      border-color: #334155;
+    }
+    html.dark #fileInfo .text-slate-900 {
+      color: #f1f5f9;
+    }
+    html.dark textarea {
+      background: #0f172a;
+      border-color: #334155;
+      color: #e2e8f0;
+    }
+    html.dark textarea:focus {
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+    }
+    html.dark select {
+      background: #0f172a;
+      border-color: #334155;
+      color: #e2e8f0;
+    }
+    html.dark .border-slate-300 {
+      border-color: #475569 !important;
+    }
+
+    /* Theme toggle in header */
+    #theme-toggle {
+      background: none;
+      border: none;
+      font-size: 1.2rem;
+      cursor: pointer;
+      padding: 0.2rem 0.4rem;
+      border-radius: 6px;
+      transition: background 0.2s;
+      color: #475569;
+      line-height: 1;
+    }
+    #theme-toggle:hover {
+      background: #f1f5f9;
+    }
+    html.dark #theme-toggle {
+      color: #e2e8f0;
+    }
+    html.dark #theme-toggle:hover {
+      background: #334155;
+    }
+
+    /* Back button dark mode */
+    html.dark .back-home-btn {
+      background: #1e293b !important;
+      border-color: #475569 !important;
+      color: #e2e8f0 !important;
+    }
+    html.dark .back-home-btn:hover {
+      background: #334155 !important;
+      border-color: #3b82f6 !important;
+    }
   </style>
 </head>
-<body class="bg-slate-50 text-slate-800 font-sans antialiased">
+<body class="bg-slate-50 text-slate-800 font-sans antialiased transition-colors duration-200">
 
   <!-- Navigation -->
-  <header class="bg-white border-b border-slate-200 py-3.5 px-6 sticky top-0 z-50">
+  <header class="bg-white border-b border-slate-200 py-3.5 px-6 sticky top-0 z-50 transition-colors duration-200">
     <div class="max-w-6xl mx-auto flex justify-between items-center">
       <a href="/" class="flex items-center gap-3 group">
         <img src="Gemini_Generated_Image_sdu6v7sdu6v7sdu6.jpg" alt="Droplet Logo" class="h-9 w-auto rounded-xl shadow-sm group-hover:scale-105 transition-transform">
@@ -78,14 +268,27 @@
           <p class="text-[9px] text-blue-600 font-extrabold tracking-widest uppercase mt-0.5">DRAG, DROP AND CONVERT.</p>
         </div>
       </a>
-      <nav class="hidden md:flex items-center space-x-6 text-xs font-bold text-slate-600">
-        <a href="/" class="hover:text-blue-600 transition-colors">← Back</a>
-      </nav>
+      <div class="flex items-center gap-3">
+        <button id="theme-toggle" aria-label="Toggle theme">🌙</button>
+        <nav class="hidden md:flex items-center space-x-6 text-xs font-bold text-slate-600">
+          <a href="/" class="hover:text-blue-600 transition-colors">← Back</a>
+        </nav>
+      </div>
     </div>
   </header>
 
   <!-- Main Content -->
   <main class="max-w-4xl mx-auto px-4 py-8 md:py-12 flex-grow w-full">
+
+    <!-- Back Button (prominent & visible) -->
+    <div class="max-w-2xl mx-auto mb-4 flex justify-start">
+      <a href="/" class="back-home-btn inline-flex items-center gap-2 bg-white hover:bg-slate-50 border border-slate-200 shadow-sm rounded-full px-5 py-2.5 text-sm font-medium text-slate-700 transition-all hover:shadow-md hover:border-slate-300 active:scale-95">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        </svg>
+        Back to Home
+      </a>
+    </div>
 
     <!-- Page Header -->
     <div class="text-center mb-8">
@@ -99,7 +302,7 @@
     </div>
 
     <!-- What is JSON to CSV Info -->
-    <div class="max-w-2xl mx-auto mb-8 bg-blue-50 border border-blue-200 rounded-xl p-4">
+    <div class="max-w-2xl mx-auto mb-8 bg-blue-50 border border-blue-200 rounded-xl p-4 transition-colors duration-200">
       <div class="flex items-start gap-3">
         <span class="text-2xl">📊</span>
         <div>
@@ -127,12 +330,12 @@
 
     <!-- JSON Input Textarea -->
     <div class="max-w-2xl mx-auto mt-4">
-      <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
+      <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4 transition-colors duration-200">
         <div class="flex items-center justify-between mb-2">
           <label class="text-xs font-medium text-slate-700">Or paste JSON data here:</label>
           <button onclick="clearJSONInput()" class="text-xs text-slate-400 hover:text-red-500 transition-colors">Clear</button>
         </div>
-        <textarea id="jsonInput" rows="6" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder='[{"name": "John", "age": 30}, {"name": "Jane", "age": 25}]'></textarea>
+        <textarea id="jsonInput" rows="6" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-200" placeholder='[{"name": "John", "age": 30}, {"name": "Jane", "age": 25}]'></textarea>
         <div class="mt-2 flex flex-wrap gap-2">
           <button onclick="convertJSONtoCSV()" id="convertBtn" class="bg-green-600 hover:bg-green-700 text-white font-bold px-6 py-2 rounded-lg text-sm transition-all shadow-md shadow-green-500/20">
             🔄 Convert to CSV
@@ -145,7 +348,7 @@
     </div>
 
     <!-- File Info -->
-    <div id="fileInfo" class="hidden max-w-2xl mx-auto mt-4 bg-white rounded-xl shadow-sm border border-slate-200 p-4">
+    <div id="fileInfo" class="hidden max-w-2xl mx-auto mt-4 bg-white rounded-xl shadow-sm border border-slate-200 p-4 transition-colors duration-200">
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-3">
           <span class="text-2xl">📄</span>
@@ -172,7 +375,7 @@
 
     <!-- Preview Section -->
     <div id="previewContainer" class="hidden max-w-2xl mx-auto mt-6">
-      <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
+      <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4 transition-colors duration-200">
         <div class="flex items-center justify-between mb-4">
           <div>
             <h4 class="font-bold text-sm text-slate-700">📊 CSV Preview</h4>
@@ -202,17 +405,17 @@
 
     <!-- Info Section -->
     <div class="max-w-2xl mx-auto mt-12 grid grid-cols-1 md:grid-cols-3 gap-4">
-      <div class="bg-white p-4 rounded-xl border border-slate-100 text-center">
+      <div class="bg-white p-4 rounded-xl border border-slate-100 text-center transition-colors duration-200">
         <div class="text-2xl mb-1">🔒</div>
         <h4 class="font-bold text-sm">100% Private</h4>
         <p class="text-xs text-slate-500">Your data never leaves your browser</p>
       </div>
-      <div class="bg-white p-4 rounded-xl border border-slate-100 text-center">
+      <div class="bg-white p-4 rounded-xl border border-slate-100 text-center transition-colors duration-200">
         <div class="text-2xl mb-1">📊</div>
         <h4 class="font-bold text-sm">Spreadsheet Ready</h4>
         <p class="text-xs text-slate-500">Open in Excel or Google Sheets</p>
       </div>
-      <div class="bg-white p-4 rounded-xl border border-slate-100 text-center">
+      <div class="bg-white p-4 rounded-xl border border-slate-100 text-center transition-colors duration-200">
         <div class="text-2xl mb-1">⚡</div>
         <h4 class="font-bold text-sm">Fast & Free</h4>
         <p class="text-xs text-slate-500">No sign-up required</p>
@@ -223,23 +426,23 @@
     <section class="max-w-2xl mx-auto mt-12">
       <h2 class="text-xl font-black text-slate-900 text-center mb-6">Frequently Asked Questions</h2>
       <div class="space-y-3">
-        <div class="bg-white p-5 rounded-xl border border-slate-100">
+        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
           <h3 class="font-bold text-slate-900 text-sm">Is my data safe?</h3>
           <p class="text-slate-600 text-sm mt-1">Yes! All conversions happen locally in your browser. Your JSON data is never uploaded to any server and is automatically deleted when you close the page.</p>
         </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100">
+        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
           <h3 class="font-bold text-slate-900 text-sm">What JSON structures are supported?</h3>
           <p class="text-slate-600 text-sm mt-1">This converter supports arrays of objects (most common), single objects, and nested objects. For nested objects, keys are flattened using dot notation (e.g., "user.name").</p>
         </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100">
+        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
           <h3 class="font-bold text-slate-900 text-sm">What about nested JSON?</h3>
           <p class="text-slate-600 text-sm mt-1">Nested JSON objects are automatically flattened. For example, `{"user": {"name": "John", "age": 30}}` becomes columns `user.name` and `user.age`.</p>
         </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100">
+        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
           <h3 class="font-bold text-slate-900 text-sm">Can I convert JSON from APIs?</h3>
           <p class="text-slate-600 text-sm mt-1">Yes! Simply paste the API response JSON into the textarea and click convert. The tool will handle arrays, objects, and nested structures.</p>
         </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100">
+        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
           <h3 class="font-bold text-slate-900 text-sm">Are there file size limits?</h3>
           <p class="text-slate-600 text-sm mt-1">Since everything runs locally, limits depend on your device's memory. Most modern browsers handle JSON files up to 10MB without issues.</p>
         </div>
@@ -248,7 +451,7 @@
   </main>
 
   <!-- Footer -->
-  <footer class="border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-500 mt-auto">
+  <footer class="border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-500 mt-auto transition-colors duration-200">
     <div class="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-3">
       <p class="font-medium">© Droplet. 100% Client-Side Privacy First File Utility.</p>
       <div class="space-x-4">
@@ -263,6 +466,37 @@
 
   <!-- Conversion JavaScript -->
   <script>
+    // ============================================
+    // DARK MODE TOGGLE
+    // ============================================
+    const themeToggle = document.getElementById('theme-toggle');
+    const html = document.documentElement;
+    
+    let currentTheme = localStorage.getItem('theme') || 
+      (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    
+    if (currentTheme === 'dark') {
+      html.classList.add('dark');
+      themeToggle.textContent = '☀️';
+    } else {
+      themeToggle.textContent = '🌙';
+    }
+    
+    themeToggle.addEventListener('click', () => {
+      if (html.classList.contains('dark')) {
+        html.classList.remove('dark');
+        themeToggle.textContent = '🌙';
+        localStorage.setItem('theme', 'light');
+      } else {
+        html.classList.add('dark');
+        themeToggle.textContent = '☀️';
+        localStorage.setItem('theme', 'dark');
+      }
+    });
+
+    // ============================================
+    // CONVERTER LOGIC
+    // ============================================
     let currentFile = null;
     let csvData = '';
     let jsonData = null;
@@ -322,13 +556,11 @@
     });
 
     function handleFile(file) {
-      // Validate file type
       if (!file.name.toLowerCase().endsWith('.json') && file.type !== 'application/json') {
         alert('Please select a valid JSON file.');
         return;
       }
 
-      // Validate file size (10MB limit)
       if (file.size > 10 * 1024 * 1024) {
         alert('File is too large. Please use a JSON file under 10MB.');
         return;
@@ -345,12 +577,10 @@
       copyBtn.classList.add('hidden');
       convertBtn.disabled = false;
 
-      // Read the file
       const reader = new FileReader();
       reader.onload = function(e) {
         try {
           jsonInput.value = e.target.result;
-          // Auto-convert if valid JSON
           tryConvertJSON();
         } catch (error) {
           console.error('Error reading file:', error);
@@ -401,7 +631,6 @@
       jsonInput.value = '';
     }
 
-    // Flatten nested JSON objects
     function flattenObject(obj, prefix = '') {
       let result = {};
       for (let key in obj) {
@@ -418,7 +647,6 @@
       return result;
     }
 
-    // Main conversion function
     function tryConvertJSON() {
       const input = jsonInput.value.trim();
       if (!input) {
@@ -427,11 +655,9 @@
       }
 
       try {
-        // Parse JSON
         const parsed = JSON.parse(input);
         jsonData = parsed;
 
-        // Show progress
         progressContainer.classList.remove('hidden');
         previewContainer.classList.add('hidden');
         downloadBtn.classList.add('hidden');
@@ -456,22 +682,18 @@
         let flatData = [];
         let allHeaders = new Set();
 
-        // Handle different JSON structures
         if (Array.isArray(data)) {
-          // Array of objects
           if (data.length === 0) {
             alert('The JSON array is empty.');
             return;
           }
 
-          // Flatten each object
           data.forEach(item => {
             if (typeof item === 'object' && item !== null) {
               const flattened = flattenObject(item);
               flatData.push(flattened);
               Object.keys(flattened).forEach(key => allHeaders.add(key));
             } else {
-              // Handle primitive arrays
               flatData.push({ 'value': item });
               allHeaders.add('value');
             }
@@ -481,14 +703,12 @@
           rows = flatData;
 
         } else if (typeof data === 'object' && data !== null) {
-          // Single object
           const flattened = flattenObject(data);
           flatData.push(flattened);
           headers = Object.keys(flattened);
           rows = flatData;
 
         } else {
-          // Primitive value
           flatData.push({ 'value': data });
           headers = ['value'];
           rows = flatData;
@@ -498,7 +718,6 @@
         progressText.textContent = '50%';
         statusText.textContent = 'Generating CSV...';
 
-        // Generate CSV using Papa Parse
         const csv = Papa.unparse(rows, {
           columns: headers,
           quotes: true,
@@ -511,7 +730,6 @@
         progressText.textContent = '100%';
         statusText.textContent = '✅ Conversion complete!';
 
-        // Show results
         setTimeout(() => {
           showResults();
           progressContainer.classList.add('hidden');
@@ -525,11 +743,9 @@
     }
 
     function showResults() {
-      // Update badges
       rowCountBadge.textContent = `${rows.length} rows`;
       colCountBadge.textContent = `${headers.length} cols`;
 
-      // Show CSV preview (first 20 rows)
       const previewRows = rows.slice(0, 20);
       let previewHtml = '<table><thead><tr>';
       headers.forEach(h => {
@@ -560,7 +776,6 @@
       copyBtn.classList.remove('hidden');
     }
 
-    // Convert button handler
     function convertJSONtoCSV() {
       tryConvertJSON();
     }
@@ -594,7 +809,6 @@
           alert('✅ CSV copied to clipboard!');
         })
         .catch(() => {
-          // Fallback for older browsers
           const textarea = document.createElement('textarea');
           textarea.value = csvData;
           document.body.appendChild(textarea);
@@ -605,7 +819,6 @@
         });
     }
 
-    // Keyboard shortcut: Ctrl+Enter to convert
     document.addEventListener('keydown', (e) => {
       if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
         e.preventDefault();
@@ -613,7 +826,6 @@
       }
     });
 
-    // Auto-convert when pasting JSON (with debounce)
     let debounceTimer;
     jsonInput.addEventListener('input', function() {
       clearTimeout(debounceTimer);
@@ -621,7 +833,6 @@
         if (this.value.trim()) {
           try {
             JSON.parse(this.value.trim());
-            // If valid JSON, auto-convert
             tryConvertJSON();
           } catch (e) {
             // Invalid JSON, don't auto-convert
