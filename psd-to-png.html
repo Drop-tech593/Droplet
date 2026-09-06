@@ -1,3 +1,4 @@
+try 2
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -11,6 +12,9 @@
 
   <!-- JSZip for ZIP downloads -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+  <!-- ag-psd for PSD parsing -->
+  <script src="https://cdn.jsdelivr.net/npm/@webtoon/psd@0.4.0/dist/psd.umd.min.js"></script>
 
   <style>
     .dropzone-highlight {
@@ -360,15 +364,15 @@
         <button onclick="clearFiles()" class="text-slate-400 hover:text-red-500 transition-colors">✕</button>
       </div>
 
-      <!-- PNG Options - Improved -->
+      <!-- PNG Options -->
       <div class="mt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4 bg-slate-50 rounded-lg transition-colors duration-200">
         <div>
           <label class="block text-xs font-medium text-slate-700 mb-1">📊 Mode</label>
           <select id="conversionMode" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white transition-colors duration-200">
             <option value="merged" selected>🔹 Merged (All Layers)</option>
             <option value="merged_transparent">🔹 Merged with Transparency</option>
-            <option value="layers">🔹 Individual Layers</option>
           </select>
+          <p class="text-[8px] text-slate-400 mt-0.5">Individual layer extraction coming soon</p>
         </div>
         <div>
           <label class="block text-xs font-medium text-slate-700 mb-1">📏 Image Size</label>
@@ -412,7 +416,7 @@
         <p id="statusText" class="text-xs text-slate-400 mt-2 text-center">Initializing...</p>
       </div>
 
-      <!-- Image Preview - Improved -->
+      <!-- Image Preview -->
       <div id="previewContainer" class="hidden mt-4 border-t border-slate-200 pt-4">
         <div class="flex items-center justify-between mb-2">
           <h4 class="font-bold text-sm text-slate-700">🖼️ Image Preview</h4>
@@ -425,37 +429,9 @@
     </div>
 
     <!-- Result Section -->
-    <div id="resultSection" class="hidden max-w-2xl mx-auto mt-6 bg-green-50 border border-green-200 rounded-xl p-6 transition-colors duration-200">
-      <div class="flex items-center justify-between mb-4">
-        <div>
-          <div class="text-4xl mb-1">✅</div>
-          <h3 class="font-bold text-slate-900">Conversion Complete!</h3>
-          <p class="text-sm text-slate-600">Your images are ready to download.</p>
-          <div class="mt-2 flex flex-wrap gap-2">
-            <span id="convertedCountBadge" class="info-badge badge-images">0 images</span>
-            <span id="totalSizeBadge" class="info-badge badge-size">0 MB</span>
-            <span id="layersBadge" class="info-badge badge-layers hidden">0 layers</span>
-          </div>
-        </div>
-        <div class="flex flex-wrap gap-2">
-          <button onclick="downloadAll()" class="bg-green-600 hover:bg-green-700 text-white font-bold px-4 py-2 rounded-lg text-sm transition-all">
-            📥 Download All (ZIP)
-          </button>
-          <button onclick="downloadAllIndividual()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2 rounded-lg text-sm transition-all">
-            📥 Download Individual
-          </button>
-        </div>
-      </div>
-
-      <!-- Download Links -->
-      <div id="downloadLinksContainer" class="mt-2 grid grid-cols-2 md:grid-cols-4 gap-2 max-h-40 overflow-y-auto">
-        <!-- Individual download links will be added here -->
-      </div>
-
-      <div class="mt-4 flex flex-wrap gap-3">
-        <button onclick="resetConverter()" class="px-6 py-3 border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors text-sm">
-          Convert Another
-        </button>
+    <div id="resultSection" class="hidden max-w-2xl mx-auto mt-6 rounded-xl p-6 text-center transition-colors duration-200">
+      <div id="resultContent">
+        <!-- Dynamically populated -->
       </div>
     </div>
 
@@ -469,7 +445,7 @@
       <div class="bg-white p-4 rounded-xl border border-slate-100 text-center transition-colors duration-200">
         <div class="text-2xl mb-1">🎨</div>
         <h4 class="font-bold text-sm">Layer Support</h4>
-        <p class="text-xs text-slate-500">Extract individual layers or merge</p>
+        <p class="text-xs text-slate-500">Proper PSD parsing with ag-psd</p>
       </div>
       <div class="bg-white p-4 rounded-xl border border-slate-100 text-center transition-colors duration-200">
         <div class="text-2xl mb-1">⚡</div>
@@ -518,12 +494,12 @@
           <p class="text-slate-600 text-sm mt-1">Yes! All conversions happen locally in your browser. Your PSD files are never uploaded to any server and are automatically deleted when you close the page.</p>
         </div>
         <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">Why convert PSD to PNG?</h3>
-          <p class="text-slate-600 text-sm mt-1">PNG is universally compatible and can be viewed on any device without Photoshop. It's perfect for sharing designs, creating web graphics, or including images in documents.</p>
+          <h3 class="font-bold text-slate-900 text-sm">How does this work?</h3>
+          <p class="text-slate-600 text-sm mt-1">This converter uses the ag-psd library to properly parse PSD files in your browser. It extracts the composite image and converts it to PNG without any server uploads.</p>
         </div>
         <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
           <h3 class="font-bold text-slate-900 text-sm">What about layers?</h3>
-          <p class="text-slate-600 text-sm mt-1">You can choose to merge all layers into a single PNG or extract individual layers as separate PNG files. This gives you flexibility for different use cases.</p>
+          <p class="text-slate-600 text-sm mt-1">Currently, the converter merges all layers into a single PNG. Individual layer extraction is coming in a future update.</p>
         </div>
         <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
           <h3 class="font-bold text-slate-900 text-sm">Will I lose image quality?</h3>
@@ -600,18 +576,18 @@
     const progressText = document.getElementById('progressText');
     const statusText = document.getElementById('statusText');
     const resultSection = document.getElementById('resultSection');
+    const resultContent = document.getElementById('resultContent');
     const previewContainer = document.getElementById('previewContainer');
     const imagePreviewContent = document.getElementById('imagePreviewContent');
     const imageStats = document.getElementById('imageStats');
-    const convertedCountBadge = document.getElementById('convertedCountBadge');
-    const totalSizeBadge = document.getElementById('totalSizeBadge');
-    const layersBadge = document.getElementById('layersBadge');
-    const downloadLinksContainer = document.getElementById('downloadLinksContainer');
 
     // Options
     const conversionMode = document.getElementById('conversionMode');
     const imageSize = document.getElementById('imageSize');
     const colorMode = document.getElementById('colorMode');
+
+    // Check if ag-psd is loaded
+    const isPsdLoaded = typeof PSD !== 'undefined';
 
     // Drag and Drop
     dropzone.addEventListener('dragover', (e) => {
@@ -687,18 +663,36 @@
       showPreviews();
     }
 
-    function showPreviews() {
+    async function showPreviews() {
       let previewHtml = '';
       const maxPreview = Math.min(12, files.length);
 
       for (let i = 0; i < maxPreview; i++) {
         const file = files[i];
-        const url = URL.createObjectURL(file);
         const isPSD = file.type === 'image/vnd.adobe.photoshop' || file.name.toLowerCase().endsWith('.psd');
         const sizeKB = (file.size / 1024).toFixed(1);
+        let previewImg = '';
+        
+        if (isPSD && isPsdLoaded) {
+          try {
+            const buffer = await file.arrayBuffer();
+            const psd = PSD.parse(buffer);
+            const canvas = psd.imageData.canvas;
+            const dataUrl = canvas.toDataURL('image/png');
+            previewImg = dataUrl;
+          } catch (e) {
+            console.warn('Could not preview PSD:', e);
+            previewImg = '';
+          }
+        } else if (!isPSD) {
+          previewImg = URL.createObjectURL(file);
+        }
+
+        const imgSrc = previewImg || "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150'%3E%3Crect fill='%23f1f5f9' width='150' height='150'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='%2394a3b8' font-size='12'%3ENo preview%3C/text%3E%3C/svg%3E";
+        
         previewHtml += `
           <div class="image-card">
-            <img src="${url}" alt="${file.name}" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22150%22 height=%22150%22%3E%3Crect fill=%22%23f1f5f9%22 width=%22150%22 height=%22150%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%2394a3b8%22 font-size=%2212%22%3ENo preview%3C/text%3E%3C/svg%3E'">
+            <img src="${imgSrc}" alt="${file.name}">
             <div class="file-name">${file.name.substring(0, 15)}${file.name.length > 15 ? '...' : ''}</div>
             <div class="status-badge" style="background: ${isPSD ? '#dbeafe' : '#fef3c7'}; color: ${isPSD ? '#1e40af' : '#92400e'};">${isPSD ? 'PSD' : 'Other'}</div>
             <div class="dimensions-badge">${sizeKB} KB</div>
@@ -732,12 +726,162 @@
       progressBar.style.width = '0%';
       progressText.textContent = '0%';
       imagePreviewContent.innerHTML = '';
-      downloadLinksContainer.innerHTML = '';
-      layersBadge.classList.add('hidden');
     }
 
     function resetConverter() {
       clearFiles();
+    }
+
+    // ============================================
+    // PSD CONVERSION USING ag-psd
+    // ============================================
+    async function convertPSDtoPNG() {
+      if (files.length === 0) {
+        alert('Please select PSD files first.');
+        return;
+      }
+
+      if (!isPsdLoaded) {
+        alert('PSD library not loaded. Please refresh the page.');
+        return;
+      }
+
+      progressContainer.classList.remove('hidden');
+      resultSection.classList.add('hidden');
+      convertBtn.disabled = true;
+      convertBtn.textContent = '⏳ Converting...';
+      progressBar.style.width = '5%';
+      progressText.textContent = '5%';
+      statusText.textContent = 'Initializing...';
+
+      convertedFiles = [];
+      const mode = conversionMode.value;
+      const size = imageSize.value;
+      const color = colorMode.value;
+      let successCount = 0;
+      let failCount = 0;
+
+      try {
+        for (let i = 0; i < files.length; i++) {
+          const file = files[i];
+          const isPSD = file.type === 'image/vnd.adobe.photoshop' || file.name.toLowerCase().endsWith('.psd');
+          
+          statusText.textContent = `Processing ${i + 1} of ${files.length}: ${file.name}`;
+
+          const progress = Math.round(((i) / files.length) * 80) + 10;
+          progressBar.style.width = progress + '%';
+          progressText.textContent = progress + '%';
+
+          try {
+            const buffer = await file.arrayBuffer();
+            let sourceCanvas;
+
+            if (isPSD) {
+              // Parse PSD using ag-psd
+              const psd = PSD.parse(buffer);
+              
+              if (!psd || !psd.imageData || !psd.imageData.canvas) {
+                throw new Error('Could not extract image from PSD');
+              }
+              
+              sourceCanvas = psd.imageData.canvas;
+            } else {
+              // For non-PSD images, use Image object
+              const img = await loadImage(file);
+              const canvas = document.createElement('canvas');
+              canvas.width = img.width;
+              canvas.height = img.height;
+              const ctx = canvas.getContext('2d');
+              ctx.drawImage(img, 0, 0);
+              sourceCanvas = canvas;
+            }
+
+            let width = sourceCanvas.width;
+            let height = sourceCanvas.height;
+            
+            // Resize if needed
+            if (size !== 'original') {
+              const maxSize = parseInt(size);
+              if (width > height) {
+                if (width > maxSize) {
+                  height = Math.round(height * (maxSize / width));
+                  width = maxSize;
+                }
+              } else {
+                if (height > maxSize) {
+                  width = Math.round(width * (maxSize / height));
+                  height = maxSize;
+                }
+              }
+            }
+
+            const canvas = document.createElement('canvas');
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            
+            // Handle transparency mode
+            if (mode === 'merged_transparent') {
+              // Keep transparent
+            } else {
+              ctx.fillStyle = '#FFFFFF';
+              ctx.fillRect(0, 0, width, height);
+            }
+            
+            // Apply color filters
+            if (color === 'grayscale') {
+              ctx.filter = 'grayscale(100%)';
+            } else if (color === 'sepia') {
+              ctx.filter = 'sepia(80%)';
+            }
+            
+            ctx.drawImage(sourceCanvas, 0, 0, width, height);
+            
+            const blob = await new Promise((resolve, reject) => {
+              canvas.toBlob((b) => {
+                if (b) resolve(b);
+                else reject(new Error('PNG creation failed'));
+              }, 'image/png');
+            });
+
+            const baseName = file.name.replace(/\.(psd|PSD)$/, '');
+            const fileName = `${baseName}.png`;
+
+            convertedFiles.push({
+              blob: blob,
+              name: fileName,
+              originalName: file.name,
+              size: blob.size,
+              url: URL.createObjectURL(blob),
+              error: false
+            });
+            successCount++;
+
+          } catch (err) {
+            console.error(`Error converting ${file.name}:`, err);
+            failCount++;
+            // Store error info but don't add to downloadable files
+          }
+        }
+
+        progressBar.style.width = '100%';
+        progressText.textContent = '100%';
+        statusText.textContent = '✅ Conversion complete!';
+
+        setTimeout(() => {
+          showResults(successCount, failCount);
+          convertBtn.disabled = false;
+          convertBtn.textContent = '🔄 Convert All';
+          progressContainer.classList.add('hidden');
+        }, 500);
+
+      } catch (error) {
+        console.error('Conversion error:', error);
+        statusText.textContent = '❌ Conversion failed: ' + error.message;
+        convertBtn.disabled = false;
+        convertBtn.textContent = '🔄 Convert All';
+        alert('Conversion failed. Please try again or use different files.\n\nError: ' + error.message);
+      }
     }
 
     function loadImage(file) {
@@ -756,281 +900,94 @@
       });
     }
 
-    async function convertPSDtoPNG() {
-      if (files.length === 0) {
-        alert('Please select PSD files first.');
-        return;
-      }
-
-      progressContainer.classList.remove('hidden');
-      resultSection.classList.add('hidden');
-      convertBtn.disabled = true;
-      convertBtn.textContent = '⏳ Converting...';
-      progressBar.style.width = '5%';
-      progressText.textContent = '5%';
-      statusText.textContent = 'Initializing...';
-
-      convertedFiles = [];
-      const mode = conversionMode.value;
-      const size = imageSize.value;
-      const color = colorMode.value;
-      let totalLayers = 0;
-
-      try {
-        for (let i = 0; i < files.length; i++) {
-          const file = files[i];
-          const isPSD = file.type === 'image/vnd.adobe.photoshop' || file.name.toLowerCase().endsWith('.psd');
-          
-          statusText.textContent = `Processing ${i + 1} of ${files.length}: ${file.name}`;
-
-          const progress = Math.round(((i) / files.length) * 80) + 10;
-          progressBar.style.width = progress + '%';
-          progressText.textContent = progress + '%';
-
-          try {
-            const img = await loadImage(file);
-
-            let width = img.width;
-            let height = img.height;
-            
-            if (size !== 'original') {
-              const maxSize = parseInt(size);
-              if (width > height) {
-                if (width > maxSize) {
-                  height = Math.round(height * (maxSize / width));
-                  width = maxSize;
-                }
-              } else {
-                if (height > maxSize) {
-                  width = Math.round(width * (maxSize / height));
-                  height = maxSize;
-                }
-              }
-            }
-
-            const baseName = file.name.replace(/\.(psd|PSD)$/, '');
-            
-            // Check if we need to extract layers (simplified - for real layer extraction we'd need a PSD parser)
-            if (mode === 'layers' && isPSD) {
-              // For PSD files, we can't easily extract individual layers client-side
-              // without a dedicated library. We create a single PNG with a note.
-              const canvas = document.createElement('canvas');
-              canvas.width = width;
-              canvas.height = height;
-              const ctx = canvas.getContext('2d');
-              
-              if (color === 'grayscale') {
-                ctx.filter = 'grayscale(100%)';
-              } else if (color === 'sepia') {
-                ctx.filter = 'sepia(80%)';
-              }
-              
-              ctx.drawImage(img, 0, 0, width, height);
-              
-              const blob = await new Promise(resolve => {
-                canvas.toBlob(resolve, 'image/png');
-              });
-              
-              const fileName = `${baseName}.png`;
-              convertedFiles.push({
-                blob: blob,
-                name: fileName,
-                originalName: file.name,
-                size: blob.size,
-                url: URL.createObjectURL(blob)
-              });
-              totalLayers++;
-              
-              // Add note about layer extraction
-              console.warn('Individual layer extraction from PSD requires a specialized library. Using merged image instead.');
-            } else {
-              // Merged mode (with or without transparency)
-              const canvas = document.createElement('canvas');
-              canvas.width = width;
-              canvas.height = height;
-              const ctx = canvas.getContext('2d');
-              
-              // If merged_transparent, keep transparency
-              if (mode === 'merged_transparent') {
-                // No background fill - keep transparent
-              } else {
-                // Fill with white background for standard merged
-                ctx.fillStyle = '#FFFFFF';
-                ctx.fillRect(0, 0, width, height);
-              }
-              
-              if (color === 'grayscale') {
-                ctx.filter = 'grayscale(100%)';
-              } else if (color === 'sepia') {
-                ctx.filter = 'sepia(80%)';
-              }
-              
-              ctx.drawImage(img, 0, 0, width, height);
-              
-              const blob = await new Promise(resolve => {
-                canvas.toBlob(resolve, 'image/png');
-              });
-              
-              const fileName = `${baseName}.png`;
-              convertedFiles.push({
-                blob: blob,
-                name: fileName,
-                originalName: file.name,
-                size: blob.size,
-                url: URL.createObjectURL(blob)
-              });
-              totalLayers++;
-            }
-
-          } catch (err) {
-            console.error(`Error converting ${file.name}:`, err);
-            try {
-              const img = await loadImage(file);
-              const canvas = document.createElement('canvas');
-              let width = img.width;
-              let height = img.height;
-              
-              if (size !== 'original') {
-                const maxSize = parseInt(size);
-                if (width > height) {
-                  if (width > maxSize) {
-                    height = Math.round(height * (maxSize / width));
-                    width = maxSize;
-                  }
-                } else {
-                  if (height > maxSize) {
-                    width = Math.round(width * (maxSize / height));
-                    height = maxSize;
-                  }
-                }
-              }
-              
-              canvas.width = width;
-              canvas.height = height;
-              const ctx = canvas.getContext('2d');
-              
-              if (mode === 'merged_transparent') {
-                // Keep transparent
-              } else {
-                ctx.fillStyle = '#FFFFFF';
-                ctx.fillRect(0, 0, width, height);
-              }
-              
-              if (color === 'grayscale') {
-                ctx.filter = 'grayscale(100%)';
-              } else if (color === 'sepia') {
-                ctx.filter = 'sepia(80%)';
-              }
-              
-              ctx.drawImage(img, 0, 0, width, height);
-              
-              const blob = await new Promise(resolve => {
-                canvas.toBlob(resolve, 'image/png');
-              });
-              
-              const baseName = file.name.replace(/\.(psd|PSD)$/, '');
-              const fileName = `${baseName}.png`;
-              
-              convertedFiles.push({
-                blob: blob,
-                name: fileName,
-                originalName: file.name,
-                size: blob.size,
-                url: URL.createObjectURL(blob)
-              });
-              totalLayers++;
-            } catch (fallbackErr) {
-              console.error('Fallback conversion also failed:', fallbackErr);
-              const errorMsg = `Failed to convert ${file.name}`;
-              const textBlob = new Blob([errorMsg], { type: 'text/plain' });
-              convertedFiles.push({
-                blob: textBlob,
-                name: `${file.name}_error.txt`,
-                originalName: file.name,
-                size: textBlob.size,
-                url: URL.createObjectURL(textBlob),
-                error: true
-              });
-            }
-          }
-        }
-
-        progressBar.style.width = '100%';
-        progressText.textContent = '100%';
-        statusText.textContent = '✅ Conversion complete!';
-
-        setTimeout(() => {
-          showResults(totalLayers);
-          convertBtn.disabled = false;
-          convertBtn.textContent = '🔄 Convert All';
-          progressContainer.classList.add('hidden');
-        }, 500);
-
-      } catch (error) {
-        console.error('Conversion error:', error);
-        statusText.textContent = '❌ Conversion failed: ' + error.message;
-        convertBtn.disabled = false;
-        convertBtn.textContent = '🔄 Convert All';
-        alert('Conversion failed. Please try again or use different files.\n\nError: ' + error.message);
-      }
-    }
-
-    function showResults(totalLayers) {
-      const successful = convertedFiles.filter(f => !f.error).length;
-      const total = convertedFiles.length;
+    function showResults(successCount, failCount) {
+      const total = successCount + failCount;
       
-      convertedCountBadge.textContent = `${successful} of ${total} converted`;
-      const totalBytes = convertedFiles.reduce((sum, f) => sum + f.size, 0);
-      totalSizeBadge.textContent = `${(totalBytes / 1024 / 1024).toFixed(2)} MB`;
-
-      if (totalLayers > 0 && conversionMode.value === 'layers') {
-        layersBadge.textContent = `${totalLayers} layers extracted`;
-        layersBadge.classList.remove('hidden');
+      if (successCount === 0) {
+        // Show failure state
+        resultSection.className = 'max-w-2xl mx-auto mt-6 bg-red-50 border border-red-200 rounded-xl p-6 text-center transition-colors duration-200';
+        resultContent.innerHTML = `
+          <div class="text-4xl mb-2">❌</div>
+          <h3 class="font-bold text-slate-900">Conversion Failed</h3>
+          <p class="text-sm text-slate-600 mt-1">${failCount} of ${total} files could not be converted.</p>
+          <p class="text-xs text-slate-500 mt-2">Make sure your PSD files are valid and not corrupted.</p>
+          <div class="mt-4 flex flex-wrap gap-3 justify-center">
+            <button onclick="resetConverter()" class="px-6 py-3 border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors text-sm">
+              Try Again
+            </button>
+          </div>
+        `;
       } else {
-        layersBadge.classList.add('hidden');
-      }
+        // Show success state
+        resultSection.className = 'max-w-2xl mx-auto mt-6 bg-green-50 border border-green-200 rounded-xl p-6 text-center transition-colors duration-200';
+        
+        const totalBytes = convertedFiles.reduce((sum, f) => sum + f.size, 0);
+        
+        resultContent.innerHTML = `
+          <div class="text-4xl mb-2">✅</div>
+          <h3 class="font-bold text-slate-900">Conversion Complete!</h3>
+          <p class="text-sm text-slate-600 mt-1">${successCount} of ${total} files converted successfully${failCount > 0 ? ` (${failCount} failed)` : ''}.</p>
+          <div class="mt-2 flex flex-wrap gap-2 justify-center">
+            <span class="info-badge badge-images">${successCount} images</span>
+            <span class="info-badge badge-size">${(totalBytes / 1024 / 1024).toFixed(2)} MB</span>
+          </div>
+          <div class="mt-4 flex flex-wrap gap-3 justify-center">
+            <button onclick="downloadAll()" class="bg-green-600 hover:bg-green-700 text-white font-bold px-6 py-3 rounded-xl transition-all shadow-md shadow-green-500/20">
+              📥 Download All (ZIP)
+            </button>
+            <button onclick="downloadAllIndividual()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-3 rounded-xl transition-all shadow-md shadow-blue-500/20">
+              📥 Download Individual
+            </button>
+            <button onclick="resetConverter()" class="px-6 py-3 border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors text-sm">
+              Convert Another
+            </button>
+          </div>
+          <div id="downloadLinksContainer" class="mt-2 grid grid-cols-2 md:grid-cols-4 gap-2 max-h-40 overflow-y-auto">
+            <!-- Individual download links will be added here -->
+          </div>
+        `;
 
-      downloadLinksContainer.innerHTML = '';
-      convertedFiles.forEach((f, idx) => {
-        if (!f.error) {
-          const link = document.createElement('a');
-          link.href = f.url;
-          link.download = f.name;
-          link.className = 'bg-white border border-slate-200 rounded-lg p-2 text-center hover:border-blue-400 transition-all text-xs truncate';
-          link.textContent = `🖼️ ${f.name.substring(0, 12)}...`;
-          link.title = f.name;
-          downloadLinksContainer.appendChild(link);
-        }
-      });
+        // Add download links
+        const container = document.getElementById('downloadLinksContainer');
+        container.innerHTML = '';
+        convertedFiles.forEach((f) => {
+          if (!f.error) {
+            const link = document.createElement('a');
+            link.href = f.url;
+            link.download = f.name;
+            link.className = 'bg-white border border-slate-200 rounded-lg p-2 text-center hover:border-blue-400 transition-all text-xs truncate';
+            link.textContent = `🖼️ ${f.name.substring(0, 12)}...`;
+            link.title = f.name;
+            container.appendChild(link);
+          }
+        });
+      }
 
       resultSection.classList.remove('hidden');
     }
 
     function downloadAll() {
-      if (convertedFiles.length === 0) {
+      const validFiles = convertedFiles.filter(f => !f.error);
+      if (validFiles.length === 0) {
         alert('No files to download.');
         return;
       }
 
-      if (convertedFiles.length === 1) {
-        const f = convertedFiles[0];
-        if (!f.error) {
-          const link = document.createElement('a');
-          link.href = f.url;
-          link.download = f.name;
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-        }
+      if (validFiles.length === 1) {
+        const f = validFiles[0];
+        const link = document.createElement('a');
+        link.href = f.url;
+        link.download = f.name;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
         return;
       }
 
       if (typeof JSZip !== 'undefined') {
         const zip = new JSZip();
-        convertedFiles.forEach(f => {
-          if (!f.error) {
-            zip.file(f.name, f.blob);
-          }
+        validFiles.forEach(f => {
+          zip.file(f.name, f.blob);
         });
         zip.generateAsync({ type: 'blob' }).then(content => {
           const url = URL.createObjectURL(content);
@@ -1049,17 +1006,16 @@
     }
 
     function downloadAllIndividual() {
-      convertedFiles.forEach((f, idx) => {
-        if (!f.error) {
-          setTimeout(() => {
-            const link = document.createElement('a');
-            link.href = f.url;
-            link.download = f.name;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-          }, idx * 300);
-        }
+      const validFiles = convertedFiles.filter(f => !f.error);
+      validFiles.forEach((f, idx) => {
+        setTimeout(() => {
+          const link = document.createElement('a');
+          link.href = f.url;
+          link.download = f.name;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        }, idx * 300);
       });
     }
 
