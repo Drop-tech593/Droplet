@@ -1,10 +1,10 @@
-try 4
+try 5
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Word to PDF Converter - Droplet (Try 3)</title>
+  <title>Word to PDF Converter - Droplet</title>
   <meta name="description" content="Convert Word DOCX files to PDF online for free. 100% client-side.">
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.8.0/mammoth.browser.min.js"></script>
@@ -16,8 +16,9 @@ try 4
     .preview-box{max-height:400px;overflow-y:auto;background:#fff;padding:24px;border-radius:12px;border:1px solid #e2e8f0;font-family:Georgia,serif;font-size:11pt;line-height:1.8}
     .preview-box h1{font-size:18pt;font-weight:bold;margin:16pt 0 8pt}.preview-box h2{font-size:15pt;font-weight:bold;margin:14pt 0 6pt}.preview-box h3{font-size:12pt;font-weight:bold;margin:12pt 0 4pt}.preview-box p{margin:6pt 0}.preview-box table{width:100%;border-collapse:collapse;margin:8pt 0}.preview-box td,.preview-box th{border:1px solid #ddd;padding:6px 8px}.preview-box img{max-width:100%;height:auto}.preview-box ul,.preview-box ol{padding-left:2em}
     .file-item{display:flex;align-items:center;gap:12px;padding:10px 14px;background:#f8fafc;border-radius:10px;border:1px solid #e2e8f0}.file-item .icon{font-size:24px}.file-item .info{flex:1}.file-item .info .name{font-weight:600;color:#1e293b}.file-item .info .size{font-size:12px;color:#94a3b8}
-
-    /* TRY 3: isolated PDF coordinate system */
+    .warning-box{background:#fef3c7;border:1px solid #f59e0b;border-radius:8px;padding:12px 16px;margin:8px 0}
+    .warning-box .title{font-weight:600;color:#92400e}
+    .warning-box .text{color:#78350f;font-size:13px}
     #pdfRenderHost{position:absolute;left:0;top:0;margin:0;padding:0;background:#fff;z-index:-1000;pointer-events:none}
     .pdf-render-root{margin:0!important;box-sizing:border-box!important;background:#fff!important;color:#111!important;max-width:none!important;min-width:0!important;overflow:visible!important;font-family:"Times New Roman",Georgia,serif!important;font-size:11pt!important;line-height:1.6!important}
     .pdf-render-root,.pdf-render-root *{box-sizing:border-box}
@@ -48,7 +49,6 @@ try 4
   </header>
 
   <main class="max-w-3xl mx-auto px-4 py-8 md:py-12 flex-grow w-full">
-    <!-- Back to Home Button -->
     <div class="max-w-2xl mx-auto mb-4 flex justify-start">
       <a href="/" class="inline-flex items-center gap-2 bg-white hover:bg-slate-50 border border-slate-200 shadow-sm rounded-full px-5 py-2.5 text-sm font-medium text-slate-700 transition-all hover:shadow-md hover:border-slate-300 active:scale-95">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg> Back to Home
@@ -60,7 +60,6 @@ try 4
       <p class="text-slate-500 text-sm md:text-base mt-2 max-w-md mx-auto">Convert your Word documents to PDF. <strong>100% client-side</strong> — your files stay private.</p>
     </div>
 
-    <!-- Dropzone -->
     <div id="dropzone" class="bg-white border-2 border-dashed border-slate-300 hover:border-blue-400 transition-all rounded-2xl p-10 text-center shadow-sm cursor-pointer max-w-2xl mx-auto">
       <div class="flex flex-col items-center">
         <div class="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mb-3 text-3xl">📁</div>
@@ -72,7 +71,6 @@ try 4
       </div>
     </div>
 
-    <!-- File Info -->
     <div id="fileSection" class="hidden max-w-2xl mx-auto mt-6">
       <div class="file-item">
         <span class="icon">📄</span>
@@ -84,16 +82,19 @@ try 4
       </div>
     </div>
 
-    <!-- Preview -->
+    <!-- Preview Section with Better Error Handling -->
     <div id="previewSection" class="hidden max-w-2xl mx-auto mt-4">
       <div class="flex items-center justify-between mb-2">
         <h4 class="font-semibold text-sm text-slate-700">📖 Preview</h4>
-        <span class="text-xs text-slate-400">Document preview</span>
+        <span class="text-xs text-slate-400" id="previewStatus">Document preview</span>
       </div>
       <div id="previewContent" class="preview-box"></div>
+      <div id="previewWarning" class="warning-box hidden mt-2">
+        <div class="title">⚠️ Preview Limited</div>
+        <div class="text">The document could not be fully previewed. You can still try converting it to PDF.</div>
+      </div>
     </div>
 
-    <!-- Controls -->
     <div id="controlsSection" class="hidden max-w-2xl mx-auto mt-4">
       <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
         <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
@@ -138,7 +139,6 @@ try 4
       </div>
     </div>
 
-    <!-- Result -->
     <div id="resultSection" class="hidden max-w-2xl mx-auto mt-6">
       <div class="bg-green-50 border border-green-200 rounded-xl p-6 text-center">
         <div class="text-4xl mb-2">✅</div>
@@ -155,7 +155,6 @@ try 4
       </div>
     </div>
 
-    <!-- Info Cards -->
     <div class="max-w-2xl mx-auto mt-12 grid grid-cols-1 md:grid-cols-3 gap-4">
       <div class="bg-white p-4 rounded-xl border border-slate-100 text-center">
         <div class="text-2xl mb-1">🔒</div>
@@ -174,7 +173,6 @@ try 4
       </div>
     </div>
 
-    <!-- FAQ -->
     <section class="max-w-2xl mx-auto mt-10">
       <h2 class="text-xl font-black text-slate-900 text-center mb-5">Frequently Asked Questions</h2>
       <div class="space-y-3">
@@ -188,7 +186,11 @@ try 4
         </div>
         <div class="bg-white p-4 rounded-xl border border-slate-100">
           <h3 class="font-semibold text-sm text-slate-900">What file types are supported?</h3>
-          <p class="text-sm text-slate-600 mt-1">Currently supports .docx files. Other Word formats may work but are not guaranteed.</p>
+          <p class="text-sm text-slate-600 mt-1">Currently supports .docx files. For .doc files, please open and save as .docx first.</p>
+        </div>
+        <div class="bg-white p-4 rounded-xl border border-slate-100">
+          <h3 class="font-semibold text-sm text-slate-900">Why can't I preview my file?</h3>
+          <p class="text-sm text-slate-600 mt-1">Some documents with complex formatting, images, or old .doc format may not preview. You can still try converting to PDF.</p>
         </div>
       </div>
     </section>
@@ -207,21 +209,15 @@ try 4
     </div>
   </footer>
 
-  <!-- PDF Render Host -->
   <div id="pdfRenderHost" aria-hidden="true"></div>
 
   <script>
-    // ============================================
-    // STATE VARIABLES
-    // ============================================
     let currentFile = null;
     let htmlContent = '';
     let convertedBlob = null;
     let pageCount = 0;
+    let previewError = false;
 
-    // ============================================
-    // DOM REFERENCES
-    // ============================================
     const dropzone = document.getElementById('dropzone');
     const fileInput = document.getElementById('fileInput');
     const fileSection = document.getElementById('fileSection');
@@ -229,6 +225,8 @@ try 4
     const fileSize = document.getElementById('fileSize');
     const previewSection = document.getElementById('previewSection');
     const previewContent = document.getElementById('previewContent');
+    const previewWarning = document.getElementById('previewWarning');
+    const previewStatus = document.getElementById('previewStatus');
     const controlsSection = document.getElementById('controlsSection');
     const convertBtn = document.getElementById('convertBtn');
     const progressSection = document.getElementById('progressSection');
@@ -244,9 +242,6 @@ try 4
     const orientation = document.getElementById('orientation');
     const quality = document.getElementById('quality');
 
-    // ============================================
-    // HELPER FUNCTIONS
-    // ============================================
     function isDocx(file) {
       return file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' ||
              file.name.toLowerCase().endsWith('.docx');
@@ -288,9 +283,6 @@ try 4
       return document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve();
     }
 
-    // ============================================
-    // DROPZONE EVENTS
-    // ============================================
     dropzone.addEventListener('dragover', (e) => {
       e.preventDefault();
       dropzone.classList.add('dropzone-active');
@@ -327,9 +319,86 @@ try 4
       }
     });
 
-    // ============================================
-    // FILE HANDLING
-    // ============================================
+    // ===== TRY MULTIPLE METHODS TO LOAD THE FILE =====
+    async function loadPreview(file) {
+      previewError = false;
+      previewWarning.classList.add('hidden');
+      previewStatus.textContent = 'Loading preview...';
+
+      try {
+        const arrayBuffer = await file.arrayBuffer();
+        
+        // Try Method 1: Standard Mammoth conversion
+        try {
+          const result = await mammoth.convertToHtml({
+            arrayBuffer: arrayBuffer,
+            convertImage: mammoth.images.imgElement(image => 
+              image.read('base64').then(data => ({
+                src: 'data:' + image.contentType + ';base64,' + data
+              }))
+            )
+          });
+
+          if (result.value && result.value.trim().length > 0) {
+            htmlContent = result.value;
+            previewContent.innerHTML = htmlContent;
+            previewStatus.textContent = '✅ Preview loaded successfully';
+            previewWarning.classList.add('hidden');
+            previewError = false;
+            
+            const text = htmlContent.replace(/<[^>]*>/g, ' ');
+            const words = text.split(/\s+/).filter(Boolean).length;
+            pageCount = Math.max(1, Math.ceil(words / 300));
+            
+            previewSection.classList.remove('hidden');
+            controlsSection.classList.remove('hidden');
+            return;
+          }
+        } catch (mammothError) {
+          console.warn('Mammoth conversion failed:', mammothError);
+          // Continue to fallback
+        }
+
+        // Try Method 2: Try to extract raw text (fallback)
+        try {
+          const text = new TextDecoder('utf-8').decode(arrayBuffer.slice(0, 10000));
+          // Check if it's a DOCX (ZIP file) - look for PK header
+          if (arrayBuffer.slice(0, 2)[0] === 0x50 && arrayBuffer.slice(0, 2)[1] === 0x4B) {
+            // It's a valid DOCX but Mammoth couldn't parse it
+            htmlContent = '<p>⚠️ The document was detected as a valid DOCX file but could not be previewed due to complex formatting.</p><p>You can still try converting it to PDF.</p>';
+            previewWarning.classList.remove('hidden');
+            previewError = true;
+          } else {
+            // Not a valid DOCX
+            htmlContent = '<p>⚠️ This file may not be a valid DOCX document.</p><p>Please make sure you are using a .docx file and not a .doc file.</p>';
+            previewWarning.classList.remove('hidden');
+            previewError = true;
+          }
+        } catch (textError) {
+          // Complete fallback
+          htmlContent = '<p>⚠️ Could not read the document.</p><p>Please try converting it to PDF anyway.</p>';
+          previewWarning.classList.remove('hidden');
+          previewError = true;
+        }
+
+        previewContent.innerHTML = htmlContent;
+        previewStatus.textContent = '⚠️ Limited preview available';
+        previewSection.classList.remove('hidden');
+        controlsSection.classList.remove('hidden');
+        pageCount = 1; // Default to 1 page
+
+      } catch (error) {
+        console.error('Preview error:', error);
+        previewContent.innerHTML = '<p class="text-red-500">⚠️ Could not preview this file.</p><p>Possible reasons:</p><ul><li>The file may be corrupted</li><li>The file may be password protected</li><li>The file may be an old .doc format (not .docx)</li></ul><p>You can still try converting it to PDF.</p>';
+        previewStatus.textContent = '❌ Preview failed';
+        previewSection.classList.remove('hidden');
+        controlsSection.classList.remove('hidden');
+        previewError = true;
+        htmlContent = '<p>⚠️ Document could not be previewed.</p>';
+        pageCount = 1;
+      }
+    }
+
     async function handleFile(file) {
       if (!isDocx(file)) {
         alert('Please select a .docx file.');
@@ -354,44 +423,11 @@ try 4
       await loadPreview(file);
     }
 
-    // ============================================
-    // PREVIEW
-    // ============================================
-    async function loadPreview(file) {
-      try {
-        const result = await mammoth.convertToHtml({
-          arrayBuffer: await file.arrayBuffer(),
-          convertImage: mammoth.images.imgElement(image => 
-            image.read('base64').then(data => ({
-              src: 'data:' + image.contentType + ';base64,' + data
-            }))
-          )
-        });
-
-        htmlContent = result.value || '<p>No content found.</p>';
-        previewContent.innerHTML = htmlContent;
-        previewSection.classList.remove('hidden');
-        controlsSection.classList.remove('hidden');
-
-        // Rough page count estimate
-        const text = htmlContent.replace(/<[^>]*>/g, ' ');
-        const words = text.split(/\s+/).filter(Boolean).length;
-        pageCount = Math.max(1, Math.ceil(words / 300));
-
-      } catch (error) {
-        console.error('Preview error:', error);
-        previewContent.innerHTML = '<p class="text-red-500">⚠️ Could not preview this file.</p>';
-        previewSection.classList.remove('hidden');
-      }
-    }
-
-    // ============================================
-    // CLEAR / RESET
-    // ============================================
     function clearFile() {
       currentFile = null;
       htmlContent = '';
       convertedBlob = null;
+      previewError = false;
       fileInput.value = '';
       fileSection.classList.add('hidden');
       dropzone.classList.remove('hidden');
@@ -403,6 +439,7 @@ try 4
       progressPercent.textContent = '0%';
       convertBtn.disabled = false;
       convertBtn.textContent = '🔄 Convert to PDF';
+      previewWarning.classList.add('hidden');
     }
 
     function resetAll() {
@@ -419,9 +456,15 @@ try 4
         return;
       }
 
-      if (!htmlContent) {
-        alert('No content to convert. Please try again.');
-        return;
+      if (!htmlContent || htmlContent.trim().length === 0) {
+        // Try to re-read the file
+        try {
+          const arrayBuffer = await currentFile.arrayBuffer();
+          const result = await mammoth.convertToHtml({ arrayBuffer });
+          htmlContent = result.value || '<p>Document content</p>';
+        } catch (e) {
+          htmlContent = '<p>Document content (preview unavailable)</p>';
+        }
       }
 
       if (typeof html2pdf === 'undefined') {
@@ -440,13 +483,12 @@ try 4
 
       try {
         const m = pageMetrics(pageSize.value, orientation.value);
-        setProgress(15, 'Preparing layout', 'Creating isolated page...');
+        setProgress(15, 'Preparing layout', 'Creating page...');
 
         host.innerHTML = '';
         host.style.width = m.wPx + 'px';
         host.style.height = 'auto';
 
-        // Create isolated rendering root
         root = document.createElement('div');
         root.className = 'pdf-render-root';
         root.style.width = m.wPx + 'px';
@@ -461,7 +503,6 @@ try 4
         await waitForImages(root);
         await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
 
-        // Ensure images and tables are responsive
         root.querySelectorAll('img').forEach(img => {
           img.style.maxWidth = '100%';
           img.style.height = 'auto';
@@ -470,11 +511,6 @@ try 4
           t.style.maxWidth = '100%';
           t.style.width = '100%';
         });
-
-        const actualWidth = Math.round(root.getBoundingClientRect().width);
-        if (actualWidth !== Math.round(m.wPx)) {
-          console.warn('Try 3 renderer width:', actualWidth, 'expected:', m.wPx);
-        }
 
         setProgress(40, 'Rendering...', 'Converting the document to PDF...');
 
@@ -525,30 +561,22 @@ try 4
         progressSection.classList.add('hidden');
 
       } catch (error) {
-        console.error('Try 3 conversion error:', error);
+        console.error('Conversion error:', error);
         if (host) host.innerHTML = '';
         statusText.textContent = '❌ Error: ' + error.message;
         convertBtn.disabled = false;
         convertBtn.textContent = '🔄 Convert to PDF';
-        
-        let errorMsg = 'Conversion failed: ' + error.message;
-        if (error.message.includes('html2canvas')) {
-          errorMsg = 'PDF rendering failed. Please try again or use a simpler document.';
-        }
-        alert(errorMsg);
+        alert('Conversion failed. Please try again or use a different file.\n\nError: ' + error.message);
       }
     }
 
-    // ============================================
-    // KEYBOARD SHORTCUT
-    // ============================================
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' && !convertBtn.disabled && !controlsSection.classList.contains('hidden')) {
         convertToPDF();
       }
     });
 
-    console.log('📝 Droplet Word to PDF Converter - Try 3 loaded');
+    console.log('📝 Word to PDF Converter loaded');
   </script>
 </body>
 </html>
