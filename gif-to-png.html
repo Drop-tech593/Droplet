@@ -9,9 +9,6 @@
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
 
-  <!-- gif.js for animated GIF decoding -->
-  <script src="https://cdn.jsdelivr.net/npm/gif.js@0.2.0/dist/gif.js"></script>
-
   <!-- JSZip for ZIP downloads -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 
@@ -38,22 +35,26 @@
       border: 2px solid #e2e8f0;
       border-radius: 8px;
       overflow: hidden;
-      transition: border-color 0.2s;
+      transition: border-color 0.2s, transform 0.2s;
       background: white;
       position: relative;
     }
     .image-grid .image-card:hover {
       border-color: #3b82f6;
+      transform: scale(1.02);
     }
     .image-grid .image-card img {
       width: 100%;
       height: auto;
       display: block;
+      min-height: 80px;
+      object-fit: contain;
+      background: #f8fafc;
     }
     .image-grid .image-card .file-name {
       font-size: 9px;
       text-align: center;
-      padding: 4px;
+      padding: 4px 6px;
       background: #f8fafc;
       color: #64748b;
       font-weight: 500;
@@ -65,18 +66,18 @@
       position: absolute;
       top: 4px;
       right: 4px;
-      padding: 2px 6px;
+      padding: 2px 8px;
       border-radius: 4px;
       font-size: 8px;
       font-weight: 600;
       background: rgba(0,0,0,0.6);
       color: white;
     }
-    .image-grid .image-card .frame-count {
+    .image-grid .image-card .dimensions-badge {
       position: absolute;
       bottom: 24px;
       left: 4px;
-      padding: 2px 6px;
+      padding: 2px 8px;
       border-radius: 4px;
       font-size: 8px;
       font-weight: 600;
@@ -94,12 +95,190 @@
     .badge-converted { background: #d1fae5; color: #065f46; }
     .badge-size { background: #fef3c7; color: #92400e; }
     .badge-animated { background: #fce7f3; color: #9d174d; }
+
+    /* Dark mode overrides */
+    html.dark body {
+      background: #0f172a;
+      color: #e2e8f0;
+    }
+    html.dark header {
+      background: #1e293b;
+      border-color: #334155;
+    }
+    html.dark header h1 {
+      color: #f1f5f9;
+    }
+    html.dark header p {
+      color: #60a5fa !important;
+    }
+    html.dark header nav a {
+      color: #94a3b8;
+    }
+    html.dark header nav a:hover {
+      color: #f1f5f9;
+    }
+    html.dark #dropzone {
+      background: #1e293b;
+      border-color: #475569;
+    }
+    html.dark #dropzone:hover {
+      border-color: #3b82f6;
+    }
+    html.dark #dropzone h3 {
+      color: #f1f5f9;
+    }
+    html.dark #dropzone p {
+      color: #94a3b8;
+    }
+    html.dark #fileInfo {
+      background: #1e293b;
+      border-color: #334155;
+    }
+    html.dark #fileInfo .text-slate-900 {
+      color: #f1f5f9;
+    }
+    html.dark #fileInfo .text-slate-400 {
+      color: #94a3b8;
+    }
+    html.dark #fileInfo .border-slate-200 {
+      border-color: #334155;
+    }
+    html.dark #fileInfo .hover\:bg-slate-50:hover {
+      background: #334155;
+    }
+    html.dark #fileInfo .bg-slate-50 {
+      background: #0f172a !important;
+    }
+    html.dark #fileInfo select {
+      background: #0f172a;
+      border-color: #334155;
+      color: #f1f5f9;
+    }
+    html.dark #fileInfo select option {
+      background: #1e293b;
+    }
+    html.dark #resultSection {
+      background: #0f172a;
+      border-color: #334155;
+    }
+    html.dark #resultSection h3 {
+      color: #f1f5f9;
+    }
+    html.dark #resultSection .text-slate-600 {
+      color: #94a3b8;
+    }
+    html.dark #resultSection .border-slate-200 {
+      border-color: #334155;
+    }
+    html.dark #resultSection .hover\:bg-slate-50:hover {
+      background: #334155;
+    }
+    html.dark .bg-white {
+      background: #1e293b !important;
+    }
+    html.dark .border-slate-100 {
+      border-color: #334155 !important;
+    }
+    html.dark .text-slate-500 {
+      color: #94a3b8 !important;
+    }
+    html.dark .text-slate-600 {
+      color: #94a3b8 !important;
+    }
+    html.dark .text-slate-700 {
+      color: #cbd5e1 !important;
+    }
+    html.dark .bg-blue-50 {
+      background: #1e3a5f !important;
+    }
+    html.dark .border-blue-200 {
+      border-color: #2563eb !important;
+    }
+    html.dark .text-blue-900 {
+      color: #93c5fd !important;
+    }
+    html.dark .text-blue-700 {
+      color: #60a5fa !important;
+    }
+    html.dark footer {
+      background: #0f172a !important;
+      border-color: #334155 !important;
+    }
+    html.dark footer a {
+      color: #94a3b8;
+    }
+    html.dark footer a:hover {
+      color: #f1f5f9;
+    }
+    html.dark .shadow-sm {
+      box-shadow: 0 1px 2px 0 rgba(0,0,0,0.3) !important;
+    }
+    html.dark .shadow-lg {
+      box-shadow: 0 10px 15px -3px rgba(0,0,0,0.4) !important;
+    }
+    html.dark .image-grid .image-card {
+      background: #1e293b;
+      border-color: #334155;
+    }
+    html.dark .image-grid .image-card .file-name {
+      background: #0f172a;
+      color: #94a3b8;
+    }
+    html.dark .image-grid .image-card img {
+      background: #0f172a;
+    }
+    html.dark .image-grid .image-card:hover {
+      border-color: #3b82f6;
+    }
+    html.dark .info-badge.badge-images {
+      background: #1e3a5f;
+      color: #93c5fd;
+    }
+    html.dark .info-badge.badge-size {
+      background: #3b2e1e;
+      color: #fcd34d;
+    }
+    html.dark .info-badge.badge-animated {
+      background: #3b1e2e;
+      color: #f9a8d4;
+    }
+    html.dark .back-home-btn {
+      background: #1e293b !important;
+      border-color: #475569 !important;
+      color: #e2e8f0 !important;
+    }
+    html.dark .back-home-btn:hover {
+      background: #334155 !important;
+      border-color: #3b82f6 !important;
+    }
+
+    /* Theme toggle in header */
+    #theme-toggle {
+      background: none;
+      border: none;
+      font-size: 1.2rem;
+      cursor: pointer;
+      padding: 0.2rem 0.4rem;
+      border-radius: 6px;
+      transition: background 0.2s;
+      color: #475569;
+      line-height: 1;
+    }
+    #theme-toggle:hover {
+      background: #f1f5f9;
+    }
+    html.dark #theme-toggle {
+      color: #e2e8f0;
+    }
+    html.dark #theme-toggle:hover {
+      background: #334155;
+    }
   </style>
 </head>
-<body class="bg-slate-50 text-slate-800 font-sans antialiased">
+<body class="bg-slate-50 text-slate-800 font-sans antialiased transition-colors duration-200">
 
   <!-- Navigation -->
-  <header class="bg-white border-b border-slate-200 py-3.5 px-6 sticky top-0 z-50">
+  <header class="bg-white border-b border-slate-200 py-3.5 px-6 sticky top-0 z-50 transition-colors duration-200">
     <div class="max-w-6xl mx-auto flex justify-between items-center">
       <a href="/" class="flex items-center gap-3 group">
         <img src="Gemini_Generated_Image_sdu6v7sdu6v7sdu6.jpg" alt="Droplet Logo" class="h-9 w-auto rounded-xl shadow-sm group-hover:scale-105 transition-transform">
@@ -108,18 +287,31 @@
           <p class="text-[9px] text-blue-600 font-extrabold tracking-widest uppercase mt-0.5">DRAG, DROP AND CONVERT.</p>
         </div>
       </a>
-      <nav class="hidden md:flex items-center space-x-6 text-xs font-bold text-slate-600">
-        <a href="/" class="hover:text-blue-600 transition-colors">← Back</a>
-      </nav>
+      <div class="flex items-center gap-3">
+        <button id="theme-toggle" aria-label="Toggle theme">🌙</button>
+        <nav class="hidden md:flex items-center space-x-6 text-xs font-bold text-slate-600">
+          <a href="/" class="hover:text-blue-600 transition-colors">← Back</a>
+        </nav>
+      </div>
     </div>
   </header>
 
   <!-- Main Content -->
   <main class="max-w-4xl mx-auto px-4 py-8 md:py-12 flex-grow w-full">
 
+    <!-- Back Button -->
+    <div class="max-w-2xl mx-auto mb-4 flex justify-start">
+      <a href="/" class="back-home-btn inline-flex items-center gap-2 bg-white hover:bg-slate-50 border border-slate-200 shadow-sm rounded-full px-5 py-2.5 text-sm font-medium text-slate-700 transition-all hover:shadow-md hover:border-slate-300 active:scale-95">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        </svg>
+        Back to Home
+      </a>
+    </div>
+
     <!-- Page Header -->
     <div class="text-center mb-8">
-      <div class="inline-block p-3 bg-blue-50 rounded-2xl mb-4">
+      <div class="inline-block p-3 bg-blue-50 rounded-2xl mb-4 transition-colors duration-200">
         <span class="text-4xl">🎞️</span>
       </div>
       <h1 class="text-3xl md:text-4xl font-black text-slate-900 tracking-tight">GIF to PNG Converter</h1>
@@ -129,7 +321,7 @@
     </div>
 
     <!-- What is GIF Info -->
-    <div class="max-w-2xl mx-auto mb-8 bg-blue-50 border border-blue-200 rounded-xl p-4">
+    <div class="max-w-2xl mx-auto mb-8 bg-blue-50 border border-blue-200 rounded-xl p-4 transition-colors duration-200">
       <div class="flex items-start gap-3">
         <span class="text-2xl">🔄</span>
         <div>
@@ -156,7 +348,7 @@
     </div>
 
     <!-- File Info & Conversion Controls -->
-    <div id="fileInfo" class="hidden max-w-2xl mx-auto mt-6 bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+    <div id="fileInfo" class="hidden max-w-2xl mx-auto mt-6 bg-white rounded-xl shadow-sm border border-slate-200 p-6 transition-colors duration-200">
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-3">
           <span class="text-2xl">🖼️</span>
@@ -168,30 +360,34 @@
         <button onclick="clearFiles()" class="text-slate-400 hover:text-red-500 transition-colors">✕</button>
       </div>
 
-      <!-- PNG Options -->
-      <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-slate-50 rounded-lg">
+      <!-- PNG Options - Improved -->
+      <div class="mt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4 bg-slate-50 rounded-lg transition-colors duration-200">
         <div>
-          <label class="block text-xs font-medium text-slate-700 mb-1">Mode</label>
-          <select id="conversionMode" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-            <option value="first">Extract First Frame</option>
-            <option value="all" selected>Extract All Frames</option>
-            <option value="animated">Create Animated PNG (APNG)</option>
+          <label class="block text-xs font-medium text-slate-700 mb-1">📊 Mode</label>
+          <select id="conversionMode" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white transition-colors duration-200">
+            <option value="first">🔹 Extract First Frame</option>
+            <option value="all" selected>🔹 Extract All Frames</option>
+            <option value="animated">🔹 Create Animated PNG (APNG)</option>
+          </select>
+          <p class="text-[8px] text-slate-400 mt-0.5">APNG support depends on browser</p>
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-slate-700 mb-1">📏 Image Size</label>
+          <select id="imageSize" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white transition-colors duration-200">
+            <option value="original">🔹 Original Size</option>
+            <option value="3840">🔹 4K (3840px)</option>
+            <option value="2560">🔹 2.5K (2560px)</option>
+            <option value="1920">🔹 HD (1920px)</option>
+            <option value="1280">🔹 HD Ready (1280px)</option>
+            <option value="800">🔹 Web (800px)</option>
           </select>
         </div>
         <div>
-          <label class="block text-xs font-medium text-slate-700 mb-1">Image Size</label>
-          <select id="imageSize" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-            <option value="original">Original Size</option>
-            <option value="1920">HD (1920px)</option>
-            <option value="1280">HD Ready (1280px)</option>
-            <option value="800">Web (800px)</option>
-          </select>
-        </div>
-        <div>
-          <label class="block text-xs font-medium text-slate-700 mb-1">Color Mode</label>
-          <select id="colorMode" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-            <option value="color">Color</option>
-            <option value="grayscale">Grayscale</option>
+          <label class="block text-xs font-medium text-slate-700 mb-1">🎨 Color Mode</label>
+          <select id="colorMode" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white transition-colors duration-200">
+            <option value="color">🌈 Color</option>
+            <option value="grayscale">⬛ Grayscale</option>
+            <option value="sepia">🟫 Sepia</option>
           </select>
         </div>
       </div>
@@ -217,7 +413,7 @@
         <p id="statusText" class="text-xs text-slate-400 mt-2 text-center">Initializing...</p>
       </div>
 
-      <!-- Image Preview -->
+      <!-- Image Preview - Improved -->
       <div id="previewContainer" class="hidden mt-4 border-t border-slate-200 pt-4">
         <div class="flex items-center justify-between mb-2">
           <h4 class="font-bold text-sm text-slate-700">🖼️ Image Preview</h4>
@@ -230,7 +426,7 @@
     </div>
 
     <!-- Result Section -->
-    <div id="resultSection" class="hidden max-w-2xl mx-auto mt-6 bg-green-50 border border-green-200 rounded-xl p-6">
+    <div id="resultSection" class="hidden max-w-2xl mx-auto mt-6 bg-green-50 border border-green-200 rounded-xl p-6 transition-colors duration-200">
       <div class="flex items-center justify-between mb-4">
         <div>
           <div class="text-4xl mb-1">✅</div>
@@ -266,17 +462,17 @@
 
     <!-- Info Section -->
     <div class="max-w-2xl mx-auto mt-12 grid grid-cols-1 md:grid-cols-3 gap-4">
-      <div class="bg-white p-4 rounded-xl border border-slate-100 text-center">
+      <div class="bg-white p-4 rounded-xl border border-slate-100 text-center transition-colors duration-200">
         <div class="text-2xl mb-1">🔒</div>
         <h4 class="font-bold text-sm">100% Private</h4>
         <p class="text-xs text-slate-500">Your files never leave your browser</p>
       </div>
-      <div class="bg-white p-4 rounded-xl border border-slate-100 text-center">
+      <div class="bg-white p-4 rounded-xl border border-slate-100 text-center transition-colors duration-200">
         <div class="text-2xl mb-1">🎞️</div>
         <h4 class="font-bold text-sm">Frame Extraction</h4>
         <p class="text-xs text-slate-500">Extract all frames from animated GIFs</p>
       </div>
-      <div class="bg-white p-4 rounded-xl border border-slate-100 text-center">
+      <div class="bg-white p-4 rounded-xl border border-slate-100 text-center transition-colors duration-200">
         <div class="text-2xl mb-1">⚡</div>
         <h4 class="font-bold text-sm">Fast & Free</h4>
         <p class="text-xs text-slate-500">No sign-up required</p>
@@ -287,7 +483,7 @@
     <section class="max-w-2xl mx-auto mt-12">
       <h2 class="text-xl font-black text-slate-900 text-center mb-6">GIF vs PNG Comparison</h2>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div class="bg-white p-5 rounded-xl border border-slate-100">
+        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
           <h3 class="font-bold text-slate-900 text-sm flex items-center gap-2">
             <span class="text-xl">🔄</span> GIF
           </h3>
@@ -299,7 +495,7 @@
             <li>❌ Larger file size for static images</li>
           </ul>
         </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100">
+        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
           <h3 class="font-bold text-slate-900 text-sm flex items-center gap-2">
             <span class="text-xl">🔵</span> PNG
           </h3>
@@ -318,32 +514,32 @@
     <section class="max-w-2xl mx-auto mt-12">
       <h2 class="text-xl font-black text-slate-900 text-center mb-6">Frequently Asked Questions</h2>
       <div class="space-y-3">
-        <div class="bg-white p-5 rounded-xl border border-slate-100">
+        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
           <h3 class="font-bold text-slate-900 text-sm">Is my data safe?</h3>
-          <p class="text-slate-600 text-sm mt-1">Yes! All conversions happen locally in your browser. Your GIF files are never uploaded to any server and are automatically deleted when you close the page.</p>
+          <p class="text-slate-600 text-sm mt-1">Yes! All conversions happen locally in your browser. Your GIF files are never uploaded to any server.</p>
         </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100">
+        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
           <h3 class="font-bold text-slate-900 text-sm">Why convert GIF to PNG?</h3>
-          <p class="text-slate-600 text-sm mt-1">PNG supports millions of colors (vs 256 in GIF), has better compression for static images, and supports full alpha transparency. PNG is ideal for static graphics, logos, and images with gradients.</p>
+          <p class="text-slate-600 text-sm mt-1">PNG supports millions of colors (vs 256 in GIF), has better compression for static images, and supports full alpha transparency.</p>
         </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100">
+        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
           <h3 class="font-bold text-slate-900 text-sm">What about animated GIFs?</h3>
-          <p class="text-slate-600 text-sm mt-1">You can extract all frames from animated GIFs as separate PNG images. You can also create an APNG (Animated PNG) if your browser supports it. Each frame is a full-quality PNG.</p>
+          <p class="text-slate-600 text-sm mt-1">You can extract all frames from animated GIFs as separate PNG images. You can also create an APNG (Animated PNG) if your browser supports it.</p>
         </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100">
+        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
           <h3 class="font-bold text-slate-900 text-sm">Will I lose image quality?</h3>
-          <p class="text-slate-600 text-sm mt-1">No! PNG is a lossless format, so no quality is lost during conversion. The converted image will have more colors and better quality than the original GIF.</p>
+          <p class="text-slate-600 text-sm mt-1">No! PNG is a lossless format, so no quality is lost during conversion. The converted image will have more colors and better quality.</p>
         </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100">
+        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
           <h3 class="font-bold text-slate-900 text-sm">Can I convert multiple files at once?</h3>
-          <p class="text-slate-600 text-sm mt-1">Yes! Drag and drop multiple GIF files or select multiple files using the file picker. Each image will be converted individually, and you can download them all at once as a ZIP file.</p>
+          <p class="text-slate-600 text-sm mt-1">Yes! Drag and drop multiple GIF files or select multiple files using the file picker. Download them all at once as a ZIP file.</p>
         </div>
       </div>
     </section>
   </main>
 
   <!-- Footer -->
-  <footer class="border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-500 mt-auto">
+  <footer class="border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-500 mt-auto transition-colors duration-200">
     <div class="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-3">
       <p class="font-medium">© Droplet. 100% Client-Side Privacy First File Utility.</p>
       <div class="space-x-4">
@@ -358,6 +554,37 @@
 
   <!-- Conversion JavaScript -->
   <script>
+    // ============================================
+    // DARK MODE TOGGLE
+    // ============================================
+    const themeToggle = document.getElementById('theme-toggle');
+    const html = document.documentElement;
+    
+    let currentTheme = localStorage.getItem('theme') || 
+      (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    
+    if (currentTheme === 'dark') {
+      html.classList.add('dark');
+      themeToggle.textContent = '☀️';
+    } else {
+      themeToggle.textContent = '🌙';
+    }
+    
+    themeToggle.addEventListener('click', () => {
+      if (html.classList.contains('dark')) {
+        html.classList.remove('dark');
+        themeToggle.textContent = '🌙';
+        localStorage.setItem('theme', 'light');
+      } else {
+        html.classList.add('dark');
+        themeToggle.textContent = '☀️';
+        localStorage.setItem('theme', 'dark');
+      }
+    });
+
+    // ============================================
+    // CONVERTER LOGIC
+    // ============================================
     let files = [];
     let convertedFiles = [];
     let totalSize = 0;
@@ -424,7 +651,6 @@
 
       for (let i = 0; i < fileList.length; i++) {
         const file = fileList[i];
-        // Check if GIF or other image
         const isGIF = file.type === 'image/gif' || file.name.toLowerCase().endsWith('.gif');
         const isImage = file.type.startsWith('image/');
         
@@ -447,7 +673,6 @@
         alert(`${invalidCount} file(s) were skipped due to size limits or invalid format.`);
       }
 
-      // Add files to the list
       files = validFiles;
       fileCount.textContent = `${files.length} file(s)`;
       totalSizeEl.textContent = `Total: ${(totalSize / 1024 / 1024).toFixed(2)} MB`;
@@ -460,7 +685,6 @@
       convertBtn.disabled = false;
       convertBtn.textContent = '🔄 Convert All';
 
-      // Show previews
       showPreviews();
     }
 
@@ -472,11 +696,13 @@
         const file = files[i];
         const url = URL.createObjectURL(file);
         const isGIF = file.type === 'image/gif' || file.name.toLowerCase().endsWith('.gif');
+        const sizeKB = (file.size / 1024).toFixed(1);
         previewHtml += `
           <div class="image-card">
-            <img src="${url}" alt="${file.name}">
+            <img src="${url}" alt="${file.name}" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22150%22 height=%22150%22%3E%3Crect fill=%22%23f1f5f9%22 width=%22150%22 height=%22150%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%2394a3b8%22 font-size=%2212%22%3ENo preview%3C/text%3E%3C/svg%3E'">
             <div class="file-name">${file.name.substring(0, 15)}${file.name.length > 15 ? '...' : ''}</div>
             <div class="status-badge" style="background: ${isGIF ? '#dbeafe' : '#fef3c7'}; color: ${isGIF ? '#1e40af' : '#92400e'};">${isGIF ? 'GIF' : 'Other'}</div>
+            <div class="dimensions-badge">${sizeKB} KB</div>
           </div>
         `;
       }
@@ -515,56 +741,28 @@
       clearFiles();
     }
 
-    // Decode GIF frames using gif.js
-    function decodeGIF(blob) {
+    function loadImage(file) {
       return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          try {
-            const arrayBuffer = e.target.result;
-            // Use gif.js to decode
-            const gif = new GIF();
-            // Since gif.js is for encoding, we'll use a different approach
-            // Use the browser's built-in image decoding
-            const img = new Image();
-            const url = URL.createObjectURL(blob);
-            img.onload = function() {
-              // For animated GIFs, we need to extract frames differently
-              // Fallback: render the GIF as a static image
-              const canvas = document.createElement('canvas');
-              canvas.width = img.width;
-              canvas.height = img.height;
-              const ctx = canvas.getContext('2d');
-              ctx.drawImage(img, 0, 0);
-              URL.revokeObjectURL(url);
-              resolve({
-                frames: [canvas],
-                width: img.width,
-                height: img.height,
-                isAnimated: false
-              });
-            };
-            img.onerror = function() {
-              reject(new Error('Failed to load image'));
-            };
-            img.src = url;
-          } catch (err) {
-            reject(err);
-          }
+        const img = new Image();
+        const url = URL.createObjectURL(file);
+        img.onload = () => {
+          URL.revokeObjectURL(url);
+          resolve(img);
         };
-        reader.onerror = reject;
-        reader.readAsArrayBuffer(blob);
+        img.onerror = () => {
+          URL.revokeObjectURL(url);
+          reject(new Error('Failed to load image'));
+        };
+        img.src = url;
       });
     }
 
-    // Convert GIF to PNG using canvas
     async function convertGIFtoPNG() {
       if (files.length === 0) {
         alert('Please select GIF files first.');
         return;
       }
 
-      // Show progress
       progressContainer.classList.remove('hidden');
       resultSection.classList.add('hidden');
       convertBtn.disabled = true;
@@ -586,25 +784,16 @@
           
           statusText.textContent = `Processing ${i + 1} of ${files.length}: ${file.name}`;
 
-          // Update progress
           const progress = Math.round(((i) / files.length) * 80) + 10;
           progressBar.style.width = progress + '%';
           progressText.textContent = progress + '%';
 
           try {
-            // Load the image
-            const img = new Image();
-            const url = URL.createObjectURL(file);
-            await new Promise((resolve, reject) => {
-              img.onload = resolve;
-              img.onerror = reject;
-              img.src = url;
-            });
+            const img = await loadImage(file);
 
             let width = img.width;
             let height = img.height;
             
-            // Resize if needed
             if (size !== 'original') {
               const maxSize = parseInt(size);
               if (width > height) {
@@ -620,24 +809,18 @@
               }
             }
 
-            // For animated GIFs, we need to detect frames
-            // Since we can't easily detect frames with just Image, we'll use a different approach
-            // Use canvas to draw the GIF (this captures the first frame)
             const canvas = document.createElement('canvas');
             canvas.width = width;
             canvas.height = height;
             const ctx = canvas.getContext('2d');
             
-            // Apply grayscale if selected
             if (color === 'grayscale') {
               ctx.filter = 'grayscale(100%)';
+            } else if (color === 'sepia') {
+              ctx.filter = 'sepia(80%)';
             }
             
             ctx.drawImage(img, 0, 0, width, height);
-
-            // For animated GIFs, we try to extract frames using a different method
-            // Since we can't reliably extract frames from animated GIFs client-side without a library,
-            // we'll use the canvas approach for static images and provide a warning for animated
 
             const baseName = file.name.replace(/\.(gif|GIF)$/, '');
             const fileName = `${baseName}.png`;
@@ -646,31 +829,22 @@
               canvas.toBlob(resolve, 'image/png');
             });
 
-            // Store converted file
             convertedFiles.push({
               blob: blob,
               name: fileName,
               originalName: file.name,
               size: blob.size,
               url: URL.createObjectURL(blob),
-              isAnimated: false
+              isAnimated: false,
+              error: false
             });
 
             totalFrames++;
-            URL.revokeObjectURL(url);
 
           } catch (err) {
             console.error(`Error converting ${file.name}:`, err);
-            // Try fallback
             try {
-              const img = new Image();
-              const url = URL.createObjectURL(file);
-              await new Promise((resolve, reject) => {
-                img.onload = resolve;
-                img.onerror = reject;
-                img.src = url;
-              });
-              
+              const img = await loadImage(file);
               const canvas = document.createElement('canvas');
               let width = img.width;
               let height = img.height;
@@ -696,6 +870,8 @@
               
               if (color === 'grayscale') {
                 ctx.filter = 'grayscale(100%)';
+              } else if (color === 'sepia') {
+                ctx.filter = 'sepia(80%)';
               }
               
               ctx.drawImage(img, 0, 0, width, height);
@@ -713,11 +889,11 @@
                 originalName: file.name,
                 size: blob.size,
                 url: URL.createObjectURL(blob),
-                isAnimated: false
+                isAnimated: false,
+                error: false
               });
               
               totalFrames++;
-              URL.revokeObjectURL(url);
             } catch (fallbackErr) {
               console.error('Fallback conversion also failed:', fallbackErr);
               const errorMsg = `Failed to convert ${file.name}`;
@@ -734,12 +910,10 @@
           }
         }
 
-        // Update progress
         progressBar.style.width = '100%';
         progressText.textContent = '100%';
         statusText.textContent = '✅ Conversion complete!';
 
-        // Show results
         setTimeout(() => {
           showResults();
           convertBtn.disabled = false;
@@ -764,7 +938,6 @@
       const totalBytes = convertedFiles.reduce((sum, f) => sum + f.size, 0);
       totalSizeBadge.textContent = `${(totalBytes / 1024 / 1024).toFixed(2)} MB`;
 
-      // Check if any animated
       const hasAnimated = convertedFiles.some(f => f.isAnimated);
       if (hasAnimated) {
         animatedBadge.classList.remove('hidden');
@@ -772,7 +945,6 @@
         animatedBadge.classList.add('hidden');
       }
 
-      // Show download links
       downloadLinksContainer.innerHTML = '';
       convertedFiles.forEach((f, idx) => {
         if (!f.error) {
@@ -790,32 +962,27 @@
     }
 
     function downloadAll() {
-      if (convertedFiles.length === 0) {
+      const validFiles = convertedFiles.filter(f => !f.error);
+      if (validFiles.length === 0) {
         alert('No files to download.');
         return;
       }
 
-      // Check if there's only one file
-      if (convertedFiles.length === 1) {
-        const f = convertedFiles[0];
-        if (!f.error) {
-          const link = document.createElement('a');
-          link.href = f.url;
-          link.download = f.name;
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-        }
+      if (validFiles.length === 1) {
+        const f = validFiles[0];
+        const link = document.createElement('a');
+        link.href = f.url;
+        link.download = f.name;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
         return;
       }
 
-      // For multiple files, use JSZip if available
       if (typeof JSZip !== 'undefined') {
         const zip = new JSZip();
-        convertedFiles.forEach(f => {
-          if (!f.error) {
-            zip.file(f.name, f.blob);
-          }
+        validFiles.forEach(f => {
+          zip.file(f.name, f.blob);
         });
         zip.generateAsync({ type: 'blob' }).then(content => {
           const url = URL.createObjectURL(content);
@@ -829,27 +996,24 @@
           URL.revokeObjectURL(url);
         });
       } else {
-        // Fallback: download each file individually
         downloadAllIndividual();
       }
     }
 
     function downloadAllIndividual() {
-      convertedFiles.forEach((f, idx) => {
-        if (!f.error) {
-          setTimeout(() => {
-            const link = document.createElement('a');
-            link.href = f.url;
-            link.download = f.name;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-          }, idx * 300);
-        }
+      const validFiles = convertedFiles.filter(f => !f.error);
+      validFiles.forEach((f, idx) => {
+        setTimeout(() => {
+          const link = document.createElement('a');
+          link.href = f.url;
+          link.download = f.name;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        }, idx * 300);
       });
     }
 
-    // Keyboard shortcut: Enter to convert
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' && !fileInfo.classList.contains('hidden') && !convertBtn.disabled) {
         convertGIFtoPNG();
