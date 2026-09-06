@@ -12,6 +12,9 @@
   <!-- PDF.js for PDF parsing -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 
+  <!-- Tesseract.js for OCR -->
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+
   <style>
     .dropzone-highlight {
       border-color: #3b82f6 !important;
@@ -58,6 +61,19 @@
     .file-item .info { flex: 1; }
     .file-item .info .name { font-weight: 600; color: #1e293b; transition: color 0.2s; }
     .file-item .info .size { font-size: 12px; color: #94a3b8; transition: color 0.2s; }
+
+    .ocr-status {
+      font-size: 12px;
+      color: #6b7280;
+      background: #f3f4f6;
+      padding: 8px 12px;
+      border-radius: 6px;
+      margin: 4px 0;
+    }
+    .ocr-status .highlight {
+      color: #2563eb;
+      font-weight: 600;
+    }
 
     /* Dark mode overrides */
     html.dark body {
@@ -196,6 +212,13 @@
     }
     html.dark .bg-slate-50 {
       background: #0f172a !important;
+    }
+    html.dark .ocr-status {
+      background: #1e293b;
+      color: #94a3b8;
+    }
+    html.dark .ocr-status .highlight {
+      color: #60a5fa;
     }
     
     html.dark footer {
@@ -389,7 +412,7 @@
           <div>
             <div class="text-4xl mb-1">✅</div>
             <h3 class="font-bold text-slate-900">Text Extraction Complete!</h3>
-            <p class="text-sm text-slate-600">Your text is ready to copy or download.</p>
+            <p class="text-sm text-slate-600" id="resultSummary">Your text is ready to copy or download.</p>
           </div>
           <div class="flex flex-wrap gap-2">
             <button onclick="copyText()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2 rounded-lg text-sm transition-all shadow-md shadow-blue-500/20">
@@ -449,7 +472,7 @@
         </div>
         <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
           <h3 class="font-bold text-slate-900 text-sm">What about scanned PDFs?</h3>
-          <p class="text-slate-600 text-sm mt-1">Scanned/image-based PDFs require OCR (Optical Character Recognition) to extract text. This tool works best with text-based PDFs. For scanned documents, consider using a dedicated OCR tool first.</p>
+          <p class="text-slate-600 text-sm mt-1">This tool automatically detects scanned/image-based PDFs and uses Tesseract.js OCR to extract text, all within your browser. No server uploads required.</p>
         </div>
         <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
           <h3 class="font-bold text-slate-900 text-sm">Will formatting be preserved?</h3>
@@ -460,8 +483,8 @@
           <p class="text-slate-600 text-sm mt-1">Since everything runs locally, limits depend on your device's memory. Most modern browsers handle PDFs up to 100MB without issues.</p>
         </div>
         <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">What can I use the extracted text for?</h3>
-          <p class="text-slate-600 text-sm mt-1">Extracted text can be used for: copying content into documents, analyzing data, searching through text, feeding into AI tools, or converting to other formats.</p>
+          <h3 class="font-bold text-slate-900 text-sm">How does the OCR work?</h3>
+          <p class="text-slate-600 text-sm mt-1">If no text is found, the PDF pages are rendered as images and processed by Tesseract.js OCR. All processing stays in your browser. OCR may take longer for large documents.</p>
         </div>
       </div>
     </section>
@@ -512,11 +535,12 @@
     });
 
     // ============================================
-    // PDF TO TXT CONVERTER
+    // PDF TO TXT CONVERTER WITH OCR FALLBACK
     // ============================================
     let currentFile = null;
     let extractedText = '';
     let totalPages = 0;
+    let usedOCR = false;
 
     // DOM Elements
     const dropzone = document.getElementById('dropzone');
@@ -533,6 +557,7 @@
     const resultSection = document.getElementById('resultSection');
     const textPreview = document.getElementById('textPreview');
     const charCount = document.getElementById('charCount');
+    const resultSummary = document.getElementById('resultSummary');
 
     // Set PDF.js worker
     if (typeof pdfjsLib !== 'undefined') {
@@ -592,6 +617,7 @@
       progressContainer.classList.add('hidden');
       convertBtn.disabled = false;
       convertBtn.textContent = '🔄 Extract Text';
+      usedOCR = false;
 
       getPageCount(file);
     }
@@ -619,6 +645,7 @@
       progressText.textContent = '0%';
       textPreview.textContent = '';
       extractedText = '';
+      usedOCR = false;
     }
 
     function resetConverter() {
@@ -626,7 +653,42 @@
     }
 
     // ============================================
-    // MAIN CONVERSION FUNCTION - FIXED
+    // OCR FUNCTION
+    // ============================================
+    async function runOCR(pdf, pageNum, page) {
+      const viewport = page.getViewport({ scale: 2.5 }); // Higher scale = better OCR
+      const canvas = document.createElement('canvas');
+      const context = canvas.getContext('2d');
+      canvas.width = Math.ceil(viewport.width);
+      canvas.height = Math.ceil(viewport.height);
+
+      await page.render({ canvasContext: context, viewport }).promise;
+
+      try {
+        const result = await Tesseract.recognize(
+          canvas,
+          'eng',
+          {
+            logger: (message) => {
+              if (message.status === 'recognizing text') {
+                const percent = Math.round(message.progress * 100);
+                const progress = 60 + Math.round((pageNum / totalPages) * 35);
+                progressBar.style.width = progress + '%';
+                progressText.textContent = progress + '%';
+                statusText.textContent = `OCR page ${pageNum}/${totalPages}: ${percent}%`;
+              }
+            }
+          }
+        );
+        return result.data.text || '';
+      } catch (ocrError) {
+        console.error(`OCR failed on page ${pageNum}`, ocrError);
+        return '';
+      }
+    }
+
+    // ============================================
+    // MAIN CONVERSION FUNCTION
     // ============================================
     async function convertPDFtoTXT() {
       if (!currentFile) {
@@ -646,6 +708,7 @@
       progressBar.style.width = '5%';
       progressText.textContent = '5%';
       statusText.textContent = 'Loading PDF...';
+      usedOCR = false;
 
       try {
         const arrayBuffer = await currentFile.arrayBuffer();
@@ -659,8 +722,9 @@
         pageCount.textContent = `📄 ${totalPages} pages`;
 
         let fullText = '';
-        let processedPages = 0;
+        let hasText = false;
 
+        // FIRST: Try to extract embedded text with PDF.js
         for (let pageNum = 1; pageNum <= totalPages; pageNum++) {
           const page = await pdf.getPage(pageNum);
           const textContent = await page.getTextContent();
@@ -670,7 +734,6 @@
           let lastX = null;
           let lastY = null;
 
-          // Sort items by y position (top to bottom), then x (left to right)
           const sortedItems = textContent.items.sort((a, b) => {
             if (Math.abs(a.transform[5] - b.transform[5]) > 2) {
               return b.transform[5] - a.transform[5];
@@ -682,7 +745,6 @@
             const x = item.transform[4];
             const y = item.transform[5];
             
-            // Check if we need a new line
             if (lastY !== null && Math.abs(y - lastY) > 2) {
               pageText += '\n';
             } else if (lastX !== null && x - lastX > 5) {
@@ -694,45 +756,55 @@
             lastY = y;
           }
 
+          if (pageText.trim()) {
+            hasText = true;
+          }
+
           fullText += pageText + '\n\n';
 
-          processedPages++;
-
-          const progress = Math.round((processedPages / totalPages) * 70) + 20;
+          const progress = Math.round((pageNum / totalPages) * 40) + 20;
           progressBar.style.width = progress + '%';
           progressText.textContent = progress + '%';
-          statusText.textContent = `Processing page ${processedPages} of ${totalPages}...`;
+          statusText.textContent = `Extracting page ${pageNum} of ${totalPages}...`;
         }
 
-        progressBar.style.width = '95%';
-        progressText.textContent = '95%';
-        statusText.textContent = 'Finalizing...';
+        // Check if we have enough text
+        const cleanText = fullText.replace(/\s/g, '').trim();
+        const hasEnoughText = cleanText.length > 20;
 
-        // Clean up the text
-        extractedText = fullText
-          .replace(/\n{4,}/g, '\n\n')
-          .replace(/\s{3,}/g, '  ')
-          .replace(/[^\x20-\x7E\n\r\t]/g, '')
-          .trim();
+        // If no text found, run OCR
+        if (!hasEnoughText) {
+          statusText.textContent = '🔍 No embedded text detected. Running OCR...';
+          progressBar.style.width = '50%';
+          progressText.textContent = '50%';
+          usedOCR = true;
 
-        // Check if we actually extracted any text
-        if (!extractedText || extractedText.length < 10) {
-          // Try alternative extraction method
-          statusText.textContent = 'Trying alternative extraction method...';
-          
-          let altText = '';
+          let ocrText = '';
+
           for (let pageNum = 1; pageNum <= totalPages; pageNum++) {
             const page = await pdf.getPage(pageNum);
-            const textContent = await page.getTextContent();
-            const pageText = textContent.items.map(item => item.str).join(' ');
-            altText += pageText + '\n\n';
+            statusText.textContent = `OCR scanning page ${pageNum} of ${totalPages}...`;
+            
+            const pageOcrText = await runOCR(pdf, pageNum, page);
+            if (pageOcrText) {
+              ocrText += pageOcrText.trim() + '\n\n';
+            }
           }
-          
-          extractedText = altText.trim();
+
+          fullText = ocrText;
         }
 
+        // Clean up the text - preserve international characters
+        extractedText = fullText
+          .replace(/\n{4,}/g, '\n\n')
+          .replace(/[ \t]{3,}/g, '  ')
+          .trim();
+
+        // Final check
         if (!extractedText || extractedText.length < 10) {
-          extractedText = 'No text could be extracted from this PDF. This may be because:\n\n1. The PDF contains scanned images instead of text (needs OCR)\n2. The PDF is encrypted or restricted\n3. The PDF contains only special characters\n\nTry using a PDF to DOCX converter first, or use an OCR tool for scanned documents.';
+          extractedText = 'No readable text could be found in this PDF. ' +
+            'The document may be encrypted, damaged, or contain only images that OCR could not recognize.';
+          usedOCR = false;
         }
 
         progressBar.style.width = '100%';
@@ -740,6 +812,8 @@
         statusText.textContent = '✅ Extraction complete!';
 
         setTimeout(() => {
+          const source = usedOCR ? 'OCR (scanned PDF)' : 'embedded text';
+          resultSummary.textContent = `Text extracted from ${totalPages} pages using ${source}.`;
           displayResult(extractedText);
           convertBtn.disabled = false;
           convertBtn.textContent = '🔄 Extract Text';
@@ -752,7 +826,6 @@
         convertBtn.disabled = false;
         convertBtn.textContent = '🔄 Extract Text';
         
-        // Show error message in preview
         extractedText = `Error extracting text: ${error.message}\n\nPlease try:\n- Using a different PDF file\n- Checking if the PDF is not encrypted\n- Using the PDF to DOCX converter for better results`;
         displayResult(extractedText);
         progressContainer.classList.add('hidden');
@@ -766,24 +839,17 @@
       const chars = text.length;
       charCount.textContent = `${chars.toLocaleString()} characters • ${lines.toLocaleString()} lines`;
 
-      // Show stats in result section
-      const statsEl = document.querySelector('#resultSection .text-slate-600');
-      if (statsEl) {
-        statsEl.textContent = `${lines} lines extracted • ${chars} characters`;
-      }
-
       resultSection.classList.remove('hidden');
     }
 
     function copyText() {
-      if (!extractedText || extractedText.includes('No text could be extracted')) {
+      if (!extractedText || extractedText.includes('No readable text could be found')) {
         alert('No text to copy. Please convert a PDF first.');
         return;
       }
 
       navigator.clipboard.writeText(extractedText)
         .then(() => {
-          // Show success feedback
           const btn = document.querySelector('#resultSection .bg-blue-600');
           const originalText = btn.textContent;
           btn.textContent = '✅ Copied!';
@@ -801,7 +867,7 @@
     }
 
     function downloadTXT() {
-      if (!extractedText || extractedText.includes('No text could be extracted')) {
+      if (!extractedText || extractedText.includes('No readable text could be found')) {
         alert('No text to download. Please convert a PDF first.');
         return;
       }
@@ -824,7 +890,7 @@
       }
     });
 
-    console.log('📃 PDF to TXT Converter loaded - Dark mode supported');
+    console.log('📃 PDF to TXT Converter loaded - OCR fallback enabled');
   </script>
 
 </body>
