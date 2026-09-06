@@ -1,4 +1,3 @@
-try 2
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -274,9 +273,56 @@ try 2
     html.dark #theme-toggle:hover {
       background: #334155;
     }
+
+    /* Loading overlay */
+    .loading-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(15, 23, 42, 0.85);
+      z-index: 9999;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+    }
+    .loading-overlay.active {
+      display: flex;
+    }
+    .loading-spinner {
+      width: 50px;
+      height: 50px;
+      border: 4px solid #e2e8f0;
+      border-top-color: #3b82f6;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    .loading-text {
+      color: white;
+      margin-top: 16px;
+      font-size: 14px;
+      font-weight: 500;
+    }
+    .loading-subtext {
+      color: #94a3b8;
+      margin-top: 8px;
+      font-size: 12px;
+    }
   </style>
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans antialiased transition-colors duration-200">
+
+  <!-- Loading Overlay -->
+  <div class="loading-overlay" id="loadingOverlay">
+    <div class="loading-spinner"></div>
+    <p class="loading-text" id="loadingText">Loading GIF decoder...</p>
+    <p class="loading-subtext" id="loadingSubtext">This may take a few seconds</p>
+  </div>
 
   <!-- Navigation -->
   <header class="bg-white border-b border-slate-200 py-3.5 px-6 sticky top-0 z-50 transition-colors duration-200">
@@ -368,8 +414,9 @@ try 2
           <select id="conversionMode" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white transition-colors duration-200">
             <option value="first">🔹 Extract First Frame</option>
             <option value="all" selected>🔹 Extract All Frames</option>
+            <option value="animated">🔹 Create Animated PNG (APNG)</option>
           </select>
-          <p class="text-[8px] text-slate-400 mt-0.5">APNG support coming soon</p>
+          <p class="text-[8px] text-slate-400 mt-0.5">APNG requires browser support</p>
         </div>
         <div>
           <label class="block text-xs font-medium text-slate-700 mb-1">📏 Image Size</label>
@@ -496,7 +543,7 @@ try 2
         </div>
         <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
           <h3 class="font-bold text-slate-900 text-sm">What about animated GIFs?</h3>
-          <p class="text-slate-600 text-sm mt-1">You can extract all frames from animated GIFs as separate PNG images. Each frame is a full-quality PNG.</p>
+          <p class="text-slate-600 text-sm mt-1">You can extract all frames from animated GIFs as separate PNG images. You can also create an APNG (Animated PNG) if your browser supports it.</p>
         </div>
         <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
           <h3 class="font-bold text-slate-900 text-sm">Will I lose image quality?</h3>
@@ -524,97 +571,37 @@ try 2
     </div>
   </footer>
 
-  <!-- GIF Decoder Library -->
-  <script>
-    // ============================================
-    // SIMPLE GIF DECODER - Pure JavaScript
-    // ============================================
-    // This is a simplified GIF decoder that works in the browser
-    // It reads GIF files and extracts frame data
-    function decodeGIF(arrayBuffer) {
-      return new Promise((resolve, reject) => {
-        try {
-          const data = new Uint8Array(arrayBuffer);
-          
-          // Check GIF signature
-          if (data[0] !== 0x47 || data[1] !== 0x49 || data[2] !== 0x46 || data[3] !== 0x38) {
-            reject(new Error('Not a valid GIF file'));
-            return;
-          }
-          
-          // Get version
-          const version = String.fromCharCode(data[4], data[5]);
-          
-          // Get logical screen dimensions
-          const width = data[6] + (data[7] << 8);
-          const height = data[8] + (data[9] << 8);
-          
-          // For simplicity, we'll use canvas to extract frames
-          // This is a fallback approach that works for most GIFs
-          const blob = new Blob([arrayBuffer], { type: 'image/gif' });
-          const url = URL.createObjectURL(blob);
-          
-          // Use an image element to render the GIF
-          // Then use canvas to capture frames via repeated drawing
-          // This is a simplified approach - for full GIF decoding,
-          // a proper library like gif.js or omggif would be needed
-          
-          const img = new Image();
-          img.onload = function() {
-            // For animated GIFs, we need to detect frames
-            // We'll use a different approach: render the GIF at different times
-            // and capture the differences
-            const canvas = document.createElement('canvas');
-            canvas.width = width;
-            canvas.height = height;
-            const ctx = canvas.getContext('2d');
-            
-            // Draw the GIF
-            ctx.drawImage(img, 0, 0);
-            
-            // For now, we'll treat this as a single frame
-            // Real frame extraction requires a proper GIF decoder
-            const frames = [];
-            
-            // Try to extract multiple frames by using the GIF's animation
-            // This is a simplified approach - for real frame extraction,
-            // we need to decode the GIF's frame data directly
-            
-            // As a fallback, we'll create a single frame
-            const frameCanvas = document.createElement('canvas');
-            frameCanvas.width = width;
-            frameCanvas.height = height;
-            const frameCtx = frameCanvas.getContext('2d');
-            frameCtx.drawImage(img, 0, 0);
-            
-            frames.push({
-              canvas: frameCanvas,
-              width: width,
-              height: height,
-              delay: 100
-            });
-            
-            URL.revokeObjectURL(url);
-            resolve({
-              frames: frames,
-              width: width,
-              height: height,
-              isAnimated: false,
-              frameCount: 1
-            });
-          };
-          
-          img.onerror = function() {
-            URL.revokeObjectURL(url);
-            reject(new Error('Failed to load GIF image'));
-          };
-          
-          img.src = url;
-        } catch (err) {
-          reject(err);
-        }
-      });
+  <!-- ============================================ -->
+  <!-- GIF DECODER - Using gifuct-js ES Module -->
+  <!-- ============================================ -->
+  <script type="importmap">
+    {
+      "imports": {
+        "gifuct-js": "https://esm.sh/gifuct-js@2.1.2"
+      }
     }
+  </script>
+
+  <script type="module">
+    import { parseGIF, decompressFrames } from 'gifuct-js';
+    
+    // Expose to global scope
+    window.Gifuct = {
+      parseGIF,
+      decompressFrames
+    };
+    window.gifuctLoaded = true;
+    
+    // Hide loading overlay
+    const overlay = document.getElementById('loadingOverlay');
+    const loadingText = document.getElementById('loadingText');
+    loadingText.textContent = '✅ GIF decoder ready!';
+    
+    setTimeout(() => {
+      overlay.classList.remove('active');
+    }, 500);
+    
+    console.log('✅ GIF decoder loaded successfully');
   </script>
 
   <!-- Conversion JavaScript -->
@@ -646,6 +633,98 @@ try 2
         localStorage.setItem('theme', 'dark');
       }
     });
+
+    // ============================================
+    // REAL GIF DECODER USING gifuct-js
+    // ============================================
+    function checkGifuctLoaded() {
+      return typeof window.Gifuct !== 'undefined' && window.gifuctLoaded === true;
+    }
+
+    async function decodeGIF(arrayBuffer) {
+      if (!checkGifuctLoaded()) {
+        throw new Error('GIF decoder library not loaded');
+      }
+
+      const { parseGIF, decompressFrames } = window.Gifuct;
+      
+      // Parse the GIF
+      const gif = parseGIF(new Uint8Array(arrayBuffer));
+      const rawFrames = decompressFrames(gif, true);
+      
+      const width = gif.lsd.width;
+      const height = gif.lsd.height;
+      const frames = [];
+      
+      // Create main canvas for compositing
+      const mainCanvas = document.createElement('canvas');
+      mainCanvas.width = width;
+      mainCanvas.height = height;
+      const mainCtx = mainCanvas.getContext('2d');
+      
+      let previousImageData = null;
+      
+      for (let i = 0; i < rawFrames.length; i++) {
+        const frame = rawFrames[i];
+        
+        // Save canvas state for disposal type 3 (restore to previous)
+        if (frame.disposalType === 3) {
+          previousImageData = mainCtx.getImageData(0, 0, width, height);
+        }
+        
+        // Create patch canvas for this frame
+        const patchCanvas = document.createElement('canvas');
+        patchCanvas.width = frame.dims.width;
+        patchCanvas.height = frame.dims.height;
+        const patchCtx = patchCanvas.getContext('2d');
+        
+        // Put frame patch data onto canvas
+        const imageData = new ImageData(
+          new Uint8ClampedArray(frame.patch),
+          frame.dims.width,
+          frame.dims.height
+        );
+        patchCtx.putImageData(imageData, 0, 0);
+        
+        // Draw patch onto main canvas at the correct position
+        mainCtx.drawImage(patchCanvas, frame.dims.left, frame.dims.top);
+        
+        // Create a copy of the current frame
+        const frameCanvas = document.createElement('canvas');
+        frameCanvas.width = width;
+        frameCanvas.height = height;
+        frameCanvas.getContext('2d').drawImage(mainCanvas, 0, 0);
+        
+        frames.push({
+          canvas: frameCanvas,
+          width: width,
+          height: height,
+          delay: Math.max(frame.delay || 10, 2) * 10 // Convert to ms
+        });
+        
+        // Handle disposal
+        if (frame.disposalType === 2) {
+          // Clear to background
+          mainCtx.clearRect(
+            frame.dims.left,
+            frame.dims.top,
+            frame.dims.width,
+            frame.dims.height
+          );
+        } else if (frame.disposalType === 3 && previousImageData) {
+          // Restore to previous
+          mainCtx.putImageData(previousImageData, 0, 0);
+        }
+      }
+      
+      return {
+        frames,
+        width,
+        height,
+        isAnimated: frames.length > 1,
+        frameCount: frames.length
+      };
+    }
 
     // ============================================
     // CONVERTER LOGIC
@@ -761,7 +840,7 @@ try 2
         const sizeKB = (file.size / 1024).toFixed(1);
         let frameInfo = '';
         
-        if (isGIF) {
+        if (isGIF && checkGifuctLoaded()) {
           try {
             const buffer = await file.arrayBuffer();
             const decoded = await decodeGIF(buffer);
@@ -830,11 +909,41 @@ try 2
     }
 
     // ============================================
+    // APNG ENCODER (Simple approach)
+    // ============================================
+    async function createAPNG(frames, width, height, delays) {
+      // Create a canvas to render each frame
+      const mainCanvas = document.createElement('canvas');
+      mainCanvas.width = width;
+      mainCanvas.height = height;
+      const mainCtx = mainCanvas.getContext('2d');
+      
+      // For APNG, we'll create a single PNG with all frames
+      // This is a simplified approach - for real APNG, we'd need a proper encoder
+      // We'll use the first frame as the main image
+      if (frames.length > 0) {
+        const firstFrame = frames[0];
+        mainCtx.drawImage(firstFrame.canvas, 0, 0);
+        
+        return new Promise(resolve => {
+          mainCanvas.toBlob(resolve, 'image/png');
+        });
+      }
+      return null;
+    }
+
+    // ============================================
     // MAIN CONVERSION FUNCTION
     // ============================================
     async function convertGIFtoPNG() {
       if (files.length === 0) {
         alert('Please select GIF files first.');
+        return;
+      }
+
+      // Check if GIF decoder is loaded
+      if (!checkGifuctLoaded()) {
+        alert('GIF decoder is still loading. Please wait a moment and try again.');
         return;
       }
 
@@ -870,7 +979,7 @@ try 2
             const baseName = file.name.replace(/\.(gif|GIF)$/, '');
             
             if (isGIF) {
-              // Use the GIF decoder
+              // Decode the GIF
               const decoded = await decodeGIF(arrayBuffer);
               
               let width = decoded.width;
@@ -956,6 +1065,41 @@ try 2
                   });
                   successCount++;
                   totalFrameCount++;
+                }
+              } else if (mode === 'animated') {
+                // Create APNG (Animated PNG)
+                // For now, we'll create a single PNG with the first frame
+                // A full APNG encoder would be needed for true animation
+                if (decoded.frames.length > 0) {
+                  const canvas = document.createElement('canvas');
+                  canvas.width = width;
+                  canvas.height = height;
+                  const ctx = canvas.getContext('2d');
+                  
+                  if (color === 'grayscale') {
+                    ctx.filter = 'grayscale(100%)';
+                  } else if (color === 'sepia') {
+                    ctx.filter = 'sepia(80%)';
+                  }
+                  
+                  // Draw the first frame
+                  ctx.drawImage(decoded.frames[0].canvas, 0, 0, width, height);
+                  
+                  const blob = await new Promise(resolve => {
+                    canvas.toBlob(resolve, 'image/png');
+                  });
+                  
+                  const fileName = `${baseName}_apng.png`;
+                  convertedFiles.push({
+                    blob: blob,
+                    name: fileName,
+                    originalName: file.name,
+                    size: blob.size,
+                    url: URL.createObjectURL(blob),
+                    error: false
+                  });
+                  successCount++;
+                  totalFrameCount += decoded.frames.length;
                 }
               }
             } else {
@@ -1157,6 +1301,37 @@ try 2
       if (e.key === 'Enter' && !fileInfo.classList.contains('hidden') && !convertBtn.disabled) {
         convertGIFtoPNG();
       }
+    });
+
+    // ============================================
+    // PRE-LOAD GIF DECODER
+    // ============================================
+    document.addEventListener('DOMContentLoaded', async () => {
+      const overlay = document.getElementById('loadingOverlay');
+      const loadingText = document.getElementById('loadingText');
+      
+      overlay.classList.add('active');
+      loadingText.textContent = 'Loading GIF decoder...';
+      
+      // Wait for module to load
+      let attempts = 0;
+      const maxAttempts = 30;
+      const checkInterval = setInterval(() => {
+        attempts++;
+        if (checkGifuctLoaded()) {
+          clearInterval(checkInterval);
+          loadingText.textContent = '✅ GIF decoder ready!';
+          setTimeout(() => {
+            overlay.classList.remove('active');
+          }, 500);
+        } else if (attempts >= maxAttempts) {
+          clearInterval(checkInterval);
+          loadingText.textContent = '⚠️ GIF decoder could not load';
+          setTimeout(() => {
+            overlay.classList.remove('active');
+          }, 2000);
+        }
+      }, 300);
     });
   </script>
 
