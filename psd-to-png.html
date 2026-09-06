@@ -1,4 +1,4 @@
-try 4
+try 5
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -274,9 +274,50 @@ try 4
     html.dark #theme-toggle:hover {
       background: #334155;
     }
+
+    /* Loading overlay */
+    .loading-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(15, 23, 42, 0.8);
+      z-index: 9999;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+    }
+    .loading-overlay.active {
+      display: flex;
+    }
+    .loading-spinner {
+      width: 50px;
+      height: 50px;
+      border: 4px solid #e2e8f0;
+      border-top-color: #3b82f6;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    .loading-text {
+      color: white;
+      margin-top: 16px;
+      font-size: 14px;
+      font-weight: 500;
+    }
   </style>
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans antialiased transition-colors duration-200">
+
+  <!-- Loading Overlay -->
+  <div class="loading-overlay" id="loadingOverlay">
+    <div class="loading-spinner"></div>
+    <p class="loading-text" id="loadingText">Loading PSD library...</p>
+  </div>
 
   <!-- Navigation -->
   <header class="bg-white border-b border-slate-200 py-3.5 px-6 sticky top-0 z-50 transition-colors duration-200">
@@ -527,7 +568,7 @@ try 4
   <!-- ============================================ -->
   <!-- PSD PARSING - Using UMD build from CDN -->
   <!-- ============================================ -->
-  <script src="https://unpkg.com/@webtoon/psd@0.4.0/dist/psd.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@webtoon/psd@0.4.0/dist/psd.umd.min.js"></script>
 
   <!-- Conversion JavaScript -->
   <script>
@@ -560,36 +601,91 @@ try 4
     });
 
     // ============================================
-    // CHECK IF PSD LIBRARY LOADED
+    // LOAD PSD LIBRARY
     // ============================================
     let psdLoaded = false;
-    
+    let psdLoading = false;
+
     function checkPsdLoaded() {
       return typeof PSD !== 'undefined' && typeof PSD.parse === 'function';
     }
 
-    // Wait for library to load
-    function waitForPsd() {
+    function loadPsdLibrary() {
       return new Promise((resolve) => {
+        // Check if already loaded
         if (checkPsdLoaded()) {
           psdLoaded = true;
           resolve(true);
           return;
         }
+
+        // Check if currently loading
+        if (psdLoading) {
+          // Wait for it to finish
+          const checkInterval = setInterval(() => {
+            if (checkPsdLoaded()) {
+              psdLoaded = true;
+              clearInterval(checkInterval);
+              resolve(true);
+            }
+          }, 200);
+          return;
+        }
+
+        // Start loading
+        psdLoading = true;
         
-        let attempts = 0;
-        const maxAttempts = 30;
-        const interval = setInterval(() => {
-          attempts++;
-          if (checkPsdLoaded()) {
-            psdLoaded = true;
-            clearInterval(interval);
-            resolve(true);
-          } else if (attempts >= maxAttempts) {
-            clearInterval(interval);
+        // Show loading overlay
+        const overlay = document.getElementById('loadingOverlay');
+        const loadingText = document.getElementById('loadingText');
+        overlay.classList.add('active');
+        loadingText.textContent = 'Loading PSD library...';
+
+        // Try loading the library dynamically
+        const script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/@webtoon/psd@0.4.0/dist/psd.umd.min.js';
+        script.async = true;
+        
+        script.onload = () => {
+          // Check if loaded
+          let attempts = 0;
+          const maxAttempts = 20;
+          const checkInterval = setInterval(() => {
+            attempts++;
+            if (checkPsdLoaded()) {
+              psdLoaded = true;
+              psdLoading = false;
+              clearInterval(checkInterval);
+              overlay.classList.remove('active');
+              console.log('✅ PSD library loaded successfully');
+              resolve(true);
+            } else if (attempts >= maxAttempts) {
+              psdLoading = false;
+              clearInterval(checkInterval);
+              overlay.classList.remove('active');
+              console.warn('⚠️ PSD library failed to load');
+              resolve(false);
+            }
+          }, 300);
+        };
+        
+        script.onerror = () => {
+          psdLoading = false;
+          overlay.classList.remove('active');
+          console.error('❌ PSD library load error');
+          resolve(false);
+        };
+        
+        document.head.appendChild(script);
+        
+        // Timeout fallback
+        setTimeout(() => {
+          if (!psdLoaded && psdLoading) {
+            psdLoading = false;
+            overlay.classList.remove('active');
             resolve(false);
           }
-        }, 200);
+        }, 10000);
       });
     }
 
@@ -775,20 +871,20 @@ try 4
         return;
       }
 
-      // Wait for PSD library to load
+      // Load PSD library if not loaded
       if (!psdLoaded) {
         statusText.textContent = 'Loading PSD library...';
         progressContainer.classList.remove('hidden');
         progressBar.style.width = '5%';
         progressText.textContent = '5%';
         
-        const loaded = await waitForPsd();
+        const loaded = await loadPsdLibrary();
         if (!loaded) {
-          alert('PSD library failed to load. Please refresh the page and try again.');
+          statusText.textContent = '❌ PSD library failed to load';
           progressContainer.classList.add('hidden');
+          alert('PSD library failed to load. Please check your internet connection and refresh the page.');
           return;
         }
-        psdLoaded = true;
       }
 
       progressContainer.classList.remove('hidden');
@@ -1071,13 +1167,26 @@ try 4
       }
     });
 
-    // Pre-load PSD library on page load
-    waitForPsd().then(loaded => {
+    // Pre-load PSD library on page load with loading indicator
+    document.addEventListener('DOMContentLoaded', async () => {
+      const overlay = document.getElementById('loadingOverlay');
+      const loadingText = document.getElementById('loadingText');
+      
+      overlay.classList.add('active');
+      loadingText.textContent = 'Loading PSD library...';
+      
+      const loaded = await loadPsdLibrary();
+      
       if (loaded) {
-        console.log('✅ PSD library loaded successfully');
-        psdLoaded = true;
+        loadingText.textContent = '✅ PSD library ready!';
+        setTimeout(() => {
+          overlay.classList.remove('active');
+        }, 500);
       } else {
-        console.warn('⚠️ PSD library not loaded');
+        loadingText.textContent = '⚠️ PSD library could not load. Some features may not work.';
+        setTimeout(() => {
+          overlay.classList.remove('active');
+        }, 2000);
       }
     });
   </script>
