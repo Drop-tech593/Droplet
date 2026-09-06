@@ -1,4 +1,4 @@
-try 11
+try 12
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -263,12 +263,18 @@ async function convertToPDF(){
       ctx.drawImage(canvas,0,sourceY,pagePxW,sliceH,0,0,pagePxW,sliceH);
       if(pageNo>1)pdf.addPage(pageW,pageH);
       
-      // FIXED: Properly handle image data for jsPDF
-      const imgData = slice.toDataURL('image/jpeg', qualityNum);
+      // FIXED: Use toBlob instead of toDataURL to avoid string issues
       const renderedH = pageW * (sliceH / pagePxW);
       
-      // jsPDF expects base64 data without the data URL prefix
-      const base64Data = imgData.split(',')[1];
+      // Convert canvas to blob and then to base64
+      const blob = await new Promise(resolve => slice.toBlob(resolve, 'image/jpeg', qualityNum));
+      const reader = new FileReader();
+      const base64Data = await new Promise((resolve, reject) => {
+        reader.onload = () => resolve(reader.result.split(',')[1]);
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      });
+      
       pdf.addImage(base64Data, 'JPEG', 0, 0, pageW, renderedH, undefined, 'FAST');
       
       sourceY+=sliceH;
