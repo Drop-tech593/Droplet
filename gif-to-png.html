@@ -1,4 +1,3 @@
-try 1
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -13,8 +12,8 @@ try 1
   <!-- JSZip for ZIP downloads -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 
-  <!-- gif.js for animated GIF decoding -->
-  <script src="https://cdn.jsdelivr.net/npm/gif.js@0.2.0/dist/gif.js"></script>
+  <!-- gifuct-js for GIF decoding -->
+  <script src="https://cdn.jsdelivr.net/npm/gifuct-js@2.1.2/dist/gifuct-js.min.js"></script>
 
   <style>
     .dropzone-highlight {
@@ -86,6 +85,17 @@ try 1
       font-size: 8px;
       font-weight: 600;
       background: rgba(0,0,0,0.6);
+      color: white;
+    }
+    .image-grid .image-card .frame-badge {
+      position: absolute;
+      top: 4px;
+      left: 4px;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 8px;
+      font-weight: 600;
+      background: rgba(0,0,0,0.7);
       color: white;
     }
     .info-badge {
@@ -371,9 +381,8 @@ try 1
           <select id="conversionMode" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white transition-colors duration-200">
             <option value="first">🔹 Extract First Frame</option>
             <option value="all" selected>🔹 Extract All Frames</option>
-            <option value="animated">🔹 Create Animated PNG (APNG)</option>
           </select>
-          <p class="text-[8px] text-slate-400 mt-0.5">APNG support depends on browser</p>
+          <p class="text-[8px] text-slate-400 mt-0.5">APNG support coming soon</p>
         </div>
         <div>
           <label class="block text-xs font-medium text-slate-700 mb-1">📏 Image Size</label>
@@ -500,7 +509,7 @@ try 1
         </div>
         <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
           <h3 class="font-bold text-slate-900 text-sm">What about animated GIFs?</h3>
-          <p class="text-slate-600 text-sm mt-1">You can extract all frames from animated GIFs as separate PNG images. You can also create an APNG (Animated PNG) if your browser supports it.</p>
+          <p class="text-slate-600 text-sm mt-1">You can extract all frames from animated GIFs as separate PNG images. Each frame is a full-quality PNG.</p>
         </div>
         <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
           <h3 class="font-bold text-slate-900 text-sm">Will I lose image quality?</h3>
@@ -559,46 +568,56 @@ try 1
     });
 
     // ============================================
-    // GIF DECODER USING gif.js
+    // GIF DECODER USING gifuct-js
     // ============================================
     function decodeGIF(arrayBuffer) {
       return new Promise((resolve, reject) => {
         try {
-          // Use the GIF constructor from gif.js
-          const gif = new GIF();
-          
-          // We need to parse the GIF manually since gif.js is mainly for encoding
-          // Let's use the built-in browser capabilities with canvas
-          const blob = new Blob([arrayBuffer], { type: 'image/gif' });
-          const url = URL.createObjectURL(blob);
-          
-          const img = new Image();
-          img.onload = function() {
-            // For animated GIFs, we'll use a different approach
-            // Use canvas to draw the GIF (this captures the first frame)
-            const canvas = document.createElement('canvas');
-            canvas.width = img.width;
-            canvas.height = img.height;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0);
-            URL.revokeObjectURL(url);
+          if (typeof gifuct !== 'undefined') {
+            // Use gifuct-js for proper GIF decoding
+            const gif = gifuct.parseGIF(new Uint8Array(arrayBuffer));
             
-            // For animated GIFs, we'll use a simple detection
-            // If the GIF is larger than a single frame, it might be animated
-            // We'll provide a fallback that extracts frames using canvas
+            // Decode all frames
+            const frames = gifuct.decompressFrames(gif, true);
+            
             resolve({
-              frames: [canvas],
-              width: img.width,
-              height: img.height,
-              isAnimated: false,
-              frameCount: 1
+              frames: frames,
+              width: gif.width,
+              height: gif.height,
+              isAnimated: frames.length > 1,
+              frameCount: frames.length,
+              gifData: gif
             });
-          };
-          img.onerror = function() {
-            URL.revokeObjectURL(url);
-            reject(new Error('Failed to load GIF'));
-          };
-          img.src = url;
+          } else {
+            // Fallback: use canvas
+            const blob = new Blob([arrayBuffer], { type: 'image/gif' });
+            const url = URL.createObjectURL(blob);
+            const img = new Image();
+            img.onload = function() {
+              const canvas = document.createElement('canvas');
+              canvas.width = img.width;
+              canvas.height = img.height;
+              const ctx = canvas.getContext('2d');
+              ctx.drawImage(img, 0, 0);
+              URL.revokeObjectURL(url);
+              resolve({
+                frames: [{ 
+                  dims: { left: 0, top: 0, width: img.width, height: img.height },
+                  patch: ctx.getImageData(0, 0, img.width, img.height).data,
+                  delay: 100
+                }],
+                width: img.width,
+                height: img.height,
+                isAnimated: false,
+                frameCount: 1
+              });
+            };
+            img.onerror = function() {
+              URL.revokeObjectURL(url);
+              reject(new Error('Failed to load GIF'));
+            };
+            img.src = url;
+          }
         } catch (err) {
           reject(err);
         }
@@ -717,12 +736,24 @@ try 1
         const url = URL.createObjectURL(file);
         const isGIF = file.type === 'image/gif' || file.name.toLowerCase().endsWith('.gif');
         const sizeKB = (file.size / 1024).toFixed(1);
+        let frameInfo = '';
+        
+        if (isGIF) {
+          try {
+            const buffer = await file.arrayBuffer();
+            const decoded = await decodeGIF(buffer);
+            frameInfo = `• ${decoded.frameCount} frames`;
+          } catch (e) {
+            frameInfo = '• ? frames';
+          }
+        }
+
         previewHtml += `
           <div class="image-card">
             <img src="${url}" alt="${file.name}" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22150%22 height=%22150%22%3E%3Crect fill=%22%23f1f5f9%22 width=%22150%22 height=%22150%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%2394a3b8%22 font-size=%2212%22%3ENo preview%3C/text%3E%3C/svg%3E'">
             <div class="file-name">${file.name.substring(0, 15)}${file.name.length > 15 ? '...' : ''}</div>
             <div class="status-badge" style="background: ${isGIF ? '#dbeafe' : '#fef3c7'}; color: ${isGIF ? '#1e40af' : '#92400e'};">${isGIF ? 'GIF' : 'Other'}</div>
-            <div class="dimensions-badge">${sizeKB} KB</div>
+            <div class="dimensions-badge">${sizeKB} KB ${frameInfo}</div>
           </div>
         `;
       }
@@ -784,6 +815,9 @@ try 1
         return;
       }
 
+      // Check if gifuct is available
+      const hasGifuct = typeof gifuct !== 'undefined';
+
       progressContainer.classList.remove('hidden');
       resultSection.classList.add('hidden');
       convertBtn.disabled = true;
@@ -813,22 +847,15 @@ try 1
 
           try {
             const arrayBuffer = await file.arrayBuffer();
+            const baseName = file.name.replace(/\.(gif|GIF)$/, '');
             
-            // For GIF files, try to extract frames
-            if (isGIF) {
-              // Use canvas to render the GIF
-              const blob = new Blob([arrayBuffer], { type: 'image/gif' });
-              const url = URL.createObjectURL(blob);
-              const img = await new Promise((resolve, reject) => {
-                const image = new Image();
-                image.onload = () => resolve(image);
-                image.onerror = () => reject(new Error('Failed to load GIF'));
-                image.src = url;
-              });
+            if (isGIF && hasGifuct) {
+              // Use gifuct-js for proper GIF decoding
+              const gif = gifuct.parseGIF(new Uint8Array(arrayBuffer));
+              const frames = gifuct.decompressFrames(gif, true);
               
-              const baseName = file.name.replace(/\.(gif|GIF)$/, '');
-              let width = img.width;
-              let height = img.height;
+              let width = gif.width;
+              let height = gif.height;
               
               if (size !== 'original') {
                 const maxSize = parseInt(size);
@@ -845,81 +872,143 @@ try 1
                 }
               }
 
-              // For animated GIFs, we use the canvas to capture the first frame
-              // For proper frame extraction, we'd need a full GIF decoder
-              // This is a simplified version that works for most use cases
+              // Create main canvas for compositing
+              const mainCanvas = document.createElement('canvas');
+              mainCanvas.width = width;
+              mainCanvas.height = height;
+              const mainCtx = mainCanvas.getContext('2d');
               
-              const canvas = document.createElement('canvas');
-              canvas.width = width;
-              canvas.height = height;
-              const ctx = canvas.getContext('2d');
-              
-              if (color === 'grayscale') {
-                ctx.filter = 'grayscale(100%)';
-              } else if (color === 'sepia') {
-                ctx.filter = 'sepia(80%)';
-              }
-              
-              ctx.drawImage(img, 0, 0, width, height);
-              
-              // For 'first' mode or if it's not animated
-              if (mode === 'first' || !isGIF) {
-                const blob = await new Promise(resolve => {
-                  canvas.toBlob(resolve, 'image/png');
-                });
-                const fileName = `${baseName}.png`;
-                convertedFiles.push({
-                  blob: blob,
-                  name: fileName,
-                  originalName: file.name,
-                  size: blob.size,
-                  url: URL.createObjectURL(blob),
-                  error: false
-                });
-                successCount++;
-                totalFrameCount++;
+              // Create temp canvas for frame patches
+              const tempCanvas = document.createElement('canvas');
+              const tempCtx = tempCanvas.getContext('2d');
+
+              // Process frames based on mode
+              if (mode === 'first') {
+                // Only first frame
+                const frame = frames[0];
+                if (frame) {
+                  tempCanvas.width = frame.dims.width;
+                  tempCanvas.height = frame.dims.height;
+                  
+                  const imageData = new ImageData(
+                    new Uint8ClampedArray(frame.patch),
+                    frame.dims.width,
+                    frame.dims.height
+                  );
+                  tempCtx.putImageData(imageData, 0, 0);
+                  
+                  // Apply color filters if needed
+                  if (color === 'grayscale') {
+                    mainCtx.filter = 'grayscale(100%)';
+                  } else if (color === 'sepia') {
+                    mainCtx.filter = 'sepia(80%)';
+                  }
+                  
+                  mainCtx.drawImage(tempCanvas, frame.dims.left, frame.dims.top);
+                  
+                  const blob = await new Promise(resolve => {
+                    mainCanvas.toBlob(resolve, 'image/png');
+                  });
+                  
+                  const fileName = `${baseName}.png`;
+                  convertedFiles.push({
+                    blob: blob,
+                    name: fileName,
+                    originalName: file.name,
+                    size: blob.size,
+                    url: URL.createObjectURL(blob),
+                    error: false
+                  });
+                  successCount++;
+                  totalFrameCount++;
+                }
               } else if (mode === 'all') {
-                // For 'all' mode, we try to extract frames
-                // Since we can't easily extract frames from animated GIFs without a proper decoder,
-                // we'll create a single PNG and note that it's a static representation
-                const blob = await new Promise(resolve => {
-                  canvas.toBlob(resolve, 'image/png');
-                });
-                const fileName = `${baseName}.png`;
-                convertedFiles.push({
-                  blob: blob,
-                  name: fileName,
-                  originalName: file.name,
-                  size: blob.size,
-                  url: URL.createObjectURL(blob),
-                  error: false
-                });
-                successCount++;
-                totalFrameCount++;
-                
-                // Add a note about animation
-                console.warn('Full frame extraction requires a GIF decoder library. Using first frame.');
-              } else if (mode === 'animated') {
-                // For APNG, we create a simple PNG
-                const blob = await new Promise(resolve => {
-                  canvas.toBlob(resolve, 'image/png');
-                });
-                const fileName = `${baseName}.apng.png`;
-                convertedFiles.push({
-                  blob: blob,
-                  name: fileName,
-                  originalName: file.name,
-                  size: blob.size,
-                  url: URL.createObjectURL(blob),
-                  error: false
-                });
-                successCount++;
-                totalFrameCount++;
+                // Extract all frames
+                for (let f = 0; f < frames.length; f++) {
+                  const frame = frames[f];
+                  
+                  // Clear main canvas
+                  mainCtx.clearRect(0, 0, width, height);
+                  
+                  // Set up temp canvas for this frame
+                  tempCanvas.width = frame.dims.width;
+                  tempCanvas.height = frame.dims.height;
+                  
+                  const imageData = new ImageData(
+                    new Uint8ClampedArray(frame.patch),
+                    frame.dims.width,
+                    frame.dims.height
+                  );
+                  tempCtx.putImageData(imageData, 0, 0);
+                  
+                  // Apply color filters if needed
+                  if (color === 'grayscale') {
+                    mainCtx.filter = 'grayscale(100%)';
+                  } else if (color === 'sepia') {
+                    mainCtx.filter = 'sepia(80%)';
+                  } else {
+                    mainCtx.filter = 'none';
+                  }
+                  
+                  mainCtx.drawImage(tempCanvas, frame.dims.left, frame.dims.top);
+                  
+                  // Resize if needed
+                  if (size !== 'original') {
+                    const resizedCanvas = document.createElement('canvas');
+                    const maxSize = parseInt(size);
+                    let w = width;
+                    let h = height;
+                    if (w > h) {
+                      if (w > maxSize) {
+                        h = Math.round(h * (maxSize / w));
+                        w = maxSize;
+                      }
+                    } else {
+                      if (h > maxSize) {
+                        w = Math.round(w * (maxSize / h));
+                        h = maxSize;
+                      }
+                    }
+                    resizedCanvas.width = w;
+                    resizedCanvas.height = h;
+                    const resizedCtx = resizedCanvas.getContext('2d');
+                    resizedCtx.drawImage(mainCanvas, 0, 0, w, h);
+                    
+                    const blob = await new Promise(resolve => {
+                      resizedCanvas.toBlob(resolve, 'image/png');
+                    });
+                    
+                    const fileName = `${baseName}_frame_${String(f + 1).padStart(3, '0')}.png`;
+                    convertedFiles.push({
+                      blob: blob,
+                      name: fileName,
+                      originalName: file.name,
+                      size: blob.size,
+                      url: URL.createObjectURL(blob),
+                      error: false
+                    });
+                  } else {
+                    const blob = await new Promise(resolve => {
+                      mainCanvas.toBlob(resolve, 'image/png');
+                    });
+                    
+                    const fileName = `${baseName}_frame_${String(f + 1).padStart(3, '0')}.png`;
+                    convertedFiles.push({
+                      blob: blob,
+                      name: fileName,
+                      originalName: file.name,
+                      size: blob.size,
+                      url: URL.createObjectURL(blob),
+                      error: false
+                    });
+                  }
+                  
+                  successCount++;
+                  totalFrameCount++;
+                }
               }
-              
-              URL.revokeObjectURL(url);
             } else {
-              // For non-GIF images, just convert directly
+              // Fallback for non-GIF or when gifuct not available
               const img = await loadImage(file);
               let width = img.width;
               let height = img.height;
@@ -952,10 +1041,10 @@ try 1
               
               ctx.drawImage(img, 0, 0, width, height);
               
-              const baseName = file.name.replace(/\.[^.]+$/, '');
               const blob = await new Promise(resolve => {
                 canvas.toBlob(resolve, 'image/png');
               });
+              
               const fileName = `${baseName}.png`;
               convertedFiles.push({
                 blob: blob,
@@ -1021,9 +1110,9 @@ try 1
           <h3 class="font-bold text-slate-900">Conversion Complete!</h3>
           <p class="text-sm text-slate-600 mt-1">${successCount} of ${total} files converted successfully${failCount > 0 ? ` (${failCount} failed)` : ''}.</p>
           <div class="mt-2 flex flex-wrap gap-2 justify-center">
-            <span class="info-badge badge-images">${successCount} images</span>
+            <span class="info-badge badge-images">${convertedFiles.length} images</span>
             <span class="info-badge badge-size">${(totalBytes / 1024 / 1024).toFixed(2)} MB</span>
-            ${frameCount > 1 ? `<span class="info-badge badge-animated">${frameCount} frames</span>` : ''}
+            ${frameCount > 1 ? `<span class="info-badge badge-animated">${frameCount} frames total</span>` : ''}
           </div>
           <div class="mt-4 flex flex-wrap gap-3 justify-center">
             <button onclick="downloadAll()" class="bg-green-600 hover:bg-green-700 text-white font-bold px-6 py-3 rounded-xl transition-all shadow-md shadow-green-500/20">
