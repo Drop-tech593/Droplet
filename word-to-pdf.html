@@ -19,10 +19,11 @@
     .dropzone-active { border-color: #3b82f6 !important; background: #eff6ff !important; }
     .progress-bar { transition: width .5s ease; }
     .hidden { display: none !important; }
+    
     .preview-box {
       max-height: 450px;
       overflow-y: auto;
-      background: #fff;
+      background: #ffffff;
       padding: 24px 32px;
       border-radius: 12px;
       border: 1px solid #e2e8f0;
@@ -30,22 +31,22 @@
       font-size: 11pt;
       line-height: 1.8;
       color: #1e293b;
-      transition: all 0.2s;
+      transition: background 0.2s, border-color 0.2s, color 0.2s;
     }
     .preview-box::-webkit-scrollbar { width: 6px; }
     .preview-box::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 8px; }
     .preview-box::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 8px; }
     .preview-box::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-    .preview-box h1 { font-size: 18pt; font-weight: bold; margin: 16pt 0 8pt; color: #0f172a; }
-    .preview-box h2 { font-size: 15pt; font-weight: bold; margin: 14pt 0 6pt; color: #0f172a; }
-    .preview-box h3 { font-size: 12pt; font-weight: bold; margin: 12pt 0 4pt; color: #0f172a; }
-    .preview-box p { margin: 6pt 0; color: #1e293b; }
+    .preview-box h1 { font-size: 18pt; font-weight: bold; margin: 16pt 0 8pt; color: #0f172a; transition: color 0.2s; }
+    .preview-box h2 { font-size: 15pt; font-weight: bold; margin: 14pt 0 6pt; color: #0f172a; transition: color 0.2s; }
+    .preview-box h3 { font-size: 12pt; font-weight: bold; margin: 12pt 0 4pt; color: #0f172a; transition: color 0.2s; }
+    .preview-box p { margin: 6pt 0; color: #1e293b; transition: color 0.2s; }
     .preview-box table { width: 100%; border-collapse: collapse; margin: 8pt 0; }
-    .preview-box td, .preview-box th { border: 1px solid #ddd; padding: 6px 8px; }
+    .preview-box td, .preview-box th { border: 1px solid #e2e8f0; padding: 6px 8px; transition: border-color 0.2s; }
     .preview-box img { max-width: 100%; height: auto; }
     .preview-box ul, .preview-box ol { padding-left: 2em; }
-    .preview-box blockquote { border-left: 4px solid #3b82f6; padding-left: 16px; margin: 8pt 0; font-style: italic; color: #475569; }
-    .preview-box .preview-info { font-size: 10pt; color: #94a3b8; text-align: center; padding: 8pt 0; border-top: 1px solid #e2e8f0; margin-top: 12pt; }
+    .preview-box blockquote { border-left: 4px solid #3b82f6; padding-left: 16px; margin: 8pt 0; font-style: italic; color: #475569; transition: color 0.2s; }
+    .preview-box .preview-info { font-size: 10pt; color: #94a3b8; text-align: center; padding: 8pt 0; border-top: 1px solid #e2e8f0; margin-top: 12pt; transition: color 0.2s, border-color 0.2s; }
 
     .file-item {
       display: flex;
@@ -55,15 +56,17 @@
       background: #f8fafc;
       border-radius: 10px;
       border: 1px solid #e2e8f0;
-      transition: all 0.2s;
+      transition: background 0.2s, border-color 0.2s;
     }
     .file-item:hover { border-color: #94a3b8; }
     .file-item .icon { font-size: 28px; }
     .file-item .info { flex: 1; }
-    .file-item .info .name { font-weight: 600; color: #1e293b; }
-    .file-item .info .size { font-size: 12px; color: #94a3b8; }
+    .file-item .info .name { font-weight: 600; color: #1e293b; transition: color 0.2s; }
+    .file-item .info .size { font-size: 12px; color: #94a3b8; transition: color 0.2s; }
 
-    /* Dark mode overrides */
+    /* ============================================ */
+    /* DARK MODE OVERRIDES */
+    /* ============================================ */
     html.dark body {
       background: #0f172a;
       color: #e2e8f0;
@@ -84,6 +87,7 @@
     html.dark header nav a:hover {
       color: #f1f5f9;
     }
+    
     html.dark #dropzone {
       background: #1e293b;
       border-color: #475569;
@@ -100,6 +104,7 @@
     html.dark #dropzone .bg-blue-50 {
       background: #1e3a5f !important;
     }
+    
     html.dark .file-item {
       background: #0f172a;
       border-color: #334155;
@@ -110,6 +115,7 @@
     html.dark .file-item .info .size {
       color: #94a3b8;
     }
+    
     html.dark #controlsSection .bg-white {
       background: #1e293b !important;
       border-color: #334155;
@@ -124,7 +130,15 @@
     }
     html.dark #controlsSection select option {
       background: #1e293b;
+      color: #f1f5f9;
     }
+    html.dark #controlsSection .border-slate-200 {
+      border-color: #334155 !important;
+    }
+    html.dark #controlsSection .hover\:bg-slate-50:hover {
+      background: #334155 !important;
+    }
+    
     html.dark .preview-box {
       background: #1e293b;
       border-color: #334155;
@@ -150,9 +164,22 @@
       color: #64748b;
       border-top-color: #334155;
     }
+    html.dark .preview-box::-webkit-scrollbar-track {
+      background: #0f172a;
+    }
+    html.dark .preview-box::-webkit-scrollbar-thumb {
+      background: #475569;
+    }
+    html.dark .preview-box::-webkit-scrollbar-thumb:hover {
+      background: #64748b;
+    }
+    
     html.dark #resultSection .bg-green-50 {
       background: #0f172a !important;
       border-color: #334155;
+    }
+    html.dark #resultSection .border-green-200 {
+      border-color: #334155 !important;
     }
     html.dark #resultSection h3 {
       color: #f1f5f9;
@@ -165,11 +192,15 @@
       color: #93c5fd !important;
     }
     html.dark #resultSection .border-slate-200 {
-      border-color: #334155;
+      border-color: #334155 !important;
     }
     html.dark #resultSection .hover\:bg-slate-50:hover {
-      background: #334155;
+      background: #334155 !important;
     }
+    html.dark #resultSection a {
+      color: #f1f5f9 !important;
+    }
+    
     html.dark .bg-white {
       background: #1e293b !important;
     }
@@ -197,6 +228,13 @@
     html.dark .text-blue-700 {
       color: #60a5fa !important;
     }
+    html.dark .text-blue-900 {
+      color: #93c5fd !important;
+    }
+    html.dark .bg-slate-50 {
+      background: #0f172a !important;
+    }
+    
     html.dark footer {
       background: #0f172a !important;
       border-color: #334155 !important;
@@ -207,12 +245,17 @@
     html.dark footer a:hover {
       color: #f1f5f9;
     }
+    html.dark footer p {
+      color: #94a3b8 !important;
+    }
+    
     html.dark .shadow-sm {
       box-shadow: 0 1px 2px 0 rgba(0,0,0,0.3) !important;
     }
     html.dark .shadow-md {
       box-shadow: 0 4px 6px -1px rgba(0,0,0,0.4) !important;
     }
+    
     html.dark .back-home-btn {
       background: #1e293b !important;
       border-color: #475569 !important;
@@ -221,6 +264,25 @@
     html.dark .back-home-btn:hover {
       background: #334155 !important;
       border-color: #3b82f6 !important;
+    }
+    
+    html.dark .bg-green-600 {
+      background: #059669 !important;
+    }
+    html.dark .bg-green-600:hover {
+      background: #047857 !important;
+    }
+    html.dark .shadow-green-500\/20 {
+      box-shadow: 0 4px 6px -1px rgba(5, 150, 105, 0.3) !important;
+    }
+    html.dark .bg-blue-600 {
+      background: #2563eb !important;
+    }
+    html.dark .bg-blue-600:hover {
+      background: #1d4ed8 !important;
+    }
+    html.dark .shadow-blue-500\/20 {
+      box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.3) !important;
     }
 
     /* Theme toggle in header */
