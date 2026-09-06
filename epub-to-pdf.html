@@ -29,38 +29,229 @@
     .epub-preview {
       font-family: Georgia, serif;
       line-height: 1.8;
-      max-height: 400px;
+      max-height: 450px;
       overflow-y: auto;
       background: #f8fafc;
-      padding: 20px;
+      padding: 24px;
       border-radius: 8px;
       border: 1px solid #e2e8f0;
     }
     .epub-preview h1 {
-      font-size: 1.8em;
-      margin: 1em 0 0.5em;
+      font-size: 2em;
+      margin: 0.8em 0 0.5em;
+      font-weight: 700;
     }
     .epub-preview h2 {
-      font-size: 1.4em;
-      margin: 1em 0 0.5em;
+      font-size: 1.6em;
+      margin: 0.8em 0 0.5em;
+      font-weight: 600;
     }
     .epub-preview h3 {
-      font-size: 1.1em;
-      margin: 0.8em 0 0.4em;
+      font-size: 1.2em;
+      margin: 0.6em 0 0.4em;
+      font-weight: 600;
     }
     .epub-preview p {
-      margin: 0.5em 0;
+      margin: 0.6em 0;
     }
     .epub-preview img {
       max-width: 100%;
       height: auto;
+      border-radius: 4px;
+    }
+    .epub-preview table {
+      border-collapse: collapse;
+      width: 100%;
+      margin: 1em 0;
+    }
+    .epub-preview td, .epub-preview th {
+      border: 1px solid #d1d5db;
+      padding: 6px 12px;
+    }
+    .epub-preview ul, .epub-preview ol {
+      padding-left: 2em;
+    }
+    .epub-preview blockquote {
+      border-left: 4px solid #3b82f6;
+      padding-left: 16px;
+      margin: 1em 0;
+      font-style: italic;
+      color: #4b5563;
+    }
+    .epub-preview .title-page {
+      text-align: center;
+      padding: 30px 0;
+    }
+    .epub-preview .title-page h1 {
+      font-size: 2.4em;
+      margin-bottom: 0.3em;
+    }
+    .epub-preview .title-page .author {
+      font-size: 1.2em;
+      color: #6b7280;
+    }
+
+    /* Dark mode overrides */
+    html.dark body {
+      background: #0f172a;
+      color: #e2e8f0;
+    }
+    html.dark header {
+      background: #1e293b;
+      border-color: #334155;
+    }
+    html.dark header h1 {
+      color: #f1f5f9;
+    }
+    html.dark header p {
+      color: #60a5fa !important;
+    }
+    html.dark header nav a {
+      color: #94a3b8;
+    }
+    html.dark header nav a:hover {
+      color: #f1f5f9;
+    }
+    html.dark #dropzone {
+      background: #1e293b;
+      border-color: #475569;
+    }
+    html.dark #dropzone:hover {
+      border-color: #3b82f6;
+    }
+    html.dark #dropzone h3 {
+      color: #f1f5f9;
+    }
+    html.dark #dropzone p {
+      color: #94a3b8;
+    }
+    html.dark #fileInfo {
+      background: #1e293b;
+      border-color: #334155;
+    }
+    html.dark #fileInfo .text-slate-900 {
+      color: #f1f5f9;
+    }
+    html.dark #fileInfo .text-slate-400 {
+      color: #94a3b8;
+    }
+    html.dark #fileInfo .border-slate-200 {
+      border-color: #334155;
+    }
+    html.dark #fileInfo .hover\:bg-slate-50:hover {
+      background: #334155;
+    }
+    html.dark #resultSection {
+      background: #0f172a;
+      border-color: #334155;
+    }
+    html.dark #resultSection h3 {
+      color: #f1f5f9;
+    }
+    html.dark #resultSection .text-slate-600 {
+      color: #94a3b8;
+    }
+    html.dark #resultSection .border-slate-200 {
+      border-color: #334155;
+    }
+    html.dark #resultSection .hover\:bg-slate-50:hover {
+      background: #334155;
+    }
+    html.dark .bg-white {
+      background: #1e293b !important;
+    }
+    html.dark .border-slate-100 {
+      border-color: #334155 !important;
+    }
+    html.dark .text-slate-500 {
+      color: #94a3b8 !important;
+    }
+    html.dark .text-slate-600 {
+      color: #94a3b8 !important;
+    }
+    html.dark .text-slate-700 {
+      color: #cbd5e1 !important;
+    }
+    html.dark .bg-blue-50 {
+      background: #1e3a5f !important;
+    }
+    html.dark .border-blue-200 {
+      border-color: #2563eb !important;
+    }
+    html.dark .text-blue-900 {
+      color: #93c5fd !important;
+    }
+    html.dark .text-blue-700 {
+      color: #60a5fa !important;
+    }
+    html.dark footer {
+      background: #0f172a !important;
+      border-color: #334155 !important;
+    }
+    html.dark footer a {
+      color: #94a3b8;
+    }
+    html.dark footer a:hover {
+      color: #f1f5f9;
+    }
+    html.dark .bg-slate-50 {
+      background: #0f172a !important;
+    }
+    html.dark .shadow-sm {
+      box-shadow: 0 1px 2px 0 rgba(0,0,0,0.3) !important;
+    }
+    html.dark .shadow-lg {
+      box-shadow: 0 10px 15px -3px rgba(0,0,0,0.4) !important;
+    }
+    html.dark .epub-preview {
+      background: #0f172a;
+      border-color: #334155;
+    }
+    html.dark .epub-preview blockquote {
+      color: #94a3b8;
+    }
+    html.dark .epub-preview td, .epub-preview th {
+      border-color: #475569;
+    }
+
+    /* Theme toggle in header */
+    #theme-toggle {
+      background: none;
+      border: none;
+      font-size: 1.2rem;
+      cursor: pointer;
+      padding: 0.2rem 0.4rem;
+      border-radius: 6px;
+      transition: background 0.2s;
+      color: #475569;
+      line-height: 1;
+    }
+    #theme-toggle:hover {
+      background: #f1f5f9;
+    }
+    html.dark #theme-toggle {
+      color: #e2e8f0;
+    }
+    html.dark #theme-toggle:hover {
+      background: #334155;
+    }
+
+    /* Back button dark mode */
+    html.dark .back-home-btn {
+      background: #1e293b !important;
+      border-color: #475569 !important;
+      color: #e2e8f0 !important;
+    }
+    html.dark .back-home-btn:hover {
+      background: #334155 !important;
+      border-color: #3b82f6 !important;
     }
   </style>
 </head>
-<body class="bg-slate-50 text-slate-800 font-sans antialiased">
+<body class="bg-slate-50 text-slate-800 font-sans antialiased transition-colors duration-200">
 
   <!-- Navigation -->
-  <header class="bg-white border-b border-slate-200 py-3.5 px-6 sticky top-0 z-50">
+  <header class="bg-white border-b border-slate-200 py-3.5 px-6 sticky top-0 z-50 transition-colors duration-200">
     <div class="max-w-6xl mx-auto flex justify-between items-center">
       <a href="/" class="flex items-center gap-3 group">
         <img src="Gemini_Generated_Image_sdu6v7sdu6v7sdu6.jpg" alt="Droplet Logo" class="h-9 w-auto rounded-xl shadow-sm group-hover:scale-105 transition-transform">
@@ -69,14 +260,27 @@
           <p class="text-[9px] text-blue-600 font-extrabold tracking-widest uppercase mt-0.5">DRAG, DROP AND CONVERT.</p>
         </div>
       </a>
-      <nav class="hidden md:flex items-center space-x-6 text-xs font-bold text-slate-600">
-        <a href="/" class="hover:text-blue-600 transition-colors">← Back</a>
-      </nav>
+      <div class="flex items-center gap-3">
+        <button id="theme-toggle" aria-label="Toggle theme">🌙</button>
+        <nav class="hidden md:flex items-center space-x-6 text-xs font-bold text-slate-600">
+          <a href="/" class="hover:text-blue-600 transition-colors">← Back</a>
+        </nav>
+      </div>
     </div>
   </header>
 
   <!-- Main Content -->
   <main class="max-w-4xl mx-auto px-4 py-8 md:py-12 flex-grow w-full">
+
+    <!-- Back Button (prominent & visible) -->
+    <div class="max-w-2xl mx-auto mb-4 flex justify-start">
+      <a href="/" class="back-home-btn inline-flex items-center gap-2 bg-white hover:bg-slate-50 border border-slate-200 shadow-sm rounded-full px-5 py-2.5 text-sm font-medium text-slate-700 transition-all hover:shadow-md hover:border-slate-300 active:scale-95">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        </svg>
+        Back to Home
+      </a>
+    </div>
 
     <!-- Page Header -->
     <div class="text-center mb-8">
@@ -106,7 +310,7 @@
     </div>
 
     <!-- File Info & Conversion Controls -->
-    <div id="fileInfo" class="hidden max-w-2xl mx-auto mt-6 bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+    <div id="fileInfo" class="hidden max-w-2xl mx-auto mt-6 bg-white rounded-xl shadow-sm border border-slate-200 p-6 transition-colors duration-200">
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-3">
           <span class="text-2xl">📖</span>
@@ -144,7 +348,7 @@
       <div id="previewContainer" class="hidden mt-4 border-t border-slate-200 pt-4">
         <div class="flex items-center justify-between mb-2">
           <h4 class="font-bold text-sm text-slate-700">📖 EPUB Preview</h4>
-          <span class="text-xs text-slate-400">(First chapter only)</span>
+          <span class="text-xs text-slate-400">(First 3 chapters)</span>
         </div>
         <div id="previewContent" class="epub-preview">
           <!-- Preview will be rendered here -->
@@ -153,7 +357,7 @@
     </div>
 
     <!-- Result Section -->
-    <div id="resultSection" class="hidden max-w-2xl mx-auto mt-6 bg-green-50 border border-green-200 rounded-xl p-6 text-center">
+    <div id="resultSection" class="hidden max-w-2xl mx-auto mt-6 bg-green-50 border border-green-200 rounded-xl p-6 text-center transition-colors duration-200">
       <div class="text-4xl mb-2">✅</div>
       <h3 class="font-bold text-slate-900">Conversion Complete!</h3>
       <p class="text-sm text-slate-600 mt-1">Your PDF document is ready to download.</p>
@@ -169,17 +373,17 @@
 
     <!-- Info Section -->
     <div class="max-w-2xl mx-auto mt-12 grid grid-cols-1 md:grid-cols-3 gap-4">
-      <div class="bg-white p-4 rounded-xl border border-slate-100 text-center">
+      <div class="bg-white p-4 rounded-xl border border-slate-100 text-center transition-colors duration-200">
         <div class="text-2xl mb-1">🔒</div>
         <h4 class="font-bold text-sm">100% Private</h4>
         <p class="text-xs text-slate-500">Your files never leave your browser</p>
       </div>
-      <div class="bg-white p-4 rounded-xl border border-slate-100 text-center">
+      <div class="bg-white p-4 rounded-xl border border-slate-100 text-center transition-colors duration-200">
         <div class="text-2xl mb-1">⚡</div>
         <h4 class="font-bold text-sm">Fast & Free</h4>
         <p class="text-xs text-slate-500">No sign-up required</p>
       </div>
-      <div class="bg-white p-4 rounded-xl border border-slate-100 text-center">
+      <div class="bg-white p-4 rounded-xl border border-slate-100 text-center transition-colors duration-200">
         <div class="text-2xl mb-1">📝</div>
         <h4 class="font-bold text-sm">Preserves Formatting</h4>
         <p class="text-xs text-slate-500">Tables, fonts, and layout maintained</p>
@@ -190,23 +394,23 @@
     <section class="max-w-2xl mx-auto mt-12">
       <h2 class="text-xl font-black text-slate-900 text-center mb-6">Frequently Asked Questions</h2>
       <div class="space-y-3">
-        <div class="bg-white p-5 rounded-xl border border-slate-100">
+        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
           <h3 class="font-bold text-slate-900 text-sm">Is my data safe?</h3>
           <p class="text-slate-600 text-sm mt-1">Yes! All conversions happen locally in your browser. Your EPUB file is never uploaded to any server and is automatically deleted when you close the page.</p>
         </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100">
+        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
           <h3 class="font-bold text-slate-900 text-sm">Will my formatting be preserved?</h3>
           <p class="text-slate-600 text-sm mt-1">The conversion preserves fonts, headings, paragraphs, tables, and images. The layout is designed to look like a professionally formatted book with proper margins and page breaks.</p>
         </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100">
+        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
           <h3 class="font-bold text-slate-900 text-sm">What about DRM-protected EPUBs?</h3>
           <p class="text-slate-600 text-sm mt-1">This tool cannot convert DRM-protected EPUB files. You'll need to remove the DRM first using appropriate tools.</p>
         </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100">
+        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
           <h3 class="font-bold text-slate-900 text-sm">Are there file size limits?</h3>
           <p class="text-slate-600 text-sm mt-1">Since everything runs locally, limits depend on your device's memory. Most modern browsers handle EPUBs up to 50MB without issues. Very large files with many images may take longer to process.</p>
         </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100">
+        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
           <h3 class="font-bold text-slate-900 text-sm">How does the conversion work?</h3>
           <p class="text-slate-600 text-sm mt-1">EPUB files are ZIP archives containing HTML content. This tool extracts the HTML, renders it beautifully, and converts it to PDF using the same technology used for the EPUB to PDF converter. All processing stays in your browser.</p>
         </div>
@@ -215,7 +419,7 @@
   </main>
 
   <!-- Footer -->
-  <footer class="border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-500 mt-auto">
+  <footer class="border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-500 mt-auto transition-colors duration-200">
     <div class="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-3">
       <p class="font-medium">© Droplet. 100% Client-Side Privacy First File Utility.</p>
       <div class="space-x-4">
@@ -230,6 +434,37 @@
 
   <!-- Conversion JavaScript -->
   <script>
+    // ============================================
+    // DARK MODE TOGGLE
+    // ============================================
+    const themeToggle = document.getElementById('theme-toggle');
+    const html = document.documentElement;
+    
+    let currentTheme = localStorage.getItem('theme') || 
+      (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    
+    if (currentTheme === 'dark') {
+      html.classList.add('dark');
+      themeToggle.textContent = '☀️';
+    } else {
+      themeToggle.textContent = '🌙';
+    }
+    
+    themeToggle.addEventListener('click', () => {
+      if (html.classList.contains('dark')) {
+        html.classList.remove('dark');
+        themeToggle.textContent = '🌙';
+        localStorage.setItem('theme', 'light');
+      } else {
+        html.classList.add('dark');
+        themeToggle.textContent = '☀️';
+        localStorage.setItem('theme', 'dark');
+      }
+    });
+
+    // ============================================
+    // CONVERTER LOGIC
+    // ============================================
     let currentFile = null;
     let convertedBlob = null;
     let epubHTML = '';
@@ -286,13 +521,11 @@
     });
 
     function handleFile(file) {
-      // Validate file type
       if (!file.name.toLowerCase().endsWith('.epub') && file.type !== 'application/epub+zip') {
         alert('Please select a valid EPUB file.');
         return;
       }
 
-      // Validate file size (50MB limit)
       if (file.size > 50 * 1024 * 1024) {
         alert('File is too large. Please use an EPUB under 50MB.');
         return;
@@ -309,7 +542,6 @@
       convertBtn.disabled = false;
       convertBtn.textContent = '🔄 Convert to PDF';
 
-      // Parse EPUB and show preview
       parseEPUB(file);
     }
 
@@ -334,7 +566,6 @@
       downloadLink.href = '#';
     }
 
-    // Parse EPUB file using JSZip
     async function parseEPUB(file) {
       try {
         statusText.textContent = 'Reading EPUB file...';
@@ -349,14 +580,11 @@
         progressText.textContent = '30%';
         statusText.textContent = 'Parsing EPUB structure...';
 
-        // Find the OPF (metadata) file
         const containerXml = await zip.file('META-INF/container.xml').async('text');
         const opfPath = containerXml.match(/full-path="([^"]+)"/)[1];
 
-        // Read OPF file
         const opfXml = await zip.file(opfPath).async('text');
 
-        // Extract metadata
         const titleMatch = opfXml.match(/<dc:title[^>]*>([^<]+)<\/dc:title>/);
         const authorMatch = opfXml.match(/<dc:creator[^>]*>([^<]+)<\/dc:creator>/);
         const publisherMatch = opfXml.match(/<dc:publisher[^>]*>([^<]+)<\/dc:publisher>/);
@@ -369,7 +597,6 @@
 
         metadata.textContent = `📝 ${epubMetadata.title} • ✍️ ${epubMetadata.author}`;
 
-        // Find the spine (reading order)
         const spineMatch = opfXml.match(/<spine[^>]*>(.*?)<\/spine>/s);
         let itemRefs = [];
         if (spineMatch) {
@@ -379,7 +606,6 @@
           }
         }
 
-        // Get manifest items
         const manifestMatches = opfXml.match(/<manifest[^>]*>(.*?)<\/manifest>/s);
         let manifest = {};
         if (manifestMatches) {
@@ -399,10 +625,9 @@
         progressText.textContent = '50%';
         statusText.textContent = 'Processing content...';
 
-        // Get the first few chapters for preview
         let htmlContent = '';
         const opfDir = opfPath.substring(0, opfPath.lastIndexOf('/') + 1);
-        const maxChapters = Math.min(3, itemRefs.length);
+        const maxChapters = Math.min(4, itemRefs.length);
 
         for (let i = 0; i < maxChapters; i++) {
           const itemId = itemRefs[i];
@@ -411,7 +636,6 @@
             const file = zip.file(filePath);
             if (file) {
               const content = await file.async('text');
-              // Extract body content
               const bodyMatch = content.match(/<body[^>]*>(.*?)<\/body>/s);
               if (bodyMatch) {
                 htmlContent += bodyMatch[1];
@@ -420,19 +644,20 @@
           }
         }
 
-        // Build preview HTML
+        // Enhanced preview with proper styling
         const previewHtml = `
-          <h1>${epubMetadata.title}</h1>
-          <p><strong>Author:</strong> ${epubMetadata.author}</p>
-          ${epubMetadata.publisher ? `<p><strong>Publisher:</strong> ${epubMetadata.publisher}</p>` : ''}
-          <hr>
+          <div class="title-page">
+            <h1>${epubMetadata.title}</h1>
+            ${epubMetadata.author ? `<p class="author">By ${epubMetadata.author}</p>` : ''}
+            ${epubMetadata.publisher ? `<p style="color: #9ca3af;">${epubMetadata.publisher}</p>` : ''}
+          </div>
+          <hr style="border: 1px solid #e5e7eb; margin: 20px 0;">
           ${htmlContent}
         `;
 
         previewContent.innerHTML = previewHtml;
         previewContainer.classList.remove('hidden');
 
-        // Store full EPUB content for conversion
         epubHTML = previewHtml;
 
         progressBar.style.width = '100%';
@@ -449,20 +674,17 @@
       }
     }
 
-    // Main Conversion Function
     async function convertEPUBtoPDF() {
       if (!currentFile) {
         alert('Please select an EPUB file first.');
         return;
       }
 
-      // Check if html2pdf is available
       if (typeof html2pdf === 'undefined') {
         alert('PDF library not loaded. Please refresh the page and try again.');
         return;
       }
 
-      // Show progress
       progressContainer.classList.remove('hidden');
       resultSection.classList.add('hidden');
       convertBtn.disabled = true;
@@ -472,7 +694,6 @@
       statusText.textContent = 'Preparing document...';
 
       try {
-        // If we don't have HTML content, try to parse the EPUB again
         if (!epubHTML) {
           await parseEPUB(currentFile);
         }
@@ -481,7 +702,6 @@
         progressText.textContent = '40%';
         statusText.textContent = 'Rendering document...';
 
-        // Create a clean document for PDF generation
         const printHtml = `
           <!DOCTYPE html>
           <html>
@@ -569,11 +789,6 @@
                 color: #777;
                 margin-top: 30pt;
               }
-              .chapter-title {
-                font-size: 18pt;
-                text-align: center;
-                margin: 30pt 0 20pt;
-              }
               .page-break {
                 page-break-after: always;
                 border: none;
@@ -584,7 +799,6 @@
             </style>
           </head>
           <body>
-            <!-- Title Page -->
             <div class="title-page">
               <h1>${epubMetadata.title || 'EPUB Document'}</h1>
               ${epubMetadata.author ? `<p class="author">By ${epubMetadata.author}</p>` : ''}
@@ -592,8 +806,6 @@
               <p style="margin-top: 40pt; font-size: 10pt; color: #999;">Converted by Droplet</p>
             </div>
             <div class="page-break"></div>
-
-            <!-- Content -->
             ${epubHTML}
           </body>
           </html>
@@ -603,7 +815,6 @@
         progressText.textContent = '60%';
         statusText.textContent = 'Generating PDF...';
 
-        // Create a temporary container for PDF generation
         const tempContainer = document.createElement('div');
         tempContainer.innerHTML = printHtml;
         tempContainer.style.position = 'fixed';
@@ -614,7 +825,6 @@
         tempContainer.style.zIndex = '-9999';
         document.body.appendChild(tempContainer);
 
-        // Generate PDF using html2pdf
         const opt = {
           margin: 10,
           filename: 'converted.pdf',
@@ -643,14 +853,12 @@
           .from(tempContainer)
           .outputPdf('blob');
 
-        // Clean up
         document.body.removeChild(tempContainer);
 
         progressBar.style.width = '100%';
         progressText.textContent = '100%';
         statusText.textContent = '✅ Conversion complete!';
 
-        // Show result
         setTimeout(() => {
           const url = URL.createObjectURL(pdf);
           downloadLink.href = url;
@@ -671,7 +879,6 @@
       }
     }
 
-    // Keyboard shortcut: Enter to convert
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' && !fileInfo.classList.contains('hidden') && !convertBtn.disabled) {
         convertEPUBtoPDF();
