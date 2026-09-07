@@ -3,203 +3,854 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Coming Soon - Droplet</title>
-  <meta name="description" content="This tool is coming soon to Droplet. Stay tuned for more file conversion tools.">
+  <title>Edit PDF - Droplet</title>
+  <meta name="description" content="Edit PDF files online for free. 100% client-side, your files never leave your browser.">
 
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
 
+  <!-- PDF.js for PDF rendering -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+
   <style>
-    .float-animation {
-      animation: float 3s ease-in-out infinite;
+    /* ===== RESET & BASE ===== */
+    * { box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+
+    /* ===== SCROLLBARS ===== */
+    .scrollbar-thin::-webkit-scrollbar { width: 5px; height: 5px; }
+    .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+    .scrollbar-thin::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+    .scrollbar-thin::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+    /* ===== LEFT SIDEBAR - PAGE THUMBNAILS ===== */
+    .page-thumbnail {
+      position: relative;
+      border: 2px solid transparent;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: white;
+      overflow: hidden;
     }
-    @keyframes float {
-      0%, 100% { transform: translateY(0px); }
-      50% { transform: translateY(-10px); }
+    .page-thumbnail:hover { border-color: #94a3b8; }
+    .page-thumbnail.active { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2); }
+    .page-thumbnail .page-number {
+      position: absolute;
+      bottom: 4px;
+      right: 6px;
+      font-size: 9px;
+      font-weight: 600;
+      color: #fff;
+      background: rgba(0,0,0,0.5);
+      padding: 1px 6px;
+      border-radius: 4px;
     }
-    .pulse-dot {
-      animation: pulse 1.5s ease-in-out infinite;
+    .page-thumbnail canvas {
+      width: 100%;
+      height: auto;
+      display: block;
     }
-    @keyframes pulse {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.5; transform: scale(0.8); }
+
+    /* ===== CENTER WORKSPACE ===== */
+    .workspace {
+      background: #e2e8f0;
+      background-image: radial-gradient(circle, #cbd5e1 1px, transparent 1px);
+      background-size: 20px 20px;
+      flex: 1;
+      overflow: auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      min-height: 500px;
     }
-    .bg-grid {
-      background-image: 
-        linear-gradient(rgba(37, 99, 235, 0.05) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(37, 99, 235, 0.05) 1px, transparent 1px);
-      background-size: 40px 40px;
+    .workspace .page-container {
+      background: white;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+      border-radius: 4px;
+      position: relative;
+      transition: transform 0.2s;
+      transform-origin: center center;
     }
+    .workspace .page-container canvas {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    /* ===== RIGHT PANEL ===== */
+    .props-panel {
+      width: 260px;
+      min-width: 260px;
+      background: white;
+      border-left: 1px solid #e2e8f0;
+      padding: 16px;
+      overflow-y: auto;
+      max-height: calc(100vh - 120px);
+    }
+    .props-panel .section-title {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #94a3b8;
+      margin-bottom: 8px;
+    }
+    .props-panel .prop-group {
+      margin-bottom: 14px;
+    }
+    .props-panel .prop-group label {
+      display: block;
+      font-size: 11px;
+      font-weight: 500;
+      color: #64748b;
+      margin-bottom: 3px;
+    }
+    .props-panel .prop-group input[type="color"] {
+      width: 36px;
+      height: 36px;
+      border: 2px solid #e2e8f0;
+      border-radius: 6px;
+      cursor: pointer;
+      padding: 2px;
+    }
+    .props-panel .prop-group input[type="range"] {
+      width: 100%;
+      accent-color: #2563eb;
+    }
+    .props-panel .prop-group select {
+      width: 100%;
+      padding: 5px 8px;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      font-size: 12px;
+      background: white;
+      outline: none;
+    }
+    .props-panel .prop-group select:focus { border-color: #2563eb; }
+    .props-panel .prop-group .flex-row { display: flex; gap: 8px; align-items: center; }
+    .props-panel .prop-group .flex-row input[type="number"] {
+      width: 60px;
+      padding: 4px 6px;
+      border: 1px solid #e2e8f0;
+      border-radius: 4px;
+      font-size: 12px;
+    }
+
+    /* ===== BOTTOM TOOLBAR ===== */
+    .bottom-toolbar {
+      background: white;
+      border-top: 1px solid #e2e8f0;
+      padding: 8px 16px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      align-items: center;
+      justify-content: center;
+    }
+    .bottom-toolbar .tool-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 500;
+      color: #475569;
+      border: 2px solid transparent;
+      cursor: pointer;
+      transition: all 0.15s;
+      background: transparent;
+      white-space: nowrap;
+    }
+    .bottom-toolbar .tool-btn:hover {
+      background: #f1f5f9;
+      color: #1e293b;
+    }
+    .bottom-toolbar .tool-btn.active {
+      border-color: #2563eb;
+      background: #eff6ff;
+      color: #2563eb;
+    }
+    .bottom-toolbar .tool-btn .icon { font-size: 16px; }
+    .bottom-toolbar .tool-divider {
+      width: 1px;
+      height: 28px;
+      background: #e2e8f0;
+      margin: 0 4px;
+    }
+
+    /* ===== TOP BAR ===== */
+    .top-bar {
+      background: white;
+      border-bottom: 1px solid #e2e8f0;
+      padding: 6px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      min-height: 48px;
+    }
+    .top-bar .logo {
+      font-weight: 700;
+      font-size: 16px;
+      color: #0f172a;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .top-bar .logo img { height: 28px; width: auto; border-radius: 6px; }
+    .top-bar .menu-btn {
+      padding: 4px 10px;
+      font-size: 12px;
+      font-weight: 500;
+      color: #475569;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.15s;
+      background: transparent;
+      border: none;
+    }
+    .top-bar .menu-btn:hover { background: #f1f5f9; }
+    .top-bar .action-btn {
+      padding: 4px 10px;
+      font-size: 12px;
+      font-weight: 500;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s;
+      border: 1px solid #e2e8f0;
+      background: white;
+      color: #475569;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .top-bar .action-btn:hover { background: #f1f5f9; border-color: #cbd5e1; }
+    .top-bar .action-btn.primary {
+      background: #2563eb;
+      color: white;
+      border-color: #2563eb;
+    }
+    .top-bar .action-btn.primary:hover { background: #1d4ed8; border-color: #1d4ed8; }
+    .top-bar .spacer { flex: 1; }
+    .top-bar .zoom-controls {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      color: #475569;
+    }
+    .top-bar .zoom-controls button {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      border: 1px solid #e2e8f0;
+      background: white;
+      cursor: pointer;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s;
+    }
+    .top-bar .zoom-controls button:hover { background: #f1f5f9; }
+
+    /* ===== EMPTY STATE ===== */
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      min-height: 400px;
+      color: #94a3b8;
+      text-align: center;
+      padding: 40px;
+    }
+    .empty-state .icon { font-size: 64px; margin-bottom: 16px; }
+    .empty-state h3 { font-size: 20px; font-weight: 700; color: #1e293b; margin-bottom: 8px; }
+    .empty-state p { font-size: 14px; max-width: 400px; }
+
+    /* ===== DARK MODE ===== */
+    html.dark .top-bar,
+    html.dark .bottom-toolbar,
+    html.dark .props-panel {
+      background: #1e293b;
+      border-color: #334155;
+    }
+    html.dark .top-bar .logo { color: #f1f5f9; }
+    html.dark .top-bar .menu-btn { color: #94a3b8; }
+    html.dark .top-bar .menu-btn:hover { background: #334155; }
+    html.dark .top-bar .action-btn {
+      background: #0f172a;
+      border-color: #334155;
+      color: #e2e8f0;
+    }
+    html.dark .top-bar .action-btn:hover { background: #334155; }
+    html.dark .top-bar .action-btn.primary { background: #2563eb; border-color: #2563eb; color: white; }
+    html.dark .top-bar .action-btn.primary:hover { background: #1d4ed8; }
+    html.dark .top-bar .zoom-controls button {
+      background: #0f172a;
+      border-color: #334155;
+      color: #e2e8f0;
+    }
+    html.dark .top-bar .zoom-controls button:hover { background: #334155; }
+    html.dark .top-bar .zoom-controls { color: #94a3b8; }
+    html.dark .workspace { background: #0f172a; background-image: radial-gradient(circle, #1e293b 1px, transparent 1px); }
+    html.dark .workspace .page-container { background: white; }
+    html.dark .props-panel { border-color: #334155; }
+    html.dark .props-panel .section-title { color: #64748b; }
+    html.dark .props-panel .prop-group label { color: #94a3b8; }
+    html.dark .props-panel .prop-group select {
+      background: #0f172a;
+      border-color: #334155;
+      color: #f1f5f9;
+    }
+    html.dark .props-panel .prop-group input[type="color"] { border-color: #334155; }
+    html.dark .props-panel .prop-group input[type="number"] {
+      background: #0f172a;
+      border-color: #334155;
+      color: #f1f5f9;
+    }
+    html.dark .bottom-toolbar .tool-btn { color: #94a3b8; }
+    html.dark .bottom-toolbar .tool-btn:hover { background: #334155; color: #f1f5f9; }
+    html.dark .bottom-toolbar .tool-btn.active { border-color: #3b82f6; background: #1e3a5f; color: #60a5fa; }
+    html.dark .bottom-toolbar .tool-divider { background: #334155; }
+    html.dark .empty-state h3 { color: #f1f5f9; }
+    html.dark .empty-state p { color: #94a3b8; }
+    html.dark .page-thumbnail { background: #1e293b; }
+    html.dark .page-thumbnail.active { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 1024px) {
+      .props-panel { width: 220px; min-width: 220px; padding: 12px; }
+    }
+    @media (max-width: 768px) {
+      .props-panel { width: 200px; min-width: 200px; padding: 10px; }
+      .top-bar { padding: 4px 10px; gap: 6px; }
+      .top-bar .menu-btn { padding: 2px 6px; font-size: 11px; }
+      .top-bar .action-btn { padding: 2px 6px; font-size: 11px; }
+      .top-bar .logo { font-size: 14px; }
+      .bottom-toolbar { padding: 4px 8px; gap: 2px; }
+      .bottom-toolbar .tool-btn { padding: 4px 8px; font-size: 11px; }
+      .bottom-toolbar .tool-btn .icon { font-size: 14px; }
+      .bottom-toolbar .tool-btn .label { display: none; }
+    }
+    @media (max-width: 640px) {
+      .props-panel { 
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        width: 100%;
+        min-width: unset;
+        max-height: 50vh;
+        border-left: none;
+        border-top: 1px solid #e2e8f0;
+        border-radius: 16px 16px 0 0;
+        padding: 16px;
+        overflow-y: auto;
+        z-index: 50;
+        transform: translateY(100%);
+        transition: transform 0.3s ease;
+      }
+      .props-panel.open {
+        transform: translateY(0);
+      }
+      .props-panel .panel-handle {
+        display: block !important;
+        width: 40px;
+        height: 4px;
+        background: #cbd5e1;
+        border-radius: 4px;
+        margin: 0 auto 12px;
+      }
+      .props-panel .panel-close {
+        display: block !important;
+        float: right;
+        background: none;
+        border: none;
+        font-size: 20px;
+        cursor: pointer;
+        color: #94a3b8;
+      }
+      .props-panel .panel-close:hover { color: #1e293b; }
+      .top-bar .zoom-controls .label { display: none; }
+      .left-sidebar { width: 60px !important; min-width: 60px !important; padding: 8px !important; }
+      .left-sidebar .page-thumbnail { margin-bottom: 6px; }
+      .left-sidebar .add-page-btn span { display: none; }
+      .left-sidebar .sidebar-title { display: none; }
+    }
+
+    .props-panel .panel-handle { display: none; }
+    .props-panel .panel-close { display: none; }
+
+    /* Left sidebar */
+    .left-sidebar {
+      width: 180px;
+      min-width: 180px;
+      background: white;
+      border-right: 1px solid #e2e8f0;
+      padding: 12px;
+      overflow-y: auto;
+      max-height: calc(100vh - 120px);
+    }
+    .left-sidebar .sidebar-title {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #94a3b8;
+      margin-bottom: 10px;
+      padding: 0 4px;
+    }
+    .left-sidebar .add-page-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      width: 100%;
+      padding: 8px;
+      border: 2px dashed #e2e8f0;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 500;
+      color: #94a3b8;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: transparent;
+      margin-top: 8px;
+    }
+    .left-sidebar .add-page-btn:hover { border-color: #2563eb; color: #2563eb; background: #eff6ff; }
+
+    html.dark .left-sidebar {
+      background: #1e293b;
+      border-color: #334155;
+    }
+    html.dark .left-sidebar .sidebar-title { color: #64748b; }
+    html.dark .left-sidebar .add-page-btn {
+      border-color: #334155;
+      color: #64748b;
+    }
+    html.dark .left-sidebar .add-page-btn:hover { border-color: #3b82f6; color: #60a5fa; background: #1e3a5f; }
   </style>
 </head>
-<body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen flex flex-col">
+<body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen flex flex-col transition-colors duration-200">
 
-  <!-- Navigation -->
-  <header class="bg-white border-b border-slate-200 py-3.5 px-6 sticky top-0 z-50">
-    <div class="max-w-6xl mx-auto flex justify-between items-center">
-      <a href="/" class="flex items-center gap-3 group">
-        <img src="Gemini_Generated_Image_sdu6v7sdu6v7sdu6.jpg" alt="Droplet Logo" class="h-9 w-auto rounded-xl shadow-sm group-hover:scale-105 transition-transform">
-        <div>
-          <h1 class="text-xl font-black tracking-tight text-slate-900 leading-none">Droplet</h1>
-          <p class="text-[9px] text-blue-600 font-extrabold tracking-widest uppercase mt-0.5">DRAG, DROP AND CONVERT.</p>
-        </div>
-      </a>
-      <nav class="hidden md:flex items-center space-x-6 text-xs font-bold text-slate-600">
-        <a href="/" class="hover:text-blue-600 transition-colors">← Back to Home</a>
-      </nav>
+  <!-- ===== TOP BAR ===== -->
+  <header class="top-bar">
+    <!-- Logo -->
+    <div class="logo">
+      <img src="Gemini_Generated_Image_sdu6v7sdu6v7sdu6.jpg" alt="Droplet">
+      <span>Droplet</span>
     </div>
+
+    <!-- File Menu -->
+    <button class="menu-btn" onclick="alert('File menu')">📄 File</button>
+    <button class="menu-btn" onclick="alert('Edit menu')">✏️ Edit</button>
+
+    <div class="spacer"></div>
+
+    <!-- Action Buttons -->
+    <button class="action-btn" onclick="alert('Undo')" title="Undo (Ctrl+Z)">↶</button>
+    <button class="action-btn" onclick="alert('Redo')" title="Redo (Ctrl+Y)">↷</button>
+
+    <!-- Zoom Controls -->
+    <div class="zoom-controls">
+      <button onclick="alert('Zoom out')">−</button>
+      <span class="label">100%</span>
+      <button onclick="alert('Zoom in')">+</button>
+    </div>
+
+    <!-- Theme Toggle -->
+    <button id="theme-toggle" class="action-btn" aria-label="Toggle theme">🌙</button>
+
+    <!-- Save/Export -->
+    <button class="action-btn primary" onclick="alert('Export PDF')">💾 Export PDF</button>
   </header>
 
-  <!-- Main Content -->
-  <main class="flex-grow flex items-center justify-center px-4 py-12 bg-grid">
-    <div class="max-w-2xl w-full text-center">
+  <!-- ===== MAIN CONTENT ===== -->
+  <div class="flex flex-1 overflow-hidden">
 
-      <!-- Animated Icon -->
-      <div class="float-animation mb-8">
-        <div class="w-32 h-32 mx-auto bg-gradient-to-br from-blue-500 to-purple-600 rounded-3xl flex items-center justify-center shadow-2xl shadow-blue-500/20">
-          <span class="text-6xl">🚀</span>
+    <!-- ===== LEFT SIDEBAR ===== -->
+    <div class="left-sidebar scrollbar-thin" id="leftSidebar">
+      <div class="sidebar-title">📄 Pages</div>
+      
+      <!-- Page Thumbnails -->
+      <div id="pageThumbnails">
+        <!-- Empty state -->
+        <div class="text-center text-slate-400 text-xs py-8" id="emptyThumbnails">
+          <div class="text-3xl mb-2">📄</div>
+          <p>No pages loaded</p>
+          <p class="text-[10px] mt-1">Open a PDF to get started</p>
         </div>
+        
+        <!-- Thumbnails will be dynamically added here -->
+        <div id="thumbnailList"></div>
       </div>
 
-      <!-- Coming Soon Badge -->
-      <div class="inline-flex items-center gap-2 bg-blue-50 text-blue-700 px-4 py-2 rounded-full text-sm font-medium mb-6">
-        <span class="w-2 h-2 bg-blue-600 rounded-full pulse-dot"></span>
-        Coming Soon
-      </div>
+      <!-- Add Page Button -->
+      <button class="add-page-btn" onclick="alert('Add new page')">
+        <span>+</span> <span>Add page</span>
+      </button>
+    </div>
 
-      <!-- Title -->
-      <h1 class="text-4xl md:text-5xl font-black text-slate-900 tracking-tight mb-4">
-        <span id="toolName" class="text-blue-600">[Tool Name]</span>
-        <span class="text-slate-900">is on its way!</span>
-      </h1>
-
-      <!-- Description -->
-      <p class="text-slate-500 text-lg max-w-md mx-auto mb-8">
-        We're working hard to bring you this powerful conversion tool. 
-        It will be available very soon with all the features you expect from Droplet.
-      </p>
-
-      <!-- Features Preview -->
-      <div class="grid grid-cols-2 md:grid-cols-3 gap-4 max-w-lg mx-auto mb-10">
-        <div class="bg-white p-4 rounded-xl border border-slate-100 shadow-sm">
-          <div class="text-2xl mb-1">🔒</div>
-          <p class="text-xs font-medium text-slate-700">100% Private</p>
-          <p class="text-[10px] text-slate-400">Client-side processing</p>
-        </div>
-        <div class="bg-white p-4 rounded-xl border border-slate-100 shadow-sm">
-          <div class="text-2xl mb-1">⚡</div>
-          <p class="text-xs font-medium text-slate-700">Fast & Free</p>
-          <p class="text-[10px] text-slate-400">No sign-up required</p>
-        </div>
-        <div class="bg-white p-4 rounded-xl border border-slate-100 shadow-sm">
-          <div class="text-2xl mb-1">📱</div>
-          <p class="text-xs font-medium text-slate-700">Mobile Ready</p>
-          <p class="text-[10px] text-slate-400">Works on all devices</p>
-        </div>
-      </div>
-
-      <!-- Action Buttons -->
-      <div class="flex flex-wrap gap-3 justify-center">
-        <a href="/" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-8 py-3 rounded-xl transition-all shadow-md shadow-blue-500/20 active:scale-95">
-          ← Back to Home
-        </a>
-        <button onclick="notifyMe()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-8 py-3 rounded-xl transition-all active:scale-95">
-          🔔 Notify Me
+    <!-- ===== CENTER WORKSPACE ===== -->
+    <div class="workspace" id="workspace">
+      <!-- Empty State -->
+      <div class="empty-state" id="emptyState">
+        <div class="icon">📄</div>
+        <h3>No document open</h3>
+        <p>Open a PDF file to start editing. Your files stay private — everything happens in your browser.</p>
+        <button onclick="document.getElementById('pdfInput').click()" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2.5 rounded-xl text-sm shadow-md shadow-blue-500/20 transition-all active:scale-95">
+          📂 Open PDF
         </button>
+        <input type="file" id="pdfInput" accept=".pdf,application/pdf" class="hidden">
       </div>
 
-      <!-- Notification Form -->
-      <div id="notifyForm" class="hidden mt-6 max-w-sm mx-auto">
-        <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-          <p class="text-sm font-medium text-slate-700 mb-3">Get notified when this tool launches:</p>
-          <div class="flex flex-col sm:flex-row gap-2">
-            <input type="email" id="emailInput" placeholder="Enter your email" class="flex-1 border border-slate-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-            <button onclick="subscribe()" class="bg-green-600 hover:bg-green-700 text-white font-medium px-4 py-2 rounded-lg transition-all text-sm whitespace-nowrap">
-              Subscribe
-            </button>
+      <!-- PDF Page Container -->
+      <div class="page-container hidden" id="pageContainer">
+        <canvas id="pdfCanvas"></canvas>
+      </div>
+    </div>
+
+    <!-- ===== RIGHT PROPERTIES PANEL ===== -->
+    <div class="props-panel scrollbar-thin" id="propsPanel">
+      <!-- Panel handle for mobile -->
+      <div class="panel-handle"></div>
+      <button class="panel-close" onclick="togglePropsPanel()">✕</button>
+
+      <!-- ===== PAGE SETTINGS (default when nothing selected) ===== -->
+      <div id="pageProps">
+        <div class="section-title">📄 Page Settings</div>
+        <div class="prop-group">
+          <label>Page Size</label>
+          <select>
+            <option value="a4">A4 (210 × 297 mm)</option>
+            <option value="letter">Letter (8.5 × 11 in)</option>
+            <option value="legal">Legal (8.5 × 14 in)</option>
+          </select>
+        </div>
+        <div class="prop-group">
+          <label>Orientation</label>
+          <select>
+            <option value="portrait">Portrait</option>
+            <option value="landscape">Landscape</option>
+          </select>
+        </div>
+        <div class="prop-group">
+          <label>Background Color</label>
+          <div class="flex-row">
+            <input type="color" value="#ffffff">
+            <span style="font-size:12px;color:#94a3b8;">White</span>
           </div>
-          <p class="text-[10px] text-slate-400 mt-2">We'll only email you about this tool. No spam. Unsubscribe anytime.</p>
+        </div>
+        <div class="prop-group">
+          <label>Page Number</label>
+          <input type="number" value="1" min="1" style="width:60px;padding:4px 6px;border:1px solid #e2e8f0;border-radius:4px;font-size:12px;">
         </div>
       </div>
 
-      <!-- Other Tools -->
-      <div class="mt-12 pt-8 border-t border-slate-200">
-        <p class="text-sm font-medium text-slate-600 mb-4">While you wait, try these tools:</p>
-        <div class="flex flex-wrap gap-2 justify-center">
-          <a href="/pdf-to-word.html" class="text-xs bg-white border border-slate-200 px-3 py-1.5 rounded-full hover:border-blue-400 transition-colors text-slate-600">PDF to Word</a>
-          <a href="/heic-to-jpg.html" class="text-xs bg-white border border-slate-200 px-3 py-1.5 rounded-full hover:border-blue-400 transition-colors text-slate-600">HEIC to JPG</a>
-          <a href="/json-to-csv.html" class="text-xs bg-white border border-slate-200 px-3 py-1.5 rounded-full hover:border-blue-400 transition-colors text-slate-600">JSON to CSV</a>
-          <a href="/svg-to-png.html" class="text-xs bg-white border border-slate-200 px-3 py-1.5 rounded-full hover:border-blue-400 transition-colors text-slate-600">SVG to PNG</a>
-          <a href="/epub-to-pdf.html" class="text-xs bg-white border border-slate-200 px-3 py-1.5 rounded-full hover:border-blue-400 transition-colors text-slate-600">EPUB to PDF</a>
+      <!-- ===== TEXT PROPERTIES (shown when text selected) ===== -->
+      <div id="textProps" class="hidden">
+        <div class="section-title">✏️ Text Properties</div>
+        <div class="prop-group">
+          <label>Font</label>
+          <select>
+            <option value="arial">Arial</option>
+            <option value="times">Times New Roman</option>
+            <option value="helvetica">Helvetica</option>
+            <option value="courier">Courier</option>
+            <option value="georgia">Georgia</option>
+          </select>
+        </div>
+        <div class="prop-group">
+          <label>Font Size</label>
+          <div class="flex-row">
+            <input type="range" min="8" max="72" value="12" style="flex:1;">
+            <span style="font-size:12px;color:#94a3b8;min-width:30px;">12</span>
+          </div>
+        </div>
+        <div class="prop-group">
+          <label>Color</label>
+          <div class="flex-row">
+            <input type="color" value="#1e293b">
+            <span style="font-size:12px;color:#94a3b8;">Text</span>
+          </div>
+        </div>
+        <div class="prop-group">
+          <label>Opacity</label>
+          <div class="flex-row">
+            <input type="range" min="10" max="100" value="100" style="flex:1;">
+            <span style="font-size:12px;color:#94a3b8;min-width:30px;">100%</span>
+          </div>
+        </div>
+        <div class="prop-group">
+          <label>Style</label>
+          <div class="flex-row" style="gap:6px;flex-wrap:wrap;">
+            <button class="action-btn" style="font-weight:700;">B</button>
+            <button class="action-btn" style="font-style:italic;">I</button>
+            <button class="action-btn" style="text-decoration:underline;">U</button>
+          </div>
+        </div>
+        <div class="prop-group">
+          <label>Alignment</label>
+          <div class="flex-row" style="gap:4px;">
+            <button class="action-btn">⬅</button>
+            <button class="action-btn">➡</button>
+            <button class="action-btn">↔</button>
+            <button class="action-btn">⏹</button>
+          </div>
+        </div>
+        <div class="prop-group" style="border-top:1px solid #e2e8f0;padding-top:12px;">
+          <button class="action-btn" style="color:#ef4444;border-color:#ef4444;" onclick="alert('Delete text')">🗑️ Delete</button>
+        </div>
+      </div>
+
+      <!-- ===== IMAGE PROPERTIES (shown when image selected) ===== -->
+      <div id="imageProps" class="hidden">
+        <div class="section-title">🖼️ Image Properties</div>
+        <div class="prop-group">
+          <label>Width</label>
+          <div class="flex-row">
+            <input type="number" value="200" min="10" style="width:80px;padding:4px 6px;border:1px solid #e2e8f0;border-radius:4px;font-size:12px;">
+            <span style="font-size:12px;color:#94a3b8;">px</span>
+          </div>
+        </div>
+        <div class="prop-group">
+          <label>Height</label>
+          <div class="flex-row">
+            <input type="number" value="150" min="10" style="width:80px;padding:4px 6px;border:1px solid #e2e8f0;border-radius:4px;font-size:12px;">
+            <span style="font-size:12px;color:#94a3b8;">px</span>
+          </div>
+        </div>
+        <div class="prop-group">
+          <label>Opacity</label>
+          <div class="flex-row">
+            <input type="range" min="10" max="100" value="100" style="flex:1;">
+            <span style="font-size:12px;color:#94a3b8;min-width:30px;">100%</span>
+          </div>
+        </div>
+        <div class="prop-group">
+          <label>Rotation</label>
+          <div class="flex-row">
+            <input type="range" min="0" max="360" value="0" style="flex:1;">
+            <span style="font-size:12px;color:#94a3b8;min-width:30px;">0°</span>
+          </div>
+        </div>
+        <div class="prop-group" style="border-top:1px solid #e2e8f0;padding-top:12px;">
+          <button class="action-btn" style="color:#ef4444;border-color:#ef4444;" onclick="alert('Delete image')">🗑️ Delete</button>
+        </div>
+      </div>
+
+      <!-- ===== SHAPE PROPERTIES (shown when shape selected) ===== -->
+      <div id="shapeProps" class="hidden">
+        <div class="section-title">⬛ Shape Properties</div>
+        <div class="prop-group">
+          <label>Fill Color</label>
+          <div class="flex-row">
+            <input type="color" value="#3b82f6">
+            <span style="font-size:12px;color:#94a3b8;">Fill</span>
+          </div>
+        </div>
+        <div class="prop-group">
+          <label>Border Color</label>
+          <div class="flex-row">
+            <input type="color" value="#1e293b">
+            <span style="font-size:12px;color:#94a3b8;">Border</span>
+          </div>
+        </div>
+        <div class="prop-group">
+          <label>Border Thickness</label>
+          <div class="flex-row">
+            <input type="range" min="0" max="10" value="2" style="flex:1;">
+            <span style="font-size:12px;color:#94a3b8;min-width:30px;">2px</span>
+          </div>
+        </div>
+        <div class="prop-group">
+          <label>Opacity</label>
+          <div class="flex-row">
+            <input type="range" min="10" max="100" value="100" style="flex:1;">
+            <span style="font-size:12px;color:#94a3b8;min-width:30px;">100%</span>
+          </div>
+        </div>
+        <div class="prop-group" style="border-top:1px solid #e2e8f0;padding-top:12px;">
+          <button class="action-btn" style="color:#ef4444;border-color:#ef4444;" onclick="alert('Delete shape')">🗑️ Delete</button>
         </div>
       </div>
     </div>
-  </main>
+  </div>
 
-  <!-- Footer -->
-  <footer class="border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-500 mt-auto">
-    <div class="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-3">
-      <p class="font-medium">© Droplet. 100% Client-Side Privacy First File Utility.</p>
-      <div class="space-x-4">
-        <a href="/privacy.html" class="hover:text-blue-600 transition-colors">Privacy Policy</a>
-        <span>•</span>
-        <a href="/terms.html" class="hover:text-blue-600 transition-colors">Terms of Service</a>
-        <span>•</span>
-        <a href="/contact.html" class="hover:text-blue-600 transition-colors">Contact</a>
-      </div>
-    </div>
-  </footer>
+  <!-- ===== BOTTOM TOOLBAR ===== -->
+  <div class="bottom-toolbar">
+    <button class="tool-btn active" data-tool="select" onclick="setTool('select')">
+      <span class="icon">🖱️</span>
+      <span class="label">Select</span>
+    </button>
+    <div class="tool-divider"></div>
+    <button class="tool-btn" data-tool="text" onclick="setTool('text')">
+      <span class="icon">📝</span>
+      <span class="label">Text</span>
+    </button>
+    <button class="tool-btn" data-tool="image" onclick="setTool('image')">
+      <span class="icon">🖼️</span>
+      <span class="label">Image</span>
+    </button>
+    <button class="tool-btn" data-tool="draw" onclick="setTool('draw')">
+      <span class="icon">✏️</span>
+      <span class="label">Draw</span>
+    </button>
+    <button class="tool-btn" data-tool="highlight" onclick="setTool('highlight')">
+      <span class="icon">🟡</span>
+      <span class="label">Highlight</span>
+    </button>
+    <button class="tool-btn" data-tool="shape" onclick="setTool('shape')">
+      <span class="icon">⬛</span>
+      <span class="label">Shape</span>
+    </button>
+    <button class="tool-btn" data-tool="sign" onclick="setTool('sign')">
+      <span class="icon">✍️</span>
+      <span class="label">Sign</span>
+    </button>
+  </div>
 
-  <!-- JavaScript -->
+  <!-- ===== JAVASCRIPT ===== -->
   <script>
-    // Get tool name from URL parameter
-    const urlParams = new URLSearchParams(window.location.search);
-    const toolName = urlParams.get('tool') || 'This Tool';
-
-    // Update the page title and heading
-    document.title = `${toolName} - Coming Soon | Droplet`;
-    document.getElementById('toolName').textContent = toolName;
-
-    // Toggle notification form
-    function notifyMe() {
-      const form = document.getElementById('notifyForm');
-      form.classList.toggle('hidden');
-      if (!form.classList.contains('hidden')) {
-        document.getElementById('emailInput').focus();
-      }
+    // ============================================
+    // DARK MODE TOGGLE
+    // ============================================
+    const themeToggle = document.getElementById('theme-toggle');
+    const html = document.documentElement;
+    
+    let currentTheme = localStorage.getItem('theme') || 
+      (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    
+    if (currentTheme === 'dark') {
+      html.classList.add('dark');
+      themeToggle.textContent = '☀️';
+    } else {
+      themeToggle.textContent = '🌙';
     }
-
-    // Subscribe function
-    function subscribe() {
-      const email = document.getElementById('emailInput').value.trim();
-      if (!email) {
-        alert('Please enter your email address.');
-        return;
-      }
-      if (!email.includes('@') || !email.includes('.')) {
-        alert('Please enter a valid email address.');
-        return;
-      }
-
-      // Store in localStorage for demo
-      const subscriptions = JSON.parse(localStorage.getItem('droplet_subscriptions') || '[]');
-      if (!subscriptions.includes(email)) {
-        subscriptions.push(email);
-        localStorage.setItem('droplet_subscriptions', JSON.stringify(subscriptions));
-      }
-
-      alert(`✅ You'll be notified when "${toolName}" launches!`);
-      document.getElementById('notifyForm').classList.add('hidden');
-      document.getElementById('emailInput').value = '';
-    }
-
-    // Keyboard shortcut: Escape to close form
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') {
-        document.getElementById('notifyForm').classList.add('hidden');
+    
+    themeToggle.addEventListener('click', () => {
+      if (html.classList.contains('dark')) {
+        html.classList.remove('dark');
+        themeToggle.textContent = '🌙';
+        localStorage.setItem('theme', 'light');
+      } else {
+        html.classList.add('dark');
+        themeToggle.textContent = '☀️';
+        localStorage.setItem('theme', 'dark');
       }
     });
-  </script>
 
+    // ============================================
+    // TOOL SELECTION
+    // ============================================
+    let currentTool = 'select';
+
+    function setTool(tool) {
+      currentTool = tool;
+      document.querySelectorAll('.bottom-toolbar .tool-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.tool === tool);
+      });
+      
+      // Update props panel based on tool
+      showPropsForTool(tool);
+    }
+
+    function showPropsForTool(tool) {
+      // Hide all prop panels
+      document.getElementById('pageProps').classList.add('hidden');
+      document.getElementById('textProps').classList.add('hidden');
+      document.getElementById('imageProps').classList.add('hidden');
+      document.getElementById('shapeProps').classList.add('hidden');
+
+      // Show the appropriate panel
+      if (tool === 'text') {
+        document.getElementById('textProps').classList.remove('hidden');
+      } else if (tool === 'image') {
+        document.getElementById('imageProps').classList.remove('hidden');
+      } else if (tool === 'shape') {
+        document.getElementById('shapeProps').classList.remove('hidden');
+      } else {
+        // Default: show page settings
+        document.getElementById('pageProps').classList.remove('hidden');
+      }
+    }
+
+    // ============================================
+    // TOGGLE PROPS PANEL (mobile)
+    // ============================================
+    function togglePropsPanel() {
+      document.getElementById('propsPanel').classList.toggle('open');
+    }
+
+    // ============================================
+    // PDF LOADING (demo)
+    // ============================================
+    document.getElementById('pdfInput').addEventListener('change', function(e) {
+      if (this.files.length > 0) {
+        const file = this.files[0];
+        document.getElementById('emptyState').classList.add('hidden');
+        document.getElementById('pageContainer').classList.remove('hidden');
+        document.getElementById('emptyThumbnails').classList.add('hidden');
+        
+        // Show a sample thumbnail
+        const list = document.getElementById('thumbnailList');
+        list.innerHTML = `
+          <div class="page-thumbnail active mb-2">
+            <div style="height:80px;background:#f1f5f9;display:flex;align-items:center;justify-content:center;font-size:28px;color:#94a3b8;">📄</div>
+            <div class="page-number">1</div>
+          </div>
+          <div class="page-thumbnail mb-2">
+            <div style="height:80px;background:#f8fafc;display:flex;align-items:center;justify-content:center;font-size:28px;color:#94a3b8;">📄</div>
+            <div class="page-number">2</div>
+          </div>
+          <div class="page-thumbnail mb-2">
+            <div style="height:80px;background:#f8fafc;display:flex;align-items:center;justify-content:center;font-size:28px;color:#94a3b8;">📄</div>
+            <div class="page-number">3</div>
+          </div>
+        `;
+        
+        alert(`📄 PDF loaded: ${file.name}`);
+      }
+    });
+
+    // Open PDF button in empty state
+    document.querySelector('.empty-state button')?.addEventListener('click', () => {
+      document.getElementById('pdfInput').click();
+    });
+
+    // ============================================
+    // KEYBOARD SHORTCUTS
+    // ============================================
+    document.addEventListener('keydown', (e) => {
+      // Ctrl+Z = Undo
+      if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
+        e.preventDefault();
+        alert('Undo');
+      }
+      // Ctrl+Y = Redo
+      if ((e.ctrlKey || e.metaKey) && e.key === 'y') {
+        e.preventDefault();
+        alert('Redo');
+      }
+      // Ctrl+S = Save/Export
+      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+        e.preventDefault();
+        alert('Export PDF');
+      }
+    });
+
+    // ============================================
+    // INIT
+    // ============================================
+    console.log('✏️ Edit PDF UI loaded');
+    console.log('📚 Tools available: Select, Text, Image, Draw, Highlight, Shape, Sign');
+    console.log('📄 Props panels: Page Settings, Text Props, Image Props, Shape Props');
+  </script>
 </body>
 </html>
