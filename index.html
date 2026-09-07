@@ -30,13 +30,15 @@
       position: absolute;
       top: 100%;
       left: 0;
-      min-width: 220px;
+      min-width: 240px;
       background: white;
       border-radius: 12px;
       box-shadow: 0 20px 60px rgba(0,0,0,0.15);
       border: 1px solid #e2e8f0;
       padding: 0.5rem 0;
       z-index: 100;
+      max-height: 80vh;
+      overflow-y: auto;
     }
     .dropdown-group:hover .dropdown-menu {
       display: block;
@@ -64,6 +66,9 @@
       border-bottom: 1px solid #f1f5f9;
       margin-bottom: 0.25rem;
     }
+    .dropdown-menu .category-label:first-child {
+      border-top: none;
+    }
     .nav-link-with-dropdown > a {
       display: flex;
       align-items: center;
@@ -71,11 +76,18 @@
       text-decoration: none;
       color: #475569;
       font-weight: 600;
+      font-size: 0.875rem;
+      padding: 0.25rem 0;
+      transition: color 0.2s;
+    }
+    .nav-link-with-dropdown > a:hover {
+      color: #2563eb;
     }
     .nav-link-with-dropdown > a::after {
       content: "▾";
       font-size: 0.6rem;
       opacity: 0.6;
+      margin-left: 2px;
     }
 
     /* ===== MOBILE NAVIGATION ===== */
@@ -113,9 +125,9 @@
     .mobile-nav-panel {
       position: fixed;
       top: 0;
-      right: -320px;
-      width: 300px;
-      max-width: 80%;
+      right: -340px;
+      width: 320px;
+      max-width: 85%;
       height: 100%;
       background: white;
       z-index: 1000;
@@ -185,7 +197,7 @@
     /* Mobile Sub-menu */
     .mobile-nav-panel .mobile-submenu {
       display: none;
-      padding-left: 1rem;
+      padding-left: 0.75rem;
       background: #f8fafc;
       border-radius: 8px;
       margin: 0.25rem 0;
@@ -196,7 +208,7 @@
     .mobile-nav-panel .mobile-submenu .mobile-nav-item {
       border-bottom: none;
       font-size: 0.85rem;
-      padding: 0.5rem 0.75rem;
+      padding: 0.4rem 0.75rem;
       color: #475569;
     }
     .mobile-nav-panel .mobile-submenu .mobile-nav-item:hover {
@@ -350,14 +362,6 @@
     .search-results .result-item .info .category {
       font-size: 0.7rem;
       color: #94a3b8;
-    }
-    .search-results .result-item .info .match {
-      font-size: 0.7rem;
-      color: #64748b;
-      background: #f1f5f9;
-      padding: 0.1rem 0.4rem;
-      border-radius: 4px;
-      margin-left: 0.4rem;
     }
     .search-results .result-item .arrow {
       color: #94a3b8;
@@ -547,6 +551,9 @@
     /* Dark mode overrides */
     html.dark .desktop-nav .nav-link-with-dropdown > a {
       color: #e2e8f0;
+    }
+    html.dark .desktop-nav .nav-link-with-dropdown > a:hover {
+      color: #60a5fa;
     }
     html.dark .desktop-nav .dropdown-menu {
       background: #1e293b;
@@ -767,33 +774,41 @@
         <img src="Gemini_Generated_Image_sdu6v7sdu6v7sdu6.jpg" alt="Droplet Logo" class="h-8 md:h-9 w-auto rounded-xl shadow-sm group-hover:scale-105 transition-transform">
       </a>
 
-      <!-- Desktop Nav -->
+      <!-- Desktop Nav - Redesigned -->
       <nav class="desktop-nav" id="desktopNav">
+        <!-- All Tools -->
         <div class="nav-link-with-dropdown dropdown-group">
           <a href="#all-tools">All Tools</a>
           <div class="dropdown-menu">
             <span class="category-label">📄 Core Documents</span>
-            <a href="/pdf-to-word.html">PDF to DOCX (Word)</a>
-            <a href="/word-to-pdf.html">Word (DOCX) to PDF</a>
-            <a href="/pdf-to-txt.html">PDF to TXT</a>
-            <a href="/epub-to-pdf.html">EPUB to PDF</a>
-            <a href="/txt-to-pdf.html">TXT to PDF</a>
-            <a href="/pdf-to-pdfa.html">PDF to PDF/A</a>
-            <a href="/pdf-to-powerpoint.html">PDF to POWERPOINT</a>
-            <a href="/pdf-to-excel.html">PDF to EXCEL</a>
+            <a href="/pdf-to-word.html">📝 PDF to DOCX (Word)</a>
+            <a href="/word-to-pdf.html">🔄 Word (DOCX) to PDF</a>
+            <a href="/pdf-to-txt.html">📃 PDF to TXT</a>
+            <a href="/epub-to-pdf.html">📘 EPUB to PDF</a>
+            <a href="/txt-to-pdf.html">✏️ TXT to PDF</a>
+            <a href="/pdf-to-pdfa.html">📄 PDF to PDF/A</a>
+            <a href="/pdf-to-powerpoint.html">📊 PDF to POWERPOINT</a>
+            <a href="/pdf-to-excel.html">📈 PDF to EXCEL</a>
             <span class="category-label">🖼️ Image Converters</span>
-            <a href="/heic-to-jpg.html">HEIC to JPG</a>
-            <a href="/webp-to-jpg.html">WebP to JPG</a>
-            <a href="/avif-to-png.html">AVIF to PNG</a>
-            <a href="/gif-to-png.html">GIF to PNG</a>
-            <a href="/psd-to-png.html">PSD to PNG</a>
-            <a href="/raw-to-jpg.html">RAW to JPG</a>
-            <a href="/tiff-to-pdf.html">TIFF to PDF</a>
-            <a href="/jpg-to-pdf.html">JPG to PDF</a>
-            <a href="/pdf-to-jpg.html">PDF to JPG</a>
+            <a href="/heic-to-jpg.html">🍎 HEIC to JPG</a>
+            <a href="/webp-to-jpg.html">🌐 WebP to JPG</a>
+            <a href="/avif-to-png.html">🖼️ AVIF to PNG</a>
+            <a href="/gif-to-png.html">🎞️ GIF to PNG</a>
+            <a href="/psd-to-png.html">🎨 PSD to PNG</a>
+            <a href="/raw-to-jpg.html">📸 RAW to JPG</a>
+            <a href="/tiff-to-pdf.html">📑 TIFF to PDF</a>
+            <a href="/jpg-to-pdf.html">🖼️ JPG to PDF</a>
+            <a href="/pdf-to-jpg.html">🖼️ PDF to JPG</a>
+            <a href="/svg-to-png.html">📐 SVG to PNG</a>
+            <a href="/eps-to-svg.html">✏️ EPS to SVG</a>
+            <span class="category-label">📊 Data Tools</span>
+            <a href="/json-to-csv.html">📋 JSON to CSV</a>
+            <a href="/csv-to-json.html">📈 CSV to JSON</a>
+            <a href="/xml-to-json.html">🔗 XML to JSON</a>
           </div>
         </div>
 
+        <!-- Image Converter -->
         <div class="nav-link-with-dropdown dropdown-group">
           <a href="#image-tools">Image Converter</a>
           <div class="dropdown-menu">
@@ -808,9 +823,11 @@
             <a href="/pdf-to-jpg.html">🖼️ PDF to JPG</a>
             <a href="/svg-to-png.html">📐 SVG to PNG</a>
             <a href="/eps-to-svg.html">✏️ EPS to SVG</a>
+            <a href="/webp-to-png.html">🖼️ WebP to PNG</a>
           </div>
         </div>
 
+        <!-- Data Tools -->
         <div class="nav-link-with-dropdown dropdown-group">
           <a href="#data-tools">Data Tools</a>
           <div class="dropdown-menu">
@@ -820,18 +837,26 @@
           </div>
         </div>
 
+        <!-- Document Tools -->
         <div class="nav-link-with-dropdown dropdown-group">
           <a href="#doc-tools">Document Tools</a>
           <div class="dropdown-menu">
             <span class="category-label">📄 Core Documents</span>
-            <a href="/pdf-to-word.html">PDF to DOCX (Word)</a>
-            <a href="/word-to-pdf.html">Word (DOCX) to PDF</a>
-            <a href="/pdf-to-txt.html">PDF to TXT</a>
-            <a href="/epub-to-pdf.html">EPUB to PDF</a>
-            <a href="/txt-to-pdf.html">TXT to PDF</a>
-            <a href="/pdf-to-pdfa.html">PDF to PDF/A</a>
-            <a href="/pdf-to-powerpoint.html">PDF to POWERPOINT</a>
-            <a href="/pdf-to-excel.html">PDF to EXCEL</a>
+            <a href="/pdf-to-word.html">📝 PDF to DOCX (Word)</a>
+            <a href="/word-to-pdf.html">🔄 Word (DOCX) to PDF</a>
+            <a href="/pdf-to-txt.html">📃 PDF to TXT</a>
+            <a href="/epub-to-pdf.html">📘 EPUB to PDF</a>
+            <a href="/txt-to-pdf.html">✏️ TXT to PDF</a>
+            <a href="/pdf-to-pdfa.html">📄 PDF to PDF/A</a>
+            <a href="/pdf-to-powerpoint.html">📊 PDF to POWERPOINT</a>
+            <a href="/pdf-to-excel.html">📈 PDF to EXCEL</a>
+          </div>
+        </div>
+
+        <!-- PDF Organize -->
+        <div class="nav-link-with-dropdown dropdown-group">
+          <a href="#pdf-organize">PDF Organize</a>
+          <div class="dropdown-menu">
             <span class="category-label">📑 PDF Organize</span>
             <a href="/merge-pdf.html">🔗 Merge PDF</a>
             <a href="/split-pdf.html">✂️ Split PDF</a>
@@ -865,7 +890,7 @@
           </div>
         </div>
 
-        <a href="/faq.html" class="hover:text-blue-600 transition-colors flex items-center gap-1 font-semibold">
+        <a href="/faq.html" class="hover:text-blue-600 transition-colors flex items-center gap-1 font-semibold text-sm">
           <span>❓</span> Help
         </a>
       </nav>
@@ -923,6 +948,10 @@
       <a href="/pdf-to-jpg.html" class="mobile-nav-item">PDF to JPG</a>
       <a href="/svg-to-png.html" class="mobile-nav-item">SVG to PNG</a>
       <a href="/eps-to-svg.html" class="mobile-nav-item">EPS to SVG</a>
+      <div class="category-label">📊 Data Tools</div>
+      <a href="/json-to-csv.html" class="mobile-nav-item">JSON to CSV</a>
+      <a href="/csv-to-json.html" class="mobile-nav-item">CSV to JSON</a>
+      <a href="/xml-to-json.html" class="mobile-nav-item">XML to JSON</a>
     </div>
 
     <!-- Image Converter -->
@@ -941,6 +970,7 @@
       <a href="/pdf-to-jpg.html" class="mobile-nav-item">🖼️ PDF to JPG</a>
       <a href="/svg-to-png.html" class="mobile-nav-item">📐 SVG to PNG</a>
       <a href="/eps-to-svg.html" class="mobile-nav-item">✏️ EPS to SVG</a>
+      <a href="/webp-to-png.html" class="mobile-nav-item">🖼️ WebP to PNG</a>
     </div>
 
     <!-- Data Tools -->
@@ -967,6 +997,13 @@
       <a href="/pdf-to-pdfa.html" class="mobile-nav-item">PDF to PDF/A</a>
       <a href="/pdf-to-powerpoint.html" class="mobile-nav-item">PDF to POWERPOINT</a>
       <a href="/pdf-to-excel.html" class="mobile-nav-item">PDF to EXCEL</a>
+    </div>
+
+    <!-- PDF Organize -->
+    <div class="mobile-nav-item" onclick="toggleMobileSubmenu('sub-pdf-organize')">
+      PDF Organize <span class="arrow">▾</span>
+    </div>
+    <div class="mobile-submenu" id="sub-pdf-organize">
       <div class="category-label">📑 PDF Organize</div>
       <a href="/merge-pdf.html" class="mobile-nav-item">🔗 Merge PDF</a>
       <a href="/split-pdf.html" class="mobile-nav-item">✂️ Split PDF</a>
@@ -1133,23 +1170,12 @@
           </div>
         </a>
 
-        <a href="/gif-to-png.html" class="tool-card-link">
+        <a href="/edit-pdf.html" class="tool-card-link">
           <div class="bg-blue-500 hover:bg-blue-600 text-white p-4 md:p-5 rounded-2xl shadow-sm transition-all cursor-pointer group flex flex-col justify-between min-h-[120px]">
-            <div class="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center text-lg mb-2">👾</div>
+            <div class="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center text-lg mb-2">✏️</div>
             <div>
-              <span class="text-[10px] font-bold uppercase tracking-wider text-blue-100 block opacity-80">Animation</span>
-              <h4 class="font-extrabold text-sm md:text-base leading-tight mt-0.5">GIF to PNG</h4>
-            </div>
-          </div>
-        </a>
-
-        <!-- New: Word to PDF -->
-        <a href="/word-to-pdf.html" class="tool-card-link">
-          <div class="bg-blue-500 hover:bg-blue-600 text-white p-4 md:p-5 rounded-2xl shadow-sm transition-all cursor-pointer group flex flex-col justify-between min-h-[120px]">
-            <div class="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center text-lg mb-2">📝</div>
-            <div>
-              <span class="text-[10px] font-bold uppercase tracking-wider text-blue-100 block opacity-80">Document</span>
-              <h4 class="font-extrabold text-sm md:text-base leading-tight mt-0.5">Word to PDF</h4>
+              <span class="text-[10px] font-bold uppercase tracking-wider text-blue-100 block opacity-80">Edit</span>
+              <h4 class="font-extrabold text-sm md:text-base leading-tight mt-0.5">Edit PDF</h4>
             </div>
           </div>
         </a>
@@ -1160,23 +1186,23 @@
     <section class="mt-16 max-w-4xl mx-auto" id="faq">
       <h2 class="text-2xl font-black text-slate-900 text-center mb-8">Frequently Asked Questions</h2>
       <div class="space-y-4">
-        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 transition-colors duration-200">
           <h3 class="font-bold text-slate-900">Is my data safe?</h3>
           <p class="text-slate-600 mt-1">Absolutely! All conversions happen entirely in your browser. Your files never leave your device, are never uploaded to any server, and are never stored anywhere.</p>
         </div>
-        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 transition-colors duration-200">
           <h3 class="font-bold text-slate-900">Are there file size limits?</h3>
           <p class="text-slate-600 mt-1">Since everything runs locally, file size limits depend on your device's memory. Most modern browsers can handle files up to 2GB without issues.</p>
         </div>
-        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 transition-colors duration-200">
           <h3 class="font-bold text-slate-900">What file formats are supported?</h3>
-          <p class="text-slate-600 mt-1">We support HEIC to JPG, JSON to CSV, EPUB to PDF, SVG to PNG, PDF to DOCX, WebP to PNG, PSD to PNG, GIF to PNG, and Word to PDF. More formats are coming soon!</p>
+          <p class="text-slate-600 mt-1">We support HEIC to JPG, JSON to CSV, EPUB to PDF, SVG to PNG, PDF to DOCX, WebP to PNG, PSD to PNG, GIF to PNG, Word to PDF, and Edit PDF. More formats are coming soon!</p>
         </div>
-        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 transition-colors duration-200">
           <h3 class="font-bold text-slate-900">Do I need an account?</h3>
           <p class="text-slate-600 mt-1">No account needed. Droplet is completely free to use with no registration required.</p>
         </div>
-        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 transition-colors duration-200">
           <h3 class="font-bold text-slate-900">How do I use Droplet?</h3>
           <p class="text-slate-600 mt-1">Simply select a file using the "Select File" button or drag and drop it into the dropzone. Your file will be converted instantly in your browser.</p>
         </div>
@@ -1620,7 +1646,10 @@
         { name: 'PDF to PDF/A', page: '/pdf-to-pdfa.html', emoji: '📄', desc: 'Archive format' },
         { name: 'PDF to TXT', page: '/pdf-to-txt.html', emoji: '📝', desc: 'Extract text' },
         { name: 'PDF to POWERPOINT', page: '/pdf-to-powerpoint.html', emoji: '📊', desc: 'Convert to slides' },
-        { name: 'PDF to EXCEL', page: '/pdf-to-excel.html', emoji: '📈', desc: 'Extract tables' }
+        { name: 'PDF to EXCEL', page: '/pdf-to-excel.html', emoji: '📈', desc: 'Extract tables' },
+        { name: 'Edit PDF', page: '/edit-pdf.html', emoji: '✏️', desc: 'Edit PDF content' },
+        { name: 'Merge PDF', page: '/merge-pdf.html', emoji: '🔗', desc: 'Combine multiple PDFs' },
+        { name: 'Split PDF', page: '/split-pdf.html', emoji: '✂️', desc: 'Split into separate files' }
       ],
       'application/vnd.openxmlformats-officedocument.wordprocessingml.document': [
         { name: 'Word to PDF', page: '/word-to-pdf.html', emoji: '📝', desc: 'Convert to PDF' }
