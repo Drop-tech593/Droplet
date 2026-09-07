@@ -1,1 +1,1476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title id="pageTitle">Edit PDF - Droplet</title>
+  <meta name="description" content="Edit PDF files online for free. 100% client-side, your files never leave your browser.">
 
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- PDF.js for PDF rendering -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+
+    .scrollbar-thin::-webkit-scrollbar { width: 5px; height: 5px; }
+    .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+    .scrollbar-thin::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+    .scrollbar-thin::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+    /* ===== TOP BAR ===== */
+    .top-bar {
+      background: white;
+      border-bottom: 1px solid #e2e8f0;
+      padding: 4px 16px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+      min-height: 40px;
+    }
+    .top-bar .logo {
+      font-weight: 700;
+      font-size: 15px;
+      color: #0f172a;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-right: 8px;
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .top-bar .logo img { height: 26px; width: auto; border-radius: 6px; }
+    .top-bar .logo:hover { color: #2563eb; }
+    .top-bar .menu-btn {
+      padding: 3px 8px;
+      font-size: 12px;
+      font-weight: 500;
+      color: #475569;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.15s;
+      background: transparent;
+      border: none;
+      position: relative;
+    }
+    .top-bar .menu-btn:hover { background: #f1f5f9; }
+    .top-bar .menu-btn .dropdown {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      min-width: 200px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+      border: 1px solid #e2e8f0;
+      padding: 4px 0;
+      z-index: 100;
+    }
+    .top-bar .menu-btn:hover .dropdown { display: block; }
+    .top-bar .menu-btn .dropdown a {
+      display: block;
+      padding: 5px 14px;
+      font-size: 12px;
+      color: #1e293b;
+      text-decoration: none;
+      transition: background 0.15s;
+      cursor: pointer;
+    }
+    .top-bar .menu-btn .dropdown a:hover { background: #f1f5f9; }
+    .top-bar .menu-btn .dropdown .divider {
+      height: 1px;
+      background: #e2e8f0;
+      margin: 4px 8px;
+    }
+    .top-bar .menu-btn .dropdown .shortcut {
+      float: right;
+      color: #94a3b8;
+      font-size: 11px;
+    }
+    .top-bar .doc-title {
+      font-size: 13px;
+      font-weight: 500;
+      color: #1e293b;
+      padding: 4px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background 0.15s;
+      max-width: 300px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .top-bar .doc-title:hover { background: #f1f5f9; }
+    .top-bar .doc-title .saved { color: #22c55e; font-size: 11px; margin-left: 6px; }
+    .top-bar .tool-badge {
+      font-size: 11px;
+      background: #dbeafe;
+      color: #1e40af;
+      padding: 2px 12px;
+      border-radius: 12px;
+      font-weight: 600;
+    }
+    .top-bar .action-btn {
+      padding: 3px 8px;
+      font-size: 12px;
+      font-weight: 500;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s;
+      border: 1px solid #e2e8f0;
+      background: white;
+      color: #475569;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .top-bar .action-btn:hover { background: #f1f5f9; border-color: #cbd5e1; }
+    .top-bar .action-btn.primary {
+      background: #2563eb;
+      color: white;
+      border-color: #2563eb;
+    }
+    .top-bar .action-btn.primary:hover { background: #1d4ed8; border-color: #1d4ed8; }
+    .top-bar .spacer { flex: 1; }
+    .top-bar .zoom-controls {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      font-size: 12px;
+      color: #475569;
+    }
+    .top-bar .zoom-controls button {
+      width: 24px;
+      height: 24px;
+      border-radius: 6px;
+      border: 1px solid #e2e8f0;
+      background: white;
+      cursor: pointer;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s;
+    }
+    .top-bar .zoom-controls button:hover { background: #f1f5f9; }
+
+    /* ===== TOOLBAR ROW 2 ===== */
+    .toolbar-row {
+      background: white;
+      border-bottom: 1px solid #e2e8f0;
+      padding: 4px 12px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      flex-wrap: wrap;
+      min-height: 38px;
+      transition: all 0.2s;
+    }
+    .toolbar-row .tool-btn {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 500;
+      color: #475569;
+      border: 2px solid transparent;
+      cursor: pointer;
+      transition: all 0.15s;
+      background: transparent;
+      white-space: nowrap;
+    }
+    .toolbar-row .tool-btn:hover { background: #f1f5f9; color: #1e293b; }
+    .toolbar-row .tool-btn.active { border-color: #2563eb; background: #eff6ff; color: #2563eb; }
+    .toolbar-row .tool-btn .icon { font-size: 14px; }
+    .toolbar-row .tool-divider {
+      width: 1px;
+      height: 22px;
+      background: #e2e8f0;
+      margin: 0 4px;
+    }
+    .toolbar-row .fmt-btn {
+      padding: 3px 8px;
+      border-radius: 4px;
+      border: 1px solid transparent;
+      background: transparent;
+      cursor: pointer;
+      font-size: 13px;
+      color: #475569;
+      transition: all 0.15s;
+      font-weight: 500;
+    }
+    .toolbar-row .fmt-btn:hover { background: #f1f5f9; }
+    .toolbar-row .fmt-btn.active { background: #eff6ff; border-color: #2563eb; color: #2563eb; }
+    .toolbar-row .fmt-btn.bold { font-weight: 700; }
+    .toolbar-row .fmt-btn.italic { font-style: italic; }
+    .toolbar-row .fmt-btn.underline { text-decoration: underline; }
+    .toolbar-row .fmt-btn.strike { text-decoration: line-through; }
+    .toolbar-row .fmt-select {
+      padding: 3px 6px;
+      border: 1px solid #e2e8f0;
+      border-radius: 4px;
+      font-size: 12px;
+      background: white;
+      color: #1e293b;
+      outline: none;
+      cursor: pointer;
+    }
+    .toolbar-row .fmt-select:focus { border-color: #2563eb; }
+    .toolbar-row .color-btn {
+      width: 24px;
+      height: 24px;
+      border-radius: 4px;
+      border: 2px solid #e2e8f0;
+      cursor: pointer;
+      padding: 2px;
+      background: white;
+    }
+
+    /* ===== LEFT SIDEBAR ===== */
+    .left-sidebar {
+      width: 200px;
+      min-width: 200px;
+      background: white;
+      border-right: 1px solid #e2e8f0;
+      padding: 10px;
+      overflow-y: auto;
+      max-height: calc(100vh - 120px);
+      display: flex;
+      flex-direction: column;
+    }
+    .left-sidebar .sidebar-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      padding: 0 2px;
+    }
+    .left-sidebar .sidebar-title {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #94a3b8;
+    }
+    .left-sidebar .sidebar-add {
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      border: none;
+      background: transparent;
+      color: #94a3b8;
+      cursor: pointer;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s;
+    }
+    .left-sidebar .sidebar-add:hover { background: #f1f5f9; color: #2563eb; }
+    .page-thumbnail {
+      position: relative;
+      border: 2px solid transparent;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: white;
+      overflow: hidden;
+      margin-bottom: 6px;
+    }
+    .page-thumbnail:hover { border-color: #94a3b8; }
+    .page-thumbnail.active { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12); }
+    .page-thumbnail .thumb-content {
+      height: 70px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      color: #94a3b8;
+      background: #f8fafc;
+    }
+    .page-thumbnail .page-number {
+      position: absolute;
+      bottom: 3px;
+      right: 5px;
+      font-size: 8px;
+      font-weight: 600;
+      color: #fff;
+      background: rgba(0,0,0,0.5);
+      padding: 1px 5px;
+      border-radius: 3px;
+    }
+
+    /* ===== WORKSPACE ===== */
+    .workspace {
+      background: #e9edf2;
+      flex: 1;
+      overflow: auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 30px;
+      min-height: 500px;
+      position: relative;
+    }
+    .workspace .page-container {
+      background: #ffffff;
+      border-radius: 2px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 8px 24px rgba(0,0,0,0.12);
+      position: relative;
+      transition: transform 0.2s;
+      transform-origin: center center;
+    }
+    .workspace .page-container canvas { display: block; width: 100%; height: auto; }
+
+    /* ===== RIGHT PANEL ===== */
+    .props-panel {
+      width: 260px;
+      min-width: 260px;
+      background: white;
+      border-left: 1px solid #e2e8f0;
+      padding: 14px;
+      overflow-y: auto;
+      max-height: calc(100vh - 120px);
+    }
+    .props-panel .panel-empty {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      min-height: 200px;
+      color: #94a3b8;
+      text-align: center;
+      padding: 20px;
+    }
+    .props-panel .panel-empty .icon { font-size: 32px; margin-bottom: 8px; }
+    .props-panel .panel-empty p { font-size: 12px; max-width: 180px; }
+    .props-panel .section-title {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #94a3b8;
+      margin-bottom: 6px;
+      padding-bottom: 3px;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    .props-panel .prop-group { margin-bottom: 10px; }
+    .props-panel .prop-group label {
+      display: block;
+      font-size: 11px;
+      font-weight: 500;
+      color: #64748b;
+      margin-bottom: 2px;
+    }
+    .props-panel .prop-group input[type="color"] {
+      width: 30px;
+      height: 30px;
+      border: 2px solid #e2e8f0;
+      border-radius: 6px;
+      cursor: pointer;
+      padding: 2px;
+    }
+    .props-panel .prop-group input[type="range"] { width: 100%; accent-color: #2563eb; }
+    .props-panel .prop-group select {
+      width: 100%;
+      padding: 4px 8px;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      font-size: 12px;
+      background: white;
+      outline: none;
+    }
+    .props-panel .prop-group select:focus { border-color: #2563eb; }
+    .props-panel .prop-group .flex-row { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+    .props-panel .prop-group .flex-row input[type="number"] {
+      width: 56px;
+      padding: 3px 6px;
+      border: 1px solid #e2e8f0;
+      border-radius: 4px;
+      font-size: 12px;
+    }
+    .props-panel .action-btn-sm {
+      padding: 3px 8px;
+      font-size: 12px;
+      font-weight: 500;
+      border-radius: 6px;
+      border: 1px solid #e2e8f0;
+      background: white;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .props-panel .action-btn-sm:hover { background: #f1f5f9; }
+    .props-panel .action-btn-sm.danger { color: #ef4444; border-color: #ef4444; }
+    .props-panel .action-btn-sm.danger:hover { background: #fef2f2; }
+
+    .props-panel .panel-handle { display: none; }
+    .props-panel .panel-close { display: none; }
+
+    /* ===== STATUS BAR ===== */
+    .status-bar {
+      background: white;
+      border-top: 1px solid #e2e8f0;
+      padding: 3px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 11px;
+      color: #94a3b8;
+      min-height: 26px;
+    }
+    .status-bar .status-left { display: flex; gap: 16px; align-items: center; }
+    .status-bar .status-right { display: flex; gap: 8px; align-items: center; }
+    .status-bar .status-right button {
+      background: none;
+      border: none;
+      color: #94a3b8;
+      cursor: pointer;
+      font-size: 11px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      transition: background 0.15s;
+    }
+    .status-bar .status-right button:hover { background: #f1f5f9; }
+
+    /* ===== EMPTY STATE ===== */
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      min-height: 400px;
+      text-align: center;
+      padding: 40px;
+    }
+    .empty-state .icon { font-size: 56px; margin-bottom: 12px; }
+    .empty-state h3 { font-size: 20px; font-weight: 700; color: #1e293b; margin-bottom: 4px; }
+    .empty-state p { font-size: 14px; color: #94a3b8; max-width: 360px; margin-bottom: 16px; }
+    .empty-state .drop-zone {
+      border: 2px dashed #d1d5db;
+      border-radius: 12px;
+      padding: 40px 60px;
+      margin-top: 8px;
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+    .empty-state .drop-zone:hover { border-color: #2563eb; background: #f8fafc; }
+    .empty-state .drop-zone.dragover { border-color: #2563eb; background: #eff6ff; }
+
+    /* ===== BACK TO HOME ===== */
+    .back-home-btn {
+      position: fixed;
+      bottom: 16px;
+      left: 16px;
+      z-index: 60;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 50px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      font-size: 12px;
+      font-weight: 500;
+      color: #475569;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+    .back-home-btn:hover { background: #f1f5f9; box-shadow: 0 4px 12px rgba(0,0,0,0.1); transform: translateY(-1px); }
+    .back-home-btn svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+    /* ===== DARK MODE ===== */
+    html.dark .top-bar,
+    html.dark .toolbar-row,
+    html.dark .left-sidebar,
+    html.dark .props-panel,
+    html.dark .status-bar {
+      background: #1e293b;
+      border-color: #334155;
+    }
+    html.dark .top-bar .logo { color: #f1f5f9; }
+    html.dark .top-bar .menu-btn { color: #94a3b8; }
+    html.dark .top-bar .menu-btn:hover { background: #334155; }
+    html.dark .top-bar .menu-btn .dropdown { background: #1e293b; border-color: #334155; }
+    html.dark .top-bar .menu-btn .dropdown a { color: #e2e8f0; }
+    html.dark .top-bar .menu-btn .dropdown a:hover { background: #334155; }
+    html.dark .top-bar .menu-btn .dropdown .divider { background: #334155; }
+    html.dark .top-bar .menu-btn .dropdown .shortcut { color: #64748b; }
+    html.dark .top-bar .doc-title { color: #f1f5f9; }
+    html.dark .top-bar .doc-title:hover { background: #334155; }
+    html.dark .top-bar .tool-badge { background: #1e3a5f; color: #60a5fa; }
+    html.dark .top-bar .action-btn {
+      background: #0f172a;
+      border-color: #334155;
+      color: #e2e8f0;
+    }
+    html.dark .top-bar .action-btn:hover { background: #334155; }
+    html.dark .top-bar .action-btn.primary { background: #2563eb; border-color: #2563eb; color: white; }
+    html.dark .top-bar .action-btn.primary:hover { background: #1d4ed8; }
+    html.dark .top-bar .zoom-controls button {
+      background: #0f172a;
+      border-color: #334155;
+      color: #e2e8f0;
+    }
+    html.dark .top-bar .zoom-controls button:hover { background: #334155; }
+    html.dark .top-bar .zoom-controls { color: #94a3b8; }
+    html.dark .toolbar-row .tool-btn { color: #94a3b8; }
+    html.dark .toolbar-row .tool-btn:hover { background: #334155; color: #f1f5f9; }
+    html.dark .toolbar-row .tool-btn.active { border-color: #3b82f6; background: #1e3a5f; color: #60a5fa; }
+    html.dark .toolbar-row .tool-divider { background: #334155; }
+    html.dark .toolbar-row .fmt-btn { color: #94a3b8; }
+    html.dark .toolbar-row .fmt-btn:hover { background: #334155; }
+    html.dark .toolbar-row .fmt-btn.active { background: #1e3a5f; border-color: #3b82f6; color: #60a5fa; }
+    html.dark .toolbar-row .fmt-select {
+      background: #0f172a;
+      border-color: #334155;
+      color: #f1f5f9;
+    }
+    html.dark .workspace { background: #111827; }
+    html.dark .workspace .page-container { background: white; }
+    html.dark .props-panel { border-color: #334155; }
+    html.dark .props-panel .section-title { color: #64748b; border-color: #334155; }
+    html.dark .props-panel .prop-group label { color: #94a3b8; }
+    html.dark .props-panel .prop-group select {
+      background: #0f172a;
+      border-color: #334155;
+      color: #f1f5f9;
+    }
+    html.dark .props-panel .prop-group input[type="color"] { border-color: #334155; }
+    html.dark .props-panel .prop-group input[type="number"] {
+      background: #0f172a;
+      border-color: #334155;
+      color: #f1f5f9;
+    }
+    html.dark .props-panel .action-btn-sm {
+      background: #0f172a;
+      border-color: #334155;
+      color: #e2e8f0;
+    }
+    html.dark .props-panel .action-btn-sm:hover { background: #334155; }
+    html.dark .props-panel .action-btn-sm.danger { color: #ef4444; border-color: #ef4444; }
+    html.dark .props-panel .action-btn-sm.danger:hover { background: #1e3a5f; }
+    html.dark .props-panel .panel-empty p { color: #64748b; }
+    html.dark .page-thumbnail { background: #1e293b; }
+    html.dark .page-thumbnail .thumb-content { background: #0f172a; color: #64748b; }
+    html.dark .page-thumbnail.active { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); }
+    html.dark .left-sidebar .sidebar-add:hover { background: #334155; color: #60a5fa; }
+    html.dark .status-bar { color: #64748b; }
+    html.dark .status-bar .status-right button:hover { background: #334155; }
+    html.dark .empty-state h3 { color: #f1f5f9; }
+    html.dark .empty-state p { color: #94a3b8; }
+    html.dark .empty-state .drop-zone { border-color: #334155; }
+    html.dark .empty-state .drop-zone:hover { border-color: #3b82f6; background: #1e293b; }
+    html.dark .back-home-btn {
+      background: #1e293b;
+      border-color: #334155;
+      color: #e2e8f0;
+    }
+    html.dark .back-home-btn:hover { background: #334155; }
+
+    #theme-toggle {
+      background: none;
+      border: none;
+      font-size: 1.1rem;
+      cursor: pointer;
+      padding: 3px 6px;
+      border-radius: 6px;
+      transition: background 0.2s;
+      color: #475569;
+    }
+    #theme-toggle:hover { background: #f1f5f9; }
+    html.dark #theme-toggle { color: #e2e8f0; }
+    html.dark #theme-toggle:hover { background: #334155; }
+
+    @media (max-width: 1024px) {
+      .props-panel { width: 220px; min-width: 220px; padding: 10px; }
+    }
+    @media (max-width: 768px) {
+      .props-panel { width: 200px; min-width: 200px; padding: 8px; }
+      .top-bar { padding: 3px 8px; gap: 4px; }
+      .top-bar .menu-btn { padding: 2px 5px; font-size: 11px; }
+      .top-bar .action-btn { padding: 2px 5px; font-size: 11px; }
+      .top-bar .logo { font-size: 13px; }
+      .top-bar .logo img { height: 22px; }
+      .top-bar .doc-title { font-size: 11px; max-width: 120px; }
+      .top-bar .tool-badge { font-size: 9px; padding: 1px 8px; }
+      .toolbar-row { padding: 3px 8px; gap: 2px; }
+      .toolbar-row .tool-btn { padding: 3px 6px; font-size: 11px; }
+      .toolbar-row .tool-btn .label { display: none; }
+      .toolbar-row .fmt-select { font-size: 11px; padding: 2px 4px; max-width: 80px; }
+      .left-sidebar { width: 56px; min-width: 56px; padding: 6px; }
+      .left-sidebar .sidebar-title { display: none; }
+      .left-sidebar .page-thumbnail .thumb-content { height: 44px; font-size: 16px; }
+      .left-sidebar .sidebar-add { font-size: 14px; }
+      .status-bar { font-size: 10px; padding: 2px 8px; }
+      .status-bar .status-left { gap: 8px; }
+      .back-home-btn { bottom: 12px; left: 8px; padding: 5px 10px; font-size: 11px; }
+      .back-home-btn span { display: none; }
+    }
+    @media (max-width: 640px) {
+      .props-panel {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        width: 100%;
+        min-width: unset;
+        max-height: 50vh;
+        border-left: none;
+        border-top: 1px solid #e2e8f0;
+        border-radius: 16px 16px 0 0;
+        padding: 14px;
+        overflow-y: auto;
+        z-index: 50;
+        transform: translateY(100%);
+        transition: transform 0.3s ease;
+      }
+      .props-panel.open { transform: translateY(0); }
+      .props-panel .panel-handle {
+        width: 36px;
+        height: 4px;
+        background: #cbd5e1;
+        border-radius: 4px;
+        margin: 0 auto 10px;
+        display: block !important;
+      }
+      .props-panel .panel-close {
+        float: right;
+        background: none;
+        border: none;
+        font-size: 18px;
+        cursor: pointer;
+        color: #94a3b8;
+        display: block !important;
+      }
+      .props-panel .panel-close:hover { color: #1e293b; }
+      .top-bar .zoom-controls .label { display: none; }
+      .back-home-btn { bottom: 10px; padding: 4px 8px; }
+      .workspace { padding: 16px; }
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen flex flex-col transition-colors duration-200">
+
+  <!-- ===== TOP BAR ===== -->
+  <header class="top-bar">
+    <a href="/" class="logo" title="Go to Home">
+      <img src="Gemini_Generated_Image_sdu6v7sdu6v7sdu6.jpg" alt="Droplet">
+      <span>Droplet</span>
+    </a>
+
+    <div class="menu-btn" style="position:relative;">File
+      <div class="dropdown">
+        <a onclick="document.getElementById('pdfInput').click()">📂 Open PDF</a>
+        <a onclick="alert('New Blank PDF')">📄 New Blank PDF</a>
+        <a onclick="alert('Add PDF / Merge')">📎 Add PDF / Merge</a>
+        <div class="divider"></div>
+        <a onclick="alert('Save Project')">💾 Save Project <span class="shortcut">Ctrl+S</span></a>
+        <a onclick="alert('Save Project As...')">📁 Save Project As...</a>
+        <div class="divider"></div>
+        <a onclick="alert('Export PDF')">📤 Export PDF</a>
+        <a onclick="alert('Print')">🖨️ Print <span class="shortcut">Ctrl+P</span></a>
+        <div class="divider"></div>
+        <a onclick="alert('Close Document')">✕ Close Document</a>
+      </div>
+    </div>
+
+    <div class="menu-btn" style="position:relative;">Edit
+      <div class="dropdown">
+        <a onclick="alert('Undo')">↶ Undo <span class="shortcut">Ctrl+Z</span></a>
+        <a onclick="alert('Redo')">↷ Redo <span class="shortcut">Ctrl+Y</span></a>
+        <div class="divider"></div>
+        <a onclick="alert('Cut')">✂️ Cut <span class="shortcut">Ctrl+X</span></a>
+        <a onclick="alert('Copy')">📋 Copy <span class="shortcut">Ctrl+C</span></a>
+        <a onclick="alert('Paste')">📋 Paste <span class="shortcut">Ctrl+V</span></a>
+        <a onclick="alert('Delete')">🗑️ Delete <span class="shortcut">Del</span></a>
+        <a onclick="alert('Select All')">☑️ Select All <span class="shortcut">Ctrl+A</span></a>
+        <div class="divider"></div>
+        <a onclick="alert('Find')">🔍 Find <span class="shortcut">Ctrl+F</span></a>
+        <a onclick="alert('Replace')">🔄 Replace <span class="shortcut">Ctrl+H</span></a>
+      </div>
+    </div>
+
+    <div class="menu-btn" style="position:relative;">Insert
+      <div class="dropdown">
+        <a onclick="alert('Insert Text')">📝 Text</a>
+        <a onclick="alert('Insert Image')">🖼️ Image</a>
+        <a onclick="alert('Insert Table')">📊 Table</a>
+        <a onclick="alert('Insert Link')">🔗 Link</a>
+        <a onclick="alert('Insert Shape')">⬛ Shape</a>
+        <a onclick="alert('Insert Signature')">✍️ Signature</a>
+        <div class="divider"></div>
+        <a onclick="alert('Insert Page Break')">📄 Page Break</a>
+        <a onclick="alert('Insert Header')">📌 Header</a>
+        <a onclick="alert('Insert Footer')">📌 Footer</a>
+        <a onclick="alert('Insert Page Number')">🔢 Page Number</a>
+      </div>
+    </div>
+
+    <div class="menu-btn" style="position:relative;">Pages
+      <div class="dropdown">
+        <a onclick="alert('Add Page')">📄 Add Page</a>
+        <a onclick="alert('Duplicate Page')">📋 Duplicate Page</a>
+        <div class="divider"></div>
+        <a onclick="alert('Rotate Left')">🔄 Rotate Left</a>
+        <a onclick="alert('Rotate Right')">🔄 Rotate Right</a>
+        <a onclick="alert('Delete Page')">🗑️ Delete Page</a>
+        <div class="divider"></div>
+        <a onclick="alert('Reorder Pages')">📋 Reorder Pages</a>
+        <a onclick="alert('Extract Pages')">📤 Extract Pages</a>
+        <a onclick="alert('Split PDF')">✂️ Split PDF</a>
+        <a onclick="alert('Merge PDF')">🔗 Merge PDF</a>
+      </div>
+    </div>
+
+    <div class="menu-btn" style="position:relative;">View
+      <div class="dropdown">
+        <a onclick="alert('Zoom In')">🔍 Zoom In <span class="shortcut">Ctrl++</span></a>
+        <a onclick="alert('Zoom Out')">🔍 Zoom Out <span class="shortcut">Ctrl+-</span></a>
+        <a onclick="alert('Actual Size')">1:1 Actual Size</a>
+        <a onclick="alert('Fit Page')">📄 Fit Page</a>
+        <a onclick="alert('Fit Width')">📄 Fit Width</a>
+        <div class="divider"></div>
+        <a onclick="toggleSidebar('pages')">📑 Toggle Pages</a>
+        <a onclick="toggleSidebar('props')">📋 Toggle Properties</a>
+      </div>
+    </div>
+
+    <span class="doc-title" id="docTitle" onclick="renameDocument()">
+      Untitled PDF <span class="saved">●</span>
+    </span>
+
+    <span class="tool-badge" id="toolBadge">✏️ Edit PDF</span>
+
+    <div class="spacer"></div>
+
+    <button class="action-btn" onclick="alert('Undo')" title="Undo (Ctrl+Z)">↶</button>
+    <button class="action-btn" onclick="alert('Redo')" title="Redo (Ctrl+Y)">↷</button>
+
+    <div class="zoom-controls">
+      <button onclick="alert('Zoom out')">−</button>
+      <span class="label" id="zoomLabel">100%</span>
+      <button onclick="alert('Zoom in')">+</button>
+    </div>
+
+    <button id="theme-toggle" aria-label="Toggle theme">🌙</button>
+    <button class="action-btn primary" onclick="alert('Export PDF')">💾 Export</button>
+  </header>
+
+  <!-- ===== TOOLBAR ROW 2 ===== -->
+  <div class="toolbar-row" id="toolbarRow">
+    <!-- Main Tools -->
+    <button class="tool-btn active" data-tool="select" onclick="setTool('select')">
+      <span class="icon">🖱️</span><span class="label">Select</span>
+    </button>
+    <button class="tool-btn" data-tool="text" onclick="setTool('text')">
+      <span class="icon">T</span><span class="label">Text</span>
+    </button>
+    <button class="tool-btn" data-tool="image" onclick="setTool('image')">
+      <span class="icon">🖼️</span><span class="label">Image</span>
+    </button>
+    <button class="tool-btn" data-tool="draw" onclick="setTool('draw')">
+      <span class="icon">✏️</span><span class="label">Draw</span>
+    </button>
+    <button class="tool-btn" data-tool="highlight" onclick="setTool('highlight')">
+      <span class="icon">🖍️</span><span class="label">Highlight</span>
+    </button>
+    <button class="tool-btn" data-tool="shape" onclick="setTool('shape')">
+      <span class="icon">□</span><span class="label">Shape</span>
+    </button>
+    <button class="tool-btn" data-tool="sign" onclick="setTool('sign')">
+      <span class="icon">✍️</span><span class="label">Sign</span>
+    </button>
+    <button class="tool-btn" data-tool="forms" onclick="setTool('forms')">
+      <span class="icon">☑️</span><span class="label">Forms</span>
+    </button>
+
+    <div class="tool-divider"></div>
+
+    <!-- Contextual Formatting (Text Tool) -->
+    <div id="textFormatting" class="hidden" style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;">
+      <select class="fmt-select" id="fontFamily" style="width:100px;">
+        <option value="Arial">Arial</option>
+        <option value="Times New Roman">Times New Roman</option>
+        <option value="Calibri">Calibri</option>
+        <option value="Helvetica">Helvetica</option>
+        <option value="Georgia">Georgia</option>
+        <option value="Verdana">Verdana</option>
+        <option value="Courier New">Courier New</option>
+      </select>
+
+      <select class="fmt-select" id="fontSize" style="width:56px;">
+        <option value="8">8</option>
+        <option value="9">9</option>
+        <option value="10">10</option>
+        <option value="11">11</option>
+        <option value="12" selected>12</option>
+        <option value="14">14</option>
+        <option value="16">16</option>
+        <option value="18">18</option>
+        <option value="20">20</option>
+        <option value="24">24</option>
+        <option value="28">28</option>
+        <option value="36">36</option>
+        <option value="48">48</option>
+        <option value="72">72</option>
+      </select>
+
+      <div class="tool-divider"></div>
+
+      <button class="fmt-btn bold" onclick="alert('Bold')" title="Bold (Ctrl+B)">B</button>
+      <button class="fmt-btn italic" onclick="alert('Italic')" title="Italic (Ctrl+I)">I</button>
+      <button class="fmt-btn underline" onclick="alert('Underline')" title="Underline (Ctrl+U)">U</button>
+      <button class="fmt-btn strike" onclick="alert('Strikethrough')" title="Strikethrough">S</button>
+
+      <div class="tool-divider"></div>
+
+      <input type="color" class="color-btn" id="textColor" value="#1e293b" title="Text Color">
+      <input type="color" class="color-btn" id="highlightColor" value="#fef08a" title="Highlight Color" style="background:#fef08a;">
+
+      <div class="tool-divider"></div>
+
+      <button class="fmt-btn" onclick="alert('Left align')" title="Left align">≡</button>
+      <button class="fmt-btn" onclick="alert('Center align')" title="Center align">≣</button>
+      <button class="fmt-btn" onclick="alert('Right align')" title="Right align">≡</button>
+      <button class="fmt-btn" onclick="alert('Justify')" title="Justify">☰</button>
+
+      <div class="tool-divider"></div>
+
+      <button class="fmt-btn" onclick="alert('Bullet list')" title="Bullet list">•</button>
+      <button class="fmt-btn" onclick="alert('Numbered list')" title="Numbered list">1.</button>
+
+      <div class="tool-divider"></div>
+
+      <select class="fmt-select" id="lineSpacing" style="width:70px;">
+        <option value="1">1.0</option>
+        <option value="1.15" selected>1.15</option>
+        <option value="1.5">1.5</option>
+        <option value="2">2.0</option>
+      </select>
+    </div>
+
+    <!-- Contextual Formatting (Draw Tool) -->
+    <div id="drawFormatting" class="hidden" style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;">
+      <span style="font-size:11px;color:#94a3b8;margin-right:4px;">Pen</span>
+      <select class="fmt-select" style="width:80px;">
+        <option>Pen</option>
+        <option>Marker</option>
+        <option>Highlighter</option>
+      </select>
+      <input type="color" class="color-btn" value="#1e293b" title="Pen Color">
+      <span style="font-size:11px;color:#94a3b8;margin-left:4px;">Size</span>
+      <select class="fmt-select" style="width:50px;">
+        <option>1</option>
+        <option selected>2</option>
+        <option>3</option>
+        <option>4</option>
+        <option>5</option>
+        <option>8</option>
+        <option>10</option>
+      </select>
+      <button class="fmt-btn" onclick="alert('Eraser')" title="Eraser">🧹</button>
+    </div>
+
+    <!-- Contextual Formatting (Shape Tool) -->
+    <div id="shapeFormatting" class="hidden" style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;">
+      <select class="fmt-select" style="width:100px;">
+        <option>Rectangle</option>
+        <option>Rounded Rectangle</option>
+        <option>Circle</option>
+        <option>Line</option>
+        <option>Arrow</option>
+        <option>Text Box</option>
+      </select>
+      <input type="color" class="color-btn" value="#3b82f6" title="Fill Color">
+      <input type="color" class="color-btn" value="#1e293b" title="Border Color">
+      <span style="font-size:11px;color:#94a3b8;margin-left:4px;">Border</span>
+      <select class="fmt-select" style="width:50px;">
+        <option>0</option>
+        <option selected>1</option>
+        <option>2</option>
+        <option>3</option>
+        <option>4</option>
+        <option>5</option>
+      </select>
+    </div>
+
+    <!-- Contextual Formatting (Highlight Tool) -->
+    <div id="highlightFormatting" class="hidden" style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;">
+      <span style="font-size:11px;color:#94a3b8;margin-right:4px;">Highlight</span>
+      <select class="fmt-select" style="width:100px;">
+        <option>Highlight</option>
+        <option>Underline</option>
+        <option>Strikethrough</option>
+        <option>Squiggly</option>
+      </select>
+      <input type="color" class="color-btn" value="#fef08a" title="Highlight Color" style="background:#fef08a;">
+      <span style="font-size:11px;color:#94a3b8;margin-left:4px;">Opacity</span>
+      <select class="fmt-select" style="width:50px;">
+        <option>50%</option>
+        <option selected>70%</option>
+        <option>100%</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- ===== MAIN CONTENT ===== -->
+  <div class="flex flex-1 overflow-hidden">
+
+    <!-- ===== LEFT SIDEBAR ===== -->
+    <div class="left-sidebar scrollbar-thin" id="pagesSidebar">
+      <div class="sidebar-header">
+        <span class="sidebar-title">Pages</span>
+        <button class="sidebar-add" onclick="alert('Add page')" title="Add page">+</button>
+      </div>
+      
+      <div id="pageThumbnails" style="flex:1;">
+        <div class="text-center text-slate-400 text-xs py-8" id="emptyThumbnails">
+          <div class="text-2xl mb-2">📄</div>
+          <p>No pages</p>
+          <p class="text-[9px] mt-1">Open a PDF</p>
+        </div>
+        <div id="thumbnailList"></div>
+      </div>
+    </div>
+
+    <!-- ===== CENTER WORKSPACE ===== -->
+    <div class="workspace" id="workspace">
+      <div class="empty-state" id="emptyState">
+        <div class="icon">📄</div>
+        <h3 id="emptyTitle">Edit a PDF</h3>
+        <p id="emptyDescription">Open a PDF to add text, images, signatures, drawings and more.</p>
+        <div class="drop-zone" id="dropZone" onclick="document.getElementById('pdfInput').click()">
+          <div style="font-size:32px;margin-bottom:8px;">📂</div>
+          <p style="font-size:13px;font-weight:500;color:#1e293b;">Drag & drop a PDF here</p>
+          <p style="font-size:12px;color:#94a3b8;">or click to browse</p>
+        </div>
+        <div class="flex flex-wrap gap-3 mt-4 justify-center">
+          <button onclick="document.getElementById('pdfInput').click()" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2.5 rounded-xl text-sm shadow-md shadow-blue-500/20 transition-all active:scale-95">
+            📂 Open PDF
+          </button>
+          <button onclick="alert('Create blank PDF')" class="bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-2.5 rounded-xl text-sm shadow-md shadow-green-500/20 transition-all active:scale-95">
+            📄 Create Blank PDF
+          </button>
+        </div>
+        <p class="text-xs text-slate-400 mt-4">🔒 Processed locally in your browser</p>
+        <input type="file" id="pdfInput" accept=".pdf,application/pdf" class="hidden" multiple>
+      </div>
+
+      <div class="page-container hidden" id="pageContainer">
+        <canvas id="pdfCanvas"></canvas>
+      </div>
+    </div>
+
+    <!-- ===== RIGHT PROPERTIES PANEL ===== -->
+    <div class="props-panel scrollbar-thin" id="propsPanel">
+      <div class="panel-handle"></div>
+      <button class="panel-close" onclick="togglePropsPanel()">✕</button>
+
+      <div id="propsEmpty" class="panel-empty">
+        <div class="icon">📋</div>
+        <p>No selection</p>
+        <p style="font-size:11px;color:#cbd5e1;margin-top:4px;">Open a PDF to see document properties</p>
+      </div>
+
+      <!-- Page Properties -->
+      <div id="pageProps" class="hidden">
+        <div class="section-title">📄 Page</div>
+        <div class="prop-group">
+          <label>Size</label>
+          <select>
+            <option value="a4">A4 (210 × 297 mm)</option>
+            <option value="letter">Letter (8.5 × 11 in)</option>
+            <option value="legal">Legal (8.5 × 14 in)</option>
+            <option value="a3">A3 (297 × 420 mm)</option>
+          </select>
+        </div>
+        <div class="prop-group">
+          <label>Orientation</label>
+          <div class="flex-row" style="gap:4px;">
+            <button class="action-btn-sm" onclick="alert('Portrait')" style="flex:1;text-align:center;">▯ Portrait</button>
+            <button class="action-btn-sm" onclick="alert('Landscape')" style="flex:1;text-align:center;">▭ Landscape</button>
+          </div>
+        </div>
+        <div class="prop-group">
+          <label>Background</label>
+          <div class="flex-row">
+            <input type="color" value="#ffffff">
+            <span style="font-size:12px;color:#94a3b8;">White</span>
+          </div>
+        </div>
+        <div class="prop-group">
+          <label>Page</label>
+          <div class="flex-row">
+            <span style="font-size:12px;color:#94a3b8;">1 of 1</span>
+          </div>
+        </div>
+
+        <div class="section-title" style="margin-top:14px;">📑 Operations</div>
+        <div class="prop-group">
+          <div class="flex-row" style="gap:4px;flex-wrap:wrap;">
+            <button class="action-btn-sm" onclick="alert('Rotate Left')">🔄 Left</button>
+            <button class="action-btn-sm" onclick="alert('Rotate Right')">🔄 Right</button>
+            <button class="action-btn-sm" onclick="alert('Duplicate')">📋 Duplicate</button>
+            <button class="action-btn-sm danger" onclick="alert('Delete')">🗑️ Delete</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Text Properties -->
+      <div id="textProps" class="hidden">
+        <div class="section-title">✏️ Text</div>
+        <div class="prop-group">
+          <label>Font</label>
+          <select>
+            <option>Arial</option>
+            <option>Times New Roman</option>
+            <option>Calibri</option>
+            <option>Helvetica</option>
+            <option>Georgia</option>
+            <option>Verdana</option>
+          </select>
+        </div>
+        <div class="prop-group">
+          <label>Size</label>
+          <div class="flex-row">
+            <input type="range" min="8" max="72" value="12" style="flex:1;">
+            <span style="font-size:12px;color:#94a3b8;min-width:28px;">12</span>
+          </div>
+        </div>
+        <div class="prop-group">
+          <label>Color</label>
+          <div class="flex-row">
+            <input type="color" value="#1e293b">
+            <span style="font-size:12px;color:#94a3b8;">Text</span>
+          </div>
+        </div>
+        <div class="prop-group">
+          <label>Opacity</label>
+          <div class="flex-row">
+            <input type="range" min="10" max="100" value="100" style="flex:1;">
+            <span style="font-size:12px;color:#94a3b8;min-width:28px;">100%</span>
+          </div>
+        </div>
+        <div class="prop-group">
+          <label>Position</label>
+          <div class="flex-row">
+            <span style="font-size:12px;color:#94a3b8;">X: 125</span>
+            <span style="font-size:12px;color:#94a3b8;">Y: 260</span>
+          </div>
+        </div>
+        <div class="prop-group">
+          <label>Size</label>
+          <div class="flex-row">
+            <span style="font-size:12px;color:#94a3b8;">W: 240</span>
+            <span style="font-size:12px;color:#94a3b8;">H: 38</span>
+          </div>
+        </div>
+        <div class="prop-group" style="border-top:1px solid #e2e8f0;padding-top:10px;">
+          <button class="action-btn-sm danger" onclick="alert('Delete text')">🗑️ Delete</button>
+        </div>
+      </div>
+
+      <!-- Image Properties -->
+      <div id="imageProps" class="hidden">
+        <div class="section-title">🖼️ Image</div>
+        <div class="prop-group">
+          <label>Width</label>
+          <div class="flex-row">
+            <input type="number" value="200" min="10" style="width:64px;">
+            <span style="font-size:12px;color:#94a3b8;">px</span>
+            <button class="action-btn-sm" onclick="alert('Lock ratio')" style="padding:2px 6px;">🔗</button>
+          </div>
+        </div>
+        <div class="prop-group">
+          <label>Height</label>
+          <div class="flex-row">
+            <input type="number" value="150" min="10" style="width:64px;">
+            <span style="font-size:12px;color:#94a3b8;">px</span>
+          </div>
+        </div>
+        <div class="prop-group">
+          <label>Rotation</label>
+          <div class="flex-row">
+            <input type="range" min="0" max="360" value="0" style="flex:1;">
+            <span style="font-size:12px;color:#94a3b8;min-width:28px;">0°</span>
+          </div>
+        </div>
+        <div class="prop-group">
+          <label>Opacity</label>
+          <div class="flex-row">
+            <input type="range" min="10" max="100" value="100" style="flex:1;">
+            <span style="font-size:12px;color:#94a3b8;min-width:28px;">100%</span>
+          </div>
+        </div>
+        <div class="prop-group">
+          <label>Arrange</label>
+          <div class="flex-row" style="gap:4px;">
+            <button class="action-btn-sm" onclick="alert('Forward')">⬆ Forward</button>
+            <button class="action-btn-sm" onclick="alert('Backward')">⬇ Backward</button>
+          </div>
+        </div>
+        <div class="prop-group" style="border-top:1px solid #e2e8f0;padding-top:10px;">
+          <button class="action-btn-sm danger" onclick="alert('Delete image')">🗑️ Delete</button>
+        </div>
+      </div>
+
+      <!-- Shape Properties -->
+      <div id="shapeProps" class="hidden">
+        <div class="section-title">⬛ Shape</div>
+        <div class="prop-group">
+          <label>Fill Color</label>
+          <div class="flex-row">
+            <input type="color" value="#3b82f6">
+            <span style="font-size:12px;color:#94a3b8;">Fill</span>
+          </div>
+        </div>
+        <div class="prop-group">
+          <label>Border Color</label>
+          <div class="flex-row">
+            <input type="color" value="#1e293b">
+            <span style="font-size:12px;color:#94a3b8;">Border</span>
+          </div>
+        </div>
+        <div class="prop-group">
+          <label>Border Thickness</label>
+          <div class="flex-row">
+            <input type="range" min="0" max="10" value="2" style="flex:1;">
+            <span style="font-size:12px;color:#94a3b8;min-width:28px;">2px</span>
+          </div>
+        </div>
+        <div class="prop-group">
+          <label>Opacity</label>
+          <div class="flex-row">
+            <input type="range" min="10" max="100" value="100" style="flex:1;">
+            <span style="font-size:12px;color:#94a3b8;min-width:28px;">100%</span>
+          </div>
+        </div>
+        <div class="prop-group" style="border-top:1px solid #e2e8f0;padding-top:10px;">
+          <button class="action-btn-sm danger" onclick="alert('Delete shape')">🗑️ Delete</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== STATUS BAR ===== -->
+  <div class="status-bar">
+    <div class="status-left">
+      <span id="statusPage">Page 1 of 1</span>
+      <span id="statusSize">A4 • 210 × 297 mm</span>
+      <span id="statusObjects" style="display:none;">3 objects selected</span>
+    </div>
+    <div class="status-right">
+      <button onclick="alert('Fit Page')">Fit Page</button>
+      <button onclick="alert('Fit Width')">Fit Width</button>
+      <button onclick="alert('Zoom out')">−</button>
+      <span>100%</span>
+      <button onclick="alert('Zoom in')">+</button>
+    </div>
+  </div>
+
+  <!-- ===== BACK TO HOME ===== -->
+  <a href="/" class="back-home-btn" title="Back to Home">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+    </svg>
+    <span>Back to Home</span>
+  </a>
+
+  <script>
+    // ============================================
+    // SIMPLE ROUTER - Redirect based on URL
+    // ============================================
+    // This runs when the page loads. If the current URL is a tool page
+    // (like /rotate-pdf), it redirects to /edit-pdf with a query parameter
+    // so the edit page knows which tool to activate.
+    
+    (function() {
+      const path = window.location.pathname;
+      const pageName = path.split('/').pop().replace('.html', '');
+      
+      // Map of tool pages to their display names
+      const toolMap = {
+        'edit-pdf': { tool: 'select', title: 'Edit PDF', icon: '✏️', desc: 'Edit your PDF documents' },
+        'rotate-pdf': { tool: 'select', title: 'Rotate PDF', icon: '🔄', desc: 'Rotate pages in your PDF' },
+        'scan-to-pdf': { tool: 'image', title: 'Scan to PDF', icon: '📷', desc: 'Convert scanned images to PDF' },
+        'merge-pdf': { tool: 'select', title: 'Merge PDF', icon: '🔗', desc: 'Combine multiple PDFs into one' },
+        'split-pdf': { tool: 'select', title: 'Split PDF', icon: '✂️', desc: 'Split PDF into separate files' },
+        'remove-pages': { tool: 'select', title: 'Remove Pages', icon: '🗑️', desc: 'Delete pages from your PDF' },
+        'extract-pages': { tool: 'select', title: 'Extract Pages', icon: '📤', desc: 'Extract pages from your PDF' },
+        'organize-pdf': { tool: 'select', title: 'Organize PDF', icon: '🗂️', desc: 'Rearrange pages in your PDF' },
+        'add-page-numbers': { tool: 'text', title: 'Add Page Numbers', icon: '🔢', desc: 'Add page numbers to your PDF' },
+        'add-watermark': { tool: 'text', title: 'Add Watermark', icon: '💧', desc: 'Add watermark to your PDF' },
+        'crop-pdf': { tool: 'select', title: 'Crop PDF', icon: '✂️', desc: 'Crop pages in your PDF' },
+        'pdf-forms': { tool: 'forms', title: 'PDF Forms', icon: '📋', desc: 'Fill and create PDF forms' },
+        'ai-summarizer': { tool: 'text', title: 'AI Summarizer', icon: '🤖', desc: 'Summarize your PDF content' },
+        'translate-pdf': { tool: 'text', title: 'Translate PDF', icon: '🌍', desc: 'Translate PDF content' },
+        'pdf-to-markdown': { tool: 'text', title: 'PDF to Markdown', icon: '📝', desc: 'Convert PDF to Markdown' }
+      };
+      
+      // If we're on a tool page (not edit-pdf), redirect to edit-pdf with the tool info
+      if (pageName !== 'edit-pdf' && toolMap[pageName]) {
+        const tool = toolMap[pageName];
+        // Store the tool info in sessionStorage so edit-pdf can use it
+        sessionStorage.setItem('droplet_tool', JSON.stringify(tool));
+        // Redirect to edit-pdf
+        window.location.href = '/edit-pdf.html';
+        return;
+      }
+      
+      // If we're already on edit-pdf, check if there's a tool in sessionStorage
+      const storedTool = sessionStorage.getItem('droplet_tool');
+      if (storedTool && pageName === 'edit-pdf') {
+        const tool = JSON.parse(storedTool);
+        // Clear it so it doesn't persist
+        sessionStorage.removeItem('droplet_tool');
+        // Apply the tool
+        applyTool(tool);
+        // Update the badge
+        document.getElementById('toolBadge').textContent = tool.icon + ' ' + tool.title;
+        document.getElementById('emptyTitle').textContent = tool.title;
+        document.getElementById('emptyDescription').textContent = tool.desc;
+        document.getElementById('pageTitle').textContent = tool.title + ' - Droplet';
+        // Set the tool
+        setTool(tool.tool);
+      }
+    })();
+
+    function applyTool(tool) {
+      // This function will be called when a tool is loaded from sessionStorage
+      console.log('🔧 Tool loaded:', tool.title);
+    }
+
+    // ============================================
+    // DARK MODE TOGGLE
+    // ============================================
+    const themeToggle = document.getElementById('theme-toggle');
+    const html = document.documentElement;
+    
+    let currentTheme = localStorage.getItem('theme') || 
+      (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    
+    if (currentTheme === 'dark') {
+      html.classList.add('dark');
+      themeToggle.textContent = '☀️';
+    } else {
+      themeToggle.textContent = '🌙';
+    }
+    
+    themeToggle.addEventListener('click', () => {
+      if (html.classList.contains('dark')) {
+        html.classList.remove('dark');
+        themeToggle.textContent = '🌙';
+        localStorage.setItem('theme', 'light');
+      } else {
+        html.classList.add('dark');
+        themeToggle.textContent = '☀️';
+        localStorage.setItem('theme', 'dark');
+      }
+    });
+
+    // ============================================
+    // TOOL SELECTION & CONTEXTUAL TOOLBAR
+    // ============================================
+    let currentTool = 'select';
+
+    function setTool(tool) {
+      currentTool = tool;
+      
+      document.querySelectorAll('.toolbar-row .tool-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.tool === tool);
+      });
+      
+      document.getElementById('textFormatting').style.display = 'none';
+      document.getElementById('drawFormatting').style.display = 'none';
+      document.getElementById('shapeFormatting').style.display = 'none';
+      document.getElementById('highlightFormatting').style.display = 'none';
+      
+      if (tool === 'text') {
+        document.getElementById('textFormatting').style.display = 'flex';
+      } else if (tool === 'draw') {
+        document.getElementById('drawFormatting').style.display = 'flex';
+      } else if (tool === 'shape') {
+        document.getElementById('shapeFormatting').style.display = 'flex';
+      } else if (tool === 'highlight') {
+        document.getElementById('highlightFormatting').style.display = 'flex';
+      }
+      
+      showPropsForTool(tool);
+      document.getElementById('propsPanel').classList.remove('open');
+    }
+
+    function showPropsForTool(tool) {
+      document.getElementById('propsEmpty').classList.add('hidden');
+      document.getElementById('pageProps').classList.add('hidden');
+      document.getElementById('textProps').classList.add('hidden');
+      document.getElementById('imageProps').classList.add('hidden');
+      document.getElementById('shapeProps').classList.add('hidden');
+
+      const map = {
+        'select': 'pageProps',
+        'text': 'textProps',
+        'image': 'imageProps',
+        'shape': 'shapeProps',
+        'sign': 'pageProps',
+        'draw': 'pageProps',
+        'highlight': 'pageProps',
+        'forms': 'pageProps'
+      };
+      
+      const id = map[tool] || 'pageProps';
+      const hasPdf = !document.getElementById('emptyState').classList.contains('hidden');
+      if (!hasPdf) {
+        document.getElementById('propsEmpty').classList.remove('hidden');
+        return;
+      }
+      document.getElementById(id).classList.remove('hidden');
+    }
+
+    // Set default tool
+    setTool('select');
+
+    function togglePropsPanel() {
+      document.getElementById('propsPanel').classList.toggle('open');
+    }
+
+    function toggleSidebar(type) {
+      if (type === 'pages') {
+        document.getElementById('pagesSidebar').classList.toggle('hidden');
+      } else if (type === 'props') {
+        document.getElementById('propsPanel').classList.toggle('hidden');
+      }
+    }
+
+    function renameDocument() {
+      const newName = prompt('Rename document:', document.getElementById('docTitle').textContent.trim());
+      if (newName) {
+        document.getElementById('docTitle').innerHTML = newName + ' <span class="saved">●</span>';
+      }
+    }
+
+    // ============================================
+    // PDF LOADING
+    // ============================================
+    const dropZone = document.getElementById('dropZone');
+
+    dropZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropZone.classList.add('dragover');
+    });
+
+    dropZone.addEventListener('dragleave', () => {
+      dropZone.classList.remove('dragover');
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropZone.classList.remove('dragover');
+      const files = e.dataTransfer.files;
+      if (files.length > 0 && files[0].type === 'application/pdf') {
+        loadPDF(files[0]);
+      }
+    });
+
+    document.getElementById('pdfInput').addEventListener('change', function(e) {
+      if (this.files.length > 0) {
+        loadPDF(this.files[0]);
+      }
+    });
+
+    function loadPDF(file) {
+      document.getElementById('emptyState').classList.add('hidden');
+      document.getElementById('pageContainer').classList.remove('hidden');
+      document.getElementById('emptyThumbnails').classList.add('hidden');
+      document.getElementById('propsEmpty').classList.add('hidden');
+      document.getElementById('pageProps').classList.remove('hidden');
+      
+      document.getElementById('docTitle').innerHTML = file.name + ' <span class="saved">●</span>';
+      
+      const list = document.getElementById('thumbnailList');
+      list.innerHTML = `
+        <div class="page-thumbnail active mb-2">
+          <div class="thumb-content">📄</div>
+          <div class="page-number">1</div>
+        </div>
+        <div class="page-thumbnail mb-2">
+          <div class="thumb-content">📄</div>
+          <div class="page-number">2</div>
+        </div>
+        <div class="page-thumbnail mb-2">
+          <div class="thumb-content">📄</div>
+          <div class="page-number">3</div>
+        </div>
+      `;
+      
+      document.getElementById('statusPage').textContent = 'Page 1 of 3';
+      document.getElementById('statusSize').textContent = 'A4 • 210 × 297 mm';
+      
+      setTool(currentTool);
+      alert(`📄 PDF loaded: ${file.name}`);
+    }
+
+    document.querySelector('.empty-state .bg-blue-600')?.addEventListener('click', () => {
+      document.getElementById('pdfInput').click();
+    });
+
+    // ============================================
+    // KEYBOARD SHORTCUTS
+    // ============================================
+    document.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
+        e.preventDefault();
+        alert('Undo');
+      }
+      if ((e.ctrlKey || e.metaKey) && e.key === 'y') {
+        e.preventDefault();
+        alert('Redo');
+      }
+      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+        e.preventDefault();
+        alert('Save Project');
+      }
+      if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
+        e.preventDefault();
+        alert('Find');
+      }
+      if ((e.ctrlKey || e.metaKey) && e.key === 'h') {
+        e.preventDefault();
+        alert('Replace');
+      }
+      if ((e.ctrlKey || e.metaKey) && e.key === 'p') {
+        e.preventDefault();
+        alert('Print');
+      }
+      if ((e.ctrlKey || e.metaKey) && e.key === 'b') {
+        e.preventDefault();
+        alert('Bold');
+      }
+      if ((e.ctrlKey || e.metaKey) && e.key === 'i') {
+        e.preventDefault();
+        alert('Italic');
+      }
+      if ((e.ctrlKey || e.metaKey) && e.key === 'u') {
+        e.preventDefault();
+        alert('Underline');
+      }
+      if (e.key === 'Escape') {
+        document.getElementById('propsPanel').classList.remove('open');
+      }
+    });
+
+    console.log('📄 Droplet PDF Editor - Simple Router');
+    console.log('🔗 Visiting /rotate-pdf redirects to /edit-pdf with the tool loaded');
+    console.log('💡 All PDF tools share the same editor interface');
+  </script>
+</body>
+</html>
