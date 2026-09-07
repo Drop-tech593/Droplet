@@ -102,6 +102,7 @@
       justify-content: center;
       padding: 20px;
       min-height: 500px;
+      position: relative;
     }
     .workspace .page-container {
       background: white;
@@ -181,6 +182,8 @@
     .props-panel .action-btn-sm:hover { background: #f1f5f9; }
     .props-panel .action-btn-sm.danger { color: #ef4444; border-color: #ef4444; }
     .props-panel .action-btn-sm.danger:hover { background: #fef2f2; }
+    .props-panel .action-btn-sm.primary { color: #2563eb; border-color: #2563eb; }
+    .props-panel .action-btn-sm.primary:hover { background: #eff6ff; }
 
     .props-panel .panel-handle { display: none; }
     .props-panel .panel-close { display: none; }
@@ -342,6 +345,39 @@
     .empty-state h3 { font-size: 20px; font-weight: 700; color: #1e293b; margin-bottom: 8px; }
     .empty-state p { font-size: 14px; max-width: 400px; }
 
+    /* Back to Home Button - Bottom Left */
+    .back-home-btn {
+      position: fixed;
+      bottom: 80px;
+      left: 16px;
+      z-index: 60;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 50px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      font-size: 13px;
+      font-weight: 500;
+      color: #475569;
+      text-decoration: none;
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+    .back-home-btn:hover {
+      background: #f1f5f9;
+      border-color: #94a3b8;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+      transform: translateY(-2px);
+    }
+    .back-home-btn svg {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+    }
+
     /* ===== DARK MODE ===== */
     html.dark .top-bar,
     html.dark .bottom-toolbar,
@@ -396,6 +432,8 @@
     html.dark .props-panel .action-btn-sm:hover { background: #334155; }
     html.dark .props-panel .action-btn-sm.danger { color: #ef4444; border-color: #ef4444; }
     html.dark .props-panel .action-btn-sm.danger:hover { background: #1e3a5f; }
+    html.dark .props-panel .action-btn-sm.primary { color: #60a5fa; border-color: #3b82f6; }
+    html.dark .props-panel .action-btn-sm.primary:hover { background: #1e3a5f; }
     html.dark .bottom-toolbar .tool-btn { color: #94a3b8; }
     html.dark .bottom-toolbar .tool-btn:hover { background: #334155; color: #f1f5f9; }
     html.dark .bottom-toolbar .tool-btn.active { border-color: #3b82f6; background: #1e3a5f; color: #60a5fa; }
@@ -407,6 +445,15 @@
     html.dark .page-thumbnail.active { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); }
     html.dark .left-sidebar .add-page-btn { border-color: #334155; color: #64748b; }
     html.dark .left-sidebar .add-page-btn:hover { border-color: #3b82f6; color: #60a5fa; background: #1e3a5f; }
+    html.dark .back-home-btn {
+      background: #1e293b;
+      border-color: #334155;
+      color: #e2e8f0;
+    }
+    html.dark .back-home-btn:hover {
+      background: #334155;
+      border-color: #475569;
+    }
 
     /* ===== RESPONSIVE ===== */
     @media (max-width: 1024px) {
@@ -426,6 +473,13 @@
       .left-sidebar .sidebar-title { display: none; }
       .left-sidebar .page-thumbnail .thumb-content { height: 60px; font-size: 20px; }
       .left-sidebar .add-page-btn span { display: none; }
+      .back-home-btn {
+        bottom: 70px;
+        left: 8px;
+        padding: 6px 12px;
+        font-size: 11px;
+      }
+      .back-home-btn span { display: none; }
     }
     @media (max-width: 640px) {
       .props-panel { 
@@ -465,6 +519,7 @@
       }
       .props-panel .panel-close:hover { color: #1e293b; }
       .top-bar .zoom-controls .label { display: none; }
+      .back-home-btn { bottom: 64px; padding: 6px 10px; }
     }
 
     #theme-toggle {
@@ -958,6 +1013,14 @@
       <span class="icon">📋</span><span class="label">Forms</span>
     </button>
   </div>
+
+  <!-- ===== BACK TO HOME BUTTON ===== -->
+  <a href="/" class="back-home-btn" title="Back to Home">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+    </svg>
+    <span>Back to Home</span>
+  </a>
 
   <script>
     // ============================================
