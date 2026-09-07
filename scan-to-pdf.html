@@ -749,7 +749,7 @@
       Untitled PDF <span class="saved">●</span>
     </span>
 
-    <span class="tool-badge" id="toolBadge" style="display:none;"></span>
+    <span class="tool-badge" id="toolBadge">✏️ Edit PDF</span>
 
     <div class="spacer"></div>
 
@@ -1188,44 +1188,67 @@
 
   <script>
     // ============================================
-    // ROUTER - Detect tool from URL
+    // SIMPLE ROUTER - Redirect based on URL
     // ============================================
-    const toolMap = {
-      'edit-pdf': { tool: 'select', title: 'Edit PDF', icon: '✏️', desc: 'Edit your PDF documents' },
-      'rotate-pdf': { tool: 'select', title: 'Rotate PDF', icon: '🔄', desc: 'Rotate pages in your PDF' },
-      'scan-to-pdf': { tool: 'image', title: 'Scan to PDF', icon: '📷', desc: 'Convert scanned images to PDF' },
-      'merge-pdf': { tool: 'select', title: 'Merge PDF', icon: '🔗', desc: 'Combine multiple PDFs into one' },
-      'split-pdf': { tool: 'select', title: 'Split PDF', icon: '✂️', desc: 'Split PDF into separate files' },
-      'remove-pages': { tool: 'select', title: 'Remove Pages', icon: '🗑️', desc: 'Delete pages from your PDF' },
-      'extract-pages': { tool: 'select', title: 'Extract Pages', icon: '📤', desc: 'Extract pages from your PDF' },
-      'organize-pdf': { tool: 'select', title: 'Organize PDF', icon: '🗂️', desc: 'Rearrange pages in your PDF' },
-      'add-page-numbers': { tool: 'text', title: 'Add Page Numbers', icon: '🔢', desc: 'Add page numbers to your PDF' },
-      'add-watermark': { tool: 'text', title: 'Add Watermark', icon: '💧', desc: 'Add watermark to your PDF' },
-      'crop-pdf': { tool: 'select', title: 'Crop PDF', icon: '✂️', desc: 'Crop pages in your PDF' },
-      'pdf-forms': { tool: 'forms', title: 'PDF Forms', icon: '📋', desc: 'Fill and create PDF forms' },
-      'ai-summarizer': { tool: 'text', title: 'AI Summarizer', icon: '🤖', desc: 'Summarize your PDF content' },
-      'translate-pdf': { tool: 'text', title: 'Translate PDF', icon: '🌍', desc: 'Translate PDF content' },
-      'pdf-to-markdown': { tool: 'text', title: 'PDF to Markdown', icon: '📝', desc: 'Convert PDF to Markdown' }
-    };
+    // This runs when the page loads. If the current URL is a tool page
+    // (like /rotate-pdf), it redirects to /edit-pdf with a query parameter
+    // so the edit page knows which tool to activate.
+    
+    (function() {
+      const path = window.location.pathname;
+      const pageName = path.split('/').pop().replace('.html', '');
+      
+      // Map of tool pages to their display names
+      const toolMap = {
+        'edit-pdf': { tool: 'select', title: 'Edit PDF', icon: '✏️', desc: 'Edit your PDF documents' },
+        'rotate-pdf': { tool: 'select', title: 'Rotate PDF', icon: '🔄', desc: 'Rotate pages in your PDF' },
+        'scan-to-pdf': { tool: 'image', title: 'Scan to PDF', icon: '📷', desc: 'Convert scanned images to PDF' },
+        'merge-pdf': { tool: 'select', title: 'Merge PDF', icon: '🔗', desc: 'Combine multiple PDFs into one' },
+        'split-pdf': { tool: 'select', title: 'Split PDF', icon: '✂️', desc: 'Split PDF into separate files' },
+        'remove-pages': { tool: 'select', title: 'Remove Pages', icon: '🗑️', desc: 'Delete pages from your PDF' },
+        'extract-pages': { tool: 'select', title: 'Extract Pages', icon: '📤', desc: 'Extract pages from your PDF' },
+        'organize-pdf': { tool: 'select', title: 'Organize PDF', icon: '🗂️', desc: 'Rearrange pages in your PDF' },
+        'add-page-numbers': { tool: 'text', title: 'Add Page Numbers', icon: '🔢', desc: 'Add page numbers to your PDF' },
+        'add-watermark': { tool: 'text', title: 'Add Watermark', icon: '💧', desc: 'Add watermark to your PDF' },
+        'crop-pdf': { tool: 'select', title: 'Crop PDF', icon: '✂️', desc: 'Crop pages in your PDF' },
+        'pdf-forms': { tool: 'forms', title: 'PDF Forms', icon: '📋', desc: 'Fill and create PDF forms' },
+        'ai-summarizer': { tool: 'text', title: 'AI Summarizer', icon: '🤖', desc: 'Summarize your PDF content' },
+        'translate-pdf': { tool: 'text', title: 'Translate PDF', icon: '🌍', desc: 'Translate PDF content' },
+        'pdf-to-markdown': { tool: 'text', title: 'PDF to Markdown', icon: '📝', desc: 'Convert PDF to Markdown' }
+      };
+      
+      // If we're on a tool page (not edit-pdf), redirect to edit-pdf with the tool info
+      if (pageName !== 'edit-pdf' && toolMap[pageName]) {
+        const tool = toolMap[pageName];
+        // Store the tool info in sessionStorage so edit-pdf can use it
+        sessionStorage.setItem('droplet_tool', JSON.stringify(tool));
+        // Redirect to edit-pdf
+        window.location.href = '/edit-pdf.html';
+        return;
+      }
+      
+      // If we're already on edit-pdf, check if there's a tool in sessionStorage
+      const storedTool = sessionStorage.getItem('droplet_tool');
+      if (storedTool && pageName === 'edit-pdf') {
+        const tool = JSON.parse(storedTool);
+        // Clear it so it doesn't persist
+        sessionStorage.removeItem('droplet_tool');
+        // Apply the tool
+        applyTool(tool);
+        // Update the badge
+        document.getElementById('toolBadge').textContent = tool.icon + ' ' + tool.title;
+        document.getElementById('emptyTitle').textContent = tool.title;
+        document.getElementById('emptyDescription').textContent = tool.desc;
+        document.getElementById('pageTitle').textContent = tool.title + ' - Droplet';
+        // Set the tool
+        setTool(tool.tool);
+      }
+    })();
 
-    // Get the current page name from URL
-    const path = window.location.pathname;
-    const pageName = path.split('/').pop().replace('.html', '') || 'edit-pdf';
-    
-    // Find matching tool
-    const toolConfig = toolMap[pageName] || toolMap['edit-pdf'];
-    
-    // Update page title
-    document.getElementById('pageTitle').textContent = toolConfig.title + ' - Droplet';
-    
-    // Update empty state
-    document.getElementById('emptyTitle').textContent = toolConfig.title;
-    document.getElementById('emptyDescription').textContent = toolConfig.desc;
-    
-    // Show tool badge
-    const badge = document.getElementById('toolBadge');
-    badge.textContent = toolConfig.icon + ' ' + toolConfig.title;
-    badge.style.display = 'inline-block';
+    function applyTool(tool) {
+      // This function will be called when a tool is loaded from sessionStorage
+      console.log('🔧 Tool loaded:', tool.title);
+    }
 
     // ============================================
     // DARK MODE TOGGLE
@@ -1258,7 +1281,7 @@
     // ============================================
     // TOOL SELECTION & CONTEXTUAL TOOLBAR
     // ============================================
-    let currentTool = toolConfig.tool || 'select';
+    let currentTool = 'select';
 
     function setTool(tool) {
       currentTool = tool;
@@ -1313,8 +1336,8 @@
       document.getElementById(id).classList.remove('hidden');
     }
 
-    // Auto-select the tool based on URL
-    setTool(toolConfig.tool);
+    // Set default tool
+    setTool('select');
 
     function togglePropsPanel() {
       document.getElementById('propsPanel').classList.toggle('open');
@@ -1445,11 +1468,9 @@
       }
     });
 
-    console.log('📄 Droplet PDF Editor - Router enabled');
-    console.log('🔗 Current tool:', toolConfig.title);
-    console.log('📚 Available tools:', Object.keys(toolMap).join(', '));
-    console.log('💡 To use a specific tool, visit: /[tool-name].html');
-    console.log('   Example: /rotate-pdf.html, /scan-to-pdf.html, /merge-pdf.html');
+    console.log('📄 Droplet PDF Editor - Simple Router');
+    console.log('🔗 Visiting /rotate-pdf redirects to /edit-pdf with the tool loaded');
+    console.log('💡 All PDF tools share the same editor interface');
   </script>
 </body>
 </html>
