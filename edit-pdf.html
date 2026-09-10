@@ -782,7 +782,7 @@
       </div>
     </div>
 
-    <!-- Insert Menu (NEW) -->
+    <!-- Insert Menu -->
     <div class="menu-btn">
       Insert
       <div class="dropdown">
@@ -1315,11 +1315,13 @@
     let currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
     let docTitle = 'Untitled PDF';
     let zoomLevel = 1.0;
-    let pages = [];
+    let pages = []; // { num, pdfPage, rotation, blank }
     let selectedPages = new Set();
     let lastClickedPage = null;
-    let viewMode = 'continuous'; // 'single', 'continuous', 'two'
+    let viewMode = 'continuous';
     let currentPage = 1;
+    let pdfDoc = null; // PDF.js document reference
+    let pdfData = null; // ArrayBuffer of the loaded PDF
 
     // ============================================
     // DARK MODE
@@ -1371,9 +1373,8 @@
         textEl.textContent = newTitle;
         input.remove();
         textEl.style.display = '';
-        // Add "edited" suffix if not present and has content
         if (newTitle !== 'Untitled PDF' && !newTitle.includes('edited')) {
-          // Just show a subtle indication
+          // subtle
         }
       };
 
@@ -1387,7 +1388,6 @@
     function setDocTitle(name) {
       docTitle = name || 'Untitled PDF';
       document.getElementById('docTitleText').textContent = docTitle;
-      // Update export filename
       const exportInput = document.getElementById('exportFileName');
       if (exportInput && docTitle !== 'Untitled PDF') {
         const base = docTitle.replace(/\.pdf$/i, '');
@@ -1434,7 +1434,6 @@
     }
 
     function switchPropTab(type, tab) {
-      // Simplified tab switching
       if (type === 'text') {
         document.getElementById('textStyleTab').classList.toggle('hidden', tab !== 'style');
         document.getElementById('textPositionTab').classList.toggle('hidden', tab !== 'position');
@@ -1451,7 +1450,7 @@
     }
 
     // ============================================
-    // PDF LOADING
+    // PDF LOADING (real)
     // ============================================
     document.getElementById('pdfInput').addEventListener('change', function(e) {
       if (this.files.length > 0) {
@@ -1465,20 +1464,17 @@
       const reader = new FileReader();
       reader.onload = function(e) {
         const typedarray = new Uint8Array(e.target.result);
-
+        pdfData = typedarray;
         pdfjsLib.getDocument(typedarray).promise.then(function(pdf) {
+          pdfDoc = pdf;
           pages = [];
           for (let i = 1; i <= pdf.numPages; i++) {
-            pages.push({ num: i, pdfPage: i, rotation: 0 });
+            pages.push({ num: i, pdfPage: i, rotation: 0, blank: false });
           }
 
           document.getElementById('emptyState').classList.add('hidden');
           document.getElementById('pageWrapper').classList.remove('hidden');
           document.getElementById('emptyThumbnails').classList.add('hidden');
-
-          // Store pdf reference
-          window._pdf = pdf;
-          window._pdfData = typedarray;
 
           setDocTitle(file.name);
           renderAllPages(pdf);
@@ -1489,6 +1485,10 @@
 
           updateStatusBar();
           setTool('select');
+          updateNavigatorVisibility();
+        }).catch(err => {
+          console.error('PDF load error', err);
+          alert('Failed to load PDF: ' + err.message);
         });
       };
       reader.readAsArrayBuffer(file);
@@ -1574,6 +1574,7 @@
       lastClickedPage = pageNum;
       updateThumbnailSelection();
       updateSelectedPagesProps();
+      updateStatusBar();
     }
 
     function updateThumbnailSelection() {
@@ -1627,7 +1628,9 @@
     }
 
     function updateStatusBar() {
-      document.getElementById('statusPage').textContent = `Page ${currentPage} of ${pages.length}`;
+      const total = pages.length || 1;
+      document.getElementById('statusPage').textContent = `Page ${currentPage} of ${total}`;
+      document.getElementById('pageInfoText').textContent = `${currentPage} of ${total}`;
     }
 
     // ============================================
@@ -1637,8 +1640,8 @@
       zoomLevel = level;
       document.getElementById('zoomLevel').textContent = Math.round(level * 100) + '%';
       document.getElementById('zoomDropdown').classList.remove('open');
-      if (window._pdf) {
-        renderAllPages(window._pdf);
+      if (pdfDoc) {
+        renderAllPages(pdfDoc);
       }
       updateNavigatorVisibility();
     }
@@ -1677,32 +1680,68 @@
     }
 
     // ============================================
-    // PAGE OPERATIONS
+    // PAGE OPERATIONS (functional implementations)
     // ============================================
     function addBlankPage() {
-      if (!window._pdf) {
-        createBlankPDF();
-        return;
-      }
+      // Always add a blank page at end
       const newNum = pages.length + 1;
       pages.push({ num: newNum, pdfPage: null, rotation: 0, blank: true });
+      // If we have a real PDF, re-render everything to include blank
+      if (pdfDoc) {
+        // Instead of re-rendering PDF pages, just append a blank container
+        const wrapper = document.getElementById('pageWrapper');
+        const container = document.createElement('div');
+        container.className = 'page-container';
+        container.dataset.page = newNum;
+        container.style.width = '595px'; // A4 at ~72dpi
+        container.style.height = '842px';
+        container.innerHTML = `
+          <div style="display:flex;align-items:center;justify-content:center;height:100%;background:white;color:#cbd5e1;font-size:14px;">Blank Page</div>
+          <div class="page-label">Page ${newNum}</div>
+        `;
+        wrapper.appendChild(container);
+        // Re-init observer for new page
+        updatePageObserver();
+      } else {
+        // No PDF, just show blank
+        const wrapper = document.getElementById('pageWrapper');
+        if (!wrapper.innerHTML.trim()) {
+          wrapper.innerHTML = `
+            <div class="page-container" data-page="1" style="width:595px;height:842px;">
+              <div style="display:flex;align-items:center;justify-content:center;height:100%;background:white;color:#cbd5e1;font-size:14px;">Blank Page</div>
+              <div class="page-label">Page 1</div>
+            </div>
+          `;
+        }
+      }
       renderThumbnails();
-      alert('📄 Blank page added');
+      updateStatusBar();
+      alert('📄 Blank page added at end');
     }
 
     function duplicatePage() {
-      if (pages.length === 0) return;
+      if (pages.length === 0) return alert('No pages to duplicate');
       const target = currentPage || 1;
-      pages.splice(target, 0, { num: target + 0.5, pdfPage: pages[target - 1]?.pdfPage, rotation: 0 });
+      const sourcePage = pages[target - 1];
+      const newNum = pages.length + 1;
+      pages.push({ num: newNum, pdfPage: sourcePage.pdfPage, rotation: sourcePage.rotation, blank: sourcePage.blank });
+      // For simplicity, just re-render thumbnails and alert. Real duplication would need canvas copying.
       renderThumbnails();
-      alert('📋 Page duplicated');
+      alert('📋 Page duplicated (visual placeholder — re-render required for full fidelity)');
     }
 
     function rotatePage(dir) {
-      if (pages.length === 0) return;
+      if (pages.length === 0) return alert('No pages to rotate');
       const target = currentPage || 1;
-      pages[target - 1].rotation = (pages[target - 1].rotation || 0) + (dir === 'left' ? -90 : 90);
-      alert(`🔄 Rotated ${dir}`);
+      if (pages[target - 1]) {
+        pages[target - 1].rotation = (pages[target - 1].rotation || 0) + (dir === 'left' ? -90 : 90);
+        // Apply visual rotation to the container
+        const container = document.querySelector(`.page-container[data-page="${target}"]`);
+        if (container) {
+          container.style.transform = `rotate(${pages[target - 1].rotation}deg)`;
+        }
+        alert(`🔄 Rotated page ${target} ${dir}`);
+      }
     }
 
     function deletePage() {
@@ -1710,10 +1749,20 @@
         alert('Cannot delete the only page');
         return;
       }
-      pages.splice(currentPage - 1, 1);
-      currentPage = Math.min(currentPage, pages.length);
-      renderThumbnails();
-      alert('🗑️ Page deleted');
+      const target = currentPage || 1;
+      if (confirm(`Delete page ${target}?`)) {
+        pages.splice(target - 1, 1);
+        // Re-number pages
+        pages.forEach((p, i) => p.num = i + 1);
+        currentPage = Math.min(currentPage, pages.length);
+        // Re-render thumbnails and container
+        renderThumbnails();
+        if (pdfDoc) {
+          renderAllPages(pdfDoc); // full re-render for simplicity
+        }
+        updateStatusBar();
+        alert('🗑️ Page deleted');
+      }
     }
 
     function selectAllPages() {
@@ -1725,43 +1774,136 @@
 
     function rotateSelected() {
       if (selectedPages.size === 0) return alert('No pages selected');
-      alert(`🔄 Rotated ${selectedPages.size} pages`);
+      alert(`🔄 Rotated ${selectedPages.size} pages (visual placeholder)`);
     }
 
     function extractSelected() {
       if (selectedPages.size === 0) return alert('No pages selected');
-      alert(`📤 Extracting ${selectedPages.size} pages`);
+      alert(`📤 Extracting ${selectedPages.size} pages (placeholder)`);
     }
 
     function deleteSelected() {
       if (selectedPages.size === 0) return alert('No pages selected');
       if (confirm(`Delete ${selectedPages.size} pages?`)) {
         pages = pages.filter(p => !selectedPages.has(p.num));
+        // Re-number
+        pages.forEach((p, i) => p.num = i + 1);
         selectedPages.clear();
         renderThumbnails();
+        if (pdfDoc) renderAllPages(pdfDoc);
+        updateStatusBar();
+        alert('🗑️ Selected pages deleted');
       }
     }
 
-    function reorderPages() { alert('📋 Reorder pages mode'); }
-    function extractPages() { alert('📤 Extract pages'); }
-    function splitPDF() { alert('✂️ Split PDF'); }
-    function mergePDF() { alert('🔗 Merge PDF'); }
-    function addImageAsPage() { alert('🖼️ Add image as page'); }
-    function insertLink() { alert('🔗 Insert link'); }
-    function insertFormField(type) { alert(`📝 Insert form field: ${type}`); }
-    function insertPageNumber() { alert('🔢 Insert page number'); }
-    function insertWatermark() { alert('💧 Insert watermark'); }
+    // Real reorder: simple move up/down for current page
+    function reorderPages() {
+      if (pages.length < 2) return alert('Need at least 2 pages to reorder');
+      const target = currentPage || 1;
+      const direction = prompt(`Move page ${target} up or down? Enter "up" or "down"`, 'up');
+      if (!direction) return;
+      const idx = target - 1;
+      if (direction.toLowerCase() === 'up' && idx > 0) {
+        [pages[idx - 1], pages[idx]] = [pages[idx], pages[idx - 1]];
+        pages.forEach((p, i) => p.num = i + 1);
+        currentPage = idx; // new position
+      } else if (direction.toLowerCase() === 'down' && idx < pages.length - 1) {
+        [pages[idx], pages[idx + 1]] = [pages[idx + 1], pages[idx]];
+        pages.forEach((p, i) => p.num = i + 1);
+        currentPage = idx + 2;
+      } else {
+        return alert('Invalid direction or already at edge');
+      }
+      renderThumbnails();
+      if (pdfDoc) renderAllPages(pdfDoc);
+      updateStatusBar();
+      alert('📋 Pages reordered');
+    }
+
+    function extractPages() {
+      if (pages.length === 0) return alert('No pages to extract');
+      const range = prompt('Enter page range to extract (e.g. 1-3,5):', '1-' + pages.length);
+      if (!range) return;
+      // Parse simple range
+      let extracted = [];
+      try {
+        range.split(',').forEach(part => {
+          if (part.includes('-')) {
+            const [a, b] = part.split('-').map(Number);
+            for (let i = a; i <= b; i++) if (pages[i - 1]) extracted.push(i);
+          } else {
+            const n = Number(part);
+            if (pages[n - 1]) extracted.push(n);
+          }
+        });
+        if (extracted.length === 0) throw new Error('No valid pages');
+        alert(`📤 Extracted pages: ${extracted.join(', ')} (download placeholder)`);
+      } catch (err) {
+        alert('Invalid range format. Use e.g. 1-3,5');
+      }
+    }
+
+    function splitPDF() {
+      if (pages.length < 2) return alert('Need at least 2 pages to split');
+      const at = prompt('Split after page number:', '1');
+      const n = parseInt(at);
+      if (!n || n < 1 || n >= pages.length) return alert('Invalid page number');
+      alert(`✂️ Split PDF after page ${n} (placeholder — two documents would be created)`);
+    }
+
+    function mergePDF() {
+      if (!pdfDoc) {
+        alert('Open a PDF first, then use File > Add PDF / Merge to merge');
+        return;
+      }
+      // Trigger file input for additional PDFs
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = '.pdf';
+      input.multiple = true;
+      input.onchange = (e) => {
+        const files = Array.from(e.target.files);
+        if (files.length === 0) return;
+        alert(`🔗 Merging ${files.length} PDF(s) — placeholder. Real merge requires backend or PDF-lib.`);
+      };
+      input.click();
+    }
+
+    function addImageAsPage() {
+      alert('🖼️ Add image as page (placeholder)');
+    }
+    function insertLink() { alert('🔗 Insert link (placeholder)'); }
+    function insertFormField(type) { alert(`📝 Insert form field: ${type} (placeholder)`); }
+    function insertPageNumber() { alert('🔢 Insert page number (placeholder)'); }
+    function insertWatermark() { alert('💧 Insert watermark (placeholder)'); }
 
     // ============================================
     // TITLE / EXPORT
     // ============================================
-    function exportPDF() { alert('📤 Exporting PDF...'); }
-    function downloadPDF() { alert('⬇️ Downloading PDF...'); }
-    function compressPDF() { alert('📦 Compressing PDF...'); }
-    function flattenAnnotations() { alert('📄 Flattening annotations...'); }
-    function saveProject() { alert('💾 Save project'); }
-    function saveProjectAs() { alert('📁 Save project as...'); }
+    function exportPDF() {
+      if (!pdfData) return alert('No PDF loaded');
+      // Basic: download the original PDF data (no edits applied)
+      const blob = new Blob([pdfData], { type: 'application/pdf' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = document.getElementById('exportFileName').value || 'document-edited.pdf';
+      a.click();
+      URL.revokeObjectURL(url);
+      alert('📤 PDF exported (original content, annotations not yet embedded)');
+    }
+
+    function downloadPDF() {
+      exportPDF();
+    }
+
+    function compressPDF() { alert('📦 Compress PDF (placeholder)'); }
+    function flattenAnnotations() { alert('📄 Flatten annotations (placeholder)'); }
+    function saveProject() { alert('💾 Save project (placeholder)'); }
+    function saveProjectAs() { alert('📁 Save project as (placeholder)'); }
     function closeDocument() {
+      pdfDoc = null;
+      pdfData = null;
       pages = [];
       selectedPages.clear();
       document.getElementById('pageWrapper').classList.add('hidden');
@@ -1780,6 +1922,8 @@
       document.getElementById('pageWrapper').classList.remove('hidden');
       document.getElementById('emptyThumbnails').classList.add('hidden');
       pages = [{ num: 1, pdfPage: null, rotation: 0, blank: true }];
+      pdfDoc = null;
+      pdfData = null;
       renderThumbnails();
 
       const wrapper = document.getElementById('pageWrapper');
@@ -1806,26 +1950,32 @@
       if (mode === 'continuous') {
         document.getElementById('viewContinuous').textContent = '📑 Continuous ✓';
       }
-      alert(`👁️ View: ${mode}`);
+      alert(`👁️ View: ${mode} (placeholder)`);
     }
 
     // ============================================
-    // EDIT ACTIONS
+    // EDIT ACTIONS (real basic)
     // ============================================
-    function undo() { alert('↶ Undo'); }
-    function redo() { alert('↷ Redo'); }
-    function cutSelection() { alert('✂️ Cut'); }
-    function copySelection() { alert('📋 Copy'); }
-    function pasteSelection() { alert('📋 Paste'); }
-    function deleteSelection() { alert('🗑️ Delete'); }
+    function undo() { alert('↶ Undo (placeholder)'); }
+    function redo() { alert('↷ Redo (placeholder)'); }
+    function cutSelection() { alert('✂️ Cut (placeholder)'); }
+    function copySelection() { alert('📋 Copy (placeholder)'); }
+    function pasteSelection() { alert('📋 Paste (placeholder)'); }
+    function deleteSelection() {
+      if (selectedPages.size > 0) {
+        deleteSelected();
+      } else {
+        alert('🗑️ Delete (no selection)');
+      }
+    }
     function selectAll() {
       selectedPages.clear();
       pages.forEach(p => selectedPages.add(p.num));
       updateThumbnailSelection();
       updateSelectedPagesProps();
     }
-    function findText() { alert('🔍 Find'); }
-    function replaceText() { alert('🔄 Replace'); }
+    function findText() { alert('🔍 Find (placeholder)'); }
+    function replaceText() { alert('🔄 Replace (placeholder)'); }
 
     // ============================================
     // SIDEBAR MENUS
@@ -1877,9 +2027,8 @@
     // ============================================
     // INIT
     // ============================================
-    console.log('✏️ Droplet PDF Editor v3 - Pro UI');
-    console.log('📄 Features: Continuous scroll, Multi-page selection, Zoom, Tabs, Insert menu, Navigator');
     updateStatusBar();
+    console.log('✏️ Droplet PDF Editor v3.1 — functional improvements');
   </script>
 </body>
 </html>
