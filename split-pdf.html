@@ -96,6 +96,9 @@
       border-bottom: 1px solid #f1f5f9;
       transition: background 0.2s;
     }
+    .split-result-item:last-child {
+      border-bottom: none;
+    }
     .split-result-item:hover {
       background: #f8fafc;
     }
@@ -134,12 +137,166 @@
     .split-result-item .download-btn:hover {
       background: #1d4ed8;
     }
+
+    /* ===== DARK MODE ===== */
+    html.dark body {
+      background: #0f172a;
+      color: #e2e8f0;
+    }
+    html.dark header {
+      background: #1e293b;
+      border-color: #334155;
+    }
+    html.dark header h1 { color: #f1f5f9; }
+    html.dark header p { color: #60a5fa !important; }
+    html.dark header nav a { color: #94a3b8; }
+    html.dark header nav a:hover { color: #f1f5f9; }
+
+    html.dark #dropzone {
+      background: #1e293b;
+      border-color: #475569;
+    }
+    html.dark #dropzone:hover { border-color: #3b82f6; }
+    html.dark #dropzone h3 { color: #f1f5f9; }
+    html.dark #dropzone p { color: #94a3b8; }
+    html.dark #dropzone .bg-blue-50 { background: #1e3a5f !important; }
+
+    html.dark #fileInfo {
+      background: #1e293b;
+      border-color: #334155;
+    }
+    html.dark #fileInfo .text-slate-900 { color: #f1f5f9; }
+    html.dark #fileInfo .text-slate-400 { color: #94a3b8; }
+    html.dark #fileInfo .border-slate-200 { border-color: #334155; }
+    html.dark #fileInfo .hover\:bg-slate-50:hover { background: #334155; }
+    html.dark #fileInfo .bg-slate-50 { background: #0f172a !important; }
+    html.dark #fileInfo .border-t { border-color: #334155; }
+    html.dark #fileInfo select,
+    html.dark #fileInfo input[type="text"],
+    html.dark #fileInfo input[type="number"] {
+      background: #0f172a;
+      border-color: #334155;
+      color: #f1f5f9;
+    }
+    html.dark #fileInfo select option { background: #1e293b; }
+
+    html.dark .page-thumb {
+      background: #1e293b;
+      border-color: #334155;
+      color: #94a3b8;
+    }
+    html.dark .page-thumb:hover {
+      border-color: #64748b;
+      background: #334155;
+    }
+    html.dark .page-thumb.selected {
+      border-color: #3b82f6;
+      background: #1e3a5f;
+      color: #93c5fd;
+    }
+    html.dark .page-thumb .page-preview {
+      background: #0f172a;
+    }
+    html.dark .page-grid::-webkit-scrollbar-track { background: #0f172a; }
+    html.dark .page-grid::-webkit-scrollbar-thumb { background: #475569; }
+    html.dark .page-grid::-webkit-scrollbar-thumb:hover { background: #64748b; }
+
+    html.dark .split-result-item {
+      border-bottom-color: #334155;
+    }
+    html.dark .split-result-item:hover {
+      background: #334155;
+    }
+    html.dark .split-result-item .info .name { color: #f1f5f9; }
+    html.dark .split-result-item .info .pages {
+      background: #0f172a;
+      color: #94a3b8;
+    }
+    html.dark .split-result-item .info .range { color: #64748b; }
+    html.dark #splitResults {
+      background: #1e293b;
+      border-color: #334155;
+    }
+
+    html.dark #resultSection .bg-green-50 {
+      background: #0f172a !important;
+      border-color: #334155;
+    }
+    html.dark #resultSection .border-green-200 { border-color: #334155 !important; }
+    html.dark #resultSection h3 { color: #f1f5f9; }
+    html.dark #resultSection .text-slate-600 { color: #94a3b8; }
+    html.dark #resultSection .border-slate-200 { border-color: #334155 !important; }
+    html.dark #resultSection .hover\:bg-slate-50:hover { background: #334155 !important; }
+
+    html.dark .bg-white { background: #1e293b !important; }
+    html.dark .border-slate-100 { border-color: #334155 !important; }
+    html.dark .border-slate-200 { border-color: #334155 !important; }
+    html.dark .border-slate-300 { border-color: #334155 !important; }
+    html.dark .text-slate-500 { color: #94a3b8 !important; }
+    html.dark .text-slate-600 { color: #94a3b8 !important; }
+    html.dark .text-slate-700 { color: #cbd5e1 !important; }
+    html.dark .text-slate-900 { color: #f1f5f9 !important; }
+    html.dark .bg-blue-50 { background: #1e3a5f !important; }
+    html.dark .border-blue-200 { border-color: #2563eb !important; }
+    html.dark .text-blue-700 { color: #60a5fa !important; }
+    html.dark .text-blue-900 { color: #93c5fd !important; }
+    html.dark .bg-slate-50 { background: #0f172a !important; }
+    html.dark .bg-slate-100 { background: #334155 !important; }
+    html.dark .hover\:bg-slate-200:hover { background: #475569 !important; }
+
+    html.dark .badge-pages { background: #1e3a5f; color: #93c5fd; }
+    html.dark .badge-files { background: #064e3b; color: #6ee7b7; }
+    html.dark .badge-size { background: #78350f; color: #fcd34d; }
+    html.dark .badge-split { background: #3b1e2e; color: #f9a8d4; }
+
+    html.dark footer {
+      background: #0f172a !important;
+      border-color: #334155 !important;
+    }
+    html.dark footer a { color: #94a3b8; }
+    html.dark footer a:hover { color: #f1f5f9; }
+    html.dark footer p { color: #94a3b8 !important; }
+
+    html.dark .shadow-sm { box-shadow: 0 1px 2px 0 rgba(0,0,0,0.3) !important; }
+    html.dark .shadow-lg { box-shadow: 0 10px 15px -3px rgba(0,0,0,0.4) !important; }
+    html.dark .shadow-md { box-shadow: 0 4px 6px -1px rgba(0,0,0,0.4) !important; }
+
+    html.dark .back-home-btn {
+      background: #1e293b !important;
+      border-color: #475569 !important;
+      color: #e2e8f0 !important;
+    }
+    html.dark .back-home-btn:hover {
+      background: #334155 !important;
+      border-color: #3b82f6 !important;
+    }
+
+    html.dark .bg-green-600 { background: #059669 !important; }
+    html.dark .bg-green-600:hover { background: #047857 !important; }
+    html.dark .bg-blue-600 { background: #2563eb !important; }
+    html.dark .bg-blue-600:hover { background: #1d4ed8 !important; }
+
+    /* Theme toggle */
+    #theme-toggle {
+      background: none;
+      border: none;
+      font-size: 1.2rem;
+      cursor: pointer;
+      padding: 0.2rem 0.4rem;
+      border-radius: 6px;
+      transition: background 0.2s;
+      color: #475569;
+      line-height: 1;
+    }
+    #theme-toggle:hover { background: #f1f5f9; }
+    html.dark #theme-toggle { color: #e2e8f0; }
+    html.dark #theme-toggle:hover { background: #334155; }
   </style>
 </head>
-<body class="bg-slate-50 text-slate-800 font-sans antialiased">
+<body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen flex flex-col transition-colors duration-200">
 
   <!-- Navigation -->
-  <header class="bg-white border-b border-slate-200 py-3.5 px-6 sticky top-0 z-50">
+  <header class="bg-white border-b border-slate-200 py-3.5 px-6 sticky top-0 z-50 transition-colors duration-200">
     <div class="max-w-6xl mx-auto flex justify-between items-center">
       <a href="/" class="flex items-center gap-3 group">
         <img src="Gemini_Generated_Image_sdu6v7sdu6v7sdu6.jpg" alt="Droplet Logo" class="h-9 w-auto rounded-xl shadow-sm group-hover:scale-105 transition-transform">
@@ -148,18 +305,31 @@
           <p class="text-[9px] text-blue-600 font-extrabold tracking-widest uppercase mt-0.5">DRAG, DROP AND CONVERT.</p>
         </div>
       </a>
-      <nav class="hidden md:flex items-center space-x-6 text-xs font-bold text-slate-600">
-        <a href="/" class="hover:text-blue-600 transition-colors">← Back</a>
-      </nav>
+      <div class="flex items-center gap-3">
+        <button id="theme-toggle" aria-label="Toggle theme">🌙</button>
+        <nav class="hidden md:flex items-center space-x-6 text-xs font-bold text-slate-600">
+          <a href="/" class="hover:text-blue-600 transition-colors">← Back</a>
+        </nav>
+      </div>
     </div>
   </header>
 
   <!-- Main Content -->
   <main class="max-w-4xl mx-auto px-4 py-8 md:py-12 flex-grow w-full">
 
+    <!-- Back Button (prominent & visible) -->
+    <div class="max-w-2xl mx-auto mb-4 flex justify-start">
+      <a href="/" class="back-home-btn inline-flex items-center gap-2 bg-white hover:bg-slate-50 border border-slate-200 shadow-sm rounded-full px-5 py-2.5 text-sm font-medium text-slate-700 transition-all hover:shadow-md hover:border-slate-300 active:scale-95">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        </svg>
+        Back to Home
+      </a>
+    </div>
+
     <!-- Page Header -->
     <div class="text-center mb-8">
-      <div class="inline-block p-3 bg-blue-50 rounded-2xl mb-4">
+      <div class="inline-block p-3 bg-blue-50 rounded-2xl mb-4 transition-colors duration-200">
         <span class="text-4xl">✂️</span>
       </div>
       <h1 class="text-3xl md:text-4xl font-black text-slate-900 tracking-tight">Split PDF</h1>
@@ -171,7 +341,7 @@
     <!-- Dropzone -->
     <div id="dropzone" class="bg-white border-2 border-dashed border-slate-300 hover:border-blue-400 transition-all rounded-3xl p-8 md:p-12 text-center shadow-lg max-w-2xl mx-auto cursor-pointer">
       <div class="flex flex-col items-center">
-        <div class="w-20 h-20 bg-blue-50 rounded-2xl flex items-center justify-center mb-4 text-4xl">
+        <div class="w-20 h-20 bg-blue-50 rounded-2xl flex items-center justify-center mb-4 text-4xl transition-colors duration-200">
           📁
         </div>
         <h3 class="text-xl font-bold text-slate-900 mb-1">Drop your PDF here</h3>
@@ -185,7 +355,7 @@
     </div>
 
     <!-- File Info -->
-    <div id="fileInfo" class="hidden max-w-2xl mx-auto mt-6 bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+    <div id="fileInfo" class="hidden max-w-2xl mx-auto mt-6 bg-white rounded-xl shadow-sm border border-slate-200 p-6 transition-colors duration-200">
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-3">
           <span class="text-2xl">📄</span>
@@ -199,31 +369,31 @@
       </div>
       
       <!-- Split Options -->
-      <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-slate-50 rounded-lg">
+      <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-slate-50 rounded-lg transition-colors duration-200">
         <div>
-          <label class="block text-xs font-medium text-slate-700 mb-1">Split Mode</label>
-          <select id="splitMode" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <label class="block text-xs font-medium text-slate-700 mb-1">✂️ Split Mode</label>
+          <select id="splitMode" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white transition-colors duration-200">
             <option value="every">Every N Pages</option>
             <option value="ranges">Custom Ranges</option>
             <option value="extract">Extract Selected Pages</option>
           </select>
         </div>
         <div id="everyNContainer">
-          <label class="block text-xs font-medium text-slate-700 mb-1">Pages Per File</label>
-          <input type="number" id="pagesPerFile" value="1" min="1" max="100" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <label class="block text-xs font-medium text-slate-700 mb-1">📄 Pages Per File</label>
+          <input type="number" id="pagesPerFile" value="1" min="1" max="100" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white transition-colors duration-200">
         </div>
         <div id="rangesContainer" class="hidden">
-          <label class="block text-xs font-medium text-slate-700 mb-1">Page Ranges (e.g., 1-3, 5, 7-9)</label>
-          <input type="text" id="pageRanges" placeholder="1-3, 5, 7-9" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <label class="block text-xs font-medium text-slate-700 mb-1">📋 Page Ranges</label>
+          <input type="text" id="pageRanges" placeholder="1-3, 5, 7-9" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white transition-colors duration-200">
         </div>
         <div id="extractContainer" class="hidden">
-          <label class="block text-xs font-medium text-slate-700 mb-1">Select pages below</label>
+          <label class="block text-xs font-medium text-slate-700 mb-1">👆 Select pages below</label>
           <p class="text-xs text-slate-400">Click on pages to select/deselect</p>
         </div>
       </div>
 
       <!-- Page Grid -->
-      <div id="pageGridContainer" class="hidden mt-4 border-t border-slate-200 pt-4">
+      <div id="pageGridContainer" class="hidden mt-4 border-t border-slate-200 pt-4 transition-colors duration-200">
         <div class="flex items-center justify-between mb-2">
           <h4 class="font-bold text-sm text-slate-700">📄 Pages</h4>
           <div class="flex gap-2">
@@ -258,7 +428,7 @@
     </div>
 
     <!-- Result Section -->
-    <div id="resultSection" class="hidden max-w-2xl mx-auto mt-6 bg-green-50 border border-green-200 rounded-xl p-6">
+    <div id="resultSection" class="hidden max-w-2xl mx-auto mt-6 bg-green-50 border border-green-200 rounded-xl p-6 transition-colors duration-200">
       <div class="flex items-center justify-between mb-4">
         <div>
           <div class="text-4xl mb-1">✅</div>
@@ -274,7 +444,7 @@
         </button>
       </div>
       
-      <div id="splitResults" class="max-h-60 overflow-y-auto border border-slate-200 rounded-lg bg-white">
+      <div id="splitResults" class="max-h-60 overflow-y-auto border border-slate-200 rounded-lg bg-white transition-colors duration-200">
         <!-- Split results will be added here -->
       </div>
       
@@ -287,17 +457,17 @@
 
     <!-- Info Section -->
     <div class="max-w-2xl mx-auto mt-12 grid grid-cols-1 md:grid-cols-3 gap-4">
-      <div class="bg-white p-4 rounded-xl border border-slate-100 text-center">
+      <div class="bg-white p-4 rounded-xl border border-slate-100 text-center transition-colors duration-200">
         <div class="text-2xl mb-1">🔒</div>
         <h4 class="font-bold text-sm">100% Private</h4>
         <p class="text-xs text-slate-500">Your files never leave your browser</p>
       </div>
-      <div class="bg-white p-4 rounded-xl border border-slate-100 text-center">
+      <div class="bg-white p-4 rounded-xl border border-slate-100 text-center transition-colors duration-200">
         <div class="text-2xl mb-1">✂️</div>
         <h4 class="font-bold text-sm">Multiple Modes</h4>
         <p class="text-xs text-slate-500">Split by pages, ranges, or extract</p>
       </div>
-      <div class="bg-white p-4 rounded-xl border border-slate-100 text-center">
+      <div class="bg-white p-4 rounded-xl border border-slate-100 text-center transition-colors duration-200">
         <div class="text-2xl mb-1">⚡</div>
         <h4 class="font-bold text-sm">Fast & Free</h4>
         <p class="text-xs text-slate-500">No sign-up required</p>
@@ -308,15 +478,15 @@
     <section class="max-w-2xl mx-auto mt-12">
       <h2 class="text-xl font-black text-slate-900 text-center mb-6">Frequently Asked Questions</h2>
       <div class="space-y-3">
-        <div class="bg-white p-5 rounded-xl border border-slate-100">
+        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
           <h3 class="font-bold text-slate-900 text-sm">Is my data safe?</h3>
           <p class="text-slate-600 text-sm mt-1">Yes! All splitting happens locally in your browser. Your PDF is never uploaded to any server.</p>
         </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100">
+        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
           <h3 class="font-bold text-slate-900 text-sm">What split modes are available?</h3>
           <p class="text-slate-600 text-sm mt-1">You can split by "Every N Pages" (e.g., every 2 pages), "Custom Ranges" (e.g., 1-3, 5, 7-9), or "Extract Selected Pages" by clicking on pages.</p>
         </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100">
+        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
           <h3 class="font-bold text-slate-900 text-sm">Are there file size limits?</h3>
           <p class="text-slate-600 text-sm mt-1">Since everything runs locally, limits depend on your device's memory. Most modern browsers handle PDFs up to 100MB without issues.</p>
         </div>
@@ -325,21 +495,52 @@
   </main>
 
   <!-- Footer -->
-  <footer class="border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-500 mt-auto">
+  <footer class="border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-500 mt-auto transition-colors duration-200">
     <div class="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-3">
       <p class="font-medium">© Droplet. 100% Client-Side Privacy First File Utility.</p>
       <div class="space-x-4">
+        <a href="/about.html" class="hover:text-blue-600 transition-colors">About</a>
+        <span>•</span>
         <a href="/privacy.html" class="hover:text-blue-600 transition-colors">Privacy Policy</a>
         <span>•</span>
         <a href="/terms.html" class="hover:text-blue-600 transition-colors">Terms of Service</a>
-        <span>•</span>
-        <a href="/contact.html" class="hover:text-blue-600 transition-colors">Contact</a>
       </div>
     </div>
   </footer>
 
   <!-- ===== JAVASCRIPT ===== -->
   <script>
+    // ============================================
+    // DARK MODE TOGGLE
+    // ============================================
+    const themeToggle = document.getElementById('theme-toggle');
+    const html = document.documentElement;
+    
+    let currentTheme = localStorage.getItem('theme') || 
+      (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    
+    if (currentTheme === 'dark') {
+      html.classList.add('dark');
+      themeToggle.textContent = '☀️';
+    } else {
+      themeToggle.textContent = '🌙';
+    }
+    
+    themeToggle.addEventListener('click', () => {
+      if (html.classList.contains('dark')) {
+        html.classList.remove('dark');
+        themeToggle.textContent = '🌙';
+        localStorage.setItem('theme', 'light');
+      } else {
+        html.classList.add('dark');
+        themeToggle.textContent = '☀️';
+        localStorage.setItem('theme', 'dark');
+      }
+    });
+
+    // ============================================
+    // SPLIT PDF LOGIC
+    // ============================================
     let currentFile = null;
     let pdfPages = [];
     let selectedPages = new Set();
@@ -388,25 +589,22 @@
     });
 
     // ============================================
-    // FILE HANDLING - FIXED
+    // FILE HANDLING
     // ============================================
     
-    // Click on dropzone to open file picker
     dropzone.addEventListener('click', function(e) {
       if (e.target.tagName !== 'BUTTON') {
         fileInput.click();
       }
     });
 
-    // File input change handler
     fileInput.addEventListener('change', function(e) {
       if (this.files.length > 0) {
         handleFile(this.files[0]);
-        this.value = ''; // Reset so same file can be selected again
+        this.value = '';
       }
     });
 
-    // Drag and drop
     dropzone.addEventListener('dragover', function(e) {
       e.preventDefault();
       this.classList.add('dropzone-highlight');
@@ -428,7 +626,6 @@
       }
     });
 
-    // The button inside dropzone should also trigger file picker
     document.querySelector('#dropzone button').addEventListener('click', function(e) {
       e.stopPropagation();
       fileInput.click();
@@ -456,7 +653,6 @@
       progressContainer.classList.add('hidden');
       splitBtn.disabled = false;
 
-      // Load PDF and show pages
       await loadPDF(file);
     }
 
@@ -475,7 +671,6 @@
         pdfPages = [];
         selectedPages = new Set();
 
-        // Render page thumbnails
         pageGrid.innerHTML = '';
 
         for (let i = 1; i <= totalPages; i++) {
@@ -492,7 +687,6 @@
             canvas: canvas
           });
 
-          // Create thumbnail
           const thumb = document.createElement('div');
           thumb.className = 'page-thumb';
           thumb.dataset.page = i;
@@ -634,7 +828,6 @@
         return;
       }
 
-      // Show progress
       progressContainer.classList.remove('hidden');
       resultSection.classList.add('hidden');
       splitBtn.disabled = true;
@@ -667,7 +860,6 @@
             });
           }
 
-          // Create PDF using html2pdf
           const pdfBlob = await createPDFFromImages(pageImages);
           
           const baseName = currentFile.name.replace(/\.pdf$/i, '');
@@ -680,7 +872,6 @@
             range: `${range.start}-${range.end}`
           });
 
-          // Update progress
           const progress = Math.round(((r + 1) / pageRangesList.length) * 80) + 15;
           progressBar.style.width = Math.min(progress, 95) + '%';
           progressText.textContent = Math.min(progress, 95) + '%';
@@ -691,7 +882,6 @@
         progressText.textContent = '100%';
         statusText.textContent = '✅ Split complete!';
 
-        // Show results
         setTimeout(() => {
           showResults();
           splitBtn.disabled = false;
@@ -730,7 +920,6 @@
     }
 
     async function createPDFFromImages(pageImages) {
-      // Build HTML with all images
       let html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><style>
         body { margin: 0; padding: 0; background: white; }
         .page { page-break-after: always; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
@@ -745,7 +934,6 @@
 
       html += `</body></html>`;
 
-      // Create a temporary container
       const container = document.createElement('div');
       container.style.position = 'fixed';
       container.style.left = '-9999px';
@@ -754,7 +942,6 @@
       container.innerHTML = html;
       document.body.appendChild(container);
 
-      // Generate PDF using html2pdf
       const opt = {
         margin: 0,
         filename: 'temp.pdf',
@@ -769,7 +956,6 @@
         .from(container)
         .outputPdf('blob');
 
-      // Clean up
       document.body.removeChild(container);
 
       return pdfBlob;
@@ -777,13 +963,12 @@
 
     function showResults() {
       resultBadgeFiles.textContent = `${splitResults.length} files`;
-      let totalPages = 0;
+      let totalPgs = 0;
       for (const result of splitResults) {
-        totalPages += result.pages;
+        totalPgs += result.pages;
       }
-      resultBadgePages.textContent = `${totalPages} pages`;
+      resultBadgePages.textContent = `${totalPgs} pages`;
 
-      // Build results list
       splitResultsContainer.innerHTML = '';
       for (let i = 0; i < splitResults.length; i++) {
         const result = splitResults[i];
@@ -843,7 +1028,6 @@
           URL.revokeObjectURL(url);
         });
       } else {
-        // Fallback: download individually
         for (let i = 0; i < splitResults.length; i++) {
           setTimeout(() => {
             downloadSplit(i);
@@ -852,7 +1036,6 @@
       }
     }
 
-    // Keyboard shortcut: Enter to split
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' && !splitBtn.disabled && !splitBtn.textContent.includes('⏳')) {
         splitPDF();
