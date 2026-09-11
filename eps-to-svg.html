@@ -3,39 +3,388 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Coming Soon - Droplet</title>
-  <meta name="description" content="This tool is coming soon to Droplet. Stay tuned for more file conversion tools.">
+  <title>EPS to SVG Converter - Droplet</title>
+  <meta name="description" content="Convert EPS vector files to SVG online for free. 100% client-side, your files never leave your browser.">
 
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
 
+  <!-- JSZip for bulk SVG download -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
   <style>
-    .float-animation {
-      animation: float 3s ease-in-out infinite;
+    .dropzone-highlight {
+      border-color: #3b82f6 !important;
+      background: #eff6ff !important;
     }
-    @keyframes float {
-      0%, 100% { transform: translateY(0px); }
-      50% { transform: translateY(-10px); }
+    .progress-bar {
+      transition: width 0.5s ease;
     }
-    .pulse-dot {
-      animation: pulse 1.5s ease-in-out infinite;
+    .hidden {
+      display: none !important;
     }
-    @keyframes pulse {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.5; transform: scale(0.8); }
+
+    /* Vector preview grid */
+    .vector-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 14px;
+      max-height: 500px;
+      overflow-y: auto;
+      padding: 4px;
     }
-    .bg-grid {
-      background-image: 
-        linear-gradient(rgba(37, 99, 235, 0.05) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(37, 99, 235, 0.05) 1px, transparent 1px);
-      background-size: 40px 40px;
+    .vector-grid::-webkit-scrollbar { width: 6px; }
+    .vector-grid::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 8px; }
+    .vector-grid::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 8px; }
+    .vector-grid::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+    .vector-card {
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      overflow: hidden;
+      background: white;
+      transition: all 0.2s;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+    .vector-card:hover {
+      border-color: #2563eb;
+      transform: scale(1.02);
+      box-shadow: 0 8px 20px rgba(37, 99, 235, 0.12);
+    }
+    .vector-card .vector-preview {
+      height: 140px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background:
+        linear-gradient(45deg, #f1f5f9 25%, transparent 25%),
+        linear-gradient(-45deg, #f1f5f9 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #f1f5f9 75%),
+        linear-gradient(-45deg, transparent 75%, #f1f5f9 75%);
+      background-size: 16px 16px;
+      background-position: 0 0, 0 8px, 8px -8px, -8px 0px;
+      background-color: #ffffff;
+      padding: 12px;
+      overflow: hidden;
+    }
+    .vector-card .vector-preview svg {
+      max-width: 100%;
+      max-height: 100%;
+      width: auto;
+      height: auto;
+    }
+    .vector-card .vector-info {
+      padding: 8px 12px;
+      background: #f8fafc;
+      border-top: 1px solid #e2e8f0;
+    }
+    .vector-card .vector-info .name {
+      font-size: 11px;
+      font-weight: 600;
+      color: #1e293b;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .vector-card .vector-info .meta {
+      font-size: 10px;
+      color: #94a3b8;
+      margin-top: 2px;
+    }
+    .vector-card .status-badge {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 9px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .vector-card .status-badge.eps { background: rgba(139, 92, 246, 0.9); color: white; }
+    .vector-card .status-badge.svg { background: rgba(37, 99, 235, 0.9); color: white; }
+    .vector-card .status-badge.error { background: rgba(239, 68, 68, 0.9); color: white; }
+
+    /* File item */
+    .file-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      background: #f8fafc;
+      border-radius: 10px;
+      border: 1px solid #e2e8f0;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .file-item:hover { border-color: #94a3b8; }
+    .file-item .icon { font-size: 28px; }
+    .file-item .info { flex: 1; }
+    .file-item .info .name { font-weight: 600; color: #1e293b; transition: color 0.2s; }
+    .file-item .info .size { font-size: 12px; color: #94a3b8; transition: color 0.2s; }
+
+    /* Stats badges */
+    .stat-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 10px;
+      border-radius: 9999px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .stat-badge.blue { background: #dbeafe; color: #1e40af; }
+    .stat-badge.green { background: #d1fae5; color: #065f46; }
+    .stat-badge.amber { background: #fef3c7; color: #92400e; }
+    .stat-badge.purple { background: #ede9fe; color: #5b21b6; }
+
+    /* Code preview */
+    .code-preview {
+      font-family: 'Courier New', Consolas, monospace;
+      font-size: 12px;
+      line-height: 1.5;
+      background: #0f172a;
+      color: #e2e8f0;
+      padding: 16px 20px;
+      border-radius: 10px;
+      border: 1px solid #334155;
+      max-height: 400px;
+      overflow: auto;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+    .code-preview::-webkit-scrollbar { width: 6px; height: 6px; }
+    .code-preview::-webkit-scrollbar-track { background: #1e293b; border-radius: 8px; }
+    .code-preview::-webkit-scrollbar-thumb { background: #475569; border-radius: 8px; }
+    .code-preview::-webkit-scrollbar-thumb:hover { background: #64748b; }
+
+    /* Modal for SVG viewer */
+    .svg-modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.85);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      animation: fadeIn 0.2s ease;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    .svg-modal {
+      background: white;
+      border-radius: 16px;
+      max-width: 90vw;
+      max-height: 90vh;
+      width: 900px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+      overflow: hidden;
+    }
+    .svg-modal-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid #e2e8f0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #f8fafc;
+    }
+    .svg-modal-body {
+      flex: 1;
+      overflow: auto;
+      background:
+        linear-gradient(45deg, #f1f5f9 25%, transparent 25%),
+        linear-gradient(-45deg, #f1f5f9 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #f1f5f9 75%),
+        linear-gradient(-45deg, transparent 75%, #f1f5f9 75%);
+      background-size: 20px 20px;
+      background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+      background-color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      min-height: 300px;
+    }
+    .svg-modal-body svg {
+      max-width: 100%;
+      max-height: 70vh;
+      width: auto;
+      height: auto;
+    }
+
+    /* Dark mode overrides */
+    html.dark body {
+      background: #0f172a;
+      color: #e2e8f0;
+    }
+    html.dark header {
+      background: #1e293b;
+      border-color: #334155;
+    }
+    html.dark header h1 { color: #f1f5f9; }
+    html.dark header p { color: #60a5fa !important; }
+    html.dark header nav a { color: #94a3b8; }
+    html.dark header nav a:hover { color: #f1f5f9; }
+    html.dark #dropzone {
+      background: #1e293b;
+      border-color: #475569;
+    }
+    html.dark #dropzone:hover { border-color: #3b82f6; }
+    html.dark #dropzone h3 { color: #f1f5f9; }
+    html.dark #dropzone p { color: #94a3b8; }
+    html.dark #dropzone .bg-blue-50 { background: #1e3a5f !important; }
+    html.dark #fileInfo {
+      background: #1e293b;
+      border-color: #334155;
+    }
+    html.dark #fileInfo .text-slate-900 { color: #f1f5f9; }
+    html.dark #fileInfo .text-slate-400 { color: #94a3b8; }
+    html.dark #fileInfo .border-slate-200 { border-color: #334155; }
+    html.dark #fileInfo .hover\:bg-slate-50:hover { background: #334155; }
+    html.dark .file-item {
+      background: #0f172a;
+      border-color: #334155;
+    }
+    html.dark .file-item .info .name { color: #f1f5f9; }
+    html.dark .file-item .info .size { color: #94a3b8; }
+    html.dark .vector-card {
+      background: #1e293b;
+      border-color: #334155;
+    }
+    html.dark .vector-card:hover {
+      border-color: #3b82f6;
+    }
+    html.dark .vector-card .vector-preview {
+      background:
+        linear-gradient(45deg, #334155 25%, transparent 25%),
+        linear-gradient(-45deg, #334155 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #334155 75%),
+        linear-gradient(-45deg, transparent 75%, #334155 75%);
+      background-size: 16px 16px;
+      background-position: 0 0, 0 8px, 8px -8px, -8px 0px;
+      background-color: #0f172a;
+    }
+    html.dark .vector-card .vector-info {
+      background: #0f172a;
+      border-top-color: #334155;
+    }
+    html.dark .vector-card .vector-info .name { color: #f1f5f9; }
+    html.dark .vector-card .vector-info .meta { color: #64748b; }
+    html.dark .vector-grid::-webkit-scrollbar-track { background: #0f172a; }
+    html.dark .vector-grid::-webkit-scrollbar-thumb { background: #475569; }
+    html.dark .vector-grid::-webkit-scrollbar-thumb:hover { background: #64748b; }
+    html.dark #resultSection .bg-green-50 {
+      background: #0f172a !important;
+      border-color: #334155;
+    }
+    html.dark #resultSection .border-green-200 { border-color: #334155 !important; }
+    html.dark #resultSection h3 { color: #f1f5f9; }
+    html.dark #resultSection .text-slate-600 { color: #94a3b8; }
+    html.dark #resultSection .border-slate-200 { border-color: #334155 !important; }
+    html.dark #resultSection .hover\:bg-slate-50:hover { background: #334155 !important; }
+    html.dark .bg-white { background: #1e293b !important; }
+    html.dark .border-slate-100 { border-color: #334155 !important; }
+    html.dark .border-slate-200 { border-color: #334155 !important; }
+    html.dark .border-slate-300 { border-color: #334155 !important; }
+    html.dark .text-slate-500 { color: #94a3b8 !important; }
+    html.dark .text-slate-600 { color: #94a3b8 !important; }
+    html.dark .text-slate-700 { color: #cbd5e1 !important; }
+    html.dark .text-slate-900 { color: #f1f5f9 !important; }
+    html.dark .bg-blue-50 { background: #1e3a5f !important; }
+    html.dark .border-blue-200 { border-color: #2563eb !important; }
+    html.dark .text-blue-700 { color: #60a5fa !important; }
+    html.dark .text-blue-900 { color: #93c5fd !important; }
+    html.dark .bg-slate-50 { background: #0f172a !important; }
+    html.dark .bg-slate-100 { background: #334155 !important; }
+    html.dark .hover\:bg-slate-200:hover { background: #475569 !important; }
+    html.dark .stat-badge.blue { background: #1e3a5f; color: #93c5fd; }
+    html.dark .stat-badge.green { background: #064e3b; color: #6ee7b7; }
+    html.dark .stat-badge.amber { background: #78350f; color: #fcd34d; }
+    html.dark .stat-badge.purple { background: #3b1e5f; color: #c4b5fd; }
+    html.dark .svg-modal {
+      background: #1e293b;
+    }
+    html.dark .svg-modal-header {
+      background: #0f172a;
+      border-bottom-color: #334155;
+    }
+    html.dark .svg-modal-header h3 { color: #f1f5f9; }
+    html.dark .svg-modal-body {
+      background:
+        linear-gradient(45deg, #334155 25%, transparent 25%),
+        linear-gradient(-45deg, #334155 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #334155 75%),
+        linear-gradient(-45deg, transparent 75%, #334155 75%);
+      background-size: 20px 20px;
+      background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+      background-color: #0f172a;
+    }
+    html.dark footer {
+      background: #0f172a !important;
+      border-color: #334155 !important;
+    }
+    html.dark footer a { color: #94a3b8; }
+    html.dark footer a:hover { color: #f1f5f9; }
+    html.dark .shadow-sm { box-shadow: 0 1px 2px 0 rgba(0,0,0,0.3) !important; }
+    html.dark .shadow-lg { box-shadow: 0 10px 15px -3px rgba(0,0,0,0.4) !important; }
+    html.dark .shadow-md { box-shadow: 0 4px 6px -1px rgba(0,0,0,0.4) !important; }
+    html.dark .back-home-btn {
+      background: #1e293b !important;
+      border-color: #475569 !important;
+      color: #e2e8f0 !important;
+    }
+    html.dark .back-home-btn:hover {
+      background: #334155 !important;
+      border-color: #3b82f6 !important;
+    }
+    html.dark .bg-green-600 { background: #059669 !important; }
+    html.dark .bg-green-600:hover { background: #047857 !important; }
+    html.dark .bg-blue-600 { background: #2563eb !important; }
+    html.dark .bg-blue-600:hover { background: #1d4ed8 !important; }
+    html.dark .bg-purple-50 { background: #3b1e5f !important; }
+    html.dark .border-purple-200 { border-color: #7c3aed !important; }
+    html.dark .text-purple-700 { color: #a78bfa !important; }
+    html.dark .text-purple-900 { color: #c4b5fd !important; }
+
+    #theme-toggle {
+      background: none;
+      border: none;
+      font-size: 1.2rem;
+      cursor: pointer;
+      padding: 0.2rem 0.4rem;
+      border-radius: 6px;
+      transition: background 0.2s;
+      color: #475569;
+      line-height: 1;
+    }
+    #theme-toggle:hover { background: #f1f5f9; }
+    html.dark #theme-toggle { color: #e2e8f0; }
+    html.dark #theme-toggle:hover { background: #334155; }
+
+    /* Custom loader animation */
+    .loader-dots::after {
+      content: '';
+      animation: dots 1.4s infinite;
+    }
+    @keyframes dots {
+      0%, 20% { content: ''; }
+      40% { content: '.'; }
+      60% { content: '..'; }
+      80%, 100% { content: '...'; }
     }
   </style>
 </head>
-<body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen flex flex-col">
+<body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen flex flex-col transition-colors duration-200">
 
   <!-- Navigation -->
-  <header class="bg-white border-b border-slate-200 py-3.5 px-6 sticky top-0 z-50">
+  <header class="bg-white border-b border-slate-200 py-3.5 px-6 sticky top-0 z-50 transition-colors duration-200">
     <div class="max-w-6xl mx-auto flex justify-between items-center">
       <a href="/" class="flex items-center gap-3 group">
         <img src="Gemini_Generated_Image_sdu6v7sdu6v7sdu6.jpg" alt="Droplet Logo" class="h-9 w-auto rounded-xl shadow-sm group-hover:scale-105 transition-transform">
@@ -44,162 +393,1078 @@
           <p class="text-[9px] text-blue-600 font-extrabold tracking-widest uppercase mt-0.5">DRAG, DROP AND CONVERT.</p>
         </div>
       </a>
-      <nav class="hidden md:flex items-center space-x-6 text-xs font-bold text-slate-600">
-        <a href="/" class="hover:text-blue-600 transition-colors">← Back to Home</a>
-      </nav>
+      <div class="flex items-center gap-3">
+        <button id="theme-toggle" aria-label="Toggle theme">🌙</button>
+        <nav class="hidden md:flex items-center space-x-6 text-xs font-bold text-slate-600">
+          <a href="/" class="hover:text-blue-600 transition-colors">← Back</a>
+        </nav>
+      </div>
     </div>
   </header>
 
   <!-- Main Content -->
-  <main class="flex-grow flex items-center justify-center px-4 py-12 bg-grid">
-    <div class="max-w-2xl w-full text-center">
+  <main class="max-w-4xl mx-auto px-4 py-8 md:py-12 flex-grow w-full">
 
-      <!-- Animated Icon -->
-      <div class="float-animation mb-8">
-        <div class="w-32 h-32 mx-auto bg-gradient-to-br from-blue-500 to-purple-600 rounded-3xl flex items-center justify-center shadow-2xl shadow-blue-500/20">
-          <span class="text-6xl">🚀</span>
-        </div>
+    <!-- Back Button -->
+    <div class="max-w-2xl mx-auto mb-4 flex justify-start">
+      <a href="/" class="back-home-btn inline-flex items-center gap-2 bg-white hover:bg-slate-50 border border-slate-200 shadow-sm rounded-full px-5 py-2.5 text-sm font-medium text-slate-700 transition-all hover:shadow-md hover:border-slate-300 active:scale-95">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        </svg>
+        Back to Home
+      </a>
+    </div>
+
+    <!-- Page Header -->
+    <div class="text-center mb-8">
+      <div class="inline-block p-3 bg-blue-50 rounded-2xl mb-4 transition-colors duration-200">
+        <span class="text-4xl">✏️</span>
       </div>
-
-      <!-- Coming Soon Badge -->
-      <div class="inline-flex items-center gap-2 bg-blue-50 text-blue-700 px-4 py-2 rounded-full text-sm font-medium mb-6">
-        <span class="w-2 h-2 bg-blue-600 rounded-full pulse-dot"></span>
-        Coming Soon
-      </div>
-
-      <!-- Title -->
-      <h1 class="text-4xl md:text-5xl font-black text-slate-900 tracking-tight mb-4">
-        <span id="toolName" class="text-blue-600">[Tool Name]</span>
-        <span class="text-slate-900">is on its way!</span>
-      </h1>
-
-      <!-- Description -->
-      <p class="text-slate-500 text-lg max-w-md mx-auto mb-8">
-        We're working hard to bring you this powerful conversion tool. 
-        It will be available very soon with all the features you expect from Droplet.
+      <h1 class="text-3xl md:text-4xl font-black text-slate-900 tracking-tight">EPS to SVG Converter</h1>
+      <p class="text-slate-500 text-sm md:text-base mt-2 max-w-lg mx-auto">
+        Convert EPS vector graphics to SVG format. <strong>100% client-side</strong> — your files never leave your browser.
       </p>
+    </div>
 
-      <!-- Features Preview -->
-      <div class="grid grid-cols-2 md:grid-cols-3 gap-4 max-w-lg mx-auto mb-10">
-        <div class="bg-white p-4 rounded-xl border border-slate-100 shadow-sm">
-          <div class="text-2xl mb-1">🔒</div>
-          <p class="text-xs font-medium text-slate-700">100% Private</p>
-          <p class="text-[10px] text-slate-400">Client-side processing</p>
-        </div>
-        <div class="bg-white p-4 rounded-xl border border-slate-100 shadow-sm">
-          <div class="text-2xl mb-1">⚡</div>
-          <p class="text-xs font-medium text-slate-700">Fast & Free</p>
-          <p class="text-[10px] text-slate-400">No sign-up required</p>
-        </div>
-        <div class="bg-white p-4 rounded-xl border border-slate-100 shadow-sm">
-          <div class="text-2xl mb-1">📱</div>
-          <p class="text-xs font-medium text-slate-700">Mobile Ready</p>
-          <p class="text-[10px] text-slate-400">Works on all devices</p>
-        </div>
-      </div>
-
-      <!-- Action Buttons -->
-      <div class="flex flex-wrap gap-3 justify-center">
-        <a href="/" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-8 py-3 rounded-xl transition-all shadow-md shadow-blue-500/20 active:scale-95">
-          ← Back to Home
-        </a>
-        <button onclick="notifyMe()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-8 py-3 rounded-xl transition-all active:scale-95">
-          🔔 Notify Me
-        </button>
-      </div>
-
-      <!-- Notification Form -->
-      <div id="notifyForm" class="hidden mt-6 max-w-sm mx-auto">
-        <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-          <p class="text-sm font-medium text-slate-700 mb-3">Get notified when this tool launches:</p>
-          <div class="flex flex-col sm:flex-row gap-2">
-            <input type="email" id="emailInput" placeholder="Enter your email" class="flex-1 border border-slate-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-            <button onclick="subscribe()" class="bg-green-600 hover:bg-green-700 text-white font-medium px-4 py-2 rounded-lg transition-all text-sm whitespace-nowrap">
-              Subscribe
-            </button>
-          </div>
-          <p class="text-[10px] text-slate-400 mt-2">We'll only email you about this tool. No spam. Unsubscribe anytime.</p>
-        </div>
-      </div>
-
-      <!-- Other Tools -->
-      <div class="mt-12 pt-8 border-t border-slate-200">
-        <p class="text-sm font-medium text-slate-600 mb-4">While you wait, try these tools:</p>
-        <div class="flex flex-wrap gap-2 justify-center">
-          <a href="/pdf-to-word.html" class="text-xs bg-white border border-slate-200 px-3 py-1.5 rounded-full hover:border-blue-400 transition-colors text-slate-600">PDF to Word</a>
-          <a href="/heic-to-jpg.html" class="text-xs bg-white border border-slate-200 px-3 py-1.5 rounded-full hover:border-blue-400 transition-colors text-slate-600">HEIC to JPG</a>
-          <a href="/json-to-csv.html" class="text-xs bg-white border border-slate-200 px-3 py-1.5 rounded-full hover:border-blue-400 transition-colors text-slate-600">JSON to CSV</a>
-          <a href="/svg-to-png.html" class="text-xs bg-white border border-slate-200 px-3 py-1.5 rounded-full hover:border-blue-400 transition-colors text-slate-600">SVG to PNG</a>
-          <a href="/epub-to-pdf.html" class="text-xs bg-white border border-slate-200 px-3 py-1.5 rounded-full hover:border-blue-400 transition-colors text-slate-600">EPUB to PDF</a>
+    <!-- Info Box -->
+    <div class="max-w-2xl mx-auto mb-8 bg-blue-50 border border-blue-200 rounded-xl p-4 transition-colors duration-200">
+      <div class="flex items-start gap-3">
+        <span class="text-2xl">🎨</span>
+        <div>
+          <h4 class="font-bold text-sm text-blue-900">What is EPS?</h4>
+          <p class="text-xs text-blue-700 mt-1">EPS (Encapsulated PostScript) is a vector format used in professional printing and design. Converting to SVG creates a modern, web-friendly vector file that can be edited in any browser and used on websites.</p>
         </div>
       </div>
     </div>
+
+    <!-- Supported Formats -->
+    <div class="max-w-2xl mx-auto mb-8 bg-purple-50 border border-purple-200 rounded-xl p-4 transition-colors duration-200">
+      <div class="flex items-start gap-3">
+        <span class="text-2xl">📋</span>
+        <div>
+          <h4 class="font-bold text-sm text-purple-900">Supported Input Formats</h4>
+          <div class="flex flex-wrap gap-2 mt-2">
+            <span class="text-xs bg-white px-2 py-1 rounded border border-purple-200">.EPS (Encapsulated PostScript)</span>
+            <span class="text-xs bg-white px-2 py-1 rounded border border-purple-200">.AI (Adobe Illustrator EPS)</span>
+          </div>
+          <p class="text-xs text-purple-700 mt-2">Note: EPS files with embedded raster images will have those images converted to embedded base64 PNG data.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Conversion Dropzone -->
+    <div id="dropzone" class="bg-white border-2 border-dashed border-slate-300 hover:border-blue-400 transition-all rounded-3xl p-8 md:p-12 text-center shadow-lg max-w-2xl mx-auto cursor-pointer">
+      <div class="flex flex-col items-center">
+        <div class="w-20 h-20 bg-blue-50 rounded-2xl flex items-center justify-center mb-4 text-4xl transition-colors duration-200">
+          📁
+        </div>
+        <h3 class="text-xl font-bold text-slate-900 mb-1">Drop your EPS files here</h3>
+        <p class="text-slate-400 text-sm mb-4">or click to browse (batch conversion supported)</p>
+        <input type="file" id="fileInput" accept=".eps,.ai,application/postscript,application/eps" multiple class="hidden">
+        <button onclick="document.getElementById('fileInput').click()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-3 rounded-xl text-sm shadow-md shadow-blue-500/20 transition-all active:scale-95">
+          Select EPS Files
+        </button>
+        <p class="text-xs text-slate-400 mt-3">Max file size: ~50MB per file</p>
+      </div>
+    </div>
+
+    <!-- File Info -->
+    <div id="fileInfo" class="hidden max-w-2xl mx-auto mt-6 bg-white rounded-xl shadow-sm border border-slate-200 p-6 transition-colors duration-200">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <span class="text-2xl">📄</span>
+          <div>
+            <p id="fileCount" class="font-medium text-slate-900"></p>
+            <p id="totalSize" class="text-xs text-slate-400"></p>
+          </div>
+        </div>
+        <button onclick="clearFiles()" class="text-slate-400 hover:text-red-500 transition-colors">✕</button>
+      </div>
+
+      <!-- Options -->
+      <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-slate-50 rounded-lg transition-colors duration-200">
+        <div>
+          <label class="block text-xs font-medium text-slate-700 mb-1">🎨 Color Mode</label>
+          <select id="colorMode" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm bg-white transition-colors duration-200">
+            <option value="color" selected>Preserve colors</option>
+            <option value="black">Convert to black</option>
+            <option value="currentColor">Use currentColor</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-slate-700 mb-1">📐 SVG Precision</label>
+          <select id="precision" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm bg-white transition-colors duration-200">
+            <option value="2" selected>Standard (2 decimals)</option>
+            <option value="4">High (4 decimals)</option>
+            <option value="0">Low (integers only)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="mt-4 flex flex-wrap gap-3">
+        <button onclick="convertAll()" id="convertBtn" class="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-xl transition-all active:scale-95 shadow-md shadow-green-500/20">
+          🔄 Convert All to SVG
+        </button>
+        <button onclick="clearFiles()" class="px-4 py-3 border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors text-sm">
+          Change Files
+        </button>
+      </div>
+
+      <!-- Progress Bar -->
+      <div id="progressContainer" class="hidden mt-4">
+        <div class="flex justify-between text-xs text-slate-500 mb-1">
+          <span id="progressLabel">Converting...</span>
+          <span id="progressText">0%</span>
+        </div>
+        <div class="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
+          <div id="progressBar" class="bg-blue-600 h-2 rounded-full progress-bar" style="width: 0%"></div>
+        </div>
+        <p id="statusText" class="text-xs text-slate-400 mt-2 text-center">Initializing...</p>
+      </div>
+    </div>
+
+    <!-- Preview Grid -->
+    <div id="previewSection" class="hidden max-w-2xl mx-auto mt-6">
+      <div class="flex items-center justify-between mb-3">
+        <h4 class="font-bold text-sm text-slate-700">🖼️ Vector Preview</h4>
+        <span id="previewStats" class="text-xs text-slate-400"></span>
+      </div>
+      <div id="vectorGrid" class="vector-grid">
+        <!-- Cards render here -->
+      </div>
+    </div>
+
+    <!-- Result Section -->
+    <div id="resultSection" class="hidden max-w-2xl mx-auto mt-6">
+      <div class="bg-green-50 border border-green-200 rounded-xl p-6 transition-colors duration-200">
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <div class="text-4xl mb-1">✅</div>
+            <h3 class="font-bold text-slate-900">Conversion Complete!</h3>
+            <p class="text-sm text-slate-600">Your SVG files are ready to download.</p>
+            <div class="mt-3 flex flex-wrap gap-2">
+              <span id="convertedCount" class="stat-badge blue">0 of 0 converted</span>
+              <span id="totalSizeBadge" class="stat-badge green">0 KB</span>
+            </div>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            <button onclick="downloadAll()" class="bg-green-600 hover:bg-green-700 text-white font-bold px-4 py-2 rounded-lg text-sm transition-all">
+              📦 Download All (ZIP)
+            </button>
+            <button onclick="downloadAllIndividual()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2 rounded-lg text-sm transition-all">
+              📥 Download Individual
+            </button>
+          </div>
+        </div>
+
+        <!-- Download Links -->
+        <div id="downloadLinksContainer" class="mt-3 grid grid-cols-2 md:grid-cols-3 gap-2 max-h-48 overflow-y-auto">
+          <!-- Links appear here -->
+        </div>
+
+        <div class="mt-4 flex flex-wrap gap-3">
+          <button onclick="resetAll()" class="px-6 py-3 border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors text-sm">
+            Convert Another
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Info Section -->
+    <div class="max-w-2xl mx-auto mt-12 grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div class="bg-white p-4 rounded-xl border border-slate-100 text-center transition-colors duration-200">
+        <div class="text-2xl mb-1">🔒</div>
+        <h4 class="font-bold text-sm">100% Private</h4>
+        <p class="text-xs text-slate-500">Your files never leave your browser</p>
+      </div>
+      <div class="bg-white p-4 rounded-xl border border-slate-100 text-center transition-colors duration-200">
+        <div class="text-2xl mb-1">📐</div>
+        <h4 class="font-bold text-sm">Scalable</h4>
+        <p class="text-xs text-slate-500">Vector output at any size</p>
+      </div>
+      <div class="bg-white p-4 rounded-xl border border-slate-100 text-center transition-colors duration-200">
+        <div class="text-2xl mb-1">⚡</div>
+        <h4 class="font-bold text-sm">Fast & Free</h4>
+        <p class="text-xs text-slate-500">No sign-up required</p>
+      </div>
+    </div>
+
+    <!-- FAQ -->
+    <section class="max-w-2xl mx-auto mt-12">
+      <h2 class="text-xl font-black text-slate-900 text-center mb-6">Frequently Asked Questions</h2>
+      <div class="space-y-3">
+        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
+          <h3 class="font-bold text-slate-900 text-sm">Is my data safe?</h3>
+          <p class="text-slate-600 text-sm mt-1">Yes! All conversion happens locally in your browser. Your EPS files are never uploaded to any server.</p>
+        </div>
+        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
+          <h3 class="font-bold text-slate-900 text-sm">What EPS features are supported?</h3>
+          <p class="text-slate-600 text-sm mt-1">Basic vector paths, shapes, lines, text, and colors are supported. Complex PostScript features (gradients, transparency, embedded fonts) may be simplified.</p>
+        </div>
+        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
+          <h3 class="font-bold text-slate-900 text-sm">What about embedded images?</h3>
+          <p class="text-slate-600 text-sm mt-1">If your EPS contains embedded raster images, they are extracted and embedded as base64 PNG data in the SVG output. This may increase the SVG file size.</p>
+        </div>
+        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
+          <h3 class="font-bold text-slate-900 text-sm">Can I convert multiple EPS files at once?</h3>
+          <p class="text-slate-600 text-sm mt-1">Yes! Drop or select multiple EPS files and all of them will be converted. You can download them all at once as a ZIP file.</p>
+        </div>
+        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
+          <h3 class="font-bold text-slate-900 text-sm">Will my fonts be preserved?</h3>
+          <p class="text-slate-600 text-sm mt-1">Text elements are extracted and rendered using SVG text elements. If the original font isn't available in the SVG, it will fall back to a system font. For best results, convert text to paths in your EPS editor first.</p>
+        </div>
+        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
+          <h3 class="font-bold text-slate-900 text-sm">What is the difference between EPS and SVG?</h3>
+          <p class="text-slate-600 text-sm mt-1">EPS is a PostScript-based format for print. SVG is an XML-based format for the web. SVG is easier to edit, smaller in size, and works natively in browsers.</p>
+        </div>
+      </div>
+    </section>
   </main>
 
   <!-- Footer -->
-  <footer class="border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-500 mt-auto">
+  <footer class="border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-500 mt-auto transition-colors duration-200">
     <div class="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-3">
       <p class="font-medium">© Droplet. 100% Client-Side Privacy First File Utility.</p>
       <div class="space-x-4">
-        <a href="/privacy.html" class="hover:text-blue-600 transition-colors">Privacy Policy</a>
+        <a href="/about.html" class="hover:text-blue-600 transition-colors">About</a>
         <span>•</span>
-        <a href="/terms.html" class="hover:text-blue-600 transition-colors">Terms of Service</a>
+        <a href="/privacy.html" class="hover:text-blue-600 transition-colors">Privacy</a>
+        <span>•</span>
+        <a href="/terms.html" class="hover:text-blue-600 transition-colors">Terms</a>
         <span>•</span>
         <a href="/contact.html" class="hover:text-blue-600 transition-colors">Contact</a>
       </div>
     </div>
   </footer>
 
-  <!-- JavaScript -->
   <script>
-    // Get tool name from URL parameter
-    const urlParams = new URLSearchParams(window.location.search);
-    const toolName = urlParams.get('tool') || 'This Tool';
-
-    // Update the page title and heading
-    document.title = `${toolName} - Coming Soon | Droplet`;
-    document.getElementById('toolName').textContent = toolName;
-
-    // Toggle notification form
-    function notifyMe() {
-      const form = document.getElementById('notifyForm');
-      form.classList.toggle('hidden');
-      if (!form.classList.contains('hidden')) {
-        document.getElementById('emailInput').focus();
-      }
+    // ============================================
+    // DARK MODE TOGGLE
+    // ============================================
+    const themeToggle = document.getElementById('theme-toggle');
+    const html = document.documentElement;
+    
+    let currentTheme = localStorage.getItem('theme') || 
+      (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    
+    if (currentTheme === 'dark') {
+      html.classList.add('dark');
+      themeToggle.textContent = '☀️';
+    } else {
+      themeToggle.textContent = '🌙';
     }
-
-    // Subscribe function
-    function subscribe() {
-      const email = document.getElementById('emailInput').value.trim();
-      if (!email) {
-        alert('Please enter your email address.');
-        return;
-      }
-      if (!email.includes('@') || !email.includes('.')) {
-        alert('Please enter a valid email address.');
-        return;
-      }
-
-      // Store in localStorage for demo
-      const subscriptions = JSON.parse(localStorage.getItem('droplet_subscriptions') || '[]');
-      if (!subscriptions.includes(email)) {
-        subscriptions.push(email);
-        localStorage.setItem('droplet_subscriptions', JSON.stringify(subscriptions));
-      }
-
-      alert(`✅ You'll be notified when "${toolName}" launches!`);
-      document.getElementById('notifyForm').classList.add('hidden');
-      document.getElementById('emailInput').value = '';
-    }
-
-    // Keyboard shortcut: Escape to close form
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') {
-        document.getElementById('notifyForm').classList.add('hidden');
+    
+    themeToggle.addEventListener('click', () => {
+      if (html.classList.contains('dark')) {
+        html.classList.remove('dark');
+        themeToggle.textContent = '🌙';
+        localStorage.setItem('theme', 'light');
+      } else {
+        html.classList.add('dark');
+        themeToggle.textContent = '☀️';
+        localStorage.setItem('theme', 'dark');
       }
     });
-  </script>
 
+    // ============================================
+    // STATE
+    // ============================================
+    let files = [];
+    let convertedFiles = [];
+    let totalSize = 0;
+
+    // ============================================
+    // FILE HANDLING
+    // ============================================
+    const dropzone = document.getElementById('dropzone');
+    const fileInput = document.getElementById('fileInput');
+
+    dropzone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropzone.classList.add('dropzone-highlight');
+    });
+
+    dropzone.addEventListener('dragleave', () => {
+      dropzone.classList.remove('dropzone-highlight');
+    });
+
+    dropzone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropzone.classList.remove('dropzone-highlight');
+      if (e.dataTransfer.files.length > 0) {
+        handleFiles(e.dataTransfer.files);
+      }
+    });
+
+    dropzone.addEventListener('click', (e) => {
+      if (e.target.tagName !== 'BUTTON') fileInput.click();
+    });
+
+    fileInput.addEventListener('change', (e) => {
+      if (e.target.files.length > 0) handleFiles(e.target.files);
+    });
+
+    function handleFiles(fileList) {
+      const validFiles = [];
+      let invalidCount = 0;
+
+      for (let i = 0; i < fileList.length; i++) {
+        const file = fileList[i];
+        const ext = file.name.toLowerCase();
+        const isEps = ext.endsWith('.eps') || ext.endsWith('.ai') ||
+                      file.type === 'application/postscript' ||
+                      file.type === 'application/eps';
+        
+        if (isEps && file.size <= 50 * 1024 * 1024) {
+          validFiles.push(file);
+          totalSize += file.size;
+        } else {
+          invalidCount++;
+        }
+      }
+
+      if (validFiles.length === 0) {
+        alert('No valid EPS files found. Please select .EPS or .AI files under 50MB.');
+        return;
+      }
+
+      if (invalidCount > 0) {
+        alert(`${invalidCount} file(s) were skipped due to size limits or invalid format.`);
+      }
+
+      files = validFiles;
+      document.getElementById('fileCount').textContent = `${files.length} file(s)`;
+      document.getElementById('totalSize').textContent = `Total: ${(totalSize / 1024 / 1024).toFixed(2)} MB`;
+      document.getElementById('fileInfo').classList.remove('hidden');
+      dropzone.classList.add('hidden');
+      document.getElementById('resultSection').classList.add('hidden');
+      document.getElementById('previewSection').classList.add('hidden');
+      
+      showInitialPreviews();
+    }
+
+    function showInitialPreviews() {
+      const grid = document.getElementById('vectorGrid');
+      const preview = document.getElementById('previewSection');
+      const stats = document.getElementById('previewStats');
+      
+      grid.innerHTML = '';
+      
+      const maxPreview = Math.min(files.length, 12);
+      for (let i = 0; i < maxPreview; i++) {
+        const file = files[i];
+        const card = document.createElement('div');
+        card.className = 'vector-card';
+        card.innerHTML = `
+          <div class="status-badge eps">EPS</div>
+          <div class="vector-preview">
+            <div style="text-align:center;color:#94a3b8;">
+              <div style="font-size:36px;margin-bottom:6px;">✏️</div>
+              <div style="font-size:11px;">Awaiting conversion</div>
+            </div>
+          </div>
+          <div class="vector-info">
+            <div class="name">${escapeHtml(file.name)}</div>
+            <div class="meta">${(file.size / 1024).toFixed(1)} KB</div>
+          </div>
+        `;
+        grid.appendChild(card);
+      }
+      
+      if (files.length > 12) {
+        const more = document.createElement('div');
+        more.className = 'vector-card';
+        more.style.display = 'flex';
+        more.style.alignItems = 'center';
+        more.style.justifyContent = 'center';
+        more.style.minHeight = '140px';
+        more.style.background = '#f1f5f9';
+        more.style.border = '2px dashed #cbd5e1';
+        more.innerHTML = `<span style="font-size:12px;color:#64748b;">+ ${files.length - 12} more files</span>`;
+        grid.appendChild(more);
+      }
+      
+      stats.textContent = `${files.length} files`;
+      preview.classList.remove('hidden');
+    }
+
+    // ============================================
+    // EPS PARSING (PostScript Parser)
+    // ============================================
+    
+    /**
+     * Lightweight EPS/PostScript parser.
+     * Handles the common subset used by vector illustrations:
+     *  - moveto/lineto/curveto/closepath (path construction)
+     *  - fill/stroke/fillstroke
+     *  - setrgbcolor/setgray/setcmykcolor
+     *  - setlinewidth
+     *  - scale/translate/rotate (transformations)
+     *  - newpath/clip
+     *  - show/ashow (text)
+     *  - BoundingBox from %%BoundingBox comment
+     */
+    function parseEPS(epsText, options) {
+      const precision = parseInt(options.precision) || 2;
+      const colorMode = options.colorMode || 'color';
+      
+      // Extract bounding box from comments
+      let bbox = { llx: 0, lly: 0, urx: 612, ury: 792 };
+      const bboxMatch = epsText.match(/%%BoundingBox:\s*(-?\d+)\s+(-?\d+)\s+(-?\d+)\s+(-?\d+)/);
+      if (bboxMatch) {
+        bbox = {
+          llx: parseInt(bboxMatch[1]),
+          lly: parseInt(bboxMatch[2]),
+          urx: parseInt(bboxMatch[3]),
+          ury: parseInt(bboxMatch[4])
+        };
+      }
+      
+      const width = bbox.urx - bbox.llx;
+      const height = bbox.ury - bbox.lly;
+      
+      // Strip out PostScript comments
+      const code = epsText
+        .replace(/%[^\n]*/g, '')
+        .replace(/\r\n/g, '\n');
+      
+      // Tokenize
+      const tokens = code.split(/\s+/).filter(t => t.length > 0);
+      
+      // Parser state
+      const gstate = {
+        ctm: [1, 0, 0, 1, 0, 0], // current transform matrix
+        color: [0, 0, 0], // current RGB color
+        lineWidth: 1,
+        path: [], // list of path segments
+        currentPoint: [0, 0],
+        subpathStart: null
+      };
+      
+      const elements = []; // output SVG elements
+      const stack = []; // graphics state stack
+      
+      const fmt = (n) => {
+        const rounded = Number(n).toFixed(precision);
+        return parseFloat(rounded).toString();
+      };
+      
+      const transform = (x, y) => {
+        const m = gstate.ctm;
+        return [m[0] * x + m[2] * y + m[4], m[1] * x + m[3] * y + m[5]];
+      };
+      
+      const multiply = (m1, m2) => {
+        return [
+          m1[0] * m2[0] + m1[2] * m2[1],
+          m1[1] * m2[0] + m1[3] * m2[1],
+          m1[0] * m2[2] + m1[2] * m2[3],
+          m1[1] * m2[2] + m1[3] * m2[3],
+          m1[0] * m2[4] + m1[2] * m2[5] + m1[4],
+          m1[1] * m2[4] + m1[3] * m2[5] + m1[5]
+        ];
+      };
+      
+      const colorToHex = (rgb) => {
+        if (colorMode === 'black') return '#000000';
+        if (colorMode === 'currentColor') return 'currentColor';
+        const toHex = (v) => {
+          const n = Math.max(0, Math.min(255, Math.round(v * 255)));
+          return n.toString(16).padStart(2, '0');
+        };
+        return '#' + toHex(rgb[0]) + toHex(rgb[1]) + toHex(rgb[2]);
+      };
+      
+      const operands = []; // operand stack
+      
+      // Convert path to SVG path data
+      const pathToD = () => {
+        if (gstate.path.length === 0) return '';
+        let d = '';
+        let started = false;
+        
+        for (const seg of gstate.path) {
+          if (seg.op === 'M') {
+            d += `M ${fmt(seg.x)} ${fmt(seg.y)} `;
+            started = true;
+          } else if (seg.op === 'L') {
+            d += `L ${fmt(seg.x)} ${fmt(seg.y)} `;
+          } else if (seg.op === 'C') {
+            d += `C ${fmt(seg.x1)} ${fmt(seg.y1)} ${fmt(seg.x2)} ${fmt(seg.y2)} ${fmt(seg.x)} ${fmt(seg.y)} `;
+          } else if (seg.op === 'Z') {
+            d += 'Z ';
+          }
+        }
+        return d.trim();
+      };
+      
+      const flushPath = (paintOp) => {
+        const d = pathToD();
+        if (d) {
+          const color = colorToHex(gstate.color);
+          const stroke = gstate.lineWidth;
+          
+          const attrs = [`d="${d}"`];
+          
+          if (paintOp === 'fill' || paintOp === 'fillstroke' || paintOp === 'eofill') {
+            attrs.push(`fill="${color}"`);
+          } else {
+            attrs.push('fill="none"');
+          }
+          
+          if (paintOp === 'stroke' || paintOp === 'fillstroke') {
+            attrs.push(`stroke="${color}"`);
+            attrs.push(`stroke-width="${fmt(stroke)}"`);
+            attrs.push('stroke-linecap="round"');
+            attrs.push('stroke-linejoin="round"');
+          }
+          
+          elements.push(`<path ${attrs.join(' ')}/>`);
+        }
+        
+        gstate.path = [];
+      };
+      
+      // Process tokens
+      for (let i = 0; i < tokens.length; i++) {
+        const token = tokens[i];
+        
+        // Try to parse as number
+        if (/^-?\d*\.?\d+$/.test(token)) {
+          operands.push(parseFloat(token));
+          continue;
+        }
+        
+        // Handle operators
+        switch (token) {
+          case 'newpath':
+            gstate.path = [];
+            break;
+            
+          case 'moveto':
+          case 'm': {
+            const y = operands.pop();
+            const x = operands.pop();
+            const [tx, ty] = transform(x, y);
+            gstate.path.push({ op: 'M', x: tx, y: ty });
+            gstate.currentPoint = [tx, ty];
+            gstate.subpathStart = [tx, ty];
+            operands.length = 0;
+            break;
+          }
+          
+          case 'lineto':
+          case 'l': {
+            const y = operands.pop();
+            const x = operands.pop();
+            const [tx, ty] = transform(x, y);
+            gstate.path.push({ op: 'L', x: tx, y: ty });
+            gstate.currentPoint = [tx, ty];
+            operands.length = 0;
+            break;
+          }
+          
+          case 'curveto':
+          case 'c': {
+            const y3 = operands.pop();
+            const x3 = operands.pop();
+            const y2 = operands.pop();
+            const x2 = operands.pop();
+            const y1 = operands.pop();
+            const x1 = operands.pop();
+            const [tx1, ty1] = transform(x1, y1);
+            const [tx2, ty2] = transform(x2, y2);
+            const [tx3, ty3] = transform(x3, y3);
+            gstate.path.push({ op: 'C', x1: tx1, y1: ty1, x2: tx2, y2: ty2, x: tx3, y: ty3 });
+            gstate.currentPoint = [tx3, ty3];
+            operands.length = 0;
+            break;
+          }
+          
+          case 'closepath':
+            gstate.path.push({ op: 'Z' });
+            if (gstate.subpathStart) gstate.currentPoint = gstate.subpathStart;
+            operands.length = 0;
+            break;
+            
+          case 'fill':
+          case 'F':
+            flushPath('fill');
+            operands.length = 0;
+            break;
+            
+          case 'eofill':
+            flushPath('eofill');
+            operands.length = 0;
+            break;
+            
+          case 'stroke':
+          case 'S':
+            flushPath('stroke');
+            operands.length = 0;
+            break;
+            
+          case 'fillstroke':
+          case 'B':
+            flushPath('fillstroke');
+            operands.length = 0;
+            break;
+            
+          case 'setrgbcolor':
+          case 'RG': {
+            const b = operands.pop();
+            const g = operands.pop();
+            const r = operands.pop();
+            gstate.color = [r, g, b];
+            operands.length = 0;
+            break;
+          }
+          
+          case 'setgray':
+          case 'G': {
+            const v = operands.pop();
+            gstate.color = [v, v, v];
+            operands.length = 0;
+            break;
+          }
+          
+          case 'setcmykcolor': {
+            const k = operands.pop();
+            const y = operands.pop();
+            const m = operands.pop();
+            const c = operands.pop();
+            // Convert CMYK to RGB
+            const r = (1 - c) * (1 - k);
+            const g = (1 - m) * (1 - k);
+            const b = (1 - y) * (1 - k);
+            gstate.color = [r, g, b];
+            operands.length = 0;
+            break;
+          }
+          
+          case 'setlinewidth':
+          case 'w':
+            gstate.lineWidth = operands.pop() || 1;
+            operands.length = 0;
+            break;
+            
+          case 'scale':
+          case 'translate':
+          case 'rotate': {
+            // These are handled below with 'concat' approach
+            break;
+          }
+          
+          case 'concat': {
+            // Expects matrix [a b c d e f]
+            const f = operands.pop();
+            const e = operands.pop();
+            const d = operands.pop();
+            const c = operands.pop();
+            const b = operands.pop();
+            const a = operands.pop();
+            gstate.ctm = multiply(gstate.ctm, [a, b, c, d, e, f]);
+            operands.length = 0;
+            break;
+          }
+          
+          case 'gsave':
+            stack.push({
+              ctm: [...gstate.ctm],
+              color: [...gstate.color],
+              lineWidth: gstate.lineWidth
+            });
+            break;
+            
+          case 'grestore': {
+            const saved = stack.pop();
+            if (saved) {
+              gstate.ctm = saved.ctm;
+              gstate.color = saved.color;
+              gstate.lineWidth = saved.lineWidth;
+            }
+            break;
+          }
+          
+          case 'show':
+          case 'ashow':
+          case 'widthshow': {
+            const str = operands.pop();
+            if (typeof str === 'string') {
+              // Simplified text handling - extract characters
+              const text = str.replace(/[()\\]/g, '');
+              if (text.trim()) {
+                const [tx, ty] = transform(gstate.currentPoint[0], gstate.currentPoint[1]);
+                const color = colorToHex(gstate.color);
+                elements.push(
+                  `<text x="${fmt(tx)}" y="${fmt(ty)}" fill="${color}" font-family="Helvetica, Arial, sans-serif" font-size="12">${escapeHtml(text)}</text>`
+                );
+              }
+            }
+            operands.length = 0;
+            break;
+          }
+          
+          default: {
+            // Handle PostScript string literal
+            if (token.startsWith('(')) {
+              // String - may span multiple tokens
+              let str = token;
+              let j = i + 1;
+              while (!str.endsWith(')') && j < tokens.length && j < i + 50) {
+                str += ' ' + tokens[j];
+                j++;
+              }
+              i = j - 1;
+              operands.push(str);
+            } else if (token.startsWith('[')) {
+              // Array start - collect until ']'
+              const arr = [];
+              let j = i + 1;
+              while (j < tokens.length && !tokens[j].includes(']')) {
+                const t = tokens[j];
+                if (/^-?\d*\.?\d+$/.test(t)) {
+                  arr.push(parseFloat(t));
+                }
+                j++;
+              }
+              i = j;
+              // If array has 6 numbers, it's a transform matrix
+              if (arr.length === 6) {
+                operands.push(arr[0], arr[1], arr[2], arr[3], arr[4], arr[5]);
+              }
+            }
+            // Otherwise ignore unknown tokens
+          }
+        }
+      }
+      
+      // Flush any remaining path
+      if (gstate.path.length > 0) {
+        flushPath('stroke');
+      }
+      
+      // Build SVG
+      const svgContent = elements.join('\n    ');
+      
+      const svg = `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="${bbox.llx} ${bbox.lly} ${width} ${height}" width="${width}" height="${height}">
+    ${svgContent}
+</svg>`;
+      
+      return svg;
+    }
+
+    // ============================================
+    // CONVERT
+    // ============================================
+    async function convertAll() {
+      if (files.length === 0) {
+        alert('Please select EPS files first.');
+        return;
+      }
+
+      const colorMode = document.getElementById('colorMode').value;
+      const precision = document.getElementById('precision').value;
+
+      showProgress(true);
+      document.getElementById('resultSection').classList.add('hidden');
+      document.getElementById('convertBtn').disabled = true;
+      document.getElementById('convertBtn').textContent = '⏳ Converting...';
+
+      convertedFiles = [];
+      let successCount = 0;
+      let failCount = 0;
+      let totalOutputSize = 0;
+
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const progress = 10 + Math.round((i / files.length) * 80);
+        setProgress(progress, `Converting ${i + 1} of ${files.length}: ${file.name}`);
+
+        try {
+          const text = await readFileAsText(file);
+          const svg = parseEPS(text, { colorMode, precision });
+          
+          const blob = new Blob([svg], { type: 'image/svg+xml;charset=utf-8' });
+          const fileName = file.name.replace(/\.(eps|ai)$/i, '') + '.svg';
+          const url = URL.createObjectURL(blob);
+          
+          convertedFiles.push({
+            blob,
+            name: fileName,
+            originalName: file.name,
+            size: blob.size,
+            url,
+            svg
+          });
+          totalOutputSize += blob.size;
+          successCount++;
+        } catch (error) {
+          console.error(`Error converting ${file.name}:`, error);
+          failCount++;
+        }
+      }
+
+      setProgress(100, '✅ Complete!');
+
+      setTimeout(() => {
+        showResults(successCount, failCount, totalOutputSize);
+        document.getElementById('convertBtn').disabled = false;
+        document.getElementById('convertBtn').textContent = '🔄 Convert All to SVG';
+        showProgress(false);
+      }, 400);
+    }
+
+    function readFileAsText(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (e) => resolve(e.target.result);
+        reader.onerror = () => reject(new Error('Failed to read file'));
+        reader.readAsText(file);
+      });
+    }
+
+    // ============================================
+    // SHOW RESULTS
+    // ============================================
+    function showResults(successCount, failCount, totalBytes) {
+      // Update preview grid
+      const grid = document.getElementById('vectorGrid');
+      const stats = document.getElementById('previewStats');
+      grid.innerHTML = '';
+
+      const successful = convertedFiles;
+      
+      successful.slice(0, 12).forEach((f, idx) => {
+        const card = document.createElement('div');
+        card.className = 'vector-card';
+        card.style.cursor = 'pointer';
+        
+        // Create a sanitized preview
+        const previewSvg = f.svg.replace(/<\?xml[^>]*\?>/g, '');
+        
+        card.innerHTML = `
+          <div class="status-badge svg">SVG</div>
+          <div class="vector-preview">
+            ${previewSvg}
+          </div>
+          <div class="vector-info">
+            <div class="name">${escapeHtml(f.name)}</div>
+            <div class="meta">${(f.size / 1024).toFixed(1)} KB</div>
+          </div>
+        `;
+        
+        card.addEventListener('click', () => openSvgModal(f));
+        grid.appendChild(card);
+      });
+
+      if (convertedFiles.length > 12) {
+        const more = document.createElement('div');
+        more.className = 'vector-card';
+        more.style.display = 'flex';
+        more.style.alignItems = 'center';
+        more.style.justifyContent = 'center';
+        more.style.minHeight = '140px';
+        more.style.background = '#f1f5f9';
+        more.style.border = '2px dashed #cbd5e1';
+        more.innerHTML = `<span style="font-size:12px;color:#64748b;">+ ${convertedFiles.length - 12} more</span>`;
+        grid.appendChild(more);
+      }
+
+      stats.textContent = `${convertedFiles.length} SVG files`;
+      document.getElementById('previewSection').classList.remove('hidden');
+
+      // Update result section
+      document.getElementById('convertedCount').textContent = `${successCount} of ${files.length} converted`;
+      document.getElementById('totalSizeBadge').textContent = `${(totalBytes / 1024).toFixed(1)} KB`;
+
+      // Add download links
+      const links = document.getElementById('downloadLinksContainer');
+      links.innerHTML = '';
+      convertedFiles.forEach(f => {
+        const link = document.createElement('a');
+        link.href = f.url;
+        link.download = f.name;
+        link.className = 'bg-white border border-slate-200 rounded-lg p-2 text-center hover:border-blue-400 transition-all text-xs truncate';
+        link.textContent = '🎨 ' + f.name.substring(0, 16) + (f.name.length > 16 ? '...' : '');
+        link.title = f.name;
+        links.appendChild(link);
+      });
+
+      document.getElementById('resultSection').classList.remove('hidden');
+      document.getElementById('resultSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    // ============================================
+    // DOWNLOAD
+    // ============================================
+    function downloadAll() {
+      if (convertedFiles.length === 0) {
+        alert('No files to download.');
+        return;
+      }
+
+      if (convertedFiles.length === 1) {
+        downloadSingle(convertedFiles[0]);
+        return;
+      }
+
+      if (typeof JSZip !== 'undefined') {
+        const zip = new JSZip();
+        convertedFiles.forEach(f => zip.file(f.name, f.blob));
+        zip.generateAsync({ type: 'blob' }).then(content => {
+          const url = URL.createObjectURL(content);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = 'svg-converted.zip';
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          URL.revokeObjectURL(url);
+        });
+      } else {
+        downloadAllIndividual();
+      }
+    }
+
+    function downloadSingle(f) {
+      const link = document.createElement('a');
+      link.href = f.url;
+      link.download = f.name;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    function downloadAllIndividual() {
+      convertedFiles.forEach((f, idx) => {
+        setTimeout(() => downloadSingle(f), idx * 300);
+      });
+    }
+
+    // ============================================
+    // SVG MODAL VIEWER
+    // ============================================
+    function openSvgModal(f) {
+      const existing = document.getElementById('svgModal');
+      if (existing) existing.remove();
+
+      const modal = document.createElement('div');
+      modal.id = 'svgModal';
+      modal.className = 'svg-modal-overlay';
+      
+      const previewSvg = f.svg.replace(/<\?xml[^>]*\?>/g, '');
+      
+      modal.innerHTML = `
+        <div class="svg-modal">
+          <div class="svg-modal-header">
+            <div style="display:flex;align-items:center;gap:12px;">
+              <span style="font-size:24px;">🎨</span>
+              <div>
+                <h3 style="font-weight:700;font-size:15px;color:#0f172a;">${escapeHtml(f.name)}</h3>
+                <p style="font-size:11px;color:#64748b;">${(f.size / 1024).toFixed(2)} KB • SVG</p>
+              </div>
+            </div>
+            <div style="display:flex;gap:8px;">
+              <button onclick="downloadFromModal('${f.url}', '${escapeHtml(f.name)}')" style="background:#2563eb;color:white;border:none;padding:8px 14px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;">
+                📥 Download
+              </button>
+              <button onclick="copySvg('${escapeHtml(f.name)}')" style="background:#f1f5f9;color:#475569;border:none;padding:8px 14px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;">
+                📋 Copy SVG
+              </button>
+              <button onclick="closeSvgModal()" style="background:transparent;border:none;font-size:22px;cursor:pointer;color:#94a3b8;padding:4px 8px;">✕</button>
+            </div>
+          </div>
+          <div class="svg-modal-body">
+            ${previewSvg}
+          </div>
+        </div>
+      `;
+      
+      document.body.appendChild(modal);
+      
+      // Store svg content for copy
+      window._currentSvg = f.svg;
+      
+      // Close on outside click
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeSvgModal();
+      });
+    }
+
+    function closeSvgModal() {
+      const modal = document.getElementById('svgModal');
+      if (modal) modal.remove();
+    }
+
+    function downloadFromModal(url, name) {
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = name;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    function copySvg(name) {
+      if (!window._currentSvg) return;
+      navigator.clipboard.writeText(window._currentSvg).then(() => {
+        alert('✅ SVG code copied to clipboard!');
+      }).catch(() => {
+        const textarea = document.createElement('textarea');
+        textarea.value = window._currentSvg;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+        alert('✅ SVG code copied to clipboard!');
+      });
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeSvgModal();
+    });
+
+    // ============================================
+    // UTILITIES
+    // ============================================
+    function escapeHtml(str) {
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+
+    function showProgress(show, label) {
+      document.getElementById('progressContainer').classList.toggle('hidden', !show);
+      if (label) document.getElementById('progressLabel').textContent = label;
+    }
+
+    function setProgress(percent, message) {
+      document.getElementById('progressBar').style.width = percent + '%';
+      document.getElementById('progressText').textContent = percent + '%';
+      if (message) document.getElementById('statusText').textContent = message;
+    }
+
+    function clearFiles() {
+      files = [];
+      convertedFiles = [];
+      totalSize = 0;
+      fileInput.value = '';
+      document.getElementById('fileInfo').classList.add('hidden');
+      document.getElementById('previewSection').classList.add('hidden');
+      document.getElementById('resultSection').classList.add('hidden');
+      document.getElementById('progressContainer').classList.add('hidden');
+      dropzone.classList.remove('hidden');
+    }
+
+    function resetAll() {
+      clearFiles();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    console.log('✏️ EPS to SVG Converter loaded');
+    console.log('🔒 All processing happens locally in your browser');
+  </script>
 </body>
 </html>
