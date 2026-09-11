@@ -1,1 +1,1332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PDF Forms - Droplet</title>
+  <meta name="description" content="Fill, create, and edit PDF forms online for free. 100% client-side, your files never leave your browser.">
 
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- PDF.js for PDF rendering -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+
+  <!-- html2pdf for PDF generation -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+  <style>
+    .dropzone-highlight {
+      border-color: #3b82f6 !important;
+      background: #eff6ff !important;
+    }
+    .progress-bar {
+      transition: width 0.5s ease;
+    }
+    .hidden {
+      display: none !important;
+    }
+
+    /* PDF workspace */
+    .pdf-workspace {
+      background: #e9edf2;
+      border-radius: 12px;
+      padding: 20px;
+      overflow: auto;
+      max-height: 600px;
+      position: relative;
+      min-height: 400px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+    }
+    .pdf-workspace::-webkit-scrollbar { width: 8px; height: 8px; }
+    .pdf-workspace::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 8px; }
+    .pdf-workspace::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 8px; }
+    .pdf-workspace::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+    .pdf-page-wrapper {
+      position: relative;
+      background: white;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+      border-radius: 4px;
+      max-width: 100%;
+      overflow: hidden;
+    }
+    .pdf-page-wrapper canvas {
+      display: block;
+      max-width: 100%;
+      height: auto;
+    }
+
+    /* Form field overlays */
+    .form-field {
+      position: absolute;
+      background: rgba(37, 99, 235, 0.08);
+      border: 2px dashed #2563eb;
+      border-radius: 4px;
+      padding: 2px 6px;
+      font-size: 12px;
+      color: #1e40af;
+      cursor: pointer;
+      transition: all 0.2s;
+      min-height: 20px;
+      display: flex;
+      align-items: center;
+      font-weight: 500;
+    }
+    .form-field:hover {
+      background: rgba(37, 99, 235, 0.15);
+      border-color: #1d4ed8;
+    }
+    .form-field.filled {
+      background: rgba(34, 197, 94, 0.1);
+      border-color: #22c55e;
+      border-style: solid;
+      color: #15803d;
+    }
+    .form-field.selected {
+      background: rgba(37, 99, 235, 0.2);
+      border-style: solid;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    }
+    .form-field.required::after {
+      content: '*';
+      color: #ef4444;
+      margin-left: 2px;
+      font-weight: 700;
+    }
+
+    /* Tool buttons */
+    .tool-btn {
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 500;
+      border-radius: 8px;
+      border: 2px solid transparent;
+      background: transparent;
+      color: #475569;
+      cursor: pointer;
+      transition: all 0.15s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+    .tool-btn:hover {
+      background: #f1f5f9;
+      color: #1e293b;
+    }
+    .tool-btn.active {
+      background: #eff6ff;
+      border-color: #2563eb;
+      color: #2563eb;
+    }
+
+    /* Field list items */
+    .field-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 12px;
+      background: #f8fafc;
+      border-radius: 8px;
+      border: 1px solid #e2e8f0;
+      transition: all 0.15s;
+      cursor: pointer;
+      font-size: 13px;
+    }
+    .field-item:hover {
+      border-color: #2563eb;
+      background: #f0f9ff;
+    }
+    .field-item.selected {
+      border-color: #2563eb;
+      background: #eff6ff;
+      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+    }
+    .field-item .field-icon {
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+    .field-item .field-label {
+      flex: 1;
+      font-weight: 500;
+      color: #1e293b;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .field-item .field-type {
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      color: #94a3b8;
+      letter-spacing: 0.05em;
+    }
+
+    /* File item */
+    .file-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      background: #f8fafc;
+      border-radius: 10px;
+      border: 1px solid #e2e8f0;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .file-item:hover { border-color: #94a3b8; }
+    .file-item .icon { font-size: 28px; }
+    .file-item .info { flex: 1; }
+    .file-item .info .name { font-weight: 600; color: #1e293b; transition: color 0.2s; }
+    .file-item .info .size { font-size: 12px; color: #94a3b8; transition: color 0.2s; }
+
+    /* PDF render host - off-screen */
+    #pdfRenderHost {
+      position: fixed;
+      left: -100000px;
+      top: 0;
+      width: 210mm;
+      min-height: 297mm;
+      background: #ffffff;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: -9999;
+      opacity: 0;
+    }
+
+    /* Modal for field editor */
+    .field-modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    .field-modal {
+      background: white;
+      border-radius: 16px;
+      max-width: 500px;
+      width: 100%;
+      padding: 24px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    /* Dark mode overrides */
+    html.dark body {
+      background: #0f172a;
+      color: #e2e8f0;
+    }
+    html.dark header {
+      background: #1e293b;
+      border-color: #334155;
+    }
+    html.dark header h1 { color: #f1f5f9; }
+    html.dark header p { color: #60a5fa !important; }
+    html.dark header nav a { color: #94a3b8; }
+    html.dark header nav a:hover { color: #f1f5f9; }
+    html.dark #dropzone {
+      background: #1e293b;
+      border-color: #475569;
+    }
+    html.dark #dropzone:hover { border-color: #3b82f6; }
+    html.dark #dropzone h3 { color: #f1f5f9; }
+    html.dark #dropzone p { color: #94a3b8; }
+    html.dark #dropzone .bg-blue-50 { background: #1e3a5f !important; }
+    html.dark #fileInfo {
+      background: #1e293b;
+      border-color: #334155;
+    }
+    html.dark #fileInfo .text-slate-900 { color: #f1f5f9; }
+    html.dark #fileInfo .text-slate-400 { color: #94a3b8; }
+    html.dark #fileInfo .border-slate-200 { border-color: #334155; }
+    html.dark #fileInfo .hover\:bg-slate-50:hover { background: #334155; }
+    html.dark .file-item {
+      background: #0f172a;
+      border-color: #334155;
+    }
+    html.dark .file-item .info .name { color: #f1f5f9; }
+    html.dark .file-item .info .size { color: #94a3b8; }
+    html.dark .pdf-workspace {
+      background: #111827;
+    }
+    html.dark .pdf-workspace::-webkit-scrollbar-track { background: #0f172a; }
+    html.dark .pdf-workspace::-webkit-scrollbar-thumb { background: #475569; }
+    html.dark .pdf-workspace::-webkit-scrollbar-thumb:hover { background: #64748b; }
+    html.dark .tool-btn { color: #94a3b8; }
+    html.dark .tool-btn:hover { background: #334155; color: #f1f5f9; }
+    html.dark .tool-btn.active { background: #1e3a5f; border-color: #3b82f6; color: #60a5fa; }
+    html.dark .field-item {
+      background: #0f172a;
+      border-color: #334155;
+    }
+    html.dark .field-item .field-label { color: #f1f5f9; }
+    html.dark .field-item .field-type { color: #64748b; }
+    html.dark .field-item:hover {
+      border-color: #3b82f6;
+      background: #1e293b;
+    }
+    html.dark .field-item.selected {
+      border-color: #3b82f6;
+      background: #1e3a5f;
+      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
+    }
+    html.dark #toolbarSection .bg-white {
+      background: #1e293b !important;
+      border-color: #334155;
+    }
+    html.dark #fieldListSection .bg-white {
+      background: #1e293b !important;
+      border-color: #334155;
+    }
+    html.dark #resultSection .bg-green-50 {
+      background: #0f172a !important;
+      border-color: #334155;
+    }
+    html.dark #resultSection .border-green-200 { border-color: #334155 !important; }
+    html.dark #resultSection h3 { color: #f1f5f9; }
+    html.dark #resultSection .text-slate-600 { color: #94a3b8; }
+    html.dark #resultSection .border-slate-200 { border-color: #334155 !important; }
+    html.dark #resultSection .hover\:bg-slate-50:hover { background: #334155 !important; }
+    html.dark .bg-white { background: #1e293b !important; }
+    html.dark .border-slate-100 { border-color: #334155 !important; }
+    html.dark .border-slate-200 { border-color: #334155 !important; }
+    html.dark .border-slate-300 { border-color: #334155 !important; }
+    html.dark .text-slate-500 { color: #94a3b8 !important; }
+    html.dark .text-slate-600 { color: #94a3b8 !important; }
+    html.dark .text-slate-700 { color: #cbd5e1 !important; }
+    html.dark .text-slate-900 { color: #f1f5f9 !important; }
+    html.dark .bg-blue-50 { background: #1e3a5f !important; }
+    html.dark .border-blue-200 { border-color: #2563eb !important; }
+    html.dark .text-blue-700 { color: #60a5fa !important; }
+    html.dark .text-blue-900 { color: #93c5fd !important; }
+    html.dark .bg-slate-50 { background: #0f172a !important; }
+    html.dark .bg-slate-100 { background: #334155 !important; }
+    html.dark .hover\:bg-slate-200:hover { background: #475569 !important; }
+    html.dark .bg-green-50 { background: #0f172a !important; }
+    html.dark .border-green-200 { border-color: #334155 !important; }
+    html.dark footer {
+      background: #0f172a !important;
+      border-color: #334155 !important;
+    }
+    html.dark footer a { color: #94a3b8; }
+    html.dark footer a:hover { color: #f1f5f9; }
+    html.dark .shadow-sm { box-shadow: 0 1px 2px 0 rgba(0,0,0,0.3) !important; }
+    html.dark .shadow-lg { box-shadow: 0 10px 15px -3px rgba(0,0,0,0.4) !important; }
+    html.dark .shadow-md { box-shadow: 0 4px 6px -1px rgba(0,0,0,0.4) !important; }
+    html.dark .back-home-btn {
+      background: #1e293b !important;
+      border-color: #475569 !important;
+      color: #e2e8f0 !important;
+    }
+    html.dark .back-home-btn:hover {
+      background: #334155 !important;
+      border-color: #3b82f6 !important;
+    }
+    html.dark .bg-green-600 { background: #059669 !important; }
+    html.dark .bg-green-600:hover { background: #047857 !important; }
+    html.dark .bg-blue-600 { background: #2563eb !important; }
+    html.dark .bg-blue-600:hover { background: #1d4ed8 !important; }
+    html.dark .field-modal {
+      background: #1e293b;
+    }
+    html.dark .field-modal input,
+    html.dark .field-modal select,
+    html.dark .field-modal textarea {
+      background: #0f172a;
+      border-color: #334155;
+      color: #f1f5f9;
+    }
+    html.dark .field-modal label { color: #e2e8f0; }
+
+    #theme-toggle {
+      background: none;
+      border: none;
+      font-size: 1.2rem;
+      cursor: pointer;
+      padding: 0.2rem 0.4rem;
+      border-radius: 6px;
+      transition: background 0.2s;
+      color: #475569;
+      line-height: 1;
+    }
+    #theme-toggle:hover { background: #f1f5f9; }
+    html.dark #theme-toggle { color: #e2e8f0; }
+    html.dark #theme-toggle:hover { background: #334155; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen flex flex-col transition-colors duration-200">
+
+  <!-- Navigation -->
+  <header class="bg-white border-b border-slate-200 py-3.5 px-6 sticky top-0 z-50 transition-colors duration-200">
+    <div class="max-w-6xl mx-auto flex justify-between items-center">
+      <a href="/" class="flex items-center gap-3 group">
+        <img src="Gemini_Generated_Image_sdu6v7sdu6v7sdu6.jpg" alt="Droplet Logo" class="h-9 w-auto rounded-xl shadow-sm group-hover:scale-105 transition-transform">
+        <div>
+          <h1 class="text-xl font-black tracking-tight text-slate-900 leading-none">Droplet</h1>
+          <p class="text-[9px] text-blue-600 font-extrabold tracking-widest uppercase mt-0.5">DRAG, DROP AND CONVERT.</p>
+        </div>
+      </a>
+      <div class="flex items-center gap-3">
+        <button id="theme-toggle" aria-label="Toggle theme">🌙</button>
+        <nav class="hidden md:flex items-center space-x-6 text-xs font-bold text-slate-600">
+          <a href="/" class="hover:text-blue-600 transition-colors">← Back</a>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="max-w-5xl mx-auto px-4 py-8 md:py-12 flex-grow w-full">
+
+    <!-- Back Button -->
+    <div class="max-w-3xl mx-auto mb-4 flex justify-start">
+      <a href="/" class="back-home-btn inline-flex items-center gap-2 bg-white hover:bg-slate-50 border border-slate-200 shadow-sm rounded-full px-5 py-2.5 text-sm font-medium text-slate-700 transition-all hover:shadow-md hover:border-slate-300 active:scale-95">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        </svg>
+        Back to Home
+      </a>
+    </div>
+
+    <!-- Page Header -->
+    <div class="text-center mb-8">
+      <div class="inline-block p-3 bg-blue-50 rounded-2xl mb-4 transition-colors duration-200">
+        <span class="text-4xl">📋</span>
+      </div>
+      <h1 class="text-3xl md:text-4xl font-black text-slate-900 tracking-tight">PDF Forms</h1>
+      <p class="text-slate-500 text-sm md:text-base mt-2 max-w-lg mx-auto">
+        Fill, create, and edit PDF forms. <strong>100% client-side</strong> — your files never leave your browser.
+      </p>
+    </div>
+
+    <!-- Info Box -->
+    <div class="max-w-3xl mx-auto mb-8 bg-blue-50 border border-blue-200 rounded-xl p-4 transition-colors duration-200">
+      <div class="flex items-start gap-3">
+        <span class="text-2xl">📝</span>
+        <div>
+          <h4 class="font-bold text-sm text-blue-900">About PDF Forms</h4>
+          <p class="text-xs text-blue-700 mt-1">Upload a PDF and add interactive form fields like text inputs, checkboxes, dropdowns, and signatures. Fill existing forms or create new ones from scratch.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dropzone -->
+    <div id="dropzone" class="bg-white border-2 border-dashed border-slate-300 hover:border-blue-400 transition-all rounded-3xl p-8 md:p-12 text-center shadow-lg max-w-3xl mx-auto cursor-pointer">
+      <div class="flex flex-col items-center">
+        <div class="w-20 h-20 bg-blue-50 rounded-2xl flex items-center justify-center mb-4 text-4xl transition-colors duration-200">
+          📁
+        </div>
+        <h3 class="text-xl font-bold text-slate-900 mb-1">Drop your PDF here</h3>
+        <p class="text-slate-400 text-sm mb-4">or click to browse</p>
+        <input type="file" id="fileInput" accept=".pdf,application/pdf" class="hidden">
+        <button onclick="document.getElementById('fileInput').click()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-3 rounded-xl text-sm shadow-md shadow-blue-500/20 transition-all active:scale-95">
+          Select PDF File
+        </button>
+        <p class="text-xs text-slate-400 mt-3">Max file size: ~100MB</p>
+      </div>
+    </div>
+
+    <!-- File Info -->
+    <div id="fileInfo" class="hidden max-w-3xl mx-auto mt-6 bg-white rounded-xl shadow-sm border border-slate-200 p-6 transition-colors duration-200">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <span class="text-2xl">📄</span>
+          <div>
+            <p id="fileName" class="font-medium text-slate-900"></p>
+            <p id="fileSize" class="text-xs text-slate-400"></p>
+            <p id="pageInfo" class="text-xs text-slate-400"></p>
+          </div>
+        </div>
+        <button onclick="clearFile()" class="text-slate-400 hover:text-red-500 transition-colors">✕</button>
+      </div>
+    </div>
+
+    <!-- Toolbar -->
+    <div id="toolbarSection" class="hidden max-w-3xl mx-auto mt-6">
+      <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-3 transition-colors duration-200">
+        <div class="flex flex-wrap gap-2 items-center">
+          <span class="text-xs font-bold text-slate-500 uppercase tracking-wider px-2">Add Field:</span>
+          <button class="tool-btn" onclick="addField('text')">
+            <span>📝</span> Text
+          </button>
+          <button class="tool-btn" onclick="addField('checkbox')">
+            <span>☑️</span> Checkbox
+          </button>
+          <button class="tool-btn" onclick="addField('radio')">
+            <span>🔘</span> Radio
+          </button>
+          <button class="tool-btn" onclick="addField('dropdown')">
+            <span>📋</span> Dropdown
+          </button>
+          <button class="tool-btn" onclick="addField('date')">
+            <span>📅</span> Date
+          </button>
+          <button class="tool-btn" onclick="addField('signature')">
+            <span>✍️</span> Signature
+          </button>
+          <div class="flex-1"></div>
+          <button class="tool-btn" onclick="toggleFieldMode()" id="modeBtn">
+            <span>🖱️</span> <span id="modeLabel">Select</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Workspace + Field List -->
+    <div class="max-w-3xl mx-auto mt-6 grid grid-cols-1 lg:grid-cols-3 gap-4">
+      
+      <!-- PDF Workspace -->
+      <div class="lg:col-span-2">
+        <div class="flex items-center justify-between mb-2">
+          <h4 class="font-bold text-sm text-slate-700">📄 Document</h4>
+          <div class="flex items-center gap-2">
+            <button class="tool-btn" onclick="changePage(-1)" id="prevPageBtn" disabled>◀</button>
+            <span id="currentPageLabel" class="text-xs text-slate-500 px-2">Page 1 / 1</span>
+            <button class="tool-btn" onclick="changePage(1)" id="nextPageBtn" disabled>▶</button>
+          </div>
+        </div>
+        <div class="pdf-workspace" id="pdfWorkspace">
+          <div class="pdf-page-wrapper" id="pdfPageWrapper">
+            <canvas id="pdfCanvas"></canvas>
+            <div id="fieldOverlay" style="position:absolute;inset:0;pointer-events:none;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Field List -->
+      <div class="lg:col-span-1">
+        <div id="fieldListSection" class="bg-white rounded-xl shadow-sm border border-slate-200 p-4 transition-colors duration-200 h-full">
+          <div class="flex items-center justify-between mb-3">
+            <h4 class="font-bold text-sm text-slate-700">📋 Form Fields</h4>
+            <span id="fieldCount" class="text-xs font-semibold bg-blue-50 text-blue-700 px-2 py-1 rounded-full">0</span>
+          </div>
+          
+          <div id="fieldList" class="space-y-2 max-h-[500px] overflow-y-auto">
+            <div class="text-center text-slate-400 text-xs py-8" id="emptyFields">
+              <div class="text-3xl mb-2">📝</div>
+              <p>No form fields yet</p>
+              <p class="text-[10px] mt-1">Click a field type above to add one</p>
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div id="actionsPanel" class="hidden mt-4 pt-4 border-t border-slate-200 space-y-2">
+            <button onclick="exportPDF()" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2.5 rounded-lg text-sm transition-all active:scale-95 shadow-md shadow-green-500/20">
+              💾 Export PDF
+            </button>
+            <button onclick="clearAllFields()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium py-2 rounded-lg text-sm transition-all">
+              🗑️ Clear All Fields
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Progress Bar -->
+    <div id="progressContainer" class="hidden max-w-3xl mx-auto mt-4">
+      <div class="flex justify-between text-xs text-slate-500 mb-1">
+        <span id="progressLabel">Processing...</span>
+        <span id="progressText">0%</span>
+      </div>
+      <div class="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
+        <div id="progressBar" class="bg-blue-600 h-2 rounded-full progress-bar" style="width: 0%"></div>
+      </div>
+      <p id="statusText" class="text-xs text-slate-400 mt-2 text-center">Initializing...</p>
+    </div>
+
+    <!-- Result Section -->
+    <div id="resultSection" class="hidden max-w-3xl mx-auto mt-6">
+      <div class="bg-green-50 border border-green-200 rounded-xl p-6 text-center transition-colors duration-200">
+        <div class="text-4xl mb-2">✅</div>
+        <h3 class="font-bold text-slate-900">PDF Exported!</h3>
+        <p class="text-sm text-slate-600 mt-1">Your PDF with form fields is ready.</p>
+        <div class="mt-4 flex flex-wrap gap-3 justify-center">
+          <a id="downloadLink" href="#" download="form-filled.pdf" class="bg-green-600 hover:bg-green-700 text-white font-bold px-6 py-3 rounded-xl transition-all shadow-md shadow-green-500/20">
+            📥 Download PDF
+          </a>
+          <button onclick="resetAll()" class="px-6 py-3 border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors text-sm">
+            Start Over
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Info Cards -->
+    <div class="max-w-3xl mx-auto mt-12 grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div class="bg-white p-4 rounded-xl border border-slate-100 text-center transition-colors duration-200">
+        <div class="text-2xl mb-1">🔒</div>
+        <h4 class="font-bold text-sm">100% Private</h4>
+        <p class="text-xs text-slate-500">Your files never leave your browser</p>
+      </div>
+      <div class="bg-white p-4 rounded-xl border border-slate-100 text-center transition-colors duration-200">
+        <div class="text-2xl mb-1">📝</div>
+        <h4 class="font-bold text-sm">Interactive Fields</h4>
+        <p class="text-xs text-slate-500">Text, checkboxes, dropdowns, dates</p>
+      </div>
+      <div class="bg-white p-4 rounded-xl border border-slate-100 text-center transition-colors duration-200">
+        <div class="text-2xl mb-1">⚡</div>
+        <h4 class="font-bold text-sm">Fast & Free</h4>
+        <p class="text-xs text-slate-500">No sign-up required</p>
+      </div>
+    </div>
+
+    <!-- FAQ -->
+    <section class="max-w-3xl mx-auto mt-12">
+      <h2 class="text-xl font-black text-slate-900 text-center mb-6">Frequently Asked Questions</h2>
+      <div class="space-y-3">
+        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
+          <h3 class="font-bold text-slate-900 text-sm">How do I use PDF Forms?</h3>
+          <p class="text-slate-600 text-sm mt-1">Upload a PDF, then click any field type in the toolbar to add a form field. Drag fields to reposition, click to configure them, and export when done.</p>
+        </div>
+        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
+          <h3 class="font-bold text-slate-900 text-sm">Can I fill existing PDF forms?</h3>
+          <p class="text-slate-600 text-sm mt-1">Yes! If your PDF has interactive form fields, they will be detected and you can fill them. You can also add new fields on top of any PDF.</p>
+        </div>
+        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
+          <h3 class="font-bold text-slate-900 text-sm">Is my data safe?</h3>
+          <p class="text-slate-600 text-sm mt-1">Absolutely. All processing happens locally in your browser. Your PDF and form data never leave your device.</p>
+        </div>
+        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
+          <h3 class="font-bold text-slate-900 text-sm">What field types are supported?</h3>
+          <p class="text-slate-600 text-sm mt-1">Text inputs, checkboxes, radio buttons, dropdowns, date pickers, and signature fields.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-500 mt-auto transition-colors duration-200">
+    <div class="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-3">
+      <p class="font-medium">© Droplet. 100% Client-Side Privacy First File Utility.</p>
+      <div class="space-x-4">
+        <a href="/about.html" class="hover:text-blue-600 transition-colors">About</a>
+        <span>•</span>
+        <a href="/privacy.html" class="hover:text-blue-600 transition-colors">Privacy</a>
+        <span>•</span>
+        <a href="/terms.html" class="hover:text-blue-600 transition-colors">Terms</a>
+        <span>•</span>
+        <a href="/contact.html" class="hover:text-blue-600 transition-colors">Contact</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- PDF Render Host -->
+  <div id="pdfRenderHost" aria-hidden="true"></div>
+
+  <script>
+    // ============================================
+    // DARK MODE TOGGLE
+    // ============================================
+    const themeToggle = document.getElementById('theme-toggle');
+    const html = document.documentElement;
+    
+    let currentTheme = localStorage.getItem('theme') || 
+      (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    
+    if (currentTheme === 'dark') {
+      html.classList.add('dark');
+      themeToggle.textContent = '☀️';
+    } else {
+      themeToggle.textContent = '🌙';
+    }
+    
+    themeToggle.addEventListener('click', () => {
+      if (html.classList.contains('dark')) {
+        html.classList.remove('dark');
+        themeToggle.textContent = '🌙';
+        localStorage.setItem('theme', 'light');
+      } else {
+        html.classList.add('dark');
+        themeToggle.textContent = '☀️';
+        localStorage.setItem('theme', 'dark');
+      }
+    });
+
+    // ============================================
+    // STATE
+    // ============================================
+    let currentFile = null;
+    let pdfDoc = null;
+    let currentPage = 1;
+    let totalPages = 1;
+    let pdfScale = 1.5;
+    let formFields = []; // { id, type, page, x, y, width, height, label, value, options, required }
+    let selectedFieldId = null;
+    let fieldMode = 'select'; // 'select' or 'add'
+
+    // ============================================
+    // PDF.JS SETUP
+    // ============================================
+    if (typeof pdfjsLib !== 'undefined') {
+      pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    }
+
+    // ============================================
+    // FILE HANDLING
+    // ============================================
+    const dropzone = document.getElementById('dropzone');
+    const fileInput = document.getElementById('fileInput');
+
+    dropzone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropzone.classList.add('dropzone-highlight');
+    });
+
+    dropzone.addEventListener('dragleave', () => {
+      dropzone.classList.remove('dropzone-highlight');
+    });
+
+    dropzone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropzone.classList.remove('dropzone-highlight');
+      if (e.dataTransfer.files.length > 0) {
+        handleFile(e.dataTransfer.files[0]);
+      }
+    });
+
+    dropzone.addEventListener('click', (e) => {
+      if (e.target.tagName !== 'BUTTON') fileInput.click();
+    });
+
+    fileInput.addEventListener('change', (e) => {
+      if (e.target.files.length > 0) handleFile(e.target.files[0]);
+    });
+
+    async function handleFile(file) {
+      if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
+        alert('Please select a valid PDF file.');
+        return;
+      }
+      if (file.size > 100 * 1024 * 1024) {
+        alert('File is too large. Please use a PDF under 100MB.');
+        return;
+      }
+
+      currentFile = file;
+      formFields = [];
+      selectedFieldId = null;
+      
+      document.getElementById('fileName').textContent = file.name;
+      document.getElementById('fileSize').textContent = (file.size / 1024 / 1024).toFixed(2) + ' MB';
+      document.getElementById('fileInfo').classList.remove('hidden');
+      dropzone.classList.add('hidden');
+      
+      try {
+        showProgress(true, 'Loading PDF...');
+        const arrayBuffer = await file.arrayBuffer();
+        pdfDoc = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+        totalPages = pdfDoc.numPages;
+        currentPage = 1;
+        
+        document.getElementById('pageInfo').textContent = `📄 ${totalPages} pages`;
+        document.getElementById('toolbarSection').classList.remove('hidden');
+        document.getElementById('actionsPanel').classList.remove('hidden');
+        
+        await renderPage(currentPage);
+        updateFieldList();
+        updatePageControls();
+        
+        showProgress(false);
+      } catch (error) {
+        console.error('PDF load error:', error);
+        showProgress(false);
+        alert('Failed to load PDF: ' + error.message);
+      }
+    }
+
+    // ============================================
+    // RENDER PDF PAGE
+    // ============================================
+    async function renderPage(pageNum) {
+      if (!pdfDoc) return;
+      
+      const page = await pdfDoc.getPage(pageNum);
+      const viewport = page.getViewport({ scale: pdfScale });
+      
+      const canvas = document.getElementById('pdfCanvas');
+      const context = canvas.getContext('2d');
+      canvas.width = viewport.width;
+      canvas.height = viewport.height;
+      
+      await page.render({ canvasContext: context, viewport }).promise;
+      
+      // Position the overlay
+      const overlay = document.getElementById('fieldOverlay');
+      overlay.style.width = viewport.width + 'px';
+      overlay.style.height = viewport.height + 'px';
+      
+      renderFieldOverlays();
+      document.getElementById('currentPageLabel').textContent = `Page ${pageNum} / ${totalPages}`;
+    }
+
+    // ============================================
+    // FORM FIELD MANAGEMENT
+    // ============================================
+    function addField(type) {
+      const fieldId = 'field_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+      
+      // Get workspace dimensions for default positioning
+      const canvas = document.getElementById('pdfCanvas');
+      const overlay = document.getElementById('fieldOverlay');
+      
+      // Default dimensions based on type
+      const defaults = {
+        text: { width: 200, height: 32, label: 'Text Field', icon: '📝' },
+        checkbox: { width: 24, height: 24, label: 'Checkbox', icon: '☑️' },
+        radio: { width: 24, height: 24, label: 'Radio Button', icon: '🔘' },
+        dropdown: { width: 200, height: 32, label: 'Dropdown', icon: '📋' },
+        date: { width: 160, height: 32, label: 'Date Field', icon: '📅' },
+        signature: { width: 240, height: 80, label: 'Signature', icon: '✍️' }
+      };
+      
+      const def = defaults[type] || defaults.text;
+      
+      // Center the new field
+      const x = Math.round((canvas.width - def.width) / 2);
+      const y = Math.round((canvas.height - def.height) / 2);
+      
+      const newField = {
+        id: fieldId,
+        type: type,
+        page: currentPage,
+        x: x,
+        y: y,
+        width: def.width,
+        height: def.height,
+        label: def.label,
+        value: '',
+        options: type === 'dropdown' ? ['Option 1', 'Option 2', 'Option 3'] : [],
+        required: false
+      };
+      
+      formFields.push(newField);
+      selectedFieldId = fieldId;
+      
+      renderFieldOverlays();
+      updateFieldList();
+      
+      // Open the editor
+      openFieldEditor(fieldId);
+    }
+
+    function renderFieldOverlays() {
+      const overlay = document.getElementById('fieldOverlay');
+      overlay.innerHTML = '';
+      overlay.style.pointerEvents = 'auto';
+      
+      const fieldsOnPage = formFields.filter(f => f.page === currentPage);
+      
+      fieldsOnPage.forEach(field => {
+        const el = document.createElement('div');
+        el.className = 'form-field' + 
+          (field.value ? ' filled' : '') + 
+          (field.id === selectedFieldId ? ' selected' : '') +
+          (field.required ? ' required' : '');
+        
+        el.style.left = field.x + 'px';
+        el.style.top = field.y + 'px';
+        el.style.width = field.width + 'px';
+        el.style.height = field.height + 'px';
+        el.dataset.fieldId = field.id;
+        
+        // Content based on type
+        if (field.type === 'checkbox') {
+          el.innerHTML = field.value ? '☑️' : '☐';
+          el.style.justifyContent = 'center';
+          el.style.padding = '0';
+        } else if (field.type === 'radio') {
+          el.innerHTML = field.value ? '🔘' : '⚪';
+          el.style.justifyContent = 'center';
+          el.style.padding = '0';
+        } else if (field.type === 'signature') {
+          el.innerHTML = field.value ? 
+            `<span style="font-family:cursive;font-size:18px;">${field.value}</span>` : 
+            `<span style="opacity:0.6;">✍️ Sign here</span>`;
+        } else if (field.type === 'date') {
+          el.innerHTML = field.value || '📅 ' + field.label;
+        } else {
+          el.innerHTML = field.value || field.label;
+        }
+        
+        // Click handler
+        el.addEventListener('click', (e) => {
+          e.stopPropagation();
+          selectedFieldId = field.id;
+          renderFieldOverlays();
+          updateFieldList();
+          openFieldEditor(field.id);
+        });
+        
+        // Drag to move
+        el.addEventListener('mousedown', startDrag);
+        el.addEventListener('touchstart', startDrag, { passive: false });
+        
+        overlay.appendChild(el);
+      });
+    }
+
+    // ============================================
+    // DRAG TO MOVE FIELDS
+    // ============================================
+    let dragState = null;
+
+    function startDrag(e) {
+      if (e.target.closest('.form-field') === null) return;
+      
+      const fieldId = e.target.closest('.form-field').dataset.fieldId;
+      const field = formFields.find(f => f.id === fieldId);
+      if (!field) return;
+      
+      e.preventDefault();
+      e.stopPropagation();
+      
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+      
+      dragState = {
+        fieldId: fieldId,
+        startX: clientX,
+        startY: clientY,
+        origX: field.x,
+        origY: field.y,
+        moved: false
+      };
+      
+      document.addEventListener('mousemove', onDrag);
+      document.addEventListener('mouseup', endDrag);
+      document.addEventListener('touchmove', onDrag, { passive: false });
+      document.addEventListener('touchend', endDrag);
+    }
+
+    function onDrag(e) {
+      if (!dragState) return;
+      
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+      
+      const dx = clientX - dragState.startX;
+      const dy = clientY - dragState.startY;
+      
+      if (Math.abs(dx) > 3 || Math.abs(dy) > 3) {
+        dragState.moved = true;
+      }
+      
+      const field = formFields.find(f => f.id === dragState.fieldId);
+      if (!field) return;
+      
+      field.x = Math.max(0, dragState.origX + dx);
+      field.y = Math.max(0, dragState.origY + dy);
+      
+      const el = document.querySelector(`[data-field-id="${field.id}"]`);
+      if (el) {
+        el.style.left = field.x + 'px';
+        el.style.top = field.y + 'px';
+      }
+      
+      if (e.cancelable) e.preventDefault();
+    }
+
+    function endDrag() {
+      if (!dragState) return;
+      
+      document.removeEventListener('mousemove', onDrag);
+      document.removeEventListener('mouseup', endDrag);
+      document.removeEventListener('touchmove', onDrag);
+      document.removeEventListener('touchend', endDrag);
+      
+      dragState = null;
+    }
+
+    // ============================================
+    // FIELD LIST
+    // ============================================
+    function updateFieldList() {
+      const list = document.getElementById('fieldList');
+      const empty = document.getElementById('emptyFields');
+      const count = document.getElementById('fieldCount');
+      
+      count.textContent = formFields.length;
+      
+      if (formFields.length === 0) {
+        empty.classList.remove('hidden');
+        list.innerHTML = '';
+        list.appendChild(empty);
+        return;
+      }
+      
+      empty.classList.add('hidden');
+      
+      const iconMap = {
+        text: '📝', checkbox: '☑️', radio: '🔘',
+        dropdown: '📋', date: '📅', signature: '✍️'
+      };
+      
+      list.innerHTML = formFields.map(field => `
+        <div class="field-item ${field.id === selectedFieldId ? 'selected' : ''}" data-field-id="${field.id}" onclick="selectFieldFromList('${field.id}')">
+          <span class="field-icon">${iconMap[field.type] || '📝'}</span>
+          <span class="field-label">${field.value || field.label}</span>
+          <span class="field-type">${field.type}</span>
+        </div>
+      `).join('');
+    }
+
+    function selectFieldFromList(fieldId) {
+      const field = formFields.find(f => f.id === fieldId);
+      if (!field) return;
+      
+      if (field.page !== currentPage) {
+        currentPage = field.page;
+        renderPage(currentPage);
+        updatePageControls();
+      }
+      
+      selectedFieldId = fieldId;
+      renderFieldOverlays();
+      updateFieldList();
+    }
+
+    // ============================================
+    // FIELD EDITOR MODAL
+    // ============================================
+    function openFieldEditor(fieldId) {
+      const field = formFields.find(f => f.id === fieldId);
+      if (!field) return;
+      
+      // Remove existing modal
+      const existing = document.getElementById('fieldModal');
+      if (existing) existing.remove();
+      
+      const modal = document.createElement('div');
+      modal.id = 'fieldModal';
+      modal.className = 'field-modal-overlay';
+      
+      let typeSpecificHTML = '';
+      
+      if (field.type === 'dropdown') {
+        typeSpecificHTML = `
+          <div style="margin-bottom:16px;">
+            <label style="display:block;font-size:12px;font-weight:600;color:#475569;margin-bottom:6px;">Options (one per line)</label>
+            <textarea id="fieldOptions" rows="4" style="width:100%;padding:8px 12px;border:2px solid #e2e8f0;border-radius:8px;font-size:13px;outline:none;" placeholder="Option 1
+Option 2
+Option 3">${(field.options || []).join('\n')}</textarea>
+          </div>
+        `;
+      }
+      
+      modal.innerHTML = `
+        <div class="field-modal">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+            <h3 style="font-weight:700;font-size:18px;color:#0f172a;">Edit ${field.type} field</h3>
+            <button onclick="closeFieldEditor()" style="background:none;border:none;font-size:24px;cursor:pointer;color:#94a3b8;">✕</button>
+          </div>
+          
+          <div style="margin-bottom:16px;">
+            <label style="display:block;font-size:12px;font-weight:600;color:#475569;margin-bottom:6px;">Field Label</label>
+            <input type="text" id="fieldLabel" value="${escapeAttr(field.label)}" style="width:100%;padding:8px 12px;border:2px solid #e2e8f0;border-radius:8px;font-size:13px;outline:none;">
+          </div>
+          
+          <div style="margin-bottom:16px;">
+            <label style="display:block;font-size:12px;font-weight:600;color:#475569;margin-bottom:6px;">Value</label>
+            ${field.type === 'signature' 
+              ? `<input type="text" id="fieldValue" value="${escapeAttr(field.value)}" placeholder="Type your signature" style="width:100%;padding:8px 12px;border:2px solid #e2e8f0;border-radius:8px;font-size:13px;outline:none;font-family:cursive;">`
+              : `<input type="text" id="fieldValue" value="${escapeAttr(field.value)}" style="width:100%;padding:8px 12px;border:2px solid #e2e8f0;border-radius:8px;font-size:13px;outline:none;">`
+            }
+          </div>
+          
+          ${typeSpecificHTML}
+          
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
+            <div>
+              <label style="display:block;font-size:12px;font-weight:600;color:#475569;margin-bottom:6px;">Width (px)</label>
+              <input type="number" id="fieldWidth" value="${field.width}" min="20" style="width:100%;padding:8px 12px;border:2px solid #e2e8f0;border-radius:8px;font-size:13px;outline:none;">
+            </div>
+            <div>
+              <label style="display:block;font-size:12px;font-weight:600;color:#475569;margin-bottom:6px;">Height (px)</label>
+              <input type="number" id="fieldHeight" value="${field.height}" min="20" style="width:100%;padding:8px 12px;border:2px solid #e2e8f0;border-radius:8px;font-size:13px;outline:none;">
+            </div>
+          </div>
+          
+          <label style="display:flex;align-items:center;gap:8px;margin-bottom:20px;cursor:pointer;">
+            <input type="checkbox" id="fieldRequired" ${field.required ? 'checked' : ''} style="width:16px;height:16px;">
+            <span style="font-size:13px;color:#475569;">Required field</span>
+          </label>
+          
+          <div style="display:flex;gap:8px;">
+            <button onclick="saveField('${fieldId}')" style="flex:1;background:#2563eb;color:white;font-weight:600;padding:10px;border-radius:8px;border:none;cursor:pointer;font-size:14px;">Save</button>
+            <button onclick="deleteField('${fieldId}')" style="padding:10px 16px;background:#fef2f2;color:#ef4444;font-weight:600;border-radius:8px;border:none;cursor:pointer;font-size:14px;">Delete</button>
+            <button onclick="closeFieldEditor()" style="padding:10px 16px;background:#f1f5f9;color:#475569;font-weight:600;border-radius:8px;border:none;cursor:pointer;font-size:14px;">Cancel</button>
+          </div>
+        </div>
+      `;
+      
+      document.body.appendChild(modal);
+      
+      // Focus the label input
+      setTimeout(() => document.getElementById('fieldLabel')?.focus(), 100);
+    }
+
+    function closeFieldEditor() {
+      const modal = document.getElementById('fieldModal');
+      if (modal) modal.remove();
+    }
+
+    function saveField(fieldId) {
+      const field = formFields.find(f => f.id === fieldId);
+      if (!field) return;
+      
+      const label = document.getElementById('fieldLabel')?.value || field.label;
+      const value = document.getElementById('fieldValue')?.value || '';
+      const width = parseInt(document.getElementById('fieldWidth')?.value) || field.width;
+      const height = parseInt(document.getElementById('fieldHeight')?.value) || field.height;
+      const required = document.getElementById('fieldRequired')?.checked || false;
+      
+      field.label = label;
+      field.value = value;
+      field.width = width;
+      field.height = height;
+      field.required = required;
+      
+      // Handle dropdown options
+      if (field.type === 'dropdown') {
+        const optionsText = document.getElementById('fieldOptions')?.value || '';
+        field.options = optionsText.split('\n').map(o => o.trim()).filter(o => o);
+      }
+      
+      closeFieldEditor();
+      renderFieldOverlays();
+      updateFieldList();
+    }
+
+    function deleteField(fieldId) {
+      if (!confirm('Delete this field?')) return;
+      
+      formFields = formFields.filter(f => f.id !== fieldId);
+      if (selectedFieldId === fieldId) selectedFieldId = null;
+      
+      closeFieldEditor();
+      renderFieldOverlays();
+      updateFieldList();
+    }
+
+    function clearAllFields() {
+      if (formFields.length === 0) return;
+      if (!confirm('Delete all form fields?')) return;
+      
+      formFields = [];
+      selectedFieldId = null;
+      renderFieldOverlays();
+      updateFieldList();
+    }
+
+    // ============================================
+    // PAGE NAVIGATION
+    // ============================================
+    function changePage(delta) {
+      const newPage = currentPage + delta;
+      if (newPage < 1 || newPage > totalPages) return;
+      
+      currentPage = newPage;
+      renderPage(currentPage);
+      updatePageControls();
+    }
+
+    function updatePageControls() {
+      document.getElementById('prevPageBtn').disabled = currentPage <= 1;
+      document.getElementById('nextPageBtn').disabled = currentPage >= totalPages;
+    }
+
+    // ============================================
+    // MODE TOGGLE (Select / Add)
+    // ============================================
+    function toggleFieldMode() {
+      fieldMode = fieldMode === 'select' ? 'add' : 'select';
+      document.getElementById('modeLabel').textContent = fieldMode === 'select' ? 'Select' : 'Add Mode';
+      document.getElementById('modeBtn').classList.toggle('active', fieldMode === 'add');
+    }
+
+    // ============================================
+    // EXPORT PDF
+    // ============================================
+    async function exportPDF() {
+      if (!pdfDoc) return;
+      
+      showProgress(true, 'Exporting PDF...');
+      setProgress(10, 'Preparing document...');
+      
+      try {
+        const host = document.getElementById('pdfRenderHost');
+        host.innerHTML = '';
+        
+        const container = document.createElement('div');
+        container.style.width = '210mm';
+        container.style.background = '#ffffff';
+        
+        // Render each page
+        for (let pageNum = 1; pageNum <= totalPages; pageNum++) {
+          const page = await pdfDoc.getPage(pageNum);
+          const viewport = page.getViewport({ scale: 2 });
+          
+          setProgress(10 + Math.round((pageNum / totalPages) * 60), `Rendering page ${pageNum} of ${totalPages}...`);
+          
+          const canvas = document.createElement('canvas');
+          canvas.width = viewport.width;
+          canvas.height = viewport.height;
+          const ctx = canvas.getContext('2d');
+          await page.render({ canvasContext: ctx, viewport }).promise;
+          
+          const imgData = canvas.toDataURL('image/jpeg', 0.92);
+          
+          const pageDiv = document.createElement('div');
+          pageDiv.style.width = '100%';
+          pageDiv.style.pageBreakAfter = pageNum < totalPages ? 'always' : 'auto';
+          pageDiv.style.position = 'relative';
+          pageDiv.style.background = 'white';
+          
+          const img = document.createElement('img');
+          img.src = imgData;
+          img.style.width = '100%';
+          img.style.display = 'block';
+          pageDiv.appendChild(img);
+          
+          // Overlay form fields for this page
+          const fieldsOnPage = formFields.filter(f => f.page === pageNum);
+          fieldsOnPage.forEach(field => {
+            const fieldEl = document.createElement('div');
+            fieldEl.style.position = 'absolute';
+            fieldEl.style.left = (field.x / pdfScale / viewport.width * 100) + '%';
+            fieldEl.style.top = (field.y / pdfScale / viewport.height * 100) + '%';
+            fieldEl.style.width = (field.width / pdfScale / viewport.width * 100) + '%';
+            fieldEl.style.height = (field.height / pdfScale / viewport.height * 100) + '%';
+            fieldEl.style.boxSizing = 'border-box';
+            fieldEl.style.display = 'flex';
+            fieldEl.style.alignItems = 'center';
+            fieldEl.style.padding = '4px 8px';
+            fieldEl.style.border = '2px solid #2563eb';
+            fieldEl.style.borderRadius = '4px';
+            fieldEl.style.background = field.value ? 'rgba(34, 197, 94, 0.1)' : 'rgba(37, 99, 235, 0.08)';
+            fieldEl.style.fontSize = Math.max(10, field.height * 0.4) + 'px';
+            fieldEl.style.color = field.value ? '#15803d' : '#1e40af';
+            fieldEl.style.fontFamily = field.type === 'signature' ? 'cursive' : 'Arial, sans-serif';
+            fieldEl.style.fontWeight = '500';
+            fieldEl.style.overflow = 'hidden';
+            fieldEl.style.textOverflow = 'ellipsis';
+            fieldEl.style.whiteSpace = 'nowrap';
+            
+            if (field.type === 'checkbox') {
+              fieldEl.textContent = field.value ? '☑' : '☐';
+              fieldEl.style.justifyContent = 'center';
+              fieldEl.style.fontSize = '20px';
+            } else if (field.type === 'radio') {
+              fieldEl.textContent = field.value ? '●' : '○';
+              fieldEl.style.justifyContent = 'center';
+              fieldEl.style.fontSize = '20px';
+            } else {
+              fieldEl.textContent = field.value || field.label;
+            }
+            
+            pageDiv.appendChild(fieldEl);
+          });
+          
+          container.appendChild(pageDiv);
+        }
+        
+        host.appendChild(container);
+        
+        setProgress(80, 'Generating PDF file...');
+        
+        await new Promise(r => setTimeout(r, 300));
+        
+        const pdfBlob = await html2pdf()
+          .set({
+            margin: 0,
+            filename: currentFile.name.replace(/\.pdf$/i, '') + '-filled.pdf',
+            image: { type: 'jpeg', quality: 0.92 },
+            html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+            pagebreak: { mode: ['css', 'legacy'] }
+          })
+          .from(container)
+          .outputPdf('blob');
+        
+        host.innerHTML = '';
+        
+        setProgress(100, '✅ Complete!');
+        
+        setTimeout(() => {
+          const url = URL.createObjectURL(pdfBlob);
+          const downloadLink = document.getElementById('downloadLink');
+          downloadLink.href = url;
+          downloadLink.download = currentFile.name.replace(/\.pdf$/i, '') + '-filled.pdf';
+          
+          document.getElementById('resultSection').classList.remove('hidden');
+          showProgress(false);
+          document.getElementById('resultSection').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 400);
+        
+      } catch (error) {
+        console.error('Export error:', error);
+        showProgress(false);
+        alert('Export failed: ' + error.message);
+      }
+    }
+
+    // ============================================
+    // UTILITIES
+    // ============================================
+    function escapeAttr(str) {
+      return String(str || '').replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    function showProgress(show, label) {
+      document.getElementById('progressContainer').classList.toggle('hidden', !show);
+      if (label) document.getElementById('progressLabel').textContent = label;
+    }
+
+    function setProgress(percent, message) {
+      document.getElementById('progressBar').style.width = percent + '%';
+      document.getElementById('progressText').textContent = percent + '%';
+      if (message) document.getElementById('statusText').textContent = message;
+    }
+
+    function clearFile() {
+      currentFile = null;
+      pdfDoc = null;
+      formFields = [];
+      selectedFieldId = null;
+      fileInput.value = '';
+      document.getElementById('fileInfo').classList.add('hidden');
+      document.getElementById('toolbarSection').classList.add('hidden');
+      document.getElementById('resultSection').classList.add('hidden');
+      document.getElementById('progressContainer').classList.add('hidden');
+      dropzone.classList.remove('hidden');
+      updateFieldList();
+    }
+
+    function resetAll() {
+      clearFile();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // ============================================
+    // CLOSE MODAL ON ESCAPE / OUTSIDE CLICK
+    // ============================================
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeFieldEditor();
+    });
+
+    document.addEventListener('click', (e) => {
+      if (e.target.id === 'fieldModal') closeFieldEditor();
+    });
+
+    console.log('📋 PDF Forms tool loaded');
+    console.log('🔒 All processing happens locally in your browser');
+  </script>
+</body>
+</html>
