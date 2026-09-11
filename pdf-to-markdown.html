@@ -1,1 +1,1091 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PDF to Markdown Converter - Droplet</title>
+  <meta name="description" content="Convert PDF files to Markdown (.md) online for free. 100% client-side, your files never leave your browser.">
 
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- PDF.js for PDF parsing -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+
+  <!-- JSZip for optional bulk download -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+  <style>
+    .dropzone-highlight {
+      border-color: #3b82f6 !important;
+      background: #eff6ff !important;
+    }
+    .progress-bar {
+      transition: width 0.5s ease;
+    }
+    .hidden {
+      display: none !important;
+    }
+
+    /* Markdown preview */
+    .markdown-preview {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-size: 14px;
+      line-height: 1.7;
+      color: #1e293b;
+      background: #ffffff;
+      padding: 24px 28px;
+      border-radius: 12px;
+      border: 1px solid #e2e8f0;
+      max-height: 500px;
+      overflow-y: auto;
+      transition: background 0.2s, border-color 0.2s, color 0.2s;
+    }
+    .markdown-preview::-webkit-scrollbar { width: 6px; }
+    .markdown-preview::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 8px; }
+    .markdown-preview::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 8px; }
+    .markdown-preview::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+    .markdown-preview h1 {
+      font-size: 1.7em;
+      font-weight: 700;
+      margin: 1em 0 0.5em;
+      color: #0f172a;
+      border-bottom: 2px solid #e2e8f0;
+      padding-bottom: 0.3em;
+    }
+    .markdown-preview h2 {
+      font-size: 1.4em;
+      font-weight: 700;
+      margin: 1.2em 0 0.5em;
+      color: #0f172a;
+      border-bottom: 1px solid #e2e8f0;
+      padding-bottom: 0.2em;
+    }
+    .markdown-preview h3 {
+      font-size: 1.15em;
+      font-weight: 600;
+      margin: 1em 0 0.4em;
+      color: #1e293b;
+    }
+    .markdown-preview h4,
+    .markdown-preview h5,
+    .markdown-preview h6 {
+      font-size: 1em;
+      font-weight: 600;
+      margin: 0.8em 0 0.3em;
+      color: #1e293b;
+    }
+    .markdown-preview p {
+      margin: 0.7em 0;
+      color: #334155;
+    }
+    .markdown-preview ul,
+    .markdown-preview ol {
+      padding-left: 1.5em;
+      margin: 0.6em 0;
+    }
+    .markdown-preview li { margin: 0.2em 0; }
+    .markdown-preview code {
+      background: #f1f5f9;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.9em;
+      color: #be185d;
+    }
+    .markdown-preview pre {
+      background: #1e293b;
+      color: #e2e8f0;
+      padding: 12px 16px;
+      border-radius: 8px;
+      overflow-x: auto;
+      margin: 0.8em 0;
+    }
+    .markdown-preview pre code {
+      background: transparent;
+      color: #e2e8f0;
+      padding: 0;
+    }
+    .markdown-preview blockquote {
+      border-left: 4px solid #3b82f6;
+      padding-left: 16px;
+      margin: 0.8em 0;
+      color: #475569;
+      font-style: italic;
+    }
+    .markdown-preview table {
+      border-collapse: collapse;
+      width: 100%;
+      margin: 0.8em 0;
+    }
+    .markdown-preview th,
+    .markdown-preview td {
+      border: 1px solid #e2e8f0;
+      padding: 6px 12px;
+      text-align: left;
+    }
+    .markdown-preview th { background: #f8fafc; font-weight: 600; }
+    .markdown-preview a { color: #2563eb; text-decoration: underline; }
+    .markdown-preview hr { border: none; border-top: 1px solid #e2e8f0; margin: 1.2em 0; }
+
+    /* Raw markdown view */
+    .markdown-raw {
+      font-family: 'Courier New', Consolas, monospace;
+      font-size: 13px;
+      line-height: 1.6;
+      background: #0f172a;
+      color: #e2e8f0;
+      padding: 20px 24px;
+      border-radius: 12px;
+      border: 1px solid #334155;
+      max-height: 500px;
+      overflow: auto;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .markdown-raw::-webkit-scrollbar { width: 6px; height: 6px; }
+    .markdown-raw::-webkit-scrollbar-track { background: #1e293b; border-radius: 8px; }
+    .markdown-raw::-webkit-scrollbar-thumb { background: #475569; border-radius: 8px; }
+    .markdown-raw::-webkit-scrollbar-thumb:hover { background: #64748b; }
+
+    /* Tab buttons */
+    .tab-btn {
+      padding: 8px 16px;
+      font-size: 13px;
+      font-weight: 500;
+      color: #64748b;
+      border: none;
+      border-bottom: 2px solid transparent;
+      background: transparent;
+      cursor: pointer;
+      transition: all 0.15s;
+      border-radius: 8px 8px 0 0;
+    }
+    .tab-btn:hover {
+      color: #1e293b;
+      background: #f8fafc;
+    }
+    .tab-btn.active {
+      color: #2563eb;
+      border-bottom-color: #2563eb;
+      background: #eff6ff;
+    }
+
+    .file-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      background: #f8fafc;
+      border-radius: 10px;
+      border: 1px solid #e2e8f0;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .file-item:hover { border-color: #94a3b8; }
+    .file-item .icon { font-size: 28px; }
+    .file-item .info { flex: 1; }
+    .file-item .info .name { font-weight: 600; color: #1e293b; transition: color 0.2s; }
+    .file-item .info .size { font-size: 12px; color: #94a3b8; transition: color 0.2s; }
+
+    /* Stats badges */
+    .stat-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 10px;
+      border-radius: 9999px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .stat-badge.blue { background: #dbeafe; color: #1e40af; }
+    .stat-badge.green { background: #d1fae5; color: #065f46; }
+    .stat-badge.amber { background: #fef3c7; color: #92400e; }
+    .stat-badge.purple { background: #ede9fe; color: #5b21b6; }
+
+    /* Dark mode overrides */
+    html.dark body {
+      background: #0f172a;
+      color: #e2e8f0;
+    }
+    html.dark header {
+      background: #1e293b;
+      border-color: #334155;
+    }
+    html.dark header h1 { color: #f1f5f9; }
+    html.dark header p { color: #60a5fa !important; }
+    html.dark header nav a { color: #94a3b8; }
+    html.dark header nav a:hover { color: #f1f5f9; }
+    html.dark #dropzone {
+      background: #1e293b;
+      border-color: #475569;
+    }
+    html.dark #dropzone:hover { border-color: #3b82f6; }
+    html.dark #dropzone h3 { color: #f1f5f9; }
+    html.dark #dropzone p { color: #94a3b8; }
+    html.dark #dropzone .bg-blue-50 { background: #1e3a5f !important; }
+    html.dark #fileInfo {
+      background: #1e293b;
+      border-color: #334155;
+    }
+    html.dark #fileInfo .text-slate-900 { color: #f1f5f9; }
+    html.dark #fileInfo .text-slate-400 { color: #94a3b8; }
+    html.dark #fileInfo .border-slate-200 { border-color: #334155; }
+    html.dark #fileInfo .hover\:bg-slate-50:hover { background: #334155; }
+    html.dark .file-item {
+      background: #0f172a;
+      border-color: #334155;
+    }
+    html.dark .file-item .info .name { color: #f1f5f9; }
+    html.dark .file-item .info .size { color: #94a3b8; }
+    html.dark .markdown-preview {
+      background: #1e293b;
+      border-color: #334155;
+      color: #e2e8f0;
+    }
+    html.dark .markdown-preview h1,
+    html.dark .markdown-preview h2,
+    html.dark .markdown-preview h3,
+    html.dark .markdown-preview h4 { color: #f1f5f9; border-color: #334155; }
+    html.dark .markdown-preview p { color: #cbd5e1; }
+    html.dark .markdown-preview code {
+      background: #0f172a;
+      color: #f9a8d4;
+    }
+    html.dark .markdown-preview th { background: #0f172a; }
+    html.dark .markdown-preview th,
+    html.dark .markdown-preview td { border-color: #334155; color: #cbd5e1; }
+    html.dark .markdown-preview a { color: #60a5fa; }
+    html.dark .markdown-preview hr { border-top-color: #334155; }
+    html.dark .markdown-preview::-webkit-scrollbar-track { background: #0f172a; }
+    html.dark .markdown-preview::-webkit-scrollbar-thumb { background: #475569; }
+    html.dark .markdown-preview::-webkit-scrollbar-thumb:hover { background: #64748b; }
+    html.dark .tab-btn { color: #94a3b8; }
+    html.dark .tab-btn:hover { color: #f1f5f9; background: #334155; }
+    html.dark .tab-btn.active { color: #60a5fa; border-bottom-color: #3b82f6; background: #1e3a5f; }
+    html.dark #resultSection .bg-green-50 {
+      background: #0f172a !important;
+      border-color: #334155;
+    }
+    html.dark #resultSection .border-green-200 { border-color: #334155 !important; }
+    html.dark #resultSection h3 { color: #f1f5f9; }
+    html.dark #resultSection .text-slate-600 { color: #94a3b8; }
+    html.dark #resultSection .border-slate-200 { border-color: #334155 !important; }
+    html.dark #resultSection .hover\:bg-slate-50:hover { background: #334155 !important; }
+    html.dark .bg-white { background: #1e293b !important; }
+    html.dark .border-slate-100 { border-color: #334155 !important; }
+    html.dark .border-slate-200 { border-color: #334155 !important; }
+    html.dark .border-slate-300 { border-color: #334155 !important; }
+    html.dark .text-slate-500 { color: #94a3b8 !important; }
+    html.dark .text-slate-600 { color: #94a3b8 !important; }
+    html.dark .text-slate-700 { color: #cbd5e1 !important; }
+    html.dark .text-slate-900 { color: #f1f5f9 !important; }
+    html.dark .bg-blue-50 { background: #1e3a5f !important; }
+    html.dark .border-blue-200 { border-color: #2563eb !important; }
+    html.dark .text-blue-700 { color: #60a5fa !important; }
+    html.dark .text-blue-900 { color: #93c5fd !important; }
+    html.dark .bg-slate-50 { background: #0f172a !important; }
+    html.dark .bg-slate-100 { background: #334155 !important; }
+    html.dark .hover\:bg-slate-200:hover { background: #475569 !important; }
+    html.dark .stat-badge.blue { background: #1e3a5f; color: #93c5fd; }
+    html.dark .stat-badge.green { background: #064e3b; color: #6ee7b7; }
+    html.dark .stat-badge.amber { background: #78350f; color: #fcd34d; }
+    html.dark .stat-badge.purple { background: #3b1e5f; color: #c4b5fd; }
+    html.dark footer {
+      background: #0f172a !important;
+      border-color: #334155 !important;
+    }
+    html.dark footer a { color: #94a3b8; }
+    html.dark footer a:hover { color: #f1f5f9; }
+    html.dark .shadow-sm { box-shadow: 0 1px 2px 0 rgba(0,0,0,0.3) !important; }
+    html.dark .shadow-lg { box-shadow: 0 10px 15px -3px rgba(0,0,0,0.4) !important; }
+    html.dark .shadow-md { box-shadow: 0 4px 6px -1px rgba(0,0,0,0.4) !important; }
+    html.dark .back-home-btn {
+      background: #1e293b !important;
+      border-color: #475569 !important;
+      color: #e2e8f0 !important;
+    }
+    html.dark .back-home-btn:hover {
+      background: #334155 !important;
+      border-color: #3b82f6 !important;
+    }
+    html.dark .bg-green-600 { background: #059669 !important; }
+    html.dark .bg-green-600:hover { background: #047857 !important; }
+    html.dark .bg-blue-600 { background: #2563eb !important; }
+    html.dark .bg-blue-600:hover { background: #1d4ed8 !important; }
+
+    #theme-toggle {
+      background: none;
+      border: none;
+      font-size: 1.2rem;
+      cursor: pointer;
+      padding: 0.2rem 0.4rem;
+      border-radius: 6px;
+      transition: background 0.2s;
+      color: #475569;
+      line-height: 1;
+    }
+    #theme-toggle:hover { background: #f1f5f9; }
+    html.dark #theme-toggle { color: #e2e8f0; }
+    html.dark #theme-toggle:hover { background: #334155; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen flex flex-col transition-colors duration-200">
+
+  <!-- Navigation -->
+  <header class="bg-white border-b border-slate-200 py-3.5 px-6 sticky top-0 z-50 transition-colors duration-200">
+    <div class="max-w-6xl mx-auto flex justify-between items-center">
+      <a href="/" class="flex items-center gap-3 group">
+        <img src="Gemini_Generated_Image_sdu6v7sdu6v7sdu6.jpg" alt="Droplet Logo" class="h-9 w-auto rounded-xl shadow-sm group-hover:scale-105 transition-transform">
+        <div>
+          <h1 class="text-xl font-black tracking-tight text-slate-900 leading-none">Droplet</h1>
+          <p class="text-[9px] text-blue-600 font-extrabold tracking-widest uppercase mt-0.5">DRAG, DROP AND CONVERT.</p>
+        </div>
+      </a>
+      <div class="flex items-center gap-3">
+        <button id="theme-toggle" aria-label="Toggle theme">🌙</button>
+        <nav class="hidden md:flex items-center space-x-6 text-xs font-bold text-slate-600">
+          <a href="/" class="hover:text-blue-600 transition-colors">← Back</a>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="max-w-4xl mx-auto px-4 py-8 md:py-12 flex-grow w-full">
+
+    <!-- Back Button -->
+    <div class="max-w-2xl mx-auto mb-4 flex justify-start">
+      <a href="/" class="back-home-btn inline-flex items-center gap-2 bg-white hover:bg-slate-50 border border-slate-200 shadow-sm rounded-full px-5 py-2.5 text-sm font-medium text-slate-700 transition-all hover:shadow-md hover:border-slate-300 active:scale-95">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        </svg>
+        Back to Home
+      </a>
+    </div>
+
+    <!-- Page Header -->
+    <div class="text-center mb-8">
+      <div class="inline-block p-3 bg-blue-50 rounded-2xl mb-4 transition-colors duration-200">
+        <span class="text-4xl">📝</span>
+      </div>
+      <h1 class="text-3xl md:text-4xl font-black text-slate-900 tracking-tight">PDF to Markdown Converter</h1>
+      <p class="text-slate-500 text-sm md:text-base mt-2 max-w-lg mx-auto">
+        Convert PDF documents to clean Markdown (.md) files. <strong>100% client-side</strong> — your files never leave your browser.
+      </p>
+    </div>
+
+    <!-- Info Box -->
+    <div class="max-w-2xl mx-auto mb-8 bg-blue-50 border border-blue-200 rounded-xl p-4 transition-colors duration-200">
+      <div class="flex items-start gap-3">
+        <span class="text-2xl">📖</span>
+        <div>
+          <h4 class="font-bold text-sm text-blue-900">Why Convert PDF to Markdown?</h4>
+          <p class="text-xs text-blue-700 mt-1">Markdown is a plain-text format that's easy to edit, version control, and reuse. Perfect for documentation, blogs, README files, and note-taking. The extracted text preserves headings, lists, and formatting where possible.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Conversion Dropzone -->
+    <div id="dropzone" class="bg-white border-2 border-dashed border-slate-300 hover:border-blue-400 transition-all rounded-3xl p-8 md:p-12 text-center shadow-lg max-w-2xl mx-auto cursor-pointer">
+      <div class="flex flex-col items-center">
+        <div class="w-20 h-20 bg-blue-50 rounded-2xl flex items-center justify-center mb-4 text-4xl transition-colors duration-200">
+          📁
+        </div>
+        <h3 class="text-xl font-bold text-slate-900 mb-1">Drop your PDF here</h3>
+        <p class="text-slate-400 text-sm mb-4">or click to browse</p>
+        <input type="file" id="fileInput" accept=".pdf,application/pdf" class="hidden">
+        <button onclick="document.getElementById('fileInput').click()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-3 rounded-xl text-sm shadow-md shadow-blue-500/20 transition-all active:scale-95">
+          Select PDF File
+        </button>
+        <p class="text-xs text-slate-400 mt-3">Max file size: ~100MB</p>
+      </div>
+    </div>
+
+    <!-- File Info -->
+    <div id="fileInfo" class="hidden max-w-2xl mx-auto mt-6 bg-white rounded-xl shadow-sm border border-slate-200 p-6 transition-colors duration-200">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <span class="text-2xl">📄</span>
+          <div>
+            <p id="fileName" class="font-medium text-slate-900"></p>
+            <p id="fileSize" class="text-xs text-slate-400"></p>
+            <p id="pageCount" class="text-xs text-slate-400"></p>
+          </div>
+        </div>
+        <button onclick="clearFile()" class="text-slate-400 hover:text-red-500 transition-colors">✕</button>
+      </div>
+
+      <!-- Options -->
+      <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-slate-50 rounded-lg transition-colors duration-200">
+        <div>
+          <label class="block text-xs font-medium text-slate-700 mb-1">📐 Heading Detection</label>
+          <select id="headingDetection" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm bg-white transition-colors duration-200">
+            <option value="auto" selected>Auto-detect headings</option>
+            <option value="none">Plain text (no headings)</option>
+            <option value="aggressive">Aggressive (more headings)</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-slate-700 mb-1">📝 List Detection</label>
+          <select id="listDetection" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm bg-white transition-colors duration-200">
+            <option value="auto" selected>Auto-detect lists</option>
+            <option value="none">Plain text</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="mt-4 flex flex-wrap gap-3">
+        <button onclick="convertToMarkdown()" id="convertBtn" class="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-xl transition-all active:scale-95 shadow-md shadow-green-500/20">
+          🔄 Convert to Markdown
+        </button>
+        <button onclick="clearFile()" class="px-4 py-3 border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors text-sm">
+          Change File
+        </button>
+      </div>
+
+      <!-- Progress Bar -->
+      <div id="progressContainer" class="hidden mt-4">
+        <div class="flex justify-between text-xs text-slate-500 mb-1">
+          <span>Converting...</span>
+          <span id="progressText">0%</span>
+        </div>
+        <div class="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
+          <div id="progressBar" class="bg-blue-600 h-2 rounded-full progress-bar" style="width: 0%"></div>
+        </div>
+        <p id="statusText" class="text-xs text-slate-400 mt-2 text-center">Initializing...</p>
+      </div>
+    </div>
+
+    <!-- Preview Section -->
+    <div id="previewSection" class="hidden max-w-2xl mx-auto mt-6">
+      <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 transition-colors duration-200">
+        <!-- Stats -->
+        <div class="flex flex-wrap gap-2 mb-4">
+          <span id="statWords" class="stat-badge blue">📝 0 words</span>
+          <span id="statChars" class="stat-badge green">📄 0 characters</span>
+          <span id="statLines" class="stat-badge amber">📊 0 lines</span>
+          <span id="statHeadings" class="stat-badge purple">🔖 0 headings</span>
+        </div>
+
+        <!-- Tabs -->
+        <div class="flex border-b border-slate-200 mb-4">
+          <button class="tab-btn active" data-tab="preview" onclick="switchTab('preview')">
+            👁️ Rendered
+          </button>
+          <button class="tab-btn" data-tab="raw" onclick="switchTab('raw')">
+            📄 Markdown
+          </button>
+        </div>
+
+        <!-- Preview Content -->
+        <div id="tab-preview" class="tab-content">
+          <div id="markdownPreview" class="markdown-preview"></div>
+        </div>
+
+        <!-- Raw Markdown -->
+        <div id="tab-raw" class="tab-content hidden">
+          <div id="markdownRaw" class="markdown-raw"></div>
+        </div>
+
+        <!-- Actions -->
+        <div class="mt-4 flex flex-wrap gap-3">
+          <button onclick="downloadMarkdown()" id="downloadBtn" class="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-xl transition-all active:scale-95 shadow-md shadow-green-500/20">
+            📥 Download .md
+          </button>
+          <button onclick="copyMarkdown()" id="copyBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-5 py-3 rounded-xl transition-all shadow-md shadow-blue-500/20">
+            📋 Copy
+          </button>
+          <button onclick="resetAll()" class="px-5 py-3 border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors text-sm">
+            Convert Another
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Info Section -->
+    <div class="max-w-2xl mx-auto mt-12 grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div class="bg-white p-4 rounded-xl border border-slate-100 text-center transition-colors duration-200">
+        <div class="text-2xl mb-1">🔒</div>
+        <h4 class="font-bold text-sm">100% Private</h4>
+        <p class="text-xs text-slate-500">Your files never leave your browser</p>
+      </div>
+      <div class="bg-white p-4 rounded-xl border border-slate-100 text-center transition-colors duration-200">
+        <div class="text-2xl mb-1">📝</div>
+        <h4 class="font-bold text-sm">Preserves Structure</h4>
+        <p class="text-xs text-slate-500">Headings, lists, and formatting</p>
+      </div>
+      <div class="bg-white p-4 rounded-xl border border-slate-100 text-center transition-colors duration-200">
+        <div class="text-2xl mb-1">⚡</div>
+        <h4 class="font-bold text-sm">Fast & Free</h4>
+        <p class="text-xs text-slate-500">No sign-up required</p>
+      </div>
+    </div>
+
+    <!-- FAQ -->
+    <section class="max-w-2xl mx-auto mt-12">
+      <h2 class="text-xl font-black text-slate-900 text-center mb-6">Frequently Asked Questions</h2>
+      <div class="space-y-3">
+        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
+          <h3 class="font-bold text-slate-900 text-sm">Is my data safe?</h3>
+          <p class="text-slate-600 text-sm mt-1">Yes! All conversion happens locally in your browser. Your PDF is never uploaded to any server.</p>
+        </div>
+        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
+          <h3 class="font-bold text-slate-900 text-sm">What PDF types work best?</h3>
+          <p class="text-slate-600 text-sm mt-1">Text-based PDFs work best. Scanned/image-based PDFs require OCR and may produce limited results.</p>
+        </div>
+        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
+          <h3 class="font-bold text-slate-900 text-sm">Are images preserved?</h3>
+          <p class="text-slate-600 text-sm mt-1">Currently, this tool extracts text only. Images are not included in the Markdown output.</p>
+        </div>
+        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
+          <h3 class="font-bold text-slate-900 text-sm">Will headings and formatting be preserved?</h3>
+          <p class="text-slate-600 text-sm mt-1">Yes! The converter tries to detect headings (by font size), lists (bullets and numbers), and paragraphs. You can adjust detection sensitivity in the options.</p>
+        </div>
+        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
+          <h3 class="font-bold text-slate-900 text-sm">What about tables?</h3>
+          <p class="text-slate-600 text-sm mt-1">Simple tables may be converted to Markdown tables. Complex tables may lose their structure.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-500 mt-auto transition-colors duration-200">
+    <div class="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-3">
+      <p class="font-medium">© Droplet. 100% Client-Side Privacy First File Utility.</p>
+      <div class="space-x-4">
+        <a href="/about.html" class="hover:text-blue-600 transition-colors">About</a>
+        <span>•</span>
+        <a href="/privacy.html" class="hover:text-blue-600 transition-colors">Privacy</a>
+        <span>•</span>
+        <a href="/terms.html" class="hover:text-blue-600 transition-colors">Terms</a>
+        <span>•</span>
+        <a href="/contact.html" class="hover:text-blue-600 transition-colors">Contact</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // ============================================
+    // DARK MODE TOGGLE
+    // ============================================
+    const themeToggle = document.getElementById('theme-toggle');
+    const html = document.documentElement;
+    
+    let currentTheme = localStorage.getItem('theme') || 
+      (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    
+    if (currentTheme === 'dark') {
+      html.classList.add('dark');
+      themeToggle.textContent = '☀️';
+    } else {
+      themeToggle.textContent = '🌙';
+    }
+    
+    themeToggle.addEventListener('click', () => {
+      if (html.classList.contains('dark')) {
+        html.classList.remove('dark');
+        themeToggle.textContent = '🌙';
+        localStorage.setItem('theme', 'light');
+      } else {
+        html.classList.add('dark');
+        themeToggle.textContent = '☀️';
+        localStorage.setItem('theme', 'dark');
+      }
+    });
+
+    // ============================================
+    // PDF.JS SETUP
+    // ============================================
+    if (typeof pdfjsLib !== 'undefined') {
+      pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    }
+
+    // ============================================
+    // STATE
+    // ============================================
+    let currentFile = null;
+    let pdfDoc = null;
+    let markdownOutput = '';
+    let currentTab = 'preview';
+
+    // ============================================
+    // FILE HANDLING
+    // ============================================
+    const dropzone = document.getElementById('dropzone');
+    const fileInput = document.getElementById('fileInput');
+
+    dropzone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropzone.classList.add('dropzone-highlight');
+    });
+
+    dropzone.addEventListener('dragleave', () => {
+      dropzone.classList.remove('dropzone-highlight');
+    });
+
+    dropzone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropzone.classList.remove('dropzone-highlight');
+      if (e.dataTransfer.files.length > 0) {
+        handleFile(e.dataTransfer.files[0]);
+      }
+    });
+
+    dropzone.addEventListener('click', (e) => {
+      if (e.target.tagName !== 'BUTTON') fileInput.click();
+    });
+
+    fileInput.addEventListener('change', (e) => {
+      if (e.target.files.length > 0) handleFile(e.target.files[0]);
+    });
+
+    async function handleFile(file) {
+      if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
+        alert('Please select a valid PDF file.');
+        return;
+      }
+      if (file.size > 100 * 1024 * 1024) {
+        alert('File is too large. Please use a PDF under 100MB.');
+        return;
+      }
+
+      currentFile = file;
+      document.getElementById('fileName').textContent = file.name;
+      document.getElementById('fileSize').textContent = (file.size / 1024 / 1024).toFixed(2) + ' MB';
+      document.getElementById('fileInfo').classList.remove('hidden');
+      dropzone.classList.add('hidden');
+      
+      try {
+        showProgress(true, 'Loading PDF...');
+        const arrayBuffer = await file.arrayBuffer();
+        pdfDoc = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+        document.getElementById('pageCount').textContent = `📄 ${pdfDoc.numPages} pages`;
+        showProgress(false);
+      } catch (error) {
+        console.error('PDF load error:', error);
+        showProgress(false);
+        alert('Failed to load PDF: ' + error.message);
+      }
+    }
+
+    // ============================================
+    // CONVERT TO MARKDOWN
+    // ============================================
+    async function convertToMarkdown() {
+      if (!pdfDoc) {
+        alert('Please upload a PDF first.');
+        return;
+      }
+
+      showProgress(true);
+      document.getElementById('previewSection').classList.add('hidden');
+      document.getElementById('convertBtn').disabled = true;
+      document.getElementById('convertBtn').textContent = '⏳ Converting...';
+
+      const headingMode = document.getElementById('headingDetection').value;
+      const listMode = document.getElementById('listDetection').value;
+
+      try {
+        setProgress(10, 'Extracting text from PDF...');
+        
+        let allPages = [];
+        let allFontSizes = [];
+        
+        // First pass: extract all text and detect common font sizes
+        for (let pageNum = 1; pageNum <= pdfDoc.numPages; pageNum++) {
+          const page = await pdfDoc.getPage(pageNum);
+          const textContent = await page.getTextContent();
+          
+          const pageItems = [];
+          
+          for (const item of textContent.items) {
+            if (!item.str || !item.str.trim()) continue;
+            
+            const fontSize = Math.abs(item.transform[3]) || 0;
+            allFontSizes.push(fontSize);
+            
+            pageItems.push({
+              text: item.str,
+              x: item.transform[4],
+              y: item.transform[5],
+              width: item.width || 0,
+              height: item.height || fontSize,
+              fontSize: fontSize,
+              hasEOL: item.hasEOL || false
+            });
+          }
+          
+          allPages.push(pageItems);
+          
+          const progress = 10 + Math.round((pageNum / pdfDoc.numPages) * 50);
+          setProgress(progress, `Extracting page ${pageNum} of ${pdfDoc.numPages}...`);
+        }
+
+        setProgress(65, 'Analyzing document structure...');
+
+        // Calculate font size thresholds for heading detection
+        const avgFontSize = allFontSizes.length > 0 
+          ? allFontSizes.reduce((a, b) => a + b, 0) / allFontSizes.length 
+          : 12;
+        
+        const h1Threshold = avgFontSize * 1.5;
+        const h2Threshold = avgFontSize * 1.3;
+        const h3Threshold = avgFontSize * 1.15;
+
+        setProgress(75, 'Building Markdown...');
+
+        // Build markdown page by page
+        let markdown = '';
+        
+        for (let pageNum = 0; pageNum < allPages.length; pageNum++) {
+          const pageItems = allPages[pageNum];
+          if (pageItems.length === 0) continue;
+
+          // Group items into lines by Y position
+          const lines = groupIntoLines(pageItems);
+          
+          // Process each line
+          for (let i = 0; i < lines.length; i++) {
+            const line = lines[i];
+            const text = line.text.trim();
+            if (!text) continue;
+
+            // Detect if this is a heading
+            let headingLevel = 0;
+            if (headingMode !== 'none') {
+              const avgLineFontSize = line.fontSize;
+              
+              if (avgLineFontSize >= h1Threshold) {
+                headingLevel = 1;
+              } else if (avgLineFontSize >= h2Threshold) {
+                headingLevel = 2;
+              } else if (avgLineFontSize >= h3Threshold) {
+                headingLevel = 3;
+              } else if (headingMode === 'aggressive') {
+                // More aggressive: short lines that look like titles
+                if (text.length < 60 && !/[.!?]$/.test(text) && text.split(' ').length <= 8) {
+                  headingLevel = 3;
+                }
+              }
+            }
+
+            // Detect list items
+            let listPrefix = '';
+            if (listMode === 'auto') {
+              // Bullet detection
+              const bulletMatch = text.match(/^([•·▪◦▫‣⁃∙]\s*)(.*)$/);
+              if (bulletMatch) {
+                listPrefix = '- ';
+                line.text = bulletMatch[2];
+              }
+              // Numbered list detection
+              else {
+                const numMatch = text.match(/^(\d+)[.)]\s+(.*)$/);
+                if (numMatch) {
+                  listPrefix = numMatch[1] + '. ';
+                  line.text = numMatch[2];
+                }
+              }
+            }
+
+            // Add to markdown
+            if (headingLevel > 0) {
+              markdown += '\n' + '#'.repeat(headingLevel) + ' ' + text + '\n\n';
+            } else if (listPrefix) {
+              markdown += listPrefix + line.text.trim() + '\n';
+            } else {
+              // Check if previous line was a list
+              const prevLine = i > 0 ? lines[i - 1] : null;
+              const prevWasList = prevLine && /^([•·▪◦▫‣⁃∙]|\d+[.)])\s*/.test(prevLine.text);
+              
+              if (prevWasList) {
+                markdown += '\n'; // Blank line after list
+              }
+              
+              markdown += text + ' ';
+              
+              // Check if next line starts a new paragraph (larger Y gap) or if this ends with sentence
+              const nextLine = i < lines.length - 1 ? lines[i + 1] : null;
+              if (!nextLine || /[.!?]$/.test(text)) {
+                markdown += '\n\n';
+              }
+            }
+          }
+
+          // Add page separator
+          if (pageNum < allPages.length - 1) {
+            markdown += '\n---\n\n';
+          }
+        }
+
+        // Clean up markdown
+        markdown = markdown
+          .replace(/\n{4,}/g, '\n\n\n')  // Max 3 newlines
+          .replace(/[ \t]+\n/g, '\n')     // No trailing spaces before newlines
+          .replace(/[ \t]{2,}/g, ' ')     // No multiple spaces
+          .trim();
+
+        markdownOutput = markdown;
+
+        setProgress(100, '✅ Complete!');
+
+        setTimeout(() => {
+          displayMarkdown(markdown);
+          showProgress(false);
+          document.getElementById('convertBtn').disabled = false;
+          document.getElementById('convertBtn').textContent = '🔄 Convert to Markdown';
+          document.getElementById('previewSection').classList.remove('hidden');
+          document.getElementById('previewSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 400);
+
+      } catch (error) {
+        console.error('Conversion error:', error);
+        showProgress(false);
+        document.getElementById('convertBtn').disabled = false;
+        document.getElementById('convertBtn').textContent = '🔄 Convert to Markdown';
+        alert('Conversion failed: ' + error.message);
+      }
+    }
+
+    // ============================================
+    // GROUP ITEMS INTO LINES
+    // ============================================
+    function groupIntoLines(items) {
+      if (items.length === 0) return [];
+      
+      // Sort by Y (top to bottom), then X (left to right)
+      const sorted = [...items].sort((a, b) => {
+        if (Math.abs(b.y - a.y) > 3) return b.y - a.y;
+        return a.x - b.x;
+      });
+
+      const lines = [];
+      let currentLine = {
+        y: sorted[0].y,
+        text: sorted[0].text,
+        fontSize: sorted[0].fontSize,
+        items: [sorted[0]]
+      };
+
+      for (let i = 1; i < sorted.length; i++) {
+        const item = sorted[i];
+        
+        // Check if this item belongs to the current line
+        if (Math.abs(item.y - currentLine.y) <= 3) {
+          // Same line - add space if there's a gap
+          const lastItem = currentLine.items[currentLine.items.length - 1];
+          const gap = item.x - (lastItem.x + lastItem.width);
+          
+          if (gap > 3) {
+            currentLine.text += ' ' + item.text;
+          } else {
+            currentLine.text += item.text;
+          }
+          
+          currentLine.items.push(item);
+          // Use max font size for the line
+          currentLine.fontSize = Math.max(currentLine.fontSize, item.fontSize);
+        } else {
+          // New line
+          lines.push(currentLine);
+          currentLine = {
+            y: item.y,
+            text: item.text,
+            fontSize: item.fontSize,
+            items: [item]
+          };
+        }
+      }
+      
+      if (currentLine) lines.push(currentLine);
+      
+      return lines;
+    }
+
+    // ============================================
+    // DISPLAY MARKDOWN
+    // ============================================
+    function displayMarkdown(markdown) {
+      // Render preview
+      document.getElementById('markdownPreview').innerHTML = renderMarkdown(markdown);
+      
+      // Raw markdown
+      document.getElementById('markdownRaw').textContent = markdown;
+      
+      // Update stats
+      const words = markdown.split(/\s+/).filter(w => w.length > 0).length;
+      const chars = markdown.length;
+      const lines = markdown.split('\n').length;
+      const headings = (markdown.match(/^#{1,6}\s/gm) || []).length;
+      
+      document.getElementById('statWords').textContent = `📝 ${words.toLocaleString()} words`;
+      document.getElementById('statChars').textContent = `📄 ${chars.toLocaleString()} characters`;
+      document.getElementById('statLines').textContent = `📊 ${lines.toLocaleString()} lines`;
+      document.getElementById('statHeadings').textContent = `🔖 ${headings.toLocaleString()} headings`;
+    }
+
+    // ============================================
+    // MINIMAL MARKDOWN RENDERER
+    // ============================================
+    function renderMarkdown(md) {
+      let html = escapeHtml(md);
+      
+      // Headings
+      html = html.replace(/^######\s+(.+)$/gm, '<h6>$1</h6>');
+      html = html.replace(/^#####\s+(.+)$/gm, '<h5>$1</h5>');
+      html = html.replace(/^####\s+(.+)$/gm, '<h4>$1</h4>');
+      html = html.replace(/^###\s+(.+)$/gm, '<h3>$1</h3>');
+      html = html.replace(/^##\s+(.+)$/gm, '<h2>$1</h2>');
+      html = html.replace(/^#\s+(.+)$/gm, '<h1>$1</h1>');
+      
+      // Horizontal rule
+      html = html.replace(/^---+$/gm, '<hr>');
+      
+      // Bold and italic
+      html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+      html = html.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+      html = html.replace(/__([^_]+)__/g, '<strong>$1</strong>');
+      html = html.replace(/_([^_]+)_/g, '<em>$1</em>');
+      
+      // Code
+      html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+      
+      // Links
+      html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>');
+      
+      // Lists - process line by line
+      const lines = html.split('\n');
+      const result = [];
+      let inUl = false;
+      let inOl = false;
+      
+      for (const line of lines) {
+        const bulletMatch = line.match(/^-\s+(.+)$/);
+        const numMatch = line.match(/^(\d+)\.\s+(.+)$/);
+        
+        if (bulletMatch) {
+          if (inOl) { result.push('</ol>'); inOl = false; }
+          if (!inUl) { result.push('<ul>'); inUl = true; }
+          result.push('<li>' + bulletMatch[1] + '</li>');
+        } else if (numMatch) {
+          if (inUl) { result.push('</ul>'); inUl = false; }
+          if (!inOl) { result.push('<ol>'); inOl = true; }
+          result.push('<li>' + numMatch[2] + '</li>');
+        } else {
+          if (inUl) { result.push('</ul>'); inUl = false; }
+          if (inOl) { result.push('</ol>'); inOl = false; }
+          
+          if (line.trim() === '') {
+            result.push('');
+          } else if (line.match(/^<(h[1-6]|hr|ul|ol|li|\/ul|\/ol)/)) {
+            result.push(line);
+          } else {
+            result.push('<p>' + line + '</p>');
+          }
+        }
+      }
+      
+      if (inUl) result.push('</ul>');
+      if (inOl) result.push('</ol>');
+      
+      return result.join('\n');
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    // ============================================
+    // TABS
+    // ============================================
+    function switchTab(tab) {
+      currentTab = tab;
+      
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.tab === tab);
+      });
+      
+      document.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.add('hidden');
+      });
+      
+      document.getElementById('tab-' + tab).classList.remove('hidden');
+    }
+
+    // ============================================
+    // ACTIONS
+    // ============================================
+    function downloadMarkdown() {
+      if (!markdownOutput) return;
+      
+      const blob = new Blob([markdownOutput], { type: 'text/markdown;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = (currentFile ? currentFile.name.replace(/\.pdf$/i, '') : 'document') + '.md';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    }
+
+    function copyMarkdown() {
+      if (!markdownOutput) return;
+      
+      navigator.clipboard.writeText(markdownOutput).then(() => {
+        const btn = document.getElementById('copyBtn');
+        const original = btn.textContent;
+        btn.textContent = '✅ Copied!';
+        setTimeout(() => { btn.textContent = original; }, 2000);
+      }).catch(() => {
+        // Fallback
+        const textarea = document.createElement('textarea');
+        textarea.value = markdownOutput;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+        alert('Markdown copied to clipboard!');
+      });
+    }
+
+    // ============================================
+    // UTILITIES
+    // ============================================
+    function showProgress(show, label) {
+      document.getElementById('progressContainer').classList.toggle('hidden', !show);
+      if (label) document.getElementById('statusText').textContent = label;
+    }
+
+    function setProgress(percent, message) {
+      document.getElementById('progressBar').style.width = percent + '%';
+      document.getElementById('progressText').textContent = percent + '%';
+      if (message) document.getElementById('statusText').textContent = message;
+    }
+
+    function clearFile() {
+      currentFile = null;
+      pdfDoc = null;
+      markdownOutput = '';
+      fileInput.value = '';
+      document.getElementById('fileInfo').classList.add('hidden');
+      document.getElementById('previewSection').classList.add('hidden');
+      document.getElementById('progressContainer').classList.add('hidden');
+      dropzone.classList.remove('hidden');
+    }
+
+    function resetAll() {
+      clearFile();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    console.log('📝 PDF to Markdown Converter loaded');
+    console.log('🔒 All processing happens locally in your browser');
+  </script>
+</body>
+</html>
