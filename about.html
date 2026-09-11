@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About - Droplet</title>
+  <meta name="description" content="Learn about Droplet — simple, private, browser-based file tools for documents, PDFs, images, and data.">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* ===== ABOUT CONTENT STYLES ===== */
+    .about-content h2 {
+      margin-top: 2.5rem;
+      margin-bottom: 1rem;
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: #0f172a;
+      transition: color 0.2s;
+      letter-spacing: -0.02em;
+    }
+    .about-content h3 {
+      margin-top: 1.5rem;
+      margin-bottom: 0.5rem;
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #1e293b;
+      transition: color 0.2s;
+    }
+    .about-content p {
+      margin-bottom: 1rem;
+      color: #475569;
+      line-height: 1.75;
+      transition: color 0.2s;
+    }
+    .about-content ul {
+      list-style: disc;
+      padding-left: 1.5rem;
+      margin-bottom: 1rem;
+      color: #475569;
+      transition: color 0.2s;
+    }
+    .about-content ul li { margin-bottom: 0.5rem; line-height: 1.7; }
+    .about-content a {
+      color: #2563eb;
+      text-decoration: underline;
+      transition: color 0.2s;
+    }
+    .about-content a:hover { color: #1d4ed8; }
+    .about-content strong { color: #1e293b; transition: color 0.2s; }
+    .about-content blockquote {
+      border-left: 4px solid #2563eb;
+      padding: 0.75rem 1.25rem;
+      margin: 1.5rem 0;
+      background: #eff6ff;
+      border-radius: 0 8px 8px 0;
+      font-style: italic;
+      color: #1e40af;
+      font-weight: 500;
+      transition: background 0.2s, color 0.2s, border-color 0.2s;
+    }
+
+    /* Dark mode overrides */
+    html.dark body {
+      background: #0f172a;
+      color: #e2e8f0;
+    }
+    html.dark header {
+      background: #1e293b;
+      border-color: #334155;
+    }
+    html.dark header h1 {
+      color: #f1f5f9;
+    }
+    html.dark header p {
+      color: #60a5fa !important;
+    }
+    html.dark .bg-white {
+      background: #1e293b !important;
+    }
+    html.dark .border-slate-100 {
+      border-color: #334155 !important;
+    }
+    html.dark .border-slate-200 {
+      border-color: #334155 !important;
+    }
+    html.dark .text-slate-900 {
+      color: #f1f5f9 !important;
+    }
+    html.dark .text-slate-800 {
+      color: #e2e8f0 !important;
+    }
+    html.dark .text-slate-500 {
+      color: #94a3b8 !important;
+    }
+    html.dark .text-slate-700 {
+      color: #cbd5e1 !important;
+    }
+    html.dark .about-content h2 {
+      color: #f1f5f9;
+    }
+    html.dark .about-content h3 {
+      color: #e2e8f0;
+    }
+    html.dark .about-content p {
+      color: #cbd5e1;
+    }
+    html.dark .about-content ul {
+      color: #cbd5e1;
+    }
+    html.dark .about-content a {
+      color: #60a5fa;
+    }
+    html.dark .about-content a:hover {
+      color: #93c5fd;
+    }
+    html.dark .about-content strong {
+      color: #f1f5f9;
+    }
+    html.dark .about-content blockquote {
+      background: #1e3a5f;
+      border-left-color: #3b82f6;
+      color: #93c5fd;
+    }
+    html.dark .bg-blue-50 {
+      background: #1e3a5f !important;
+    }
+    html.dark .border-blue-100 {
+      border-color: #2563eb !important;
+    }
+    html.dark .text-blue-700 {
+      color: #93c5fd !important;
+    }
+    html.dark .text-blue-800 {
+      color: #bfdbfe !important;
+    }
+    html.dark .text-blue-600 {
+      color: #60a5fa !important;
+    }
+    html.dark .bg-slate-100 {
+      background: #334155 !important;
+    }
+    html.dark .hover\:bg-slate-200:hover {
+      background: #475569 !important;
+    }
+    html.dark footer {
+      background: #0f172a !important;
+      border-color: #334155 !important;
+    }
+    html.dark footer p {
+      color: #94a3b8 !important;
+    }
+    html.dark .back-home-btn {
+      background: #1e293b !important;
+      border-color: #475569 !important;
+      color: #e2e8f0 !important;
+    }
+    html.dark .back-home-btn:hover {
+      background: #334155 !important;
+      border-color: #3b82f6 !important;
+    }
+    html.dark .shadow-sm {
+      box-shadow: 0 1px 2px 0 rgba(0,0,0,0.3) !important;
+    }
+    html.dark .rounded-2xl {
+      border-color: #334155 !important;
+    }
+
+    /* Feature card styles */
+    .feature-card {
+      padding: 1.25rem;
+      border-radius: 12px;
+      border: 1px solid #e2e8f0;
+      background: #f8fafc;
+      transition: all 0.2s;
+    }
+    .feature-card:hover {
+      border-color: #2563eb;
+      background: #eff6ff;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(37, 99, 235, 0.08);
+    }
+    .feature-card .icon {
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+      display: block;
+    }
+    .feature-card .title {
+      font-weight: 700;
+      color: #0f172a;
+      font-size: 0.9rem;
+      margin-bottom: 0.25rem;
+      transition: color 0.2s;
+    }
+    .feature-card .desc {
+      font-size: 0.8rem;
+      color: #64748b;
+      line-height: 1.5;
+      transition: color 0.2s;
+    }
+    html.dark .feature-card {
+      background: #0f172a;
+      border-color: #334155;
+    }
+    html.dark .feature-card:hover {
+      background: #1e3a5f;
+      border-color: #3b82f6;
+    }
+    html.dark .feature-card .title {
+      color: #f1f5f9;
+    }
+    html.dark .feature-card .desc {
+      color: #94a3b8;
+    }
+
+    /* Tool category pills */
+    .tool-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.4rem 0.8rem;
+      background: #f1f5f9;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #475569;
+      transition: all 0.2s;
+    }
+    html.dark .tool-pill {
+      background: #334155;
+      color: #cbd5e1;
+    }
+
+    /* Theme toggle in header */
+    #theme-toggle {
+      background: none;
+      border: none;
+      font-size: 1.2rem;
+      cursor: pointer;
+      padding: 0.2rem 0.4rem;
+      border-radius: 6px;
+      transition: background 0.2s;
+      color: #475569;
+      line-height: 1;
+    }
+    #theme-toggle:hover {
+      background: #f1f5f9;
+    }
+    html.dark #theme-toggle {
+      color: #e2e8f0;
+    }
+    html.dark #theme-toggle:hover {
+      background: #334155;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased transition-colors duration-200 min-h-screen flex flex-col">
+
+  <!-- Header -->
+  <header class="bg-white border-b border-slate-200 py-4 px-6 sticky top-0 z-50 transition-colors duration-200">
+    <div class="max-w-4xl mx-auto flex justify-between items-center">
+      <a href="/" class="flex items-center gap-3 group">
+        <img src="Gemini_Generated_Image_sdu6v7sdu6v7sdu6.jpg" alt="Droplet Logo" class="h-9 w-auto rounded-xl shadow-sm group-hover:scale-105 transition-transform">
+        <div>
+          <h1 class="text-xl font-black tracking-tight text-slate-900 leading-none">Droplet</h1>
+          <p class="text-[9px] text-blue-600 font-extrabold tracking-widest uppercase mt-0.5">DRAG, DROP AND CONVERT.</p>
+        </div>
+      </a>
+      <button id="theme-toggle" aria-label="Toggle theme">🌙</button>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="max-w-4xl mx-auto px-4 py-8 md:py-12 flex-grow w-full">
+
+    <!-- Back Button (prominent & visible) -->
+    <div class="max-w-4xl mx-auto mb-6 flex justify-start">
+      <a href="/" class="back-home-btn inline-flex items-center gap-2 bg-white hover:bg-slate-50 border border-slate-200 shadow-sm rounded-full px-5 py-2.5 text-sm font-medium text-slate-700 transition-all hover:shadow-md hover:border-slate-300 active:scale-95">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        </svg>
+        Back to Home
+      </a>
+    </div>
+
+    <!-- ===== HERO SECTION ===== -->
+    <div class="text-center mb-10">
+      <div class="inline-flex items-center justify-center w-16 h-16 bg-blue-50 rounded-2xl mb-4 transition-colors duration-200">
+        <span class="text-3xl">💧</span>
+      </div>
+      <h1 class="text-3xl md:text-5xl font-black text-slate-900 tracking-tight leading-tight">About Droplet</h1>
+      <p class="text-lg md:text-xl font-semibold text-blue-600 mt-3">Simple file tools. Built with privacy in mind.</p>
+    </div>
+
+    <!-- ===== MAIN CONTENT CARD ===== -->
+    <div class="bg-white rounded-2xl shadow-sm p-8 md:p-12 border border-slate-100 transition-colors duration-200">
+      <div class="about-content">
+
+        <!-- ===== INTRO ===== -->
+        <p>Droplet is a collection of browser-based tools designed to make working with documents, PDFs, images, and data files simpler.</p>
+
+        <p>Whether you need to convert a PDF, edit a document, organize PDF pages, change an image format, or work with data files, Droplet aims to provide the tools you need in one convenient place — without unnecessary complexity.</p>
+
+        <!-- ===== MISSION ===== -->
+        <h2>Our Mission</h2>
+        <p>Our goal is simple: <strong>make everyday file tools fast, accessible, and easy to use.</strong></p>
+        <p>Many common document tasks require downloading software, creating an account, or uploading files to a remote server. Droplet is being built as a simpler alternative.</p>
+        <p>We focus on creating practical tools that work directly from a modern web browser and are easy to use on different devices.</p>
+
+        <!-- ===== PRIVACY BY DESIGN ===== -->
+        <h2>Privacy by Design</h2>
+        <p>Privacy is an important part of how Droplet is designed.</p>
+        <p>For supported tools, file processing happens <strong>locally in your browser</strong> using client-side technologies. This means your documents don't need to be uploaded to Droplet's servers for processing.</p>
+
+        <p>When a tool processes files entirely in your browser:</p>
+        <ul>
+          <li>Your files stay on your device.</li>
+          <li>Droplet does not store copies of your documents on its servers.</li>
+          <li>Droplet does not have access to the contents of those files.</li>
+          <li>Processing begins directly in your browser.</li>
+        </ul>
+
+        <p>This approach helps provide useful online file tools while giving you greater control over your documents.</p>
+
+        <p>You can learn more about website analytics, cookies, advertising services, and other data practices in our <a href="/privacy.html">Privacy Policy</a>.</p>
+
+        <!-- ===== WHAT YOU CAN DO ===== -->
+        <h2>What You Can Do With Droplet</h2>
+        <p>Droplet provides a growing collection of tools for common file and document tasks, including:</p>
+
+        <!-- Tool Category Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 my-6 not-prose">
+          <div class="feature-card">
+            <span class="icon">📄</span>
+            <div class="title">PDF Tools</div>
+            <div class="desc">Edit, organize, split, merge, rotate, extract pages, add signatures, work with forms, and more.</div>
+          </div>
+          <div class="feature-card">
+            <span class="icon">📝</span>
+            <div class="title">Document Conversion</div>
+            <div class="desc">Convert between PDF, Word, text, EPUB, PowerPoint, Excel, and other supported formats.</div>
+          </div>
+          <div class="feature-card">
+            <span class="icon">🖼️</span>
+            <div class="title">Image Conversion</div>
+            <div class="desc">Work with formats such as JPG, PNG, WebP, HEIC, TIFF, AVIF, SVG, and others.</div>
+          </div>
+          <div class="feature-card">
+            <span class="icon">📊</span>
+            <div class="title">Data Conversion</div>
+            <div class="desc">Convert structured formats such as JSON, CSV, and XML.</div>
+          </div>
+        </div>
+
+        <p>We continue to improve existing tools and develop new ones as Droplet grows.</p>
+
+        <!-- ===== WHY DROPLET ===== -->
+        <h2>Why Droplet?</h2>
+        <p>We believe file tools should be straightforward.</p>
+        <p>That's why we're working toward an experience built around:</p>
+
+        <div class="space-y-3 my-6 not-prose">
+          <div class="flex items-start gap-3 p-4 rounded-xl bg-slate-50 border border-slate-100 transition-colors duration-200">
+            <span class="text-xl flex-shrink-0">🔒</span>
+            <div>
+              <div class="font-bold text-sm text-slate-900">Privacy</div>
+              <div class="text-sm text-slate-600">Supported file operations are performed directly on your device whenever possible.</div>
+            </div>
+          </div>
+          <div class="flex items-start gap-3 p-4 rounded-xl bg-slate-50 border border-slate-100 transition-colors duration-200">
+            <span class="text-xl flex-shrink-0">✨</span>
+            <div>
+              <div class="font-bold text-sm text-slate-900">Simplicity</div>
+              <div class="text-sm text-slate-600">Tools are designed to be easy to understand without requiring technical knowledge.</div>
+            </div>
+          </div>
+          <div class="flex items-start gap-3 p-4 rounded-xl bg-slate-50 border border-slate-100 transition-colors duration-200">
+            <span class="text-xl flex-shrink-0">🌐</span>
+            <div>
+              <div class="font-bold text-sm text-slate-900">Accessibility</div>
+              <div class="text-sm text-slate-600">Droplet runs through a web browser, so there's no large desktop application to install for everyday tasks.</div>
+            </div>
+          </div>
+          <div class="flex items-start gap-3 p-4 rounded-xl bg-slate-50 border border-slate-100 transition-colors duration-200">
+            <span class="text-xl flex-shrink-0">🧰</span>
+            <div>
+              <div class="font-bold text-sm text-slate-900">Useful Tools</div>
+              <div class="text-sm text-slate-600">Instead of focusing on a single file format, Droplet brings a growing collection of document, PDF, image, and data utilities together.</div>
+            </div>
+          </div>
+          <div class="flex items-start gap-3 p-4 rounded-xl bg-slate-50 border border-slate-100 transition-colors duration-200">
+            <span class="text-xl flex-shrink-0">🚀</span>
+            <div>
+              <div class="font-bold text-sm text-slate-900">Continuous Improvement</div>
+              <div class="text-sm text-slate-600">Droplet is actively developed, and we continue to improve performance, compatibility, and available features.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== OUR APPROACH ===== -->
+        <h2>Our Approach</h2>
+        <p>Droplet is built around a simple principle:</p>
+
+        <blockquote>
+          Your tools should work for your files — your files shouldn't have to belong to the tool.
+        </blockquote>
+
+        <p>We want users to be able to complete everyday file tasks quickly while minimizing unnecessary file transfers and storage.</p>
+        <p>Browser technology continues to improve, making it possible to perform increasingly powerful document operations directly on a user's device. Droplet takes advantage of these capabilities wherever practical.</p>
+
+        <!-- ===== GET IN TOUCH ===== -->
+        <h2>Get in Touch</h2>
+        <p>Have a suggestion, found a problem, or want to provide feedback about Droplet?</p>
+        <p>We'd be happy to hear from you.</p>
+
+        <div class="mt-6 space-y-3 not-prose">
+          <div class="flex items-center gap-3 p-4 rounded-xl bg-blue-50 border border-blue-100 transition-colors duration-200">
+            <span class="text-xl">💬</span>
+            <div>
+              <div class="font-semibold text-sm text-blue-800">General Support</div>
+              <a href="mailto:support@dropletweb.xyz" class="text-sm text-blue-700 hover:underline">support@dropletweb.xyz</a>
+            </div>
+          </div>
+          <div class="flex items-center gap-3 p-4 rounded-xl bg-blue-50 border border-blue-100 transition-colors duration-200">
+            <span class="text-xl">🔒</span>
+            <div>
+              <div class="font-semibold text-sm text-blue-800">Privacy Inquiries</div>
+              <a href="mailto:privacy@dropletweb.xyz" class="text-sm text-blue-700 hover:underline">privacy@dropletweb.xyz</a>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ===== FOOTER NAVIGATION ===== -->
+      <div class="mt-8 pt-6 border-t border-slate-200 flex flex-wrap gap-4 items-center justify-between transition-colors duration-200">
+        <a href="/" class="text-blue-600 hover:underline font-medium">← Back to Droplet</a>
+        <div class="flex gap-4 text-sm text-slate-500">
+          <a href="/privacy.html" class="hover:text-blue-600 transition-colors">Privacy Policy</a>
+          <span>•</span>
+          <a href="/terms.html" class="hover:text-blue-600 transition-colors">Terms of Service</a>
+          <span>•</span>
+          <a href="/contact.html" class="hover:text-blue-600 transition-colors">Contact</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== QUICK LINKS ===== -->
+    <div class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
+      <a href="/edit-pdf.html" class="bg-white p-5 rounded-xl border border-slate-100 hover:border-blue-300 hover:shadow-md transition-all text-center group">
+        <div class="text-2xl mb-2 group-hover:scale-110 transition-transform">✏️</div>
+        <div class="font-bold text-sm text-slate-900">Edit PDF</div>
+        <div class="text-xs text-slate-500 mt-1">Edit, sign, and organize PDFs</div>
+      </a>
+      <a href="/privacy.html" class="bg-white p-5 rounded-xl border border-slate-100 hover:border-blue-300 hover:shadow-md transition-all text-center group">
+        <div class="text-2xl mb-2 group-hover:scale-110 transition-transform">🔒</div>
+        <div class="font-bold text-sm text-slate-900">Privacy Policy</div>
+        <div class="text-xs text-slate-500 mt-1">How we handle your data</div>
+      </a>
+      <a href="/contact.html" class="bg-white p-5 rounded-xl border border-slate-100 hover:border-blue-300 hover:shadow-md transition-all text-center group">
+        <div class="text-2xl mb-2 group-hover:scale-110 transition-transform">✉️</div>
+        <div class="font-bold text-sm text-slate-900">Contact Us</div>
+        <div class="text-xs text-slate-500 mt-1">Send us feedback</div>
+      </a>
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-500 mt-auto transition-colors duration-200">
+    <div class="max-w-4xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-3">
+      <p>© Droplet. 100% Client-Side Privacy First File Utility.</p>
+      <div class="space-x-4">
+        <a href="/about.html" class="hover:text-blue-600 transition-colors">About</a>
+        <span>•</span>
+        <a href="/privacy.html" class="hover:text-blue-600 transition-colors">Privacy</a>
+        <span>•</span>
+        <a href="/terms.html" class="hover:text-blue-600 transition-colors">Terms</a>
+        <span>•</span>
+        <a href="/contact.html" class="hover:text-blue-600 transition-colors">Contact</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // ============================================
+    // DARK MODE TOGGLE
+    // ============================================
+    const themeToggle = document.getElementById('theme-toggle');
+    const html = document.documentElement;
+    
+    let currentTheme = localStorage.getItem('theme') || 
+      (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    
+    if (currentTheme === 'dark') {
+      html.classList.add('dark');
+      themeToggle.textContent = '☀️';
+    } else {
+      themeToggle.textContent = '🌙';
+    }
+    
+    themeToggle.addEventListener('click', () => {
+      if (html.classList.contains('dark')) {
+        html.classList.remove('dark');
+        themeToggle.textContent = '🌙';
+        localStorage.setItem('theme', 'light');
+      } else {
+        html.classList.add('dark');
+        themeToggle.textContent = '☀️';
+        localStorage.setItem('theme', 'dark');
+      }
+    });
+  </script>
+
+</body>
+</html>
