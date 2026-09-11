@@ -3,17 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PowerPoint to PDF Converter - Droplet</title>
-  <meta name="description" content="Convert PowerPoint presentations to PDF online for free. 100% client-side, your files never leave your browser.">
+  <title>PDF to PowerPoint Converter - Droplet</title>
+  <meta name="description" content="Convert PDF pages to PowerPoint (PPTX) slides online for free. 100% client-side, your files never leave your browser.">
 
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
 
-  <!-- JSZip for extracting PPTX content -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <!-- PDF.js for PDF parsing -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 
-  <!-- html2pdf for PDF generation -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <!-- PptxGenJS for PowerPoint generation -->
+  <script src="https://cdn.jsdelivr.net/gh/gitbrent/PptxGenJS@3.12.0/dist/pptxgen.bundle.js"></script>
 
   <style>
     .dropzone-highlight {
@@ -21,209 +21,97 @@
       background: #eff6ff !important;
     }
     .progress-bar {
-      transition: width 0.5s ease;
+      transition: width 0.4s ease;
     }
     .hidden {
       display: none !important;
     }
 
-    /* Slide Preview */
-    .slide-preview {
-      background: white;
-      border: 2px solid #e2e8f0;
-      border-radius: 12px;
-      overflow: hidden;
-      transition: all 0.2s;
-      aspect-ratio: 16/9;
-      position: relative;
-    }
-    .slide-preview:hover {
-      border-color: #2563eb;
-      transform: scale(1.02);
-      box-shadow: 0 8px 20px rgba(37, 99, 235, 0.12);
-    }
-    .slide-preview .slide-content {
-      padding: 20px;
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-      overflow: hidden;
-      background: white;
-    }
-    .slide-preview .slide-content h1,
-    .slide-preview .slide-content h2,
-    .slide-preview .slide-content h3 {
-      margin: 4px 0;
-      color: #1e293b;
-      line-height: 1.3;
-    }
-    .slide-preview .slide-content h1 { font-size: 1.3rem; font-weight: 700; }
-    .slide-preview .slide-content h2 { font-size: 1.1rem; font-weight: 600; }
-    .slide-preview .slide-content h3 { font-size: 1rem; font-weight: 600; }
-    .slide-preview .slide-content p { font-size: 0.8rem; color: #475569; margin: 4px 0; }
-    .slide-preview .slide-content ul { 
-      list-style: disc; 
-      text-align: left; 
-      padding-left: 1.5rem;
-      font-size: 0.8rem; 
-      color: #475569;
-    }
-    .slide-preview .slide-number {
-      position: absolute;
-      bottom: 6px;
-      right: 10px;
-      font-size: 10px;
-      font-weight: 600;
-      color: #fff;
-      background: rgba(0,0,0,0.5);
-      padding: 2px 8px;
-      border-radius: 4px;
-    }
-    .slide-preview .slide-badge {
-      position: absolute;
-      top: 6px;
-      left: 10px;
-      font-size: 9px;
-      font-weight: 600;
-      color: #fff;
-      background: rgba(37, 99, 235, 0.8);
-      padding: 2px 8px;
-      border-radius: 4px;
-    }
-
-    /* Slide grid */
-    .slide-grid {
+    /* Thumbnail grid */
+    .thumb-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-      gap: 14px;
-      max-height: 500px;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 12px;
+      max-height: 420px;
       overflow-y: auto;
       padding: 4px;
     }
-    .slide-grid::-webkit-scrollbar { width: 6px; }
-    .slide-grid::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 8px; }
-    .slide-grid::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 8px; }
-    .slide-grid::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-
-    /* File item */
-    .file-item {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 12px 16px;
+    .thumb-card {
       background: #f8fafc;
-      border-radius: 10px;
       border: 1px solid #e2e8f0;
-      transition: background 0.2s, border-color 0.2s;
-    }
-    .file-item:hover { border-color: #94a3b8; }
-    .file-item .icon { font-size: 28px; }
-    .file-item .info { flex: 1; }
-    .file-item .info .name { font-weight: 600; color: #1e293b; transition: color 0.2s; }
-    .file-item .info .size { font-size: 12px; color: #94a3b8; transition: color 0.2s; }
-
-    /* PDF render host - off-screen */
-    #pdfRenderHost {
-      position: fixed;
-      left: -100000px;
-      top: 0;
-      width: 210mm;
-      min-height: 297mm;
-      background: #ffffff;
-      pointer-events: none;
+      border-radius: 10px;
       overflow: hidden;
-      z-index: -9999;
-      opacity: 0;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .thumb-card:hover {
+      border-color: #3b82f6;
+      transform: translateY(-2px);
+    }
+    .thumb-card img {
+      width: 100%;
+      display: block;
+      background: #fff;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    .thumb-card .thumb-label {
+      font-size: 11px;
+      text-align: center;
+      padding: 6px 4px;
+      color: #64748b;
+      font-weight: 600;
     }
 
-    /* Dark mode overrides */
-    html.dark body {
-      background: #0f172a;
-      color: #e2e8f0;
-    }
-    html.dark header {
-      background: #1e293b;
-      border-color: #334155;
-    }
+    /* Dark mode */
+    html.dark body { background: #0f172a; color: #e2e8f0; }
+    html.dark header { background: #1e293b; border-color: #334155; }
     html.dark header h1 { color: #f1f5f9; }
     html.dark header p { color: #60a5fa !important; }
     html.dark header nav a { color: #94a3b8; }
     html.dark header nav a:hover { color: #f1f5f9; }
-    html.dark #dropzone {
-      background: #1e293b;
-      border-color: #475569;
-    }
+
+    html.dark #dropzone { background: #1e293b; border-color: #475569; }
     html.dark #dropzone:hover { border-color: #3b82f6; }
     html.dark #dropzone h3 { color: #f1f5f9; }
     html.dark #dropzone p { color: #94a3b8; }
     html.dark #dropzone .bg-blue-50 { background: #1e3a5f !important; }
-    html.dark #fileInfo {
-      background: #1e293b;
-      border-color: #334155;
-    }
+
+    html.dark #fileInfo { background: #1e293b; border-color: #334155; }
     html.dark #fileInfo .text-slate-900 { color: #f1f5f9; }
     html.dark #fileInfo .text-slate-400 { color: #94a3b8; }
     html.dark #fileInfo .border-slate-200 { border-color: #334155; }
     html.dark #fileInfo .hover\:bg-slate-50:hover { background: #334155; }
-    html.dark .file-item {
-      background: #0f172a;
-      border-color: #334155;
-    }
-    html.dark .file-item .info .name { color: #f1f5f9; }
-    html.dark .file-item .info .size { color: #94a3b8; }
-    html.dark #optionsSection .bg-white {
-      background: #1e293b !important;
-      border-color: #334155;
-    }
-    html.dark #optionsSection label { color: #e2e8f0; }
-    html.dark #optionsSection select {
-      background: #0f172a;
-      border-color: #334155;
-      color: #f1f5f9;
-    }
-    html.dark #optionsSection select option { background: #1e293b; }
-    html.dark .slide-preview {
-      background: #1e293b;
-      border-color: #334155;
-    }
-    html.dark .slide-preview .slide-content {
-      background: white;
-    }
-    html.dark .slide-grid::-webkit-scrollbar-track { background: #0f172a; }
-    html.dark .slide-grid::-webkit-scrollbar-thumb { background: #475569; }
-    html.dark .slide-grid::-webkit-scrollbar-thumb:hover { background: #64748b; }
-    html.dark #resultSection .bg-green-50 {
-      background: #0f172a !important;
-      border-color: #334155;
-    }
+
+    html.dark .thumb-card { background: #0f172a; border-color: #334155; }
+    html.dark .thumb-card img { border-bottom-color: #334155; }
+    html.dark .thumb-card .thumb-label { color: #94a3b8; }
+
+    html.dark #resultSection .bg-green-50 { background: #0f172a !important; border-color: #334155; }
     html.dark #resultSection .border-green-200 { border-color: #334155 !important; }
     html.dark #resultSection h3 { color: #f1f5f9; }
     html.dark #resultSection .text-slate-600 { color: #94a3b8; }
     html.dark #resultSection .border-slate-200 { border-color: #334155 !important; }
     html.dark #resultSection .hover\:bg-slate-50:hover { background: #334155 !important; }
+
     html.dark .bg-white { background: #1e293b !important; }
     html.dark .border-slate-100 { border-color: #334155 !important; }
     html.dark .text-slate-500 { color: #94a3b8 !important; }
     html.dark .text-slate-600 { color: #94a3b8 !important; }
     html.dark .text-slate-700 { color: #cbd5e1 !important; }
-    html.dark .text-slate-900 { color: #f1f5f9 !important; }
     html.dark .bg-blue-50 { background: #1e3a5f !important; }
     html.dark .border-blue-200 { border-color: #2563eb !important; }
     html.dark .text-blue-700 { color: #60a5fa !important; }
     html.dark .text-blue-900 { color: #93c5fd !important; }
     html.dark .bg-slate-50 { background: #0f172a !important; }
-    html.dark footer {
-      background: #0f172a !important;
-      border-color: #334155 !important;
-    }
+
+    html.dark footer { background: #0f172a !important; border-color: #334155 !important; }
     html.dark footer a { color: #94a3b8; }
     html.dark footer a:hover { color: #f1f5f9; }
+    html.dark footer p { color: #94a3b8 !important; }
+
     html.dark .shadow-sm { box-shadow: 0 1px 2px 0 rgba(0,0,0,0.3) !important; }
-    html.dark .shadow-lg { box-shadow: 0 10px 15px -3px rgba(0,0,0,0.4) !important; }
     html.dark .shadow-md { box-shadow: 0 4px 6px -1px rgba(0,0,0,0.4) !important; }
+    html.dark .shadow-lg { box-shadow: 0 10px 15px -3px rgba(0,0,0,0.4) !important; }
+
     html.dark .back-home-btn {
       background: #1e293b !important;
       border-color: #475569 !important;
@@ -233,15 +121,15 @@
       background: #334155 !important;
       border-color: #3b82f6 !important;
     }
+
     html.dark .bg-green-600 { background: #059669 !important; }
     html.dark .bg-green-600:hover { background: #047857 !important; }
+    html.dark .shadow-green-500\/20 { box-shadow: 0 4px 6px -1px rgba(5, 150, 105, 0.3) !important; }
     html.dark .bg-blue-600 { background: #2563eb !important; }
     html.dark .bg-blue-600:hover { background: #1d4ed8 !important; }
-    html.dark .bg-purple-50 { background: #3b1e5f !important; }
-    html.dark .border-purple-200 { border-color: #7c3aed !important; }
-    html.dark .text-purple-700 { color: #a78bfa !important; }
-    html.dark .text-purple-900 { color: #c4b5fd !important; }
+    html.dark .shadow-blue-500\/20 { box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.3) !important; }
 
+    /* Theme toggle */
     #theme-toggle {
       background: none;
       border: none;
@@ -256,6 +144,15 @@
     #theme-toggle:hover { background: #f1f5f9; }
     html.dark #theme-toggle { color: #e2e8f0; }
     html.dark #theme-toggle:hover { background: #334155; }
+
+    /* Scrollbar for thumbnail grid */
+    .thumb-grid::-webkit-scrollbar { width: 6px; }
+    .thumb-grid::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 8px; }
+    .thumb-grid::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 8px; }
+    .thumb-grid::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    html.dark .thumb-grid::-webkit-scrollbar-track { background: #0f172a; }
+    html.dark .thumb-grid::-webkit-scrollbar-thumb { background: #475569; }
+    html.dark .thumb-grid::-webkit-scrollbar-thumb:hover { background: #64748b; }
   </style>
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen flex flex-col transition-colors duration-200">
@@ -297,33 +194,19 @@
       <div class="inline-block p-3 bg-blue-50 rounded-2xl mb-4 transition-colors duration-200">
         <span class="text-4xl">📊</span>
       </div>
-      <h1 class="text-3xl md:text-4xl font-black text-slate-900 tracking-tight">PowerPoint to PDF Converter</h1>
+      <h1 class="text-3xl md:text-4xl font-black text-slate-900 tracking-tight">PDF to PowerPoint Converter</h1>
       <p class="text-slate-500 text-sm md:text-base mt-2 max-w-lg mx-auto">
-        Convert your PowerPoint presentations to PDF. <strong>100% client-side</strong> — your files never leave your browser.
+        Turn each PDF page into a PowerPoint slide. <strong>100% client-side</strong> — your files never leave your browser.
       </p>
     </div>
 
-    <!-- What is PPTX Info -->
+    <!-- What is PDF to PPTX Info -->
     <div class="max-w-2xl mx-auto mb-8 bg-blue-50 border border-blue-200 rounded-xl p-4 transition-colors duration-200">
       <div class="flex items-start gap-3">
-        <span class="text-2xl">📽️</span>
+        <span class="text-2xl">💡</span>
         <div>
-          <h4 class="font-bold text-sm text-blue-900">What is PPTX?</h4>
-          <p class="text-xs text-blue-700 mt-1">PPTX is Microsoft PowerPoint's presentation format. Converting to PDF ensures your slides look the same on any device, is easier to share, and prevents accidental editing.</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- Supported Formats -->
-    <div class="max-w-2xl mx-auto mb-8 bg-purple-50 border border-purple-200 rounded-xl p-4 transition-colors duration-200">
-      <div class="flex items-start gap-3">
-        <span class="text-2xl">📋</span>
-        <div>
-          <h4 class="font-bold text-sm text-purple-900">Supported Formats</h4>
-          <div class="flex flex-wrap gap-2 mt-2">
-            <span class="text-xs bg-white px-2 py-1 rounded border border-purple-200">.PPTX (PowerPoint 2007+)</span>
-            <span class="text-xs bg-white px-2 py-1 rounded border border-purple-200">.PPT (legacy)</span>
-          </div>
+          <h4 class="font-bold text-sm text-blue-900">Why Convert PDF to PowerPoint?</h4>
+          <p class="text-xs text-blue-700 mt-1">Perfect for turning reports, brochures, or documents into presentation slides. Each PDF page becomes a high-quality slide in a standard 16:9 PowerPoint file that you can edit, annotate, or present directly.</p>
         </div>
       </div>
     </div>
@@ -334,104 +217,79 @@
         <div class="w-20 h-20 bg-blue-50 rounded-2xl flex items-center justify-center mb-4 text-4xl transition-colors duration-200">
           📁
         </div>
-        <h3 class="text-xl font-bold text-slate-900 mb-1">Drop your PowerPoint file here</h3>
+        <h3 class="text-xl font-bold text-slate-900 mb-1">Drop your PDF here</h3>
         <p class="text-slate-400 text-sm mb-4">or click to browse</p>
-        <input type="file" id="fileInput" accept=".pptx,.ppt,application/vnd.openxmlformats-officedocument.presentationml.presentation" class="hidden">
+        <input type="file" id="fileInput" accept=".pdf,application/pdf" class="hidden">
         <button onclick="document.getElementById('fileInput').click()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-3 rounded-xl text-sm shadow-md shadow-blue-500/20 transition-all active:scale-95">
-          Select PowerPoint File
+          Select PDF File
         </button>
-        <p class="text-xs text-slate-400 mt-3">Max file size: ~100MB</p>
+        <p class="text-xs text-slate-400 mt-3">Max file size: ~100MB (browser-dependent)</p>
       </div>
     </div>
 
-    <!-- File Info -->
+    <!-- File Info + Controls -->
     <div id="fileInfo" class="hidden max-w-2xl mx-auto mt-6 bg-white rounded-xl shadow-sm border border-slate-200 p-6 transition-colors duration-200">
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-3">
-          <span class="text-2xl">📊</span>
+          <span class="text-2xl">📄</span>
           <div>
             <p id="fileName" class="font-medium text-slate-900"></p>
             <p id="fileSize" class="text-xs text-slate-400"></p>
-            <p id="slideCount" class="text-xs text-slate-400"></p>
+            <p id="pageCount" class="text-xs text-slate-400"></p>
           </div>
         </div>
         <button onclick="clearFile()" class="text-slate-400 hover:text-red-500 transition-colors">✕</button>
       </div>
-    </div>
 
-    <!-- Slides Preview -->
-    <div id="slidesPreviewSection" class="hidden max-w-2xl mx-auto mt-4">
-      <div class="flex items-center justify-between mb-3">
-        <h4 class="font-bold text-sm text-slate-700">🖼️ Slides Preview</h4>
-        <span id="slidesCount" class="text-xs text-slate-400"></span>
+      <!-- Thumbnail Preview -->
+      <div id="previewContainer" class="hidden mt-4 border-t border-slate-200 pt-4">
+        <div class="flex items-center justify-between mb-2">
+          <h4 class="font-bold text-sm text-slate-700">📄 Slide Preview</h4>
+          <span id="thumbCount" class="text-xs text-slate-400"></span>
+        </div>
+        <div id="thumbGrid" class="thumb-grid">
+          <!-- Thumbnails injected here -->
+        </div>
       </div>
-      <div id="slidesGrid" class="slide-grid">
-        <!-- Slides render here -->
+
+      <!-- Options -->
+      <div class="mt-4 grid grid-cols-2 gap-3">
+        <div>
+          <label class="block text-xs font-medium text-slate-700 mb-1">📐 Slide Size</label>
+          <select id="slideSize" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm transition-colors duration-200">
+            <option value="16:9" selected>Widescreen (16:9)</option>
+            <option value="4:3">Standard (4:3)</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-slate-700 mb-1">✨ Image Quality</label>
+          <select id="imageQuality" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm transition-colors duration-200">
+            <option value="1.5">Standard</option>
+            <option value="2" selected>High</option>
+            <option value="3">Maximum</option>
+          </select>
+        </div>
       </div>
-    </div>
 
-    <!-- PDF Options -->
-    <div id="optionsSection" class="hidden max-w-2xl mx-auto mt-6">
-      <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 transition-colors duration-200">
-        <h3 class="text-base font-bold text-slate-900 mb-4">⚙️ PDF Options</h3>
+      <div class="mt-4 flex flex-wrap gap-3">
+        <button onclick="convertToPPTX()" id="convertBtn" class="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-xl transition-all active:scale-95 shadow-md shadow-green-500/20">
+          🔄 Convert to PowerPoint
+        </button>
+        <button onclick="clearFile()" class="px-4 py-3 border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors text-sm">
+          Change File
+        </button>
+      </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div>
-            <label class="block text-xs font-medium text-slate-700 mb-1">📏 Slide Format</label>
-            <select id="slideFormat" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm bg-white transition-colors duration-200">
-              <option value="16:9" selected>16:9 Widescreen</option>
-              <option value="4:3">4:3 Standard</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-xs font-medium text-slate-700 mb-1">🔄 Orientation</label>
-            <select id="orientation" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm bg-white transition-colors duration-200">
-              <option value="landscape" selected>Landscape</option>
-              <option value="portrait">Portrait</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-xs font-medium text-slate-700 mb-1">✨ Quality</label>
-            <select id="quality" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm bg-white transition-colors duration-200">
-              <option value="0.7">Standard</option>
-              <option value="0.85" selected>High</option>
-              <option value="0.95">Maximum</option>
-            </select>
-          </div>
+      <!-- Progress Bar -->
+      <div id="progressContainer" class="hidden mt-4">
+        <div class="flex justify-between text-xs text-slate-500 mb-1">
+          <span id="progressLabel">Converting...</span>
+          <span id="progressText">0%</span>
         </div>
-
-        <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-          <label class="flex items-center gap-2 cursor-pointer p-3 rounded-lg border border-slate-200 hover:bg-slate-50 transition-colors">
-            <input type="checkbox" id="includeSlideNumbers" checked class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500">
-            <span class="text-sm text-slate-700">Include slide numbers</span>
-          </label>
-          <label class="flex items-center gap-2 cursor-pointer p-3 rounded-lg border border-slate-200 hover:bg-slate-50 transition-colors">
-            <input type="checkbox" id="slidePerPage" checked class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500">
-            <span class="text-sm text-slate-700">One slide per page</span>
-          </label>
+        <div class="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
+          <div id="progressBar" class="bg-blue-600 h-2 rounded-full progress-bar" style="width: 0%"></div>
         </div>
-
-        <!-- Action Buttons -->
-        <div class="mt-5 flex flex-wrap gap-3">
-          <button onclick="convertToPDF()" id="convertBtn" class="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-xl transition-all active:scale-95 shadow-md shadow-green-500/20">
-            🔄 Convert to PDF
-          </button>
-          <button onclick="resetAll()" class="px-5 py-3 border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors text-sm font-medium">
-            Reset
-          </button>
-        </div>
-
-        <!-- Progress Bar -->
-        <div id="progressContainer" class="hidden mt-4">
-          <div class="flex justify-between text-xs text-slate-500 mb-1">
-            <span>Converting...</span>
-            <span id="progressText">0%</span>
-          </div>
-          <div class="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
-            <div id="progressBar" class="bg-blue-600 h-2 rounded-full progress-bar" style="width: 0%"></div>
-          </div>
-          <p id="statusText" class="text-xs text-slate-400 mt-2 text-center">Initializing...</p>
-        </div>
+        <p id="statusText" class="text-xs text-slate-400 mt-2 text-center">Initializing...</p>
       </div>
     </div>
 
@@ -440,12 +298,16 @@
       <div class="bg-green-50 border border-green-200 rounded-xl p-6 text-center transition-colors duration-200">
         <div class="text-4xl mb-2">✅</div>
         <h3 class="font-bold text-slate-900">Conversion Complete!</h3>
-        <p class="text-sm text-slate-600 mt-1">Your PDF presentation is ready to download.</p>
+        <p class="text-sm text-slate-600 mt-1">Your PowerPoint presentation is ready to download.</p>
+        <div class="mt-3 flex flex-wrap gap-2 justify-center">
+          <span id="resultSlides" class="text-xs bg-green-100 text-green-700 px-3 py-1 rounded-full">0 slides</span>
+          <span id="resultSize" class="text-xs bg-green-100 text-green-700 px-3 py-1 rounded-full">0 MB</span>
+        </div>
         <div class="mt-4 flex flex-wrap gap-3 justify-center">
-          <a id="downloadLink" href="#" download="presentation.pdf" class="bg-green-600 hover:bg-green-700 text-white font-bold px-6 py-3 rounded-xl transition-all shadow-md shadow-green-500/20">
-            📥 Download PDF
+          <a id="downloadLink" href="#" download="presentation.pptx" class="bg-green-600 hover:bg-green-700 text-white font-bold px-6 py-3 rounded-xl transition-all shadow-md shadow-green-500/20">
+            📥 Download PPTX
           </a>
-          <button onclick="resetAll()" class="px-6 py-3 border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors text-sm">
+          <button onclick="resetConverter()" class="px-6 py-3 border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors text-sm">
             Convert Another
           </button>
         </div>
@@ -460,14 +322,14 @@
         <p class="text-xs text-slate-500">Your files never leave your browser</p>
       </div>
       <div class="bg-white p-4 rounded-xl border border-slate-100 text-center transition-colors duration-200">
-        <div class="text-2xl mb-1">📊</div>
-        <h4 class="font-bold text-sm">Slide Preservation</h4>
-        <p class="text-xs text-slate-500">Each slide as a PDF page</p>
-      </div>
-      <div class="bg-white p-4 rounded-xl border border-slate-100 text-center transition-colors duration-200">
         <div class="text-2xl mb-1">⚡</div>
         <h4 class="font-bold text-sm">Fast & Free</h4>
         <p class="text-xs text-slate-500">No sign-up required</p>
+      </div>
+      <div class="bg-white p-4 rounded-xl border border-slate-100 text-center transition-colors duration-200">
+        <div class="text-2xl mb-1">📊</div>
+        <h4 class="font-bold text-sm">Editable Slides</h4>
+        <p class="text-xs text-slate-500">Standard PPTX format</p>
       </div>
     </div>
 
@@ -477,23 +339,19 @@
       <div class="space-y-3">
         <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
           <h3 class="font-bold text-slate-900 text-sm">Is my data safe?</h3>
-          <p class="text-slate-600 text-sm mt-1">Yes! All conversion happens locally in your browser. Your PowerPoint files are never uploaded to any server.</p>
+          <p class="text-slate-600 text-sm mt-1">Yes! All conversion happens locally in your browser. Your PDF is never uploaded to any server.</p>
         </div>
         <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">Will animations and transitions be preserved?</h3>
-          <p class="text-slate-600 text-sm mt-1">PDF is a static format. Animations, transitions, and interactive elements are not preserved. Each slide becomes a static page in the PDF.</p>
+          <h3 class="font-bold text-slate-900 text-sm">How are slides generated?</h3>
+          <p class="text-slate-600 text-sm mt-1">Each PDF page is rendered as a high-resolution image and placed on a dedicated PowerPoint slide, preserving the original layout perfectly.</p>
         </div>
         <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">What about fonts and images?</h3>
-          <p class="text-slate-600 text-sm mt-1">Text, images, and basic formatting are preserved. For best results, use standard fonts. Custom fonts may be substituted if not embedded in the presentation.</p>
+          <h3 class="font-bold text-slate-900 text-sm">Can I edit the text in PowerPoint?</h3>
+          <p class="text-slate-600 text-sm mt-1">The slides contain page images, so text isn't directly editable. You can add text boxes, shapes, or annotations on top of each slide in PowerPoint.</p>
         </div>
         <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">Can I convert multiple presentations at once?</h3>
-          <p class="text-slate-600 text-sm mt-1">Currently, the converter handles one presentation at a time. For multiple files, convert them one by one.</p>
-        </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">What file formats are supported?</h3>
-          <p class="text-slate-600 text-sm mt-1">Currently supports .PPTX (PowerPoint 2007 and later). Legacy .PPT files may work but are not guaranteed.</p>
+          <h3 class="font-bold text-slate-900 text-sm">Are there file size limits?</h3>
+          <p class="text-slate-600 text-sm mt-1">Most modern browsers handle PDFs up to 100MB. Very large documents with many pages may take longer to process.</p>
         </div>
       </div>
     </section>
@@ -504,37 +362,31 @@
     <div class="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-3">
       <p class="font-medium">© Droplet. 100% Client-Side Privacy First File Utility.</p>
       <div class="space-x-4">
-        <a href="/about.html" class="hover:text-blue-600 transition-colors">About</a>
-        <span>•</span>
         <a href="/privacy.html" class="hover:text-blue-600 transition-colors">Privacy Policy</a>
         <span>•</span>
         <a href="/terms.html" class="hover:text-blue-600 transition-colors">Terms of Service</a>
-        <span>•</span>
-        <a href="/contact.html" class="hover:text-blue-600 transition-colors">Contact</a>
       </div>
     </div>
   </footer>
 
-  <!-- PDF Render Host (off-screen) -->
-  <div id="pdfRenderHost" aria-hidden="true"></div>
-
+  <!-- Conversion JavaScript -->
   <script>
     // ============================================
     // DARK MODE TOGGLE
     // ============================================
     const themeToggle = document.getElementById('theme-toggle');
     const html = document.documentElement;
-    
-    let currentTheme = localStorage.getItem('theme') || 
+
+    let currentTheme = localStorage.getItem('theme') ||
       (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-    
+
     if (currentTheme === 'dark') {
       html.classList.add('dark');
       themeToggle.textContent = '☀️';
     } else {
       themeToggle.textContent = '🌙';
     }
-    
+
     themeToggle.addEventListener('click', () => {
       if (html.classList.contains('dark')) {
         html.classList.remove('dark');
@@ -548,464 +400,324 @@
     });
 
     // ============================================
-    // STATE
+    // PDF → PPTX CONVERTER LOGIC
     // ============================================
-    let currentFile = null;
-    let slides = [];
-    let presentationData = {
-      title: 'Presentation',
-      slides: []
-    };
+    if (typeof pdfjsLib !== 'undefined') {
+      pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    }
 
-    // ============================================
-    // FILE HANDLING
-    // ============================================
+    let currentFile = null;
+    let pdfDoc = null;
+    let totalPages = 0;
+    let pageThumbnails = []; // { dataUrl, width, height }
+
     const dropzone = document.getElementById('dropzone');
     const fileInput = document.getElementById('fileInput');
+    const fileInfo = document.getElementById('fileInfo');
+    const fileName = document.getElementById('fileName');
+    const fileSize = document.getElementById('fileSize');
+    const pageCount = document.getElementById('pageCount');
+    const convertBtn = document.getElementById('convertBtn');
+    const progressContainer = document.getElementById('progressContainer');
+    const progressBar = document.getElementById('progressBar');
+    const progressText = document.getElementById('progressText');
+    const progressLabel = document.getElementById('progressLabel');
+    const statusText = document.getElementById('statusText');
+    const resultSection = document.getElementById('resultSection');
+    const downloadLink = document.getElementById('downloadLink');
+    const resultSlides = document.getElementById('resultSlides');
+    const resultSize = document.getElementById('resultSize');
+    const previewContainer = document.getElementById('previewContainer');
+    const thumbGrid = document.getElementById('thumbGrid');
+    const thumbCount = document.getElementById('thumbCount');
+    const slideSize = document.getElementById('slideSize');
+    const imageQuality = document.getElementById('imageQuality');
 
+    // ---------- Drag & Drop ----------
     dropzone.addEventListener('dragover', (e) => {
       e.preventDefault();
       dropzone.classList.add('dropzone-highlight');
     });
-
     dropzone.addEventListener('dragleave', () => {
       dropzone.classList.remove('dropzone-highlight');
     });
-
     dropzone.addEventListener('drop', (e) => {
       e.preventDefault();
       dropzone.classList.remove('dropzone-highlight');
       const files = e.dataTransfer.files;
-      if (files.length > 0) {
+      if (files.length > 0 && (files[0].type === 'application/pdf' || files[0].name.toLowerCase().endsWith('.pdf'))) {
         handleFile(files[0]);
+      } else {
+        alert('Please drop a PDF file.');
       }
     });
-
     dropzone.addEventListener('click', (e) => {
-      if (e.target.tagName !== 'BUTTON') {
+      if (e.target.tagName !== 'BUTTON' && fileInfo.classList.contains('hidden')) {
         fileInput.click();
       }
     });
-
     fileInput.addEventListener('change', (e) => {
       if (e.target.files.length > 0) {
         handleFile(e.target.files[0]);
+        e.target.value = '';
       }
     });
 
+    // ---------- File handling ----------
     async function handleFile(file) {
-      const isValid = file.name.toLowerCase().endsWith('.pptx') || 
-                     file.name.toLowerCase().endsWith('.ppt') ||
-                     file.type === 'application/vnd.openxmlformats-officedocument.presentationml.presentation';
-      
-      if (!isValid) {
-        alert('Please select a valid PowerPoint file (.pptx or .ppt)');
+      if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
+        alert('Please select a valid PDF file.');
         return;
       }
-
       if (file.size > 100 * 1024 * 1024) {
-        alert('File is too large. Please use a file under 100MB.');
+        alert('File is too large. Please use a PDF under 100MB.');
         return;
       }
 
       currentFile = file;
-      document.getElementById('fileName').textContent = file.name;
-      document.getElementById('fileSize').textContent = (file.size / 1024 / 1024).toFixed(2) + ' MB';
-      document.getElementById('fileInfo').classList.remove('hidden');
+      fileName.textContent = file.name;
+      fileSize.textContent = (file.size / 1024 / 1024).toFixed(2) + ' MB';
+      fileInfo.classList.remove('hidden');
       dropzone.classList.add('hidden');
-      
-      // Parse the presentation
-      await parsePresentation(file);
-    }
+      resultSection.classList.add('hidden');
+      progressContainer.classList.add('hidden');
+      previewContainer.classList.add('hidden');
+      convertBtn.disabled = true;
+      convertBtn.textContent = '⏳ Loading...';
+      pageThumbnails = [];
+      thumbGrid.innerHTML = '';
 
-    // ============================================
-    // PARSE PPTX
-    // ============================================
-    async function parsePresentation(file) {
       try {
-        showProgress(true);
-        setProgress(10, 'Reading presentation...');
-
         const arrayBuffer = await file.arrayBuffer();
-        
-        if (file.name.toLowerCase().endsWith('.ppt')) {
-          // Legacy .ppt files - not supported without special parsing
-          presentationData.title = file.name.replace(/\.ppt$/i, '');
-          presentationData.slides = [{
-            number: 1,
-            title: 'Legacy .PPT Format',
-            content: [
-              { type: 'paragraph', text: 'Legacy .PPT format is not fully supported.' },
-              { type: 'paragraph', text: 'Please save your file as .PPTX in PowerPoint and try again.' }
-            ]
-          }];
-        } else {
-          // PPTX parsing
-          const zip = await JSZip.loadAsync(arrayBuffer);
-          
-          setProgress(25, 'Extracting content...');
-          
-          // Get presentation title from core.xml or use filename
-          let title = file.name.replace(/\.pptx$/i, '');
-          try {
-            const coreXml = await zip.file('docProps/core.xml')?.async('text');
-            if (coreXml) {
-              const titleMatch = coreXml.match(/<dc:title>([^<]*)<\/dc:title>/);
-              if (titleMatch && titleMatch[1].trim()) {
-                title = titleMatch[1].trim();
-              }
-            }
-          } catch (e) {
-            console.log('Could not read title');
-          }
-          presentationData.title = title;
-          
-          // Find all slide XML files
-          const slideFiles = [];
-          zip.forEach((relativePath, zipEntry) => {
-            const match = relativePath.match(/^ppt\/slides\/slide(\d+)\.xml$/);
-            if (match) {
-              slideFiles.push({
-                number: parseInt(match[1]),
-                path: relativePath
-              });
-            }
-          });
-          
-          slideFiles.sort((a, b) => a.number - b.number);
-          
-          if (slideFiles.length === 0) {
-            throw new Error('No slides found in the presentation');
-          }
-          
-          setProgress(40, `Found ${slideFiles.length} slides. Parsing...`);
-          
-          // Parse each slide
-          const parsedSlides = [];
-          for (let i = 0; i < slideFiles.length; i++) {
-            const slideFile = slideFiles[i];
-            const slideXml = await zip.file(slideFile.path).async('text');
-            const slideContent = parseSlideXml(slideXml, slideFile.number);
-            parsedSlides.push(slideContent);
-            
-            const progress = 40 + Math.round((i / slideFiles.length) * 50);
-            setProgress(progress, `Parsing slide ${i + 1} of ${slideFiles.length}...`);
-          }
-          
-          presentationData.slides = parsedSlides;
-        }
+        pdfDoc = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+        totalPages = pdfDoc.numPages;
+        pageCount.textContent = `📄 ${totalPages} page${totalPages > 1 ? 's' : ''}`;
 
-        slides = presentationData.slides;
-        
-        // Update UI
-        document.getElementById('slideCount').textContent = `📊 ${slides.length} slides`;
-        renderSlidesPreview();
-        
-        setProgress(100, '✅ Ready to convert!');
-        setTimeout(() => showProgress(false), 500);
-        
-        // Show options and preview
-        document.getElementById('slidesPreviewSection').classList.remove('hidden');
-        document.getElementById('optionsSection').classList.remove('hidden');
-
-      } catch (error) {
-        console.error('Parse error:', error);
-        showProgress(false);
-        alert('Could not parse the presentation: ' + error.message);
-        clearFile();
+        await generateThumbnails();
+        convertBtn.disabled = false;
+        convertBtn.textContent = '🔄 Convert to PowerPoint';
+      } catch (err) {
+        console.error('Error loading PDF:', err);
+        pageCount.textContent = '⚠️ Could not read PDF';
+        convertBtn.disabled = false;
+        convertBtn.textContent = '🔄 Convert to PowerPoint';
+        alert('Failed to read the PDF. It may be encrypted or corrupted.');
       }
     }
 
-    // ============================================
-    // PARSE SLIDE XML
-    // ============================================
-    function parseSlideXml(xml, slideNumber) {
-      const slide = {
-        number: slideNumber,
-        title: '',
-        content: []
-      };
-      
-      try {
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(xml, 'application/xml');
-        
-        // Get all text nodes in order
-        const textNodes = doc.querySelectorAll('a\\:t, t');
-        const texts = [];
-        
-        textNodes.forEach(node => {
-          const text = node.textContent.trim();
-          if (text) {
-            texts.push(text);
-          }
+    async function generateThumbnails() {
+      statusText.textContent = 'Generating slide previews...';
+      progressContainer.classList.remove('hidden');
+      progressBar.style.width = '0%';
+      progressText.textContent = '0%';
+      progressLabel.textContent = 'Rendering previews...';
+
+      const scale = 0.35; // small for thumbnails
+      for (let i = 1; i <= totalPages; i++) {
+        const page = await pdfDoc.getPage(i);
+        const viewport = page.getViewport({ scale });
+
+        const canvas = document.createElement('canvas');
+        canvas.width = Math.ceil(viewport.width);
+        canvas.height = Math.ceil(viewport.height);
+        const ctx = canvas.getContext('2d', { alpha: false });
+
+        await page.render({ canvasContext: ctx, viewport }).promise;
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+
+        pageThumbnails.push({
+          dataUrl,
+          width: viewport.width,
+          height: viewport.height
         });
-        
-        if (texts.length > 0) {
-          // First text is usually the title
-          slide.title = texts[0];
-          
-          // Rest is content
-          if (texts.length > 1) {
-            for (let i = 1; i < texts.length; i++) {
-              slide.content.push({
-                type: 'paragraph',
-                text: texts[i]
-              });
-            }
-          }
-        } else {
-          slide.title = `Slide ${slideNumber}`;
-        }
-        
-      } catch (error) {
-        console.error(`Error parsing slide ${slideNumber}:`, error);
-        slide.title = `Slide ${slideNumber}`;
-      }
-      
-      return slide;
-    }
 
-    // ============================================
-    // RENDER SLIDES PREVIEW
-    // ============================================
-    function renderSlidesPreview() {
-      const grid = document.getElementById('slidesGrid');
-      const count = document.getElementById('slidesCount');
-      
-      grid.innerHTML = '';
-      
-      const maxPreview = Math.min(slides.length, 12);
-      
-      for (let i = 0; i < maxPreview; i++) {
-        const slide = slides[i];
-        const div = document.createElement('div');
-        div.className = 'slide-preview';
-        div.innerHTML = `
-          <div class="slide-badge">Slide ${slide.number}</div>
-          <div class="slide-content">
-            <h2>${escapeHtml(slide.title || 'Slide ' + slide.number)}</h2>
-            ${slide.content.slice(0, 3).map(c => 
-              `<p>${escapeHtml(c.text.substring(0, 80))}${c.text.length > 80 ? '...' : ''}</p>`
-            ).join('')}
-            ${slide.content.length > 3 ? `<p style="color:#94a3b8;font-size:0.7rem;">+${slide.content.length - 3} more</p>` : ''}
-          </div>
-          <div class="slide-number">${slide.number}</div>
+        // Thumbnail card
+        const card = document.createElement('div');
+        card.className = 'thumb-card';
+        card.innerHTML = `
+          <img src="${dataUrl}" alt="Page ${i}">
+          <div class="thumb-label">Slide ${i}</div>
         `;
-        grid.appendChild(div);
-      }
-      
-      if (slides.length > 12) {
-        const more = document.createElement('div');
-        more.className = 'slide-preview';
-        more.style.display = 'flex';
-        more.style.alignItems = 'center';
-        more.style.justifyContent = 'center';
-        more.style.background = '#f1f5f9';
-        more.style.border = '2px dashed #cbd5e1';
-        more.innerHTML = `<span style="font-size:13px;color:#64748b;">+ ${slides.length - 12} more slides</span>`;
-        grid.appendChild(more);
-      }
-      
-      count.textContent = `${slides.length} slides`;
-    }
+        thumbGrid.appendChild(card);
 
-    function escapeHtml(text) {
-      const div = document.createElement('div');
-      div.textContent = text;
-      return div.innerHTML;
-    }
+        const pct = Math.round((i / totalPages) * 100);
+        progressBar.style.width = pct + '%';
+        progressText.textContent = pct + '%';
 
-    // ============================================
-    // CONVERT TO PDF
-    // ============================================
-    async function convertToPDF() {
-      if (!currentFile || slides.length === 0) {
-        alert('Please upload a PowerPoint file first.');
-        return;
-      }
-
-      if (typeof html2pdf === 'undefined') {
-        alert('PDF library not loaded. Please refresh the page.');
-        return;
-      }
-
-      showProgress(true);
-      document.getElementById('resultSection').classList.add('hidden');
-      document.getElementById('convertBtn').disabled = true;
-      document.getElementById('convertBtn').textContent = '⏳ Converting...';
-      
-      const slideFormat = document.getElementById('slideFormat').value;
-      const orientation = document.getElementById('orientation').value;
-      const quality = parseFloat(document.getElementById('quality').value);
-      const includeSlideNumbers = document.getElementById('includeSlideNumbers').checked;
-      
-      // Set dimensions
-      const dims = slideFormat === '16:9' 
-        ? { width: 297, height: 167 }  // 16:9 landscape in mm
-        : { width: 254, height: 190.5 }; // 4:3 landscape in mm
-      
-      const finalDims = orientation === 'portrait' 
-        ? { width: dims.height, height: dims.width }
-        : dims;
-      
-      setProgress(10, 'Preparing slides...');
-      
-      try {
-        const host = document.getElementById('pdfRenderHost');
-        host.innerHTML = '';
-        
-        // Create container for all slides
-        const container = document.createElement('div');
-        container.style.width = '100%';
-        container.style.background = '#ffffff';
-        
-        // Render each slide
-        for (let i = 0; i < slides.length; i++) {
-          const slide = slides[i];
-          
-          setProgress(10 + Math.round((i / slides.length) * 60), `Rendering slide ${i + 1} of ${slides.length}...`);
-          
-          const slideDiv = document.createElement('div');
-          slideDiv.style.width = '100%';
-          slideDiv.style.height = finalDims.height + 'mm';
-          slideDiv.style.pageBreakAfter = i < slides.length - 1 ? 'always' : 'auto';
-          slideDiv.style.background = '#ffffff';
-          slideDiv.style.display = 'flex';
-          slideDiv.style.flexDirection = 'column';
-          slideDiv.style.padding = '15mm 20mm';
-          slideDiv.style.boxSizing = 'border-box';
-          slideDiv.style.position = 'relative';
-          slideDiv.style.fontFamily = 'Arial, Helvetica, sans-serif';
-          
-          // Build slide HTML
-          let slideHtml = '';
-          
-          // Title
-          if (slide.title) {
-            slideHtml += `<h1 style="font-size: 24pt; font-weight: 700; color: #0f172a; margin: 0 0 12pt 0; line-height: 1.2; text-align: center;">${escapeHtml(slide.title)}</h1>`;
-          }
-          
-          // Divider
-          slideHtml += `<div style="height: 2px; background: linear-gradient(to right, #2563eb, transparent); margin: 8pt 0 16pt 0;"></div>`;
-          
-          // Content
-          if (slide.content && slide.content.length > 0) {
-            slideHtml += '<div style="flex: 1; display: flex; flex-direction: column; justify-content: center;">';
-            slide.content.forEach(item => {
-              slideHtml += `<p style="font-size: 14pt; color: #1e293b; margin: 6pt 0; line-height: 1.5; text-align: left;">${escapeHtml(item.text)}</p>`;
-            });
-            slideHtml += '</div>';
-          }
-          
-          // Slide number
-          if (includeSlideNumbers) {
-            slideHtml += `<div style="position: absolute; bottom: 8mm; right: 12mm; font-size: 10pt; color: #94a3b8; font-weight: 500;">${slide.number} / ${slides.length}</div>`;
-          }
-          
-          slideDiv.innerHTML = slideHtml;
-          container.appendChild(slideDiv);
+        // Yield to UI
+        if (i % 3 === 0 || i === totalPages) {
+          await new Promise(r => setTimeout(r, 0));
         }
-        
-        host.appendChild(container);
-        
-        // Wait for rendering
-        await new Promise(resolve => setTimeout(resolve, 500));
-        
-        setProgress(75, 'Generating PDF...');
-        
-        // Generate PDF
-        const opt = {
-          margin: 0,
-          filename: presentationData.title + '.pdf',
-          image: { type: 'jpeg', quality: quality },
-          html2canvas: {
-            scale: 2,
-            useCORS: true,
-            backgroundColor: '#ffffff',
-            logging: false,
-            windowWidth: 794,
-            scrollX: 0,
-            scrollY: 0
-          },
-          jsPDF: {
-            unit: 'mm',
-            format: [finalDims.width, finalDims.height],
-            orientation: finalDims.width > finalDims.height ? 'landscape' : 'portrait'
-          },
-          pagebreak: { mode: ['css', 'legacy'] }
-        };
-        
-        const pdfBlob = await html2pdf()
-          .set(opt)
-          .from(container)
-          .outputPdf('blob');
-        
-        host.innerHTML = '';
-        
-        setProgress(100, '✅ Conversion complete!');
-        
-        setTimeout(() => {
-          const url = URL.createObjectURL(pdfBlob);
-          const downloadLink = document.getElementById('downloadLink');
-          downloadLink.href = url;
-          downloadLink.download = presentationData.title + '.pdf';
-          
-          document.getElementById('resultSection').classList.remove('hidden');
-          document.getElementById('convertBtn').disabled = false;
-          document.getElementById('convertBtn').textContent = '🔄 Convert to PDF';
-          showProgress(false);
-          
-          document.getElementById('resultSection').scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }, 500);
-        
-      } catch (error) {
-        console.error('Conversion error:', error);
-        showProgress(false);
-        document.getElementById('convertBtn').disabled = false;
-        document.getElementById('convertBtn').textContent = '🔄 Convert to PDF';
-        alert('Conversion failed: ' + error.message);
       }
+
+      thumbCount.textContent = `${totalPages} slide${totalPages > 1 ? 's' : ''}`;
+      previewContainer.classList.remove('hidden');
+      progressContainer.classList.add('hidden');
+      progressBar.style.width = '0%';
+      progressText.textContent = '0%';
     }
 
-    // ============================================
-    // PROGRESS
-    // ============================================
-    function showProgress(show) {
-      document.getElementById('progressContainer').classList.toggle('hidden', !show);
-    }
-
-    function setProgress(percent, message) {
-      document.getElementById('progressBar').style.width = percent + '%';
-      document.getElementById('progressText').textContent = percent + '%';
-      if (message) {
-        document.getElementById('statusText').textContent = message;
-      }
-    }
-
-    // ============================================
-    // RESET
-    // ============================================
     function clearFile() {
       currentFile = null;
-      slides = [];
-      presentationData = { title: 'Presentation', slides: [] };
+      pdfDoc = null;
+      totalPages = 0;
+      pageThumbnails = [];
+      thumbGrid.innerHTML = '';
       fileInput.value = '';
-      document.getElementById('fileInfo').classList.add('hidden');
-      document.getElementById('slidesPreviewSection').classList.add('hidden');
-      document.getElementById('optionsSection').classList.add('hidden');
-      document.getElementById('resultSection').classList.add('hidden');
-      document.getElementById('progressContainer').classList.add('hidden');
+      fileInfo.classList.add('hidden');
       dropzone.classList.remove('hidden');
+      resultSection.classList.add('hidden');
+      progressContainer.classList.add('hidden');
+      previewContainer.classList.add('hidden');
+      progressBar.style.width = '0%';
+      progressText.textContent = '0%';
+      convertBtn.disabled = false;
+      convertBtn.textContent = '🔄 Convert to PowerPoint';
     }
 
-    function resetAll() {
+    function resetConverter() {
       clearFile();
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      downloadLink.href = '#';
     }
 
-    console.log('📊 PowerPoint to PDF Converter loaded');
-    console.log('🔒 All processing happens locally in your browser');
+    // ---------- Render high-res pages & build PPTX ----------
+    async function convertToPPTX() {
+      if (!pdfDoc || !currentFile) {
+        alert('Please select a PDF file first.');
+        return;
+      }
+
+      if (typeof PptxGenJS === 'undefined') {
+        alert('PowerPoint library not loaded. Please refresh the page.');
+        return;
+      }
+
+      const sizeChoice = slideSize.value;
+      const renderScale = parseFloat(imageQuality.value);
+
+      progressContainer.classList.remove('hidden');
+      resultSection.classList.add('hidden');
+      convertBtn.disabled = true;
+      convertBtn.textContent = '⏳ Converting...';
+      progressLabel.textContent = 'Rendering pages...';
+      progressBar.style.width = '0%';
+      progressText.textContent = '0%';
+
+      try {
+        // 1. Setup presentation
+        const pptx = new PptxGenJS();
+        pptx.author = 'Droplet';
+        pptx.company = 'Droplet';
+        pptx.title = currentFile.name.replace(/\.pdf$/i, '');
+
+        let slideWidthIn, slideHeightIn;
+        if (sizeChoice === '16:9') {
+          slideWidthIn = 13.333;
+          slideHeightIn = 7.5;
+        } else {
+          slideWidthIn = 10;
+          slideHeightIn = 7.5;
+        }
+        pptx.defineLayout({
+          name: 'CUSTOM',
+          width: slideWidthIn,
+          height: slideHeightIn
+        });
+        pptx.layout = 'CUSTOM';
+
+        // 2. Render each page at high resolution
+        for (let i = 1; i <= totalPages; i++) {
+          const page = await pdfDoc.getPage(i);
+          const viewport = page.getViewport({ scale: renderScale });
+
+          const canvas = document.createElement('canvas');
+          canvas.width = Math.ceil(viewport.width);
+          canvas.height = Math.ceil(viewport.height);
+          const ctx = canvas.getContext('2d', { alpha: false });
+
+          await page.render({ canvasContext: ctx, viewport }).promise;
+          const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
+
+          // 3. Compute placement to fit slide while preserving aspect ratio
+          const imgAspect = viewport.width / viewport.height;
+          const slideAspect = slideWidthIn / slideHeightIn;
+
+          let w, h, x, y;
+          if (imgAspect > slideAspect) {
+            // Image wider than slide → fit to width, center vertically
+            w = slideWidthIn;
+            h = slideWidthIn / imgAspect;
+            x = 0;
+            y = (slideHeightIn - h) / 2;
+          } else {
+            // Image taller than slide → fit to height, center horizontally
+            h = slideHeightIn;
+            w = slideHeightIn * imgAspect;
+            x = (slideWidthIn - w) / 2;
+            y = 0;
+          }
+
+          // 4. Add slide
+          const slide = pptx.addSlide();
+          slide.background = { color: 'FFFFFF' };
+          slide.addImage({
+            data: dataUrl,
+            x, y, w, h
+          });
+
+          const pct = Math.round((i / totalPages) * 100);
+          progressBar.style.width = pct + '%';
+          progressText.textContent = pct + '%';
+          statusText.textContent = `Rendering slide ${i} of ${totalPages}...`;
+
+          // Yield to UI periodically
+          if (i % 3 === 0 || i === totalPages) {
+            await new Promise(r => setTimeout(r, 0));
+          }
+        }
+
+        // 5. Export
+        progressLabel.textContent = 'Building PPTX file...';
+        statusText.textContent = 'Packaging presentation...';
+        progressBar.style.width = '95%';
+        progressText.textContent = '95%';
+
+        const pptxBlob = await pptx.write({ outputType: 'blob' });
+
+        progressBar.style.width = '100%';
+        progressText.textContent = '100%';
+
+        setTimeout(() => {
+          const url = URL.createObjectURL(pptxBlob);
+          downloadLink.href = url;
+          const baseName = currentFile.name.replace(/\.pdf$/i, '');
+          downloadLink.download = baseName + '.pptx';
+          resultSlides.textContent = `${totalPages} slide${totalPages > 1 ? 's' : ''}`;
+          resultSize.textContent = (pptxBlob.size / 1024 / 1024).toFixed(2) + ' MB';
+          resultSection.classList.remove('hidden');
+          convertBtn.disabled = false;
+          convertBtn.textContent = '🔄 Convert to PowerPoint';
+          progressContainer.classList.add('hidden');
+        }, 400);
+
+      } catch (err) {
+        console.error('Conversion error:', err);
+        statusText.textContent = '❌ Conversion failed: ' + err.message;
+        convertBtn.disabled = false;
+        convertBtn.textContent = '🔄 Convert to PowerPoint';
+        alert('Conversion failed. Please try again.\n\nError: ' + err.message);
+      }
+    }
+
+    // Keyboard shortcut: Enter triggers convert
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !fileInfo.classList.contains('hidden') && !convertBtn.disabled) {
+        convertToPPTX();
+      }
+    });
+
+    console.log('📊 PDF to PowerPoint Converter loaded');
   </script>
+
 </body>
 </html>
