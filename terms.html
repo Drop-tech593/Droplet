@@ -4,19 +4,180 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Terms of Service - Droplet</title>
+  <meta name="description" content="Droplet Terms of Service - the rules governing your use of Droplet's browser-based file tools.">
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    .terms-content h2 { margin-top: 2rem; margin-bottom: 1rem; font-size: 1.25rem; font-weight: 700; color: #1e293b; }
-    .terms-content p { margin-bottom: 1rem; color: #475569; line-height: 1.7; }
-    .terms-content ul { list-style: disc; padding-left: 1.5rem; margin-bottom: 1rem; color: #475569; }
-    .terms-content ul li { margin-bottom: 0.5rem; }
+    /* ===== TERMS CONTENT STYLES ===== */
+    .terms-content h2 {
+      margin-top: 2.5rem;
+      margin-bottom: 1rem;
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #1e293b;
+      transition: color 0.2s;
+    }
+    .terms-content p {
+      margin-bottom: 1rem;
+      color: #475569;
+      line-height: 1.75;
+      transition: color 0.2s;
+    }
+    .terms-content ul {
+      list-style: disc;
+      padding-left: 1.5rem;
+      margin-bottom: 1rem;
+      color: #475569;
+      transition: color 0.2s;
+    }
+    .terms-content ul li {
+      margin-bottom: 0.5rem;
+      line-height: 1.7;
+    }
+    .terms-content a {
+      color: #2563eb;
+      text-decoration: underline;
+      transition: color 0.2s;
+    }
+    .terms-content a:hover { color: #1d4ed8; }
+    .terms-content strong { color: #1e293b; transition: color 0.2s; }
+
+    /* Dark mode overrides */
+    html.dark body {
+      background: #0f172a;
+      color: #e2e8f0;
+    }
+    html.dark header {
+      background: #1e293b;
+      border-color: #334155;
+    }
+    html.dark header h1 {
+      color: #f1f5f9;
+    }
+    html.dark header p {
+      color: #60a5fa !important;
+    }
+    html.dark .bg-white {
+      background: #1e293b !important;
+    }
+    html.dark .border-slate-100 {
+      border-color: #334155 !important;
+    }
+    html.dark .border-slate-200 {
+      border-color: #334155 !important;
+    }
+    html.dark .text-slate-900 {
+      color: #f1f5f9 !important;
+    }
+    html.dark .text-slate-800 {
+      color: #e2e8f0 !important;
+    }
+    html.dark .text-slate-500 {
+      color: #94a3b8 !important;
+    }
+    html.dark .text-slate-700 {
+      color: #cbd5e1 !important;
+    }
+    html.dark .terms-content h2 {
+      color: #f1f5f9;
+    }
+    html.dark .terms-content p {
+      color: #cbd5e1;
+    }
+    html.dark .terms-content ul {
+      color: #cbd5e1;
+    }
+    html.dark .terms-content a {
+      color: #60a5fa;
+    }
+    html.dark .terms-content a:hover {
+      color: #93c5fd;
+    }
+    html.dark .terms-content strong {
+      color: #f1f5f9;
+    }
+    html.dark .bg-yellow-50 {
+      background: #3b2e1e !important;
+    }
+    html.dark .border-yellow-200 {
+      border-color: #78500b !important;
+    }
+    html.dark .text-yellow-800 {
+      color: #fcd34d !important;
+    }
+    html.dark .bg-blue-50 {
+      background: #1e3a5f !important;
+    }
+    html.dark .border-blue-100 {
+      border-color: #2563eb !important;
+    }
+    html.dark .text-blue-700 {
+      color: #93c5fd !important;
+    }
+    html.dark .text-blue-800 {
+      color: #bfdbfe !important;
+    }
+    html.dark footer {
+      background: #0f172a !important;
+      border-color: #334155 !important;
+    }
+    html.dark footer p {
+      color: #94a3b8 !important;
+    }
+    html.dark .back-home-btn {
+      background: #1e293b !important;
+      border-color: #475569 !important;
+      color: #e2e8f0 !important;
+    }
+    html.dark .back-home-btn:hover {
+      background: #334155 !important;
+      border-color: #3b82f6 !important;
+    }
+    html.dark .shadow-sm {
+      box-shadow: 0 1px 2px 0 rgba(0,0,0,0.3) !important;
+    }
+    html.dark .rounded-2xl {
+      border-color: #334155 !important;
+    }
+
+    /* Theme toggle in header */
+    #theme-toggle {
+      background: none;
+      border: none;
+      font-size: 1.2rem;
+      cursor: pointer;
+      padding: 0.2rem 0.4rem;
+      border-radius: 6px;
+      transition: background 0.2s;
+      color: #475569;
+      line-height: 1;
+    }
+    #theme-toggle:hover {
+      background: #f1f5f9;
+    }
+    html.dark #theme-toggle {
+      color: #e2e8f0;
+    }
+    html.dark #theme-toggle:hover {
+      background: #334155;
+    }
+
+    /* Back button dark mode */
+    html.dark .back-home-btn {
+      background: #1e293b !important;
+      border-color: #475569 !important;
+      color: #e2e8f0 !important;
+    }
+    html.dark .back-home-btn:hover {
+      background: #334155 !important;
+      border-color: #3b82f6 !important;
+    }
   </style>
 </head>
-<body class="bg-slate-50 text-slate-800 font-sans antialiased">
+<body class="bg-slate-50 text-slate-800 font-sans antialiased transition-colors duration-200 min-h-screen flex flex-col">
 
   <!-- Header -->
-  <header class="bg-white border-b border-slate-200 py-4 px-6 sticky top-0 z-50">
-    <div class="max-w-4xl mx-auto flex items-center gap-3">
+  <header class="bg-white border-b border-slate-200 py-4 px-6 sticky top-0 z-50 transition-colors duration-200">
+    <div class="max-w-4xl mx-auto flex justify-between items-center">
       <a href="/" class="flex items-center gap-3 group">
         <img src="Gemini_Generated_Image_sdu6v7sdu6v7sdu6.jpg" alt="Droplet Logo" class="h-9 w-auto rounded-xl shadow-sm group-hover:scale-105 transition-transform">
         <div>
@@ -24,96 +185,215 @@
           <p class="text-[9px] text-blue-600 font-extrabold tracking-widest uppercase mt-0.5">DRAG, DROP AND CONVERT.</p>
         </div>
       </a>
+      <button id="theme-toggle" aria-label="Toggle theme">🌙</button>
     </div>
   </header>
 
-  <!-- Terms Content -->
-  <main class="max-w-4xl mx-auto px-4 py-12">
-    <div class="bg-white rounded-2xl shadow-sm p-8 md:p-12 border border-slate-100">
-      <h1 class="text-3xl font-black text-slate-900 mb-2">Terms of Service</h1>
-      <p class="text-slate-500 text-sm mb-8">Last Updated: September 2026</p>
+  <!-- Main Content -->
+  <main class="max-w-4xl mx-auto px-4 py-8 md:py-12 flex-grow w-full">
+
+    <!-- Back Button (prominent & visible) -->
+    <div class="max-w-4xl mx-auto mb-6 flex justify-start">
+      <a href="/" class="back-home-btn inline-flex items-center gap-2 bg-white hover:bg-slate-50 border border-slate-200 shadow-sm rounded-full px-5 py-2.5 text-sm font-medium text-slate-700 transition-all hover:shadow-md hover:border-slate-300 active:scale-95">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        </svg>
+        Back to Home
+      </a>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-sm p-8 md:p-12 border border-slate-100 transition-colors duration-200">
+      <div class="flex items-center gap-3 mb-2">
+        <span class="text-3xl">📜</span>
+        <h1 class="text-3xl font-black text-slate-900">Terms of Service</h1>
+      </div>
+      <p class="text-slate-500 text-sm mb-8 transition-colors duration-200">Last Updated: September 2026</p>
 
       <div class="terms-content">
-        <p>Welcome to Droplet. By using our website and tools, you agree to these Terms of Service. Please read them carefully.</p>
+        <p>Welcome to Droplet. These Terms of Service govern your access to and use of the Droplet website and its file, document, image, and data-processing tools.</p>
+        <p>By using Droplet, you agree to these Terms. If you do not agree with them, please do not use the website or its tools.</p>
 
         <h2>1. Acceptance of Terms</h2>
-        <p>By accessing and using Droplet, you accept and agree to be bound by these Terms of Service. If you do not agree, please do not use our website.</p>
+        <p>By accessing or using Droplet, you acknowledge that you have read, understood, and agree to be bound by these Terms of Service and our <a href="/privacy.html">Privacy Policy</a>.</p>
+        <p>If you are using Droplet on behalf of an organization, you represent that you have the authority to accept these Terms on its behalf.</p>
 
         <h2>2. Description of Service</h2>
-        <p>Droplet provides free, client-side file conversion tools that operate entirely in your browser. Our service processes files locally and does not upload, store, or transmit your files to any server.</p>
+        <p>Droplet provides browser-based tools for working with documents, PDFs, images, data files, and other supported file formats.</p>
+        <p>For supported tools, file processing takes place locally in your browser using client-side technologies. Files processed entirely within these tools are not uploaded to or stored on Droplet's servers.</p>
+        <p>Features, supported file formats, functionality, and availability may change as Droplet is developed and improved.</p>
+        <p>If a future feature requires files to be sent to an external service or server for processing, this will be disclosed where appropriate.</p>
 
-        <h2>3. Use of Service</h2>
-        <p>You agree to use Droplet for lawful purposes only. You may not:</p>
+        <h2>3. Acceptable Use</h2>
+        <p>You agree to use Droplet only for lawful purposes and in accordance with these Terms.</p>
+        <p>You may not:</p>
         <ul>
-          <li>Use the service for any illegal or unauthorized purpose</li>
-          <li>Attempt to reverse engineer or hack our tools</li>
-          <li>Use automated scripts to access or abuse our service</li>
-          <li>Upload malicious or harmful files</li>
+          <li>Use Droplet for unlawful, fraudulent, or abusive activities.</li>
+          <li>Attempt to gain unauthorized access to Droplet's systems or infrastructure.</li>
+          <li>Intentionally interfere with the operation, security, or availability of the website.</li>
+          <li>Introduce malware, malicious code, or other harmful material.</li>
+          <li>Use automated systems in a manner that places an unreasonable load on Droplet's infrastructure.</li>
+          <li>Circumvent security measures or restrictions implemented by Droplet.</li>
+          <li>Use Droplet to infringe the intellectual property, privacy, or other legal rights of another person.</li>
         </ul>
+        <p>You are responsible for ensuring that you have the necessary rights or authorization to process any files you use with Droplet.</p>
 
         <h2>4. Intellectual Property</h2>
-        <p>All content on this website, including logos, trademarks, text, and code, is the property of Droplet. You may not copy, modify, or distribute our content without permission.</p>
+        <p>Unless otherwise stated, the Droplet name, branding, website design, original written content, and original software made available through the website are owned by or licensed to Droplet and are protected by applicable intellectual property laws.</p>
+        <p>Droplet may also use open-source libraries, third-party software, fonts, icons, or other materials that remain subject to their respective licenses and ownership terms.</p>
+        <p>These Terms do not transfer ownership of Droplet's intellectual property to you.</p>
+        <p>You may use the website and its tools for their intended purposes, but you may not reproduce, redistribute, sell, or commercially exploit Droplet's proprietary content or software except where permitted by law, an applicable open-source license, or written permission.</p>
 
-        <h2>5. User Content</h2>
-        <p>All files processed through Droplet remain your property. Since all processing happens locally, we never access, store, or transmit your files. You retain all rights to your content.</p>
-
-        <h2>6. Disclaimer of Warranties</h2>
-        <p>Droplet is provided "as is" without any warranties, express or implied. We do not guarantee that:</p>
+        <h2>5. Your Files and Content</h2>
+        <p>You retain ownership of files and content that belong to you.</p>
+        <p>For tools that process files entirely in your browser, Droplet does not receive or store copies of those files on its servers.</p>
+        <p>You are responsible for:</p>
         <ul>
-          <li>The service will be error-free or uninterrupted</li>
-          <li>Conversions will be perfect or without data loss</li>
-          <li>The service will meet your specific requirements</li>
-          <li>Results will be compatible with all software</li>
+          <li>Ensuring that you have the right to use and process your files.</li>
+          <li>Keeping backup copies of important documents.</li>
+          <li>Reviewing converted or edited files before relying on them.</li>
+          <li>Ensuring that your use of processed content complies with applicable laws and third-party rights.</li>
+        </ul>
+        <p>Droplet does not claim ownership of your files merely because you process them using our tools.</p>
+
+        <h2>6. File Processing and Accuracy</h2>
+        <p>File conversion and document processing can produce different results depending on the original file, format, browser, device, fonts, document structure, and other technical factors.</p>
+        <p>Droplet does not guarantee that:</p>
+        <ul>
+          <li>Every file will process successfully.</li>
+          <li>Formatting will always be preserved perfectly.</li>
+          <li>Converted files will be identical to their originals.</li>
+          <li>Every feature will work with every file or browser.</li>
+          <li>Processing will occur without errors or data loss.</li>
+        </ul>
+        <p><strong>Always review important files after conversion or editing and keep a backup of the original.</strong></p>
+
+        <h2>7. Availability of the Service</h2>
+        <p>We aim to keep Droplet available and functioning properly, but we do not guarantee uninterrupted or error-free access.</p>
+        <p>We may modify, update, suspend, discontinue, or restrict parts of Droplet when reasonably necessary, including for maintenance, security, technical improvements, or development.</p>
+
+        <h2>8. Disclaimer of Warranties</h2>
+        <p>To the extent permitted by applicable law, Droplet and its services are provided on an <strong>"as is"</strong> and <strong>"as available"</strong> basis.</p>
+        <p>We make no guarantee that the service will:</p>
+        <ul>
+          <li>Always be available or uninterrupted.</li>
+          <li>Be completely free from errors or security vulnerabilities.</li>
+          <li>Produce perfectly accurate conversions.</li>
+          <li>Meet every user's particular requirements.</li>
+          <li>Be compatible with every device, browser, file, or third-party application.</li>
+        </ul>
+        <p>Nothing in these Terms excludes warranties or consumer rights that cannot legally be excluded.</p>
+
+        <h2>9. Limitation of Liability</h2>
+        <p>To the maximum extent permitted by applicable law, Droplet will not be liable for indirect, incidental, special, or consequential losses resulting from your use of, or inability to use, the service.</p>
+        <p>This may include loss of data, loss of business opportunities, loss of profits, or other consequential losses.</p>
+        <p>You are responsible for maintaining backups of important files before processing or modifying them.</p>
+        <p><strong>Nothing in these Terms limits or excludes liability where doing so would be prohibited by applicable law.</strong></p>
+
+        <h2>10. Third-Party Services and Links</h2>
+        <p>Droplet may use or provide access to third-party services, software, libraries, websites, or resources.</p>
+        <p>Third-party services operate under their own terms and privacy policies. Droplet is not responsible for the content or practices of independent third-party websites or services.</p>
+        <p>Links to third-party websites do not necessarily constitute an endorsement of those websites.</p>
+
+        <h2>11. Advertising</h2>
+        <p>Droplet <strong>may display advertisements provided by third-party advertising services, including Google AdSense, if advertising is enabled on the website.</strong></p>
+        <p>Advertising providers may use cookies or similar technologies for purposes such as delivering advertisements, measuring performance, preventing fraud, and, where permitted, personalizing advertising.</p>
+        <p>For more information about how advertising and related technologies may be used, please review our <a href="/privacy.html">Privacy Policy</a>.</p>
+
+        <h2>12. Privacy</h2>
+        <p>Your use of Droplet is also subject to our <a href="/privacy.html">Privacy Policy</a>.</p>
+        <p>For supported browser-based tools, files are processed locally on your device and are not uploaded to Droplet's servers.</p>
+        <p>Website infrastructure, analytics, advertising, and other service providers may separately process technical or usage information as described in our Privacy Policy.</p>
+
+        <h2>13. Suspension or Restriction of Access</h2>
+        <p>We may restrict or suspend access to Droplet when reasonably necessary to protect the website, its users, or our infrastructure, including where we reasonably believe these Terms have been violated or the service is being abused.</p>
+
+        <h2>14. Changes to These Terms</h2>
+        <p>We may update these Terms from time to time to reflect changes to Droplet, applicable requirements, or the services we provide.</p>
+        <p>When changes are made, the <strong>Last Updated</strong> date at the top of this page will be revised.</p>
+        <p>Your continued use of Droplet after updated Terms become effective constitutes acceptance of those Terms to the extent permitted by applicable law.</p>
+
+        <h2>15. Governing Law</h2>
+        <p>These Terms are governed by the <strong>laws of the Republic of South Africa</strong>, subject to any mandatory consumer protection or other rights that may apply under applicable law.</p>
+        <p>Nothing in these Terms is intended to restrict rights that cannot lawfully be excluded or limited.</p>
+
+        <h2>16. Contact</h2>
+        <p>If you have questions about these Terms of Service, you can contact us at:</p>
+        <ul>
+          <li><strong>Email:</strong> <a href="mailto:terms@dropletweb.xyz">terms@dropletweb.xyz</a></li>
         </ul>
 
-        <h2>7. Limitation of Liability</h2>
-        <p>To the maximum extent permitted by law, Droplet shall not be liable for any direct, indirect, incidental, or consequential damages arising from the use or inability to use our service. This includes, but is not limited to:</p>
-        <ul>
-          <li>Loss of data or files</li>
-          <li>Business interruption</li>
-          <li>Loss of profits</li>
-          <li>Damage to reputation</li>
-        </ul>
-
-        <h2>8. External Links</h2>
-        <p>Our website may contain links to external websites. We are not responsible for the content, privacy policies, or practices of third-party websites.</p>
-
-        <h2>9. Advertisements</h2>
-        <p>We use Google AdSense to display advertisements. These ads are served by third-party vendors. For more information, please see our <a href="/privacy.html" class="text-blue-600 hover:underline">Privacy Policy</a>.</p>
-
-        <h2>10. Termination</h2>
-        <p>We reserve the right to terminate or restrict access to our service at any time without notice if you violate these terms.</p>
-
-        <h2>11. Changes to Terms</h2>
-        <p>We may update these Terms of Service from time to time. Continued use of Droplet after any changes constitutes acceptance of the new terms.</p>
-
-        <h2>12. Governing Law</h2>
-        <p>These terms shall be governed by the laws of the United States.</p>
-
-        <h2>13. Contact</h2>
-        <p>If you have questions about these terms, please contact us at:</p>
-        <ul>
-          <li>Email: terms@dropletweb.xyz</li>
-          <li>Website: <a href="/contact.html" class="text-blue-600 hover:underline">Contact Page</a></li>
-        </ul>
-
-        <div class="mt-8 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
-          <p class="text-sm text-yellow-800"><strong>⚠️ Disclaimer:</strong> While we strive for accuracy, Droplet provides "as is" tools. Always verify converted files. Your files are processed locally and never leave your device.</p>
+        <!-- Important Notice Box -->
+        <div class="mt-8 p-5 bg-yellow-50 rounded-xl border border-yellow-200 transition-colors duration-200">
+          <div class="flex items-start gap-3">
+            <span class="text-2xl">⚠️</span>
+            <div>
+              <p class="text-sm font-semibold text-yellow-800">Important Notice</p>
+              <p class="text-sm text-yellow-800 mt-1">Droplet's file-processing tools are provided to help with everyday document and file tasks. Conversion and editing results may vary depending on the source file and your device or browser.</p>
+              <p class="text-sm text-yellow-800 mt-2"><strong>Always keep a backup of important files and verify the output before relying on a converted or edited document.</strong></p>
+              <p class="text-sm text-yellow-800 mt-2">For supported tools that operate entirely in your browser, your files remain on your device and are not uploaded to Droplet's servers.</p>
+            </div>
+          </div>
         </div>
       </div>
 
-      <div class="mt-8 pt-6 border-t border-slate-200">
+      <div class="mt-8 pt-6 border-t border-slate-200 flex flex-wrap gap-4 items-center justify-between transition-colors duration-200">
         <a href="/" class="text-blue-600 hover:underline font-medium">← Back to Droplet</a>
+        <div class="flex gap-4 text-sm text-slate-500">
+          <a href="/about.html" class="hover:text-blue-600 transition-colors">About</a>
+          <span>•</span>
+          <a href="/privacy.html" class="hover:text-blue-600 transition-colors">Privacy</a>
+          <span>•</span>
+          <a href="/contact.html" class="hover:text-blue-600 transition-colors">Contact</a>
+        </div>
       </div>
     </div>
   </main>
 
   <!-- Footer -->
-  <footer class="border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-500">
-    <div class="max-w-4xl mx-auto px-4">
+  <footer class="border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-500 mt-auto transition-colors duration-200">
+    <div class="max-w-4xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-3">
       <p>© Droplet. 100% Client-Side Privacy First File Utility.</p>
+      <div class="space-x-4">
+        <a href="/about.html" class="hover:text-blue-600 transition-colors">About</a>
+        <span>•</span>
+        <a href="/privacy.html" class="hover:text-blue-600 transition-colors">Privacy</a>
+        <span>•</span>
+        <a href="/terms.html" class="hover:text-blue-600 transition-colors">Terms</a>
+        <span>•</span>
+        <a href="/contact.html" class="hover:text-blue-600 transition-colors">Contact</a>
+      </div>
     </div>
   </footer>
+
+  <script>
+    // ============================================
+    // DARK MODE TOGGLE
+    // ============================================
+    const themeToggle = document.getElementById('theme-toggle');
+    const html = document.documentElement;
+    
+    let currentTheme = localStorage.getItem('theme') || 
+      (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    
+    if (currentTheme === 'dark') {
+      html.classList.add('dark');
+      themeToggle.textContent = '☀️';
+    } else {
+      themeToggle.textContent = '🌙';
+    }
+    
+    themeToggle.addEventListener('click', () => {
+      if (html.classList.contains('dark')) {
+        html.classList.remove('dark');
+        themeToggle.textContent = '🌙';
+        localStorage.setItem('theme', 'light');
+      } else {
+        html.classList.add('dark');
+        themeToggle.textContent = '☀️';
+        localStorage.setItem('theme', 'dark');
+      }
+    });
+  </script>
 
 </body>
 </html>
