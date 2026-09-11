@@ -565,8 +565,6 @@
         <a href="/privacy.html" class="hover:text-blue-600 transition-colors">Privacy Policy</a>
         <span>•</span>
         <a href="/terms.html" class="hover:text-blue-600 transition-colors">Terms of Service</a>
-        <span>•</span>
-        <a href="/contact.html" class="hover:text-blue-600 transition-colors">Contact</a>
       </div>
     </div>
   </footer>
@@ -909,30 +907,6 @@
     }
 
     // ============================================
-    // APNG ENCODER (Simple approach)
-    // ============================================
-    async function createAPNG(frames, width, height, delays) {
-      // Create a canvas to render each frame
-      const mainCanvas = document.createElement('canvas');
-      mainCanvas.width = width;
-      mainCanvas.height = height;
-      const mainCtx = mainCanvas.getContext('2d');
-      
-      // For APNG, we'll create a single PNG with all frames
-      // This is a simplified approach - for real APNG, we'd need a proper encoder
-      // We'll use the first frame as the main image
-      if (frames.length > 0) {
-        const firstFrame = frames[0];
-        mainCtx.drawImage(firstFrame.canvas, 0, 0);
-        
-        return new Promise(resolve => {
-          mainCanvas.toBlob(resolve, 'image/png');
-        });
-      }
-      return null;
-    }
-
-    // ============================================
     // MAIN CONVERSION FUNCTION
     // ============================================
     async function convertGIFtoPNG() {
@@ -1068,8 +1042,6 @@
                 }
               } else if (mode === 'animated') {
                 // Create APNG (Animated PNG)
-                // For now, we'll create a single PNG with the first frame
-                // A full APNG encoder would be needed for true animation
                 if (decoded.frames.length > 0) {
                   const canvas = document.createElement('canvas');
                   canvas.width = width;
@@ -1082,7 +1054,6 @@
                     ctx.filter = 'sepia(80%)';
                   }
                   
-                  // Draw the first frame
                   ctx.drawImage(decoded.frames[0].canvas, 0, 0, width, height);
                   
                   const blob = await new Promise(resolve => {
