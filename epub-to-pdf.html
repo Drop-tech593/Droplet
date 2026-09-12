@@ -114,6 +114,18 @@
 
     /* Hide scrollbar during conversion to prevent glitch */
     .converting .epub-preview { opacity: 0.5; pointer-events: none; }
+
+    /* Off-screen staging area for PDF generation */
+    #pdf-staging-area {
+      position: fixed;
+      left: -10000px;
+      top: 0;
+      width: 794px;
+      height: 1123px;
+      overflow: hidden;
+      pointer-events: none;
+      z-index: -1;
+    }
   </style>
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans antialiased transition-colors duration-200">
@@ -651,13 +663,15 @@
         return result;
     }
 
-    async function paginateChapter(chapterHtml) {
+    async function paginateChapter(chapterHtml, stagingArea) {
         const source = document.createElement('div');
         source.style.width = (PDF_PAGE_WIDTH_PX - PDF_PADDING_LEFT - PDF_PADDING_RIGHT) + 'px';
         source.innerHTML = chapterHtml;
 
         cleanPdfStyles(source);
-        document.body.appendChild(source);
+        
+        // Append to staging area
+        stagingArea.appendChild(source);
 
         const sourceImages = [...source.querySelectorAll('img')];
         await Promise.all(sourceImages.map(img => {
@@ -667,7 +681,9 @@
 
         const pages = [];
         let currentPage = createA4Page();
-        document.body.appendChild(currentPage);
+        
+        // Append to staging area
+        stagingArea.appendChild(currentPage);
 
         const children = getPageableElements(source);
 
@@ -688,7 +704,7 @@
                 const remaining = splitTextElementToFit(child, currentPage);
                 pages.push(currentPage);
                 currentPage = createA4Page();
-                document.body.appendChild(currentPage);
+                stagingArea.appendChild(currentPage); // Append to staging area
                 if (remaining) {
                     cleanPdfStyles(remaining);
                     currentPage.appendChild(remaining);
@@ -698,7 +714,7 @@
 
             pages.push(currentPage);
             currentPage = createA4Page();
-            document.body.appendChild(currentPage);
+            stagingArea.appendChild(currentPage); // Append to staging area
             currentPage.appendChild(child);
 
             if (pageOverflows(currentPage) && tag === 'img') {
@@ -753,6 +769,11 @@
       progressBar.style.width = '0%'; progressText.textContent = '0%';
       statusText.textContent = 'Initializing PDF...';
 
+      // Create a hidden staging area to prevent UI glitches
+      const stagingArea = document.createElement('div');
+      stagingArea.id = 'pdf-staging-area';
+      document.body.appendChild(stagingArea);
+
       try {
         const pdf = new jsPDF({
           unit: 'mm',
@@ -781,7 +802,8 @@
             </div>
         `;
 
-        document.body.appendChild(titleContainer);
+        // Append to staging area instead of body
+        stagingArea.appendChild(titleContainer);
         await addElementToPdf(titleContainer, pdf, true);
         titleContainer.remove();
 
@@ -794,7 +816,8 @@
           progressBar.style.width = percent + '%';
           progressText.textContent = percent + '%';
 
-          const pages = await paginateChapter(epubChapters[i].html);
+          // Pass the staging area to the pagination function
+          const pages = await paginateChapter(epubChapters[i].html, stagingArea);
 
           for (let pageIndex = 0; pageIndex < pages.length; pageIndex++) {
             statusText.textContent = `Chapter ${i + 1}/${epubChapters.length} — page ${pageIndex + 1}/${pages.length}`;
@@ -802,7 +825,7 @@
             await renderHtmlPageToPdf(
               pages[pageIndex],
               pdf,
-              true // Always add a new page
+              true
             );
 
             pages[pageIndex].remove();
@@ -832,6 +855,9 @@
         convertBtn.textContent = '🔄 Convert to PDF';
         document.body.classList.remove('converting');
         alert('Conversion failed:\n\n' + error.message);
+      } finally {
+        // Always remove the staging area, even if an error occurs
+        stagingArea.remove();
       }
     }
 
