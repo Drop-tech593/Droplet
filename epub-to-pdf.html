@@ -533,7 +533,7 @@
     }
 
     // ============================================
-    // PDF GENERATION (Chapter by Chapter with Smart Pagination)
+    // PDF GENERATION (Chapter by Chapter, Sliced)
     // ============================================
     async function convertEPUBtoPDF() {
       if (!currentFile) { alert('Please select an EPUB file first.'); return; }
@@ -563,9 +563,6 @@
         const usableWidth = pageWidth - margin * 2;
         const usableHeight = pageHeight - margin * 2;
 
-        let currentY = margin;
-        let firstPdfPage = true;
-
         // ============================================
         // TITLE PAGE
         // ============================================
@@ -588,12 +585,11 @@
         `;
 
         document.body.appendChild(titleContainer);
-        await addElementToPdf(titleContainer, pdf, firstPdfPage);
-        firstPdfPage = false;
+        await addElementToPdf(titleContainer, pdf, true); // firstPage = true
         titleContainer.remove();
 
         // ============================================
-        // CHAPTERS WITH SMART PAGINATION
+        // CHAPTERS
         // ============================================
         for (let i = 0; i < epubChapters.length; i++) {
           statusText.textContent = `Converting chapter ${i + 1} of ${epubChapters.length}...`;
@@ -601,18 +597,16 @@
           progressBar.style.width = percent + '%';
           progressText.textContent = percent + '%';
 
-          // Create a container for this chapter
           const chapterContainer = document.createElement('div');
           chapterContainer.style.width = '700px';
           chapterContainer.style.background = '#ffffff';
-          chapterContainer.style.color = '#000000';
+          chapterContainer.style.color = '#111111';
           chapterContainer.style.padding = '40px';
           chapterContainer.style.fontFamily = '"Times New Roman", Georgia, serif';
           chapterContainer.style.fontSize = '16px';
           chapterContainer.style.lineHeight = '1.6';
           chapterContainer.style.boxSizing = 'border-box';
 
-          // Inject the raw HTML
           chapterContainer.innerHTML = `<div class="pdf-chapter">${epubChapters[i].html}</div>`;
 
           // ============================================
@@ -651,81 +645,38 @@
           }));
 
           // ============================================
-          // SMART PAGINATION: Split chapter into chunks
+          // RENDER COMPLETE CHAPTER TO CANVAS
           // ============================================
-          const elements = Array.from(chapterContainer.querySelectorAll('p, h1, h2, h3, h4, h5, h6, blockquote, ul, ol, table, pre, div'));
-          
-          for (const el of elements) {
-            // Skip nested elements that are already handled by parent
-            if (el.closest('.pdf-chapter') !== el.parentElement && el.parentElement.classList.contains('pdf-chapter') === false) {
-                // This is a simplified check. For production, a more robust DOM traversal is better.
-                // We'll just render the top-level children of .pdf-chapter for now.
-            }
-          }
+          const canvas = await html2canvas(chapterContainer, {
+            scale: 1.5,
+            backgroundColor: '#ffffff',
+            useCORS: true,
+            allowTaint: true,
+            logging: false
+          });
 
-          // Simpler approach: Render the whole chapter, but if it's too tall, 
-          // we split it by rendering each top-level child individually.
-          const topLevelChildren = Array.from(chapterContainer.querySelector('.pdf-chapter').children);
+          const imgData = canvas.toDataURL('image/jpeg', 0.92);
+          const imgWidth = usableWidth;
+          const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
-          for (const child of topLevelChildren) {
-            // Create a temporary wrapper for this specific element
-            const wrapper = document.createElement('div');
-            wrapper.style.width = '700px';
-            wrapper.style.background = '#ffffff';
-            wrapper.style.color = '#000000';
-            wrapper.style.padding = '40px';
-            wrapper.style.fontFamily = '"Times New Roman", Georgia, serif';
-            wrapper.style.fontSize = '16px';
-            wrapper.style.lineHeight = '1.6';
-            wrapper.style.boxSizing = 'border-box';
-            
-            // Clone the child into the wrapper
-            const clone = child.cloneNode(true);
-            wrapper.appendChild(clone);
+          // ============================================
+          // START CHAPTER ON NEW PAGE
+          // ============================================
+          pdf.addPage();
 
-            // Apply the same style isolation to the clone
-            wrapper.querySelectorAll('*').forEach(el => {
-              const tag = el.tagName.toLowerCase();
-              if (tag !== 'img' && tag !== 'svg') {
-                el.style.setProperty('background-color', 'transparent', 'important');
-                el.style.setProperty('background-image', 'none', 'important');
-              }
-              if (!['img', 'svg', 'path'].includes(tag)) {
-                el.style.setProperty('color', '#111111', 'important');
-              }
-              el.style.maxWidth = '100%';
-            });
+          let heightLeft = imgHeight;
+          let position = margin;
 
-            document.body.appendChild(wrapper);
+          // First slice
+          pdf.addImage(imgData, 'JPEG', margin, position, imgWidth, imgHeight);
+          heightLeft -= usableHeight;
 
-            // Render this element to canvas
-            const canvas = await html2canvas(wrapper, {
-              scale: 1.5,
-              backgroundColor: '#ffffff',
-              useCORS: true,
-              allowTaint: true,
-              logging: false
-            });
-
-            const imgData = canvas.toDataURL('image/jpeg', 0.92);
-            const imgWidth = usableWidth;
-            const imgHeight = (canvas.height * imgWidth) / canvas.width;
-
-            // Check if it fits on the current page
-            if (currentY + imgHeight > pageHeight - margin) {
-              // Doesn't fit, add a new page
-              pdf.addPage();
-              currentY = margin;
-            }
-
-            // Add the image to the PDF
-            pdf.addImage(imgData, 'JPEG', margin, currentY, imgWidth, imgHeight);
-            currentY += imgHeight;
-
-            wrapper.remove();
-
-            // Small delay to let browser breathe
-            await new Promise(resolve => setTimeout(resolve, 10));
+          // Remaining slices
+          while (heightLeft > 0) {
+            position = margin - (imgHeight - heightLeft);
+            pdf.addPage();
+            pdf.addImage(imgData, 'JPEG', margin, position, imgWidth, imgHeight);
+            heightLeft -= usableHeight;
           }
 
           chapterContainer.remove();
