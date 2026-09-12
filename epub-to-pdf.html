@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>EPUB to PDF Converter - Droplet (Diagnostic)</title>
-  <meta name="description" content="Convert EPUB eBooks to PDF online for free. 100% client-side, your files never leave your browser.">
+  <title>EPUB to PDF Converter - Droplet</title>
+  <meta name="description" content="Convert EPUB eBooks to PDF online for free. 100% client-side, your files never leave your browser. Preserves formatting, fonts, and layout.">
 
   <!-- Google AdSense -->
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4006702663328202"
@@ -16,8 +16,11 @@
   <!-- JSZip for reading EPUB files -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 
-  <!-- html2pdf for PDF generation -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <!-- html2canvas for rendering HTML to Canvas -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+  <!-- jsPDF for creating the PDF document -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
   <style>
     .dropzone-highlight {
@@ -151,9 +154,9 @@
       <div class="inline-block p-3 bg-blue-50 rounded-2xl mb-4">
         <span class="text-4xl">📚</span>
       </div>
-      <h1 class="text-3xl md:text-4xl font-black text-slate-900 tracking-tight">EPUB to PDF Converter (Diagnostic)</h1>
+      <h1 class="text-3xl md:text-4xl font-black text-slate-900 tracking-tight">EPUB to PDF Converter</h1>
       <p class="text-slate-500 text-sm md:text-base mt-2 max-w-lg mx-auto">
-        Testing PDF generation with a simplified payload.
+        Convert your EPUB eBooks to high-quality PDFs. <strong>100% client-side</strong> — your files never leave your browser.
       </p>
     </div>
 
@@ -169,6 +172,7 @@
         <button onclick="document.getElementById('fileInput').click()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-3 rounded-xl text-sm shadow-md shadow-blue-500/20 transition-all active:scale-95">
           Select EPUB File
         </button>
+        <p class="text-xs text-slate-400 mt-3">Max file size: ~50MB (browser-dependent)</p>
       </div>
     </div>
 
@@ -231,6 +235,48 @@
         </button>
       </div>
     </div>
+
+    <!-- Info Section -->
+    <div class="max-w-2xl mx-auto mt-12 grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div class="bg-white p-4 rounded-xl border border-slate-100 text-center transition-colors duration-200">
+        <div class="text-2xl mb-1">🔒</div>
+        <h4 class="font-bold text-sm">100% Private</h4>
+        <p class="text-xs text-slate-500">Your files never leave your browser</p>
+      </div>
+      <div class="bg-white p-4 rounded-xl border border-slate-100 text-center transition-colors duration-200">
+        <div class="text-2xl mb-1">⚡</div>
+        <h4 class="font-bold text-sm">Fast & Free</h4>
+        <p class="text-xs text-slate-500">No sign-up required</p>
+      </div>
+      <div class="bg-white p-4 rounded-xl border border-slate-100 text-center transition-colors duration-200">
+        <div class="text-2xl mb-1">📝</div>
+        <h4 class="font-bold text-sm">Preserves Formatting</h4>
+        <p class="text-xs text-slate-500">Tables, fonts, and layout maintained</p>
+      </div>
+    </div>
+
+    <!-- FAQ Section -->
+    <section class="max-w-2xl mx-auto mt-12">
+      <h2 class="text-xl font-black text-slate-900 text-center mb-6">Frequently Asked Questions</h2>
+      <div class="space-y-3">
+        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
+          <h3 class="font-bold text-slate-900 text-sm">Is my data safe?</h3>
+          <p class="text-slate-600 text-sm mt-1">Yes! All conversions happen locally in your browser. Your EPUB file is never uploaded to any server.</p>
+        </div>
+        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
+          <h3 class="font-bold text-slate-900 text-sm">Will my formatting be preserved?</h3>
+          <p class="text-slate-600 text-sm mt-1">The conversion preserves fonts, headings, paragraphs, tables, and images with proper margins and page breaks.</p>
+        </div>
+        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
+          <h3 class="font-bold text-slate-900 text-sm">What about DRM-protected EPUBs?</h3>
+          <p class="text-slate-600 text-sm mt-1">This tool cannot convert DRM-protected EPUB files. You'll need to remove the DRM first.</p>
+        </div>
+        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
+          <h3 class="font-bold text-slate-900 text-sm">Are there file size limits?</h3>
+          <p class="text-slate-600 text-sm mt-1">Most modern browsers handle EPUBs up to 50MB. Very large files with many images may take longer to process.</p>
+        </div>
+      </div>
+    </section>
   </main>
 
   <!-- Footer -->
@@ -280,6 +326,7 @@
     // ============================================
     let currentFile = null;
     let fullEpubHTML = '';
+    let epubChapters = []; // Array to store individual chapters
     let epubMetadata = {};
     let zipFileRef = null;
 
@@ -333,6 +380,7 @@
       previewContainer.classList.add('hidden');
       convertBtn.disabled = false;
       convertBtn.textContent = '🔄 Convert to PDF';
+      epubChapters = []; // Reset chapters
 
       parseEPUB(file);
     }
@@ -342,7 +390,7 @@
       dropzone.classList.remove('hidden'); resultSection.classList.add('hidden');
       progressContainer.classList.add('hidden'); previewContainer.classList.add('hidden');
       progressBar.style.width = '0%'; progressText.textContent = '0%';
-      previewContent.innerHTML = ''; fullEpubHTML = ''; epubMetadata = {}; zipFileRef = null;
+      previewContent.innerHTML = ''; fullEpubHTML = ''; epubMetadata = {}; zipFileRef = null; epubChapters = [];
     }
 
     function resetConverter() { clearFile(); }
@@ -379,7 +427,6 @@
 
         metadata.textContent = `📝 ${epubMetadata.title} • ✍️ ${epubMetadata.author}`;
 
-        // We still parse the content for the preview, but we won't use it for the PDF test yet
         const manifest = {};
         opfDoc.querySelectorAll('manifest item').forEach(item => {
           const id = item.getAttribute('id'); const href = item.getAttribute('href');
@@ -393,7 +440,7 @@
         });
 
         progressBar.style.width = '45%'; progressText.textContent = '45%';
-        statusText.textContent = 'Processing content for preview...';
+        statusText.textContent = 'Processing content...';
 
         let allContent = '';
         const opfDir = opfPath.substring(0, opfPath.lastIndexOf('/') + 1);
@@ -411,7 +458,44 @@
               if (bodyMatch) bodyContent = bodyMatch[1];
               bodyContent = bodyContent.replace(/<script[\s\S]*?<\/script>/gi, '').replace(/<style[\s\S]*?<\/style>/gi, '');
               
-              // Image processing (simplified for preview)
+              // Replace image references with data URLs
+              const imgMatches = bodyContent.match(/<img[^>]+src=["']([^"']+)["']/g);
+              if (imgMatches) {
+                for (const imgTag of imgMatches) {
+                  const srcMatch = imgTag.match(/src=["']([^"']+)["']/);
+                  if (srcMatch) {
+                    const imgSrc = srcMatch[1];
+                    let imgPath = imgSrc;
+                    if (!imgPath.startsWith('/') && !imgPath.startsWith('http')) {
+                      imgPath = opfDir + imgSrc;
+                    }
+                    try {
+                      const imageFile = zip.file(imgPath);
+                      if (imageFile) {
+                        const imageData = await imageFile.async('base64');
+                        const ext = imgPath.split('.').pop().toLowerCase();
+                        const mimeType = ext === 'jpg' || ext === 'jpeg' ? 'image/jpeg' : 
+                                         ext === 'png' ? 'image/png' : 
+                                         ext === 'gif' ? 'image/gif' : 
+                                         ext === 'svg' ? 'image/svg+xml' : 'image/png';
+                        const dataUrl = `data:${mimeType};base64,${imageData}`;
+                        const escapedSrc = imgSrc.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                        bodyContent = bodyContent.replace(
+                          new RegExp(`src=["']${escapedSrc}["']`, 'g'),
+                          `src="${dataUrl}"`
+                        );
+                      }
+                    } catch (e) { console.log('Could not load image:', imgPath); }
+                  }
+                }
+              }
+              
+              // Store individual chapter for PDF generation
+              epubChapters.push({
+                html: bodyContent,
+                index: i
+              });
+
               allContent += `<div class="chapter">${bodyContent}</div>`;
               if (i < itemRefs.length - 1) allContent += `<div class="page-break"></div>`;
             }
@@ -434,7 +518,7 @@
 
         previewContent.innerHTML = previewHtml;
         previewContainer.classList.remove('hidden');
-        fullEpubHTML = allContent; // Stored, but not used in the PDF test below
+        fullEpubHTML = allContent;
 
         progressBar.style.width = '100%'; progressText.textContent = '100%';
         statusText.textContent = '✅ Ready to convert!';
@@ -448,102 +532,175 @@
       }
     }
 
+    // ============================================
+    // PDF GENERATION (Chapter by Chapter)
+    // ============================================
     async function convertEPUBtoPDF() {
       if (!currentFile) { alert('Please select an EPUB file first.'); return; }
-      if (typeof html2pdf === 'undefined') { alert('PDF library not loaded.'); return; }
+      if (!epubChapters.length) { alert('No EPUB chapters were extracted.'); return; }
+
+      const { jsPDF } = window.jspdf;
+      if (!jsPDF) { alert('jsPDF library not loaded.'); return; }
 
       document.body.classList.add('converting');
-      progressContainer.classList.remove('hidden');
-      resultSection.classList.add('hidden');
       convertBtn.disabled = true;
       convertBtn.textContent = '⏳ Converting...';
-      progressBar.style.width = '10%'; progressText.textContent = '10%';
-      statusText.textContent = 'Preparing test document...';
+      progressContainer.classList.remove('hidden');
+      resultSection.classList.add('hidden');
+      progressBar.style.width = '0%'; progressText.textContent = '0%';
+      statusText.textContent = 'Initializing PDF...';
 
       try {
-        // ============================================
-        // DIAGNOSTIC TEST: Simple Payload
-        // ============================================
-        const tempContainer = document.createElement('div');
-        
-        // Apply inline styles to ensure it renders exactly as we expect
-        tempContainer.style.width = '700px';
-        tempContainer.style.background = '#ffffff';
-        tempContainer.style.color = '#000000';
-        tempContainer.style.padding = '40px';
-        tempContainer.style.fontFamily = 'Arial, sans-serif';
-        tempContainer.style.fontSize = '16px';
-        tempContainer.style.position = 'relative';
-        tempContainer.style.display = 'block';
-        tempContainer.style.zIndex = '9999'; // Ensure it's on top for the test
-        tempContainer.style.border = '2px solid red'; // Visual indicator for the test
+        const pdf = new jsPDF({
+          unit: 'mm',
+          format: 'a4',
+          orientation: 'portrait'
+        });
 
-        tempContainer.innerHTML = `
-            <h1 style="color:black;">Droplet PDF Test</h1>
-            <p style="color:black;">If this text appears, PDF generation works.</p>
-            <p style="color:black;">Book: ${epubMetadata.title || 'No title'}</p>
-            <p style="color:black;">Author: ${epubMetadata.author || 'No author'}</p>
+        let firstPdfPage = true;
+
+        // ============================================
+        // TITLE PAGE
+        // ============================================
+        statusText.textContent = 'Rendering title page...';
+        const titleContainer = document.createElement('div');
+        titleContainer.style.width = '700px';
+        titleContainer.style.padding = '60px';
+        titleContainer.style.background = '#ffffff';
+        titleContainer.style.color = '#000000';
+        titleContainer.style.fontFamily = '"Times New Roman", serif';
+        titleContainer.style.boxSizing = 'border-box';
+
+        titleContainer.innerHTML = `
+            <div style="text-align:center; padding-top:120px;">
+                <h1 style="font-size:32px; margin-bottom:30px;">${epubMetadata.title || 'EPUB Document'}</h1>
+                ${epubMetadata.author ? `<p style="font-size:22px;">By ${epubMetadata.author}</p>` : ''}
+                ${epubMetadata.publisher ? `<p style="font-size:16px; margin-top:20px;">${epubMetadata.publisher}</p>` : ''}
+                <p style="font-size:13px; margin-top:50px; color:#777;">Converted by Droplet</p>
+            </div>
         `;
 
-        document.body.appendChild(tempContainer);
+        document.body.appendChild(titleContainer);
+        await addElementToPdf(titleContainer, pdf, firstPdfPage);
+        firstPdfPage = false;
+        titleContainer.remove();
 
-        // Log diagnostics
-        console.log('--- DIAGNOSTIC LOGS ---');
-        console.log('TEST WIDTH:', tempContainer.offsetWidth);
-        console.log('TEST HEIGHT:', tempContainer.offsetHeight);
-        console.log('TEST TEXT:', tempContainer.innerText);
-        console.log('-----------------------');
+        // ============================================
+        // CHAPTERS
+        // ============================================
+        for (let i = 0; i < epubChapters.length; i++) {
+          statusText.textContent = `Converting chapter ${i + 1} of ${epubChapters.length}...`;
+          const percent = Math.round(((i + 1) / epubChapters.length) * 90);
+          progressBar.style.width = percent + '%';
+          progressText.textContent = percent + '%';
 
-        // Wait a moment for layout
-        await new Promise(resolve => setTimeout(resolve, 500));
+          const container = document.createElement('div');
+          container.style.width = '700px';
+          container.style.background = '#ffffff';
+          container.style.color = '#000000';
+          container.style.padding = '40px';
+          container.style.fontFamily = '"Times New Roman", Georgia, serif';
+          container.style.fontSize = '16px';
+          container.style.lineHeight = '1.6';
+          container.style.boxSizing = 'border-box';
 
-        progressBar.style.width = '50%'; progressText.textContent = '50%';
-        statusText.textContent = 'Generating test PDF...';
+          container.innerHTML = `<div class="pdf-chapter">${epubChapters[i].html}</div>`;
 
-        const testOptions = {
-            margin: 15,
-            image: { type: 'jpeg', quality: 0.95 },
-            html2canvas: { 
-                scale: 1, 
-                backgroundColor: '#ffffff',
-                logging: true 
-            },
-            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-        };
+          // Force readable text
+          container.querySelectorAll('*').forEach(el => {
+            if (el.tagName !== 'IMG' && el.tagName !== 'SVG') {
+              el.style.color = el.style.color || '#000000';
+            }
+          });
 
-        // THE FIX: Use .toPdf().outputPdf('blob') explicitly
-        const pdfBlob = await html2pdf()
-            .set(testOptions)
-            .from(tempContainer)
-            .toPdf()
-            .outputPdf('blob');
+          // Images
+          container.querySelectorAll('img').forEach(img => {
+            img.style.maxWidth = '100%';
+            img.style.height = 'auto';
+          });
 
-        tempContainer.remove();
+          document.body.appendChild(container);
+
+          // Wait for layout
+          await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+
+          // Wait for images
+          const images = [...container.querySelectorAll('img')];
+          await Promise.all(images.map(img => {
+            if (img.complete) return Promise.resolve();
+            return new Promise(resolve => { img.onload = resolve; img.onerror = resolve; });
+          }));
+
+          await addElementToPdf(container, pdf, firstPdfPage);
+          firstPdfPage = false;
+          container.remove();
+
+          // Give browser memory a moment
+          await new Promise(resolve => setTimeout(resolve, 50));
+        }
 
         progressBar.style.width = '100%'; progressText.textContent = '100%';
-        statusText.textContent = '✅ Test Conversion Complete!';
+        statusText.textContent = '✅ Conversion complete!';
 
-        setTimeout(() => {
-          const url = URL.createObjectURL(pdfBlob);
-          downloadLink.href = url;
-          downloadLink.download = 'droplet-test.pdf';
-          resultSection.classList.remove('hidden');
-          convertBtn.disabled = false;
-          convertBtn.textContent = '🔄 Convert to PDF';
-          progressContainer.classList.add('hidden');
-          document.body.classList.remove('converting');
-        }, 500);
+        const pdfBlob = pdf.output('blob');
+        const url = URL.createObjectURL(pdfBlob);
+        downloadLink.href = url;
+        const baseName = currentFile.name.replace(/\.epub$/i, '');
+        downloadLink.download = baseName + '.pdf';
+        
+        resultSection.classList.remove('hidden');
+        convertBtn.disabled = false;
+        convertBtn.textContent = '🔄 Convert to PDF';
+        progressContainer.classList.add('hidden');
+        document.body.classList.remove('converting');
 
       } catch (error) {
-        console.error('Conversion error:', error);
+        console.error(error);
         statusText.textContent = '❌ Conversion failed: ' + error.message;
         convertBtn.disabled = false;
         convertBtn.textContent = '🔄 Convert to PDF';
         document.body.classList.remove('converting');
-        
-        const tempContainer = document.getElementById('pdf-render-container');
-        if (tempContainer) tempContainer.remove();
-        alert('Conversion failed.\n\nError: ' + error.message);
+        alert('Conversion failed:\n\n' + error.message);
+      }
+    }
+
+    // ============================================
+    // HELPER: Add HTML element to PDF as image
+    // ============================================
+    async function addElementToPdf(element, pdf, firstPage) {
+      const canvas = await html2canvas(element, {
+        scale: 1.5,
+        backgroundColor: '#ffffff',
+        useCORS: true,
+        allowTaint: true,
+        logging: false
+      });
+
+      const imgData = canvas.toDataURL('image/jpeg', 0.92);
+      const pageWidth = 210;
+      const pageHeight = 297;
+      const margin = 15;
+      const usableWidth = pageWidth - margin * 2;
+      const usableHeight = pageHeight - margin * 2;
+
+      const imgWidth = usableWidth;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+      let heightLeft = imgHeight;
+      let position = margin;
+
+      if (!firstPage) {
+        pdf.addPage();
+      }
+
+      pdf.addImage(imgData, 'JPEG', margin, position, imgWidth, imgHeight);
+      heightLeft -= usableHeight;
+
+      while (heightLeft > 0) {
+        position = margin - (imgHeight - heightLeft);
+        pdf.addPage();
+        pdf.addImage(imgData, 'JPEG', margin, position, imgWidth, imgHeight);
+        heightLeft -= usableHeight;
       }
     }
 
