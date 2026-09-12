@@ -532,8 +532,211 @@
       }
     }
 
+    // ============================================================
+    // PDF PAGE CONSTANTS & HELPERS
+    // ============================================================
+    const PDF_PAGE_WIDTH_PX = 794;      // A4 width around 96 DPI
+    const PDF_PAGE_HEIGHT_PX = 1123;    // A4 height around 96 DPI
+
+    const PDF_PADDING_TOP = 55;
+    const PDF_PADDING_RIGHT = 55;
+    const PDF_PADDING_BOTTOM = 55;
+    const PDF_PADDING_LEFT = 55;
+
+    function createA4Page() {
+        const page = document.createElement('div');
+        page.className = 'droplet-pdf-page';
+        page.style.width = PDF_PAGE_WIDTH_PX + 'px';
+        page.style.height = PDF_PAGE_HEIGHT_PX + 'px';
+        page.style.padding = `${PDF_PADDING_TOP}px ${PDF_PADDING_RIGHT}px ${PDF_PADDING_BOTTOM}px ${PDF_PADDING_LEFT}px`;
+        page.style.boxSizing = 'border-box';
+        page.style.background = '#ffffff';
+        page.style.color = '#111111';
+        page.style.fontFamily = '"Times New Roman", Georgia, serif';
+        page.style.fontSize = '16px';
+        page.style.lineHeight = '1.55';
+        page.style.overflow = 'hidden';
+        page.style.position = 'absolute';
+        page.style.left = '0';
+        page.style.top = '0';
+        return page;
+    }
+
+    function cleanPdfStyles(root) {
+        root.style.setProperty('background-color', '#ffffff', 'important');
+        root.style.setProperty('color', '#111111', 'important');
+
+        root.querySelectorAll('*').forEach(el => {
+            const tag = el.tagName.toLowerCase();
+
+            if (tag !== 'img' && tag !== 'svg') {
+                el.style.setProperty('background-color', 'transparent', 'important');
+                el.style.setProperty('background-image', 'none', 'important');
+            }
+
+            if (!['img', 'svg', 'path'].includes(tag)) {
+                el.style.setProperty('color', '#111111', 'important');
+            }
+
+            el.style.maxWidth = '100%';
+        });
+
+        root.querySelectorAll('img').forEach(img => {
+            img.style.maxWidth = '100%';
+            img.style.height = 'auto';
+            img.style.display = 'block';
+        });
+    }
+
+    function pageOverflows(page) {
+        return page.scrollHeight > page.clientHeight;
+    }
+
+    function splitTextElementToFit(element, page, remainingElements) {
+        const text = element.textContent.trim();
+        if (!text) return null;
+
+        const words = text.split(/\s+/);
+        let low = 1;
+        let high = words.length;
+        let best = 0;
+
+        const testElement = element.cloneNode(false);
+        page.appendChild(testElement);
+
+        while (low <= high) {
+            const middle = Math.floor((low + high) / 2);
+            testElement.textContent = words.slice(0, middle).join(' ');
+
+            if (!pageOverflows(page)) {
+                best = middle;
+                low = middle + 1;
+            } else {
+                high = middle - 1;
+            }
+        }
+
+        testElement.remove();
+
+        if (best === 0) return element;
+
+        const firstPart = element.cloneNode(false);
+        firstPart.textContent = words.slice(0, best).join(' ');
+        page.appendChild(firstPart);
+
+        if (best >= words.length) return null;
+
+        const secondPart = element.cloneNode(false);
+        secondPart.textContent = words.slice(best).join(' ');
+        return secondPart;
+    }
+
+    function getPageableElements(root) {
+        const result = [];
+        function walk(node) {
+            for (const child of node.children) {
+                const tag = child.tagName.toLowerCase();
+                const blockTags = ['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'ul', 'ol', 'table', 'pre', 'img'];
+
+                if (blockTags.includes(tag)) {
+                    result.push(child.cloneNode(true));
+                } else if (child.children.length) {
+                    walk(child);
+                } else if (child.textContent.trim()) {
+                    result.push(child.cloneNode(true));
+                }
+            }
+        }
+        walk(root);
+        return result;
+    }
+
+    async function paginateChapter(chapterHtml) {
+        const source = document.createElement('div');
+        source.style.width = (PDF_PAGE_WIDTH_PX - PDF_PADDING_LEFT - PDF_PADDING_RIGHT) + 'px';
+        source.innerHTML = chapterHtml;
+
+        cleanPdfStyles(source);
+        document.body.appendChild(source);
+
+        const sourceImages = [...source.querySelectorAll('img')];
+        await Promise.all(sourceImages.map(img => {
+            if (img.complete) return Promise.resolve();
+            return new Promise(resolve => { img.onload = resolve; img.onerror = resolve; });
+        }));
+
+        const pages = [];
+        let currentPage = createA4Page();
+        document.body.appendChild(currentPage);
+
+        const children = getPageableElements(source);
+
+        for (let index = 0; index < children.length; index++) {
+            let child = children[index];
+            cleanPdfStyles(child);
+
+            currentPage.appendChild(child);
+
+            if (!pageOverflows(currentPage)) continue;
+
+            child.remove();
+
+            const tag = child.tagName.toLowerCase();
+            const splittable = ['p', 'div', 'blockquote', 'li'].includes(tag);
+
+            if (splittable) {
+                const remaining = splitTextElementToFit(child, currentPage);
+                pages.push(currentPage);
+                currentPage = createA4Page();
+                document.body.appendChild(currentPage);
+                if (remaining) {
+                    cleanPdfStyles(remaining);
+                    currentPage.appendChild(remaining);
+                }
+                continue;
+            }
+
+            pages.push(currentPage);
+            currentPage = createA4Page();
+            document.body.appendChild(currentPage);
+            currentPage.appendChild(child);
+
+            if (pageOverflows(currentPage) && tag === 'img') {
+                child.style.maxHeight = (PDF_PAGE_HEIGHT_PX - PDF_PADDING_TOP - PDF_PADDING_BOTTOM) + 'px';
+                child.style.width = 'auto';
+            }
+        }
+
+        if (currentPage.children.length > 0) {
+            pages.push(currentPage);
+        } else {
+            currentPage.remove();
+        }
+
+        source.remove();
+        return pages;
+    }
+
+    async function renderHtmlPageToPdf(page, pdf, addNewPage) {
+        const canvas = await html2canvas(page, {
+            scale: 1.5,
+            backgroundColor: '#ffffff',
+            useCORS: true,
+            allowTaint: true,
+            logging: false
+        });
+
+        const imgData = canvas.toDataURL('image/jpeg', 0.94);
+
+        if (addNewPage) {
+            pdf.addPage();
+        }
+
+        pdf.addImage(imgData, 'JPEG', 0, 0, 210, 297);
+    }
+
     // ============================================
-    // PDF GENERATION (Chapter by Chapter, Sliced)
+    // PDF GENERATION (True A4 Pagination)
     // ============================================
     async function convertEPUBtoPDF() {
       if (!currentFile) { alert('Please select an EPUB file first.'); return; }
@@ -557,12 +760,6 @@
           orientation: 'portrait'
         });
 
-        const pageWidth = 210;
-        const pageHeight = 297;
-        const margin = 15;
-        const usableWidth = pageWidth - margin * 2;
-        const usableHeight = pageHeight - margin * 2;
-
         // ============================================
         // TITLE PAGE
         // ============================================
@@ -585,104 +782,32 @@
         `;
 
         document.body.appendChild(titleContainer);
-        await addElementToPdf(titleContainer, pdf, true); // firstPage = true
+        await addElementToPdf(titleContainer, pdf, true);
         titleContainer.remove();
 
         // ============================================
-        // CHAPTERS
+        // CHAPTERS - TRUE A4 PAGINATION
         // ============================================
         for (let i = 0; i < epubChapters.length; i++) {
-          statusText.textContent = `Converting chapter ${i + 1} of ${epubChapters.length}...`;
+          statusText.textContent = `Paginating chapter ${i + 1} of ${epubChapters.length}...`;
           const percent = Math.round(((i + 1) / epubChapters.length) * 90);
           progressBar.style.width = percent + '%';
           progressText.textContent = percent + '%';
 
-          const chapterContainer = document.createElement('div');
-          chapterContainer.style.width = '700px';
-          chapterContainer.style.background = '#ffffff';
-          chapterContainer.style.color = '#111111';
-          chapterContainer.style.padding = '40px';
-          chapterContainer.style.fontFamily = '"Times New Roman", Georgia, serif';
-          chapterContainer.style.fontSize = '16px';
-          chapterContainer.style.lineHeight = '1.6';
-          chapterContainer.style.boxSizing = 'border-box';
+          const pages = await paginateChapter(epubChapters[i].html);
 
-          chapterContainer.innerHTML = `<div class="pdf-chapter">${epubChapters[i].html}</div>`;
+          for (let pageIndex = 0; pageIndex < pages.length; pageIndex++) {
+            statusText.textContent = `Chapter ${i + 1}/${epubChapters.length} — page ${pageIndex + 1}/${pages.length}`;
+            
+            await renderHtmlPageToPdf(
+              pages[pageIndex],
+              pdf,
+              true // Always add a new page
+            );
 
-          // ============================================
-          // FIX: ISOLATE EPUB STYLING (Remove dark backgrounds)
-          // ============================================
-          chapterContainer.querySelectorAll('*').forEach(el => {
-            const tag = el.tagName.toLowerCase();
-
-            // Remove unwanted EPUB background
-            if (tag !== 'img' && tag !== 'svg') {
-              el.style.setProperty('background-color', 'transparent', 'important');
-              el.style.setProperty('background-image', 'none', 'important');
-            }
-
-            // Force normal text to black
-            if (!['img', 'svg', 'path'].includes(tag)) {
-              el.style.setProperty('color', '#111111', 'important');
-            }
-
-            // Prevent content overflowing the PDF
-            el.style.maxWidth = '100%';
-          });
-
-          chapterContainer.style.setProperty('background-color', '#ffffff', 'important');
-
-          document.body.appendChild(chapterContainer);
-
-          // Wait for layout
-          await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-
-          // Wait for images
-          const images = [...chapterContainer.querySelectorAll('img')];
-          await Promise.all(images.map(img => {
-            if (img.complete) return Promise.resolve();
-            return new Promise(resolve => { img.onload = resolve; img.onerror = resolve; });
-          }));
-
-          // ============================================
-          // RENDER COMPLETE CHAPTER TO CANVAS
-          // ============================================
-          const canvas = await html2canvas(chapterContainer, {
-            scale: 1.5,
-            backgroundColor: '#ffffff',
-            useCORS: true,
-            allowTaint: true,
-            logging: false
-          });
-
-          const imgData = canvas.toDataURL('image/jpeg', 0.92);
-          const imgWidth = usableWidth;
-          const imgHeight = (canvas.height * imgWidth) / canvas.width;
-
-          // ============================================
-          // START CHAPTER ON NEW PAGE
-          // ============================================
-          pdf.addPage();
-
-          let heightLeft = imgHeight;
-          let position = margin;
-
-          // First slice
-          pdf.addImage(imgData, 'JPEG', margin, position, imgWidth, imgHeight);
-          heightLeft -= usableHeight;
-
-          // Remaining slices
-          while (heightLeft > 0) {
-            position = margin - (imgHeight - heightLeft);
-            pdf.addPage();
-            pdf.addImage(imgData, 'JPEG', margin, position, imgWidth, imgHeight);
-            heightLeft -= usableHeight;
+            pages[pageIndex].remove();
+            await new Promise(resolve => setTimeout(resolve, 10));
           }
-
-          chapterContainer.remove();
-
-          // Give browser memory a moment
-          await new Promise(resolve => setTimeout(resolve, 50));
         }
 
         progressBar.style.width = '100%'; progressText.textContent = '100%';
