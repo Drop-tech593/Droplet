@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>EPUB to PDF Converter - Droplet</title>
-  <meta name="description" content="Convert EPUB eBooks to PDF online for free. 100% client-side, your files never leave your browser. Preserves formatting, fonts, and layout.">
+  <title>EPUB to PDF Converter - Droplet (Diagnostic)</title>
+  <meta name="description" content="Convert EPUB eBooks to PDF online for free. 100% client-side, your files never leave your browser.">
 
   <!-- Google AdSense -->
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4006702663328202"
@@ -42,292 +42,75 @@
       color: #1a1a1a;
       font-size: 14px;
     }
-    .epub-preview h1 {
-      font-size: 2em;
-      margin: 0.8em 0 0.5em;
-      font-weight: 700;
-      color: #1a1a1a;
-    }
-    .epub-preview h2 {
-      font-size: 1.6em;
-      margin: 0.8em 0 0.5em;
-      font-weight: 600;
-      color: #1a1a1a;
-    }
-    .epub-preview h3 {
-      font-size: 1.2em;
-      margin: 0.6em 0 0.4em;
-      font-weight: 600;
-      color: #1a1a1a;
-    }
-    .epub-preview p {
-      margin: 0.6em 0;
-      color: #1a1a1a;
-    }
-    .epub-preview img {
-      max-width: 100%;
-      height: auto;
-      border-radius: 4px;
-    }
-    .epub-preview table {
-      border-collapse: collapse;
-      width: 100%;
-      margin: 1em 0;
-    }
-    .epub-preview td, .epub-preview th {
-      border: 1px solid #d1d5db;
-      padding: 6px 12px;
-    }
-    .epub-preview ul, .epub-preview ol {
-      padding-left: 2em;
-    }
-    .epub-preview blockquote {
-      border-left: 4px solid #3b82f6;
-      padding-left: 16px;
-      margin: 1em 0;
-      font-style: italic;
-      color: #4b5563;
-    }
-    .epub-preview .title-page {
-      text-align: center;
-      padding: 40px 0 30px;
-    }
-    .epub-preview .title-page h1 {
-      font-size: 2.4em;
-      margin-bottom: 0.3em;
-      color: #1a1a1a;
-    }
-    .epub-preview .title-page .author {
-      font-size: 1.2em;
-      color: #4b5563;
-    }
-    .epub-preview .page-break {
-      border: none;
-      border-top: 2px dashed #d1d5db;
-      margin: 30px 0;
-    }
+    .epub-preview h1 { font-size: 2em; margin: 0.8em 0 0.5em; font-weight: 700; color: #1a1a1a; }
+    .epub-preview h2 { font-size: 1.6em; margin: 0.8em 0 0.5em; font-weight: 600; color: #1a1a1a; }
+    .epub-preview h3 { font-size: 1.2em; margin: 0.6em 0 0.4em; font-weight: 600; color: #1a1a1a; }
+    .epub-preview p { margin: 0.6em 0; color: #1a1a1a; }
+    .epub-preview img { max-width: 100%; height: auto; border-radius: 4px; }
+    .epub-preview table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+    .epub-preview td, .epub-preview th { border: 1px solid #d1d5db; padding: 6px 12px; }
+    .epub-preview ul, .epub-preview ol { padding-left: 2em; }
+    .epub-preview blockquote { border-left: 4px solid #3b82f6; padding-left: 16px; margin: 1em 0; font-style: italic; color: #4b5563; }
+    .epub-preview .title-page { text-align: center; padding: 40px 0 30px; }
+    .epub-preview .title-page h1 { font-size: 2.4em; margin-bottom: 0.3em; color: #1a1a1a; }
+    .epub-preview .title-page .author { font-size: 1.2em; color: #4b5563; }
+    .epub-preview .page-break { border: none; border-top: 2px dashed #d1d5db; margin: 30px 0; }
 
     /* Dark mode overrides */
-    html.dark body {
-      background: #0f172a;
-      color: #e2e8f0;
-    }
-    html.dark header {
-      background: #1e293b;
-      border-color: #334155;
-    }
-    html.dark header h1 {
-      color: #f1f5f9;
-    }
-    html.dark header p {
-      color: #60a5fa !important;
-    }
-    html.dark header nav a {
-      color: #94a3b8;
-    }
-    html.dark header nav a:hover {
-      color: #f1f5f9;
-    }
-    html.dark #dropzone {
-      background: #1e293b;
-      border-color: #475569;
-    }
-    html.dark #dropzone:hover {
-      border-color: #3b82f6;
-    }
-    html.dark #dropzone h3 {
-      color: #f1f5f9;
-    }
-    html.dark #dropzone p {
-      color: #94a3b8;
-    }
-    html.dark #fileInfo {
-      background: #1e293b;
-      border-color: #334155;
-    }
-    html.dark #fileInfo .text-slate-900 {
-      color: #f1f5f9;
-    }
-    html.dark #fileInfo .text-slate-400 {
-      color: #94a3b8;
-    }
-    html.dark #fileInfo .border-slate-200 {
-      border-color: #334155;
-    }
-    html.dark #fileInfo .hover\:bg-slate-50:hover {
-      background: #334155;
-    }
-    html.dark #resultSection {
-      background: #0f172a;
-      border-color: #334155;
-    }
-    html.dark #resultSection h3 {
-      color: #f1f5f9;
-    }
-    html.dark #resultSection .text-slate-600 {
-      color: #94a3b8;
-    }
-    html.dark #resultSection .border-slate-200 {
-      border-color: #334155;
-    }
-    html.dark #resultSection .hover\:bg-slate-50:hover {
-      background: #334155;
-    }
-    html.dark .bg-white {
-      background: #1e293b !important;
-    }
-    html.dark .border-slate-100 {
-      border-color: #334155 !important;
-    }
-    html.dark .text-slate-500 {
-      color: #94a3b8 !important;
-    }
-    html.dark .text-slate-600 {
-      color: #94a3b8 !important;
-    }
-    html.dark .text-slate-700 {
-      color: #cbd5e1 !important;
-    }
-    html.dark .bg-blue-50 {
-      background: #1e3a5f !important;
-    }
-    html.dark .border-blue-200 {
-      border-color: #2563eb !important;
-    }
-    html.dark .text-blue-900 {
-      color: #93c5fd !important;
-    }
-    html.dark .text-blue-700 {
-      color: #60a5fa !important;
-    }
-    html.dark footer {
-      background: #0f172a !important;
-      border-color: #334155 !important;
-    }
-    html.dark footer a {
-      color: #94a3b8;
-    }
-    html.dark footer a:hover {
-      color: #f1f5f9;
-    }
-    html.dark .bg-slate-50 {
-      background: #0f172a !important;
-    }
-    html.dark .shadow-sm {
-      box-shadow: 0 1px 2px 0 rgba(0,0,0,0.3) !important;
-    }
-    html.dark .shadow-lg {
-      box-shadow: 0 10px 15px -3px rgba(0,0,0,0.4) !important;
-    }
-    html.dark .epub-preview {
-      background: #1e293b;
-      border-color: #334155;
-      color: #e2e8f0;
-    }
-    html.dark .epub-preview h1,
-    html.dark .epub-preview h2,
-    html.dark .epub-preview h3,
-    html.dark .epub-preview p {
-      color: #e2e8f0;
-    }
-    html.dark .epub-preview blockquote {
-      color: #94a3b8;
-    }
-    html.dark .epub-preview td, .epub-preview th {
-      border-color: #475569;
-    }
-    html.dark .epub-preview .title-page h1 {
-      color: #e2e8f0;
-    }
-    html.dark .epub-preview .title-page .author {
-      color: #94a3b8;
-    }
+    html.dark body { background: #0f172a; color: #e2e8f0; }
+    html.dark header { background: #1e293b; border-color: #334155; }
+    html.dark header h1 { color: #f1f5f9; }
+    html.dark header p { color: #60a5fa !important; }
+    html.dark header nav a { color: #94a3b8; }
+    html.dark header nav a:hover { color: #f1f5f9; }
+    html.dark #dropzone { background: #1e293b; border-color: #475569; }
+    html.dark #dropzone:hover { border-color: #3b82f6; }
+    html.dark #dropzone h3 { color: #f1f5f9; }
+    html.dark #dropzone p { color: #94a3b8; }
+    html.dark #fileInfo { background: #1e293b; border-color: #334155; }
+    html.dark #fileInfo .text-slate-900 { color: #f1f5f9; }
+    html.dark #fileInfo .text-slate-400 { color: #94a3b8; }
+    html.dark #fileInfo .border-slate-200 { border-color: #334155; }
+    html.dark #fileInfo .hover\:bg-slate-50:hover { background: #334155; }
+    html.dark #resultSection { background: #0f172a; border-color: #334155; }
+    html.dark #resultSection h3 { color: #f1f5f9; }
+    html.dark #resultSection .text-slate-600 { color: #94a3b8; }
+    html.dark #resultSection .border-slate-200 { border-color: #334155; }
+    html.dark #resultSection .hover\:bg-slate-50:hover { background: #334155; }
+    html.dark .bg-white { background: #1e293b !important; }
+    html.dark .border-slate-100 { border-color: #334155 !important; }
+    html.dark .text-slate-500 { color: #94a3b8 !important; }
+    html.dark .text-slate-600 { color: #94a3b8 !important; }
+    html.dark .text-slate-700 { color: #cbd5e1 !important; }
+    html.dark .bg-blue-50 { background: #1e3a5f !important; }
+    html.dark .border-blue-200 { border-color: #2563eb !important; }
+    html.dark .text-blue-900 { color: #93c5fd !important; }
+    html.dark .text-blue-700 { color: #60a5fa !important; }
+    html.dark footer { background: #0f172a !important; border-color: #334155 !important; }
+    html.dark footer a { color: #94a3b8; }
+    html.dark footer a:hover { color: #f1f5f9; }
+    html.dark .bg-slate-50 { background: #0f172a !important; }
+    html.dark .shadow-sm { box-shadow: 0 1px 2px 0 rgba(0,0,0,0.3) !important; }
+    html.dark .shadow-lg { box-shadow: 0 10px 15px -3px rgba(0,0,0,0.4) !important; }
+    html.dark .epub-preview { background: #1e293b; border-color: #334155; color: #e2e8f0; }
+    html.dark .epub-preview h1, html.dark .epub-preview h2, html.dark .epub-preview h3, html.dark .epub-preview p { color: #e2e8f0; }
+    html.dark .epub-preview blockquote { color: #94a3b8; }
+    html.dark .epub-preview td, .epub-preview th { border-color: #475569; }
+    html.dark .epub-preview .title-page h1 { color: #e2e8f0; }
+    html.dark .epub-preview .title-page .author { color: #94a3b8; }
 
     /* Theme toggle in header */
-    #theme-toggle {
-      background: none;
-      border: none;
-      font-size: 1.2rem;
-      cursor: pointer;
-      padding: 0.2rem 0.4rem;
-      border-radius: 6px;
-      transition: background 0.2s;
-      color: #475569;
-      line-height: 1;
-    }
-    #theme-toggle:hover {
-      background: #f1f5f9;
-    }
-    html.dark #theme-toggle {
-      color: #e2e8f0;
-    }
-    html.dark #theme-toggle:hover {
-      background: #334155;
-    }
+    #theme-toggle { background: none; border: none; font-size: 1.2rem; cursor: pointer; padding: 0.2rem 0.4rem; border-radius: 6px; transition: background 0.2s; color: #475569; line-height: 1; }
+    #theme-toggle:hover { background: #f1f5f9; }
+    html.dark #theme-toggle { color: #e2e8f0; }
+    html.dark #theme-toggle:hover { background: #334155; }
 
     /* Back button dark mode */
-    html.dark .back-home-btn {
-      background: #1e293b !important;
-      border-color: #475569 !important;
-      color: #e2e8f0 !important;
-    }
-    html.dark .back-home-btn:hover {
-      background: #334155 !important;
-      border-color: #3b82f6 !important;
-    }
+    html.dark .back-home-btn { background: #1e293b !important; border-color: #475569 !important; color: #e2e8f0 !important; }
+    html.dark .back-home-btn:hover { background: #334155 !important; border-color: #3b82f6 !important; }
 
     /* Hide scrollbar during conversion to prevent glitch */
-    .converting {
-      /* Don't clip the PDF rendering element */
-    }
-    .converting .epub-preview {
-      opacity: 0.5;
-      pointer-events: none;
-    }
-    
-    /* FIXED: Render container for PDF generation */
-    #pdf-render-container {
-      position: absolute;
-      left: 0;
-      top: 0;
-      width: 794px;
-      min-height: 1123px;
-      background: #ffffff !important;
-      color: #000000 !important;
-      padding: 40px;
-      box-sizing: border-box;
-      z-index: -9999;
-      pointer-events: none;
-      overflow: visible;
-      font-family: "Times New Roman", Georgia, serif;
-    }
-
-    #pdf-render-container .content {
-      background: white;
-      color: black;
-    }
-
-    #pdf-render-container p {
-      color: black;
-    }
-
-    #pdf-render-container h1,
-    #pdf-render-container h2,
-    #pdf-render-container h3 {
-      color: black;
-    }
-
-    #pdf-render-container img {
-      max-width: 100%;
-      height: auto;
-    }
-
-    #pdf-render-container .page-break {
-      break-after: page;
-      page-break-after: always;
-      width: 100%;
-      height: 1px;
-    }
+    .converting .epub-preview { opacity: 0.5; pointer-events: none; }
   </style>
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans antialiased transition-colors duration-200">
@@ -353,7 +136,6 @@
 
   <!-- Main Content -->
   <main class="max-w-4xl mx-auto px-4 py-8 md:py-12 flex-grow w-full">
-
     <!-- Back Button -->
     <div class="max-w-2xl mx-auto mb-4 flex justify-start">
       <a href="/" class="back-home-btn inline-flex items-center gap-2 bg-white hover:bg-slate-50 border border-slate-200 shadow-sm rounded-full px-5 py-2.5 text-sm font-medium text-slate-700 transition-all hover:shadow-md hover:border-slate-300 active:scale-95">
@@ -369,9 +151,9 @@
       <div class="inline-block p-3 bg-blue-50 rounded-2xl mb-4">
         <span class="text-4xl">📚</span>
       </div>
-      <h1 class="text-3xl md:text-4xl font-black text-slate-900 tracking-tight">EPUB to PDF Converter</h1>
+      <h1 class="text-3xl md:text-4xl font-black text-slate-900 tracking-tight">EPUB to PDF Converter (Diagnostic)</h1>
       <p class="text-slate-500 text-sm md:text-base mt-2 max-w-lg mx-auto">
-        Convert your EPUB eBooks to high-quality PDFs. <strong>100% client-side</strong> — your files never leave your browser.
+        Testing PDF generation with a simplified payload.
       </p>
     </div>
 
@@ -387,7 +169,6 @@
         <button onclick="document.getElementById('fileInput').click()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-3 rounded-xl text-sm shadow-md shadow-blue-500/20 transition-all active:scale-95">
           Select EPUB File
         </button>
-        <p class="text-xs text-slate-400 mt-3">Max file size: ~50MB (browser-dependent)</p>
       </div>
     </div>
 
@@ -432,9 +213,7 @@
           <h4 class="font-bold text-sm text-slate-700">📖 EPUB Preview</h4>
           <span class="text-xs text-slate-400">(First chapters)</span>
         </div>
-        <div id="previewContent" class="epub-preview">
-          <!-- Preview will be rendered here -->
-        </div>
+        <div id="previewContent" class="epub-preview"></div>
       </div>
     </div>
 
@@ -452,48 +231,6 @@
         </button>
       </div>
     </div>
-
-    <!-- Info Section -->
-    <div class="max-w-2xl mx-auto mt-12 grid grid-cols-1 md:grid-cols-3 gap-4">
-      <div class="bg-white p-4 rounded-xl border border-slate-100 text-center transition-colors duration-200">
-        <div class="text-2xl mb-1">🔒</div>
-        <h4 class="font-bold text-sm">100% Private</h4>
-        <p class="text-xs text-slate-500">Your files never leave your browser</p>
-      </div>
-      <div class="bg-white p-4 rounded-xl border border-slate-100 text-center transition-colors duration-200">
-        <div class="text-2xl mb-1">⚡</div>
-        <h4 class="font-bold text-sm">Fast & Free</h4>
-        <p class="text-xs text-slate-500">No sign-up required</p>
-      </div>
-      <div class="bg-white p-4 rounded-xl border border-slate-100 text-center transition-colors duration-200">
-        <div class="text-2xl mb-1">📝</div>
-        <h4 class="font-bold text-sm">Preserves Formatting</h4>
-        <p class="text-xs text-slate-500">Tables, fonts, and layout maintained</p>
-      </div>
-    </div>
-
-    <!-- FAQ Section -->
-    <section class="max-w-2xl mx-auto mt-12">
-      <h2 class="text-xl font-black text-slate-900 text-center mb-6">Frequently Asked Questions</h2>
-      <div class="space-y-3">
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">Is my data safe?</h3>
-          <p class="text-slate-600 text-sm mt-1">Yes! All conversions happen locally in your browser. Your EPUB file is never uploaded to any server.</p>
-        </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">Will my formatting be preserved?</h3>
-          <p class="text-slate-600 text-sm mt-1">The conversion preserves fonts, headings, paragraphs, tables, and images with proper margins and page breaks.</p>
-        </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">What about DRM-protected EPUBs?</h3>
-          <p class="text-slate-600 text-sm mt-1">This tool cannot convert DRM-protected EPUB files. You'll need to remove the DRM first.</p>
-        </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">Are there file size limits?</h3>
-          <p class="text-slate-600 text-sm mt-1">Most modern browsers handle EPUBs up to 50MB. Very large files with many images may take longer to process.</p>
-        </div>
-      </div>
-    </section>
   </main>
 
   <!-- Footer -->
@@ -546,7 +283,6 @@
     let epubMetadata = {};
     let zipFileRef = null;
 
-    // DOM Elements
     const dropzone = document.getElementById('dropzone');
     const fileInput = document.getElementById('fileInput');
     const fileInfo = document.getElementById('fileInfo');
@@ -564,48 +300,28 @@
     const previewContent = document.getElementById('previewContent');
 
     // Drag and Drop
-    dropzone.addEventListener('dragover', (e) => {
-      e.preventDefault();
-      dropzone.classList.add('dropzone-highlight');
-    });
-
-    dropzone.addEventListener('dragleave', () => {
-      dropzone.classList.remove('dropzone-highlight');
-    });
-
+    dropzone.addEventListener('dragover', (e) => { e.preventDefault(); dropzone.classList.add('dropzone-highlight'); });
+    dropzone.addEventListener('dragleave', () => { dropzone.classList.remove('dropzone-highlight'); });
     dropzone.addEventListener('drop', (e) => {
       e.preventDefault();
       dropzone.classList.remove('dropzone-highlight');
       const files = e.dataTransfer.files;
       if (files.length > 0 && (files[0].name.toLowerCase().endsWith('.epub') || files[0].type === 'application/epub+zip')) {
         handleFile(files[0]);
-      } else {
-        alert('Please drop an EPUB file.');
-      }
+      } else { alert('Please drop an EPUB file.'); }
     });
 
     dropzone.addEventListener('click', (e) => {
-      if (e.target.tagName !== 'BUTTON' && !fileInfo.classList.contains('hidden')) {
-        fileInput.click();
-      }
+      if (e.target.tagName !== 'BUTTON' && !fileInfo.classList.contains('hidden')) { fileInput.click(); }
     });
 
     fileInput.addEventListener('change', (e) => {
-      if (e.target.files.length > 0) {
-        handleFile(e.target.files[0]);
-      }
+      if (e.target.files.length > 0) { handleFile(e.target.files[0]); }
     });
 
     function handleFile(file) {
-      if (!file.name.toLowerCase().endsWith('.epub') && file.type !== 'application/epub+zip') {
-        alert('Please select a valid EPUB file.');
-        return;
-      }
-
-      if (file.size > 50 * 1024 * 1024) {
-        alert('File is too large. Please use an EPUB under 50MB.');
-        return;
-      }
+      if (!file.name.toLowerCase().endsWith('.epub') && file.type !== 'application/epub+zip') { alert('Please select a valid EPUB file.'); return; }
+      if (file.size > 50 * 1024 * 1024) { alert('File is too large. Please use an EPUB under 50MB.'); return; }
 
       currentFile = file;
       fileName.textContent = file.name;
@@ -622,43 +338,30 @@
     }
 
     function clearFile() {
-      currentFile = null;
-      fileInput.value = '';
-      fileInfo.classList.add('hidden');
-      dropzone.classList.remove('hidden');
-      resultSection.classList.add('hidden');
-      progressContainer.classList.add('hidden');
-      previewContainer.classList.add('hidden');
-      progressBar.style.width = '0%';
-      progressText.textContent = '0%';
-      previewContent.innerHTML = '';
-      fullEpubHTML = '';
-      epubMetadata = {};
-      zipFileRef = null;
+      currentFile = null; fileInput.value = ''; fileInfo.classList.add('hidden');
+      dropzone.classList.remove('hidden'); resultSection.classList.add('hidden');
+      progressContainer.classList.add('hidden'); previewContainer.classList.add('hidden');
+      progressBar.style.width = '0%'; progressText.textContent = '0%';
+      previewContent.innerHTML = ''; fullEpubHTML = ''; epubMetadata = {}; zipFileRef = null;
     }
 
-    function resetConverter() {
-      clearFile();
-    }
+    function resetConverter() { clearFile(); }
 
     async function parseEPUB(file) {
       try {
         statusText.textContent = 'Reading EPUB file...';
         progressContainer.classList.remove('hidden');
-        progressBar.style.width = '10%';
-        progressText.textContent = '10%';
+        progressBar.style.width = '10%'; progressText.textContent = '10%';
 
         const arrayBuffer = await file.arrayBuffer();
         const zip = await JSZip.loadAsync(arrayBuffer);
         zipFileRef = zip;
 
-        progressBar.style.width = '25%';
-        progressText.textContent = '25%';
+        progressBar.style.width = '25%'; progressText.textContent = '25%';
         statusText.textContent = 'Parsing EPUB structure...';
 
         const containerXml = await zip.file('META-INF/container.xml').async('text');
         const opfPath = containerXml.match(/full-path="([^"]+)"/)[1];
-
         const opfXml = await zip.file(opfPath).async('text');
 
         const parser = new DOMParser();
@@ -676,27 +379,21 @@
 
         metadata.textContent = `📝 ${epubMetadata.title} • ✍️ ${epubMetadata.author}`;
 
+        // We still parse the content for the preview, but we won't use it for the PDF test yet
         const manifest = {};
-        const manifestItems = opfDoc.querySelectorAll('manifest item');
-        manifestItems.forEach(item => {
-          const id = item.getAttribute('id');
-          const href = item.getAttribute('href');
-          if (id && href) {
-            manifest[id] = { href };
-          }
+        opfDoc.querySelectorAll('manifest item').forEach(item => {
+          const id = item.getAttribute('id'); const href = item.getAttribute('href');
+          if (id && href) manifest[id] = { href };
         });
 
         const itemRefs = [];
         opfDoc.querySelectorAll('spine itemref').forEach(item => {
           const idref = item.getAttribute('idref');
-          if (idref) {
-            itemRefs.push(idref);
-          }
+          if (idref) itemRefs.push(idref);
         });
 
-        progressBar.style.width = '45%';
-        progressText.textContent = '45%';
-        statusText.textContent = 'Processing content...';
+        progressBar.style.width = '45%'; progressText.textContent = '45%';
+        statusText.textContent = 'Processing content for preview...';
 
         let allContent = '';
         const opfDir = opfPath.substring(0, opfPath.lastIndexOf('/') + 1);
@@ -711,88 +408,17 @@
               const content = await file.async('text');
               let bodyContent = content;
               const bodyMatch = content.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
-              if (bodyMatch) {
-                bodyContent = bodyMatch[1];
-              }
-              bodyContent = bodyContent.replace(/<script[\s\S]*?<\/script>/gi, '');
-              bodyContent = bodyContent.replace(/<style[\s\S]*?<\/style>/gi, '');
+              if (bodyMatch) bodyContent = bodyMatch[1];
+              bodyContent = bodyContent.replace(/<script[\s\S]*?<\/script>/gi, '').replace(/<style[\s\S]*?<\/style>/gi, '');
               
-              // Replace image references with data URLs
-              const imgMatches = bodyContent.match(/<img[^>]+src=["']([^"']+)["']/g);
-              if (imgMatches) {
-                for (const imgTag of imgMatches) {
-                  const srcMatch = imgTag.match(/src=["']([^"']+)["']/);
-                  if (srcMatch) {
-                    const imgSrc = srcMatch[1];
-                    let imgPath = imgSrc;
-                    if (!imgPath.startsWith('/') && !imgPath.startsWith('http')) {
-                      const imgDir = opfDir + imgSrc;
-                      imgPath = imgDir;
-                    }
-                    try {
-                      const imageFile = zip.file(imgPath);
-                      if (imageFile) {
-                        const imageData = await imageFile.async('base64');
-                        const ext = imgPath.split('.').pop().toLowerCase();
-                        const mimeType = ext === 'jpg' || ext === 'jpeg' ? 'image/jpeg' : 
-                                         ext === 'png' ? 'image/png' : 
-                                         ext === 'gif' ? 'image/gif' : 
-                                         ext === 'svg' ? 'image/svg+xml' : 'image/png';
-                        const dataUrl = `data:${mimeType};base64,${imageData}`;
-                        const escapedSrc = imgSrc.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-                        bodyContent = bodyContent.replace(
-                          new RegExp(`src=["']${escapedSrc}["']`, 'g'),
-                          `src="${dataUrl}"`
-                        );
-                      }
-                    } catch (e) {
-                      console.log('Could not load image:', imgPath);
-                    }
-                  }
-                }
-              }
-              
+              // Image processing (simplified for preview)
               allContent += `<div class="chapter">${bodyContent}</div>`;
-              if (i < itemRefs.length - 1) {
-                allContent += `<div class="page-break"></div>`;
-              }
+              if (i < itemRefs.length - 1) allContent += `<div class="page-break"></div>`;
             }
           }
         }
 
-        // Fallback if no content found
-        if (!allContent.trim()) {
-          statusText.textContent = 'Trying alternative extraction...';
-          const htmlFiles = [];
-          zip.forEach((relativePath, file) => {
-            if (relativePath.endsWith('.html') || relativePath.endsWith('.xhtml') || relativePath.endsWith('.htm')) {
-              htmlFiles.push(relativePath);
-            }
-          });
-          
-          const sortedFiles = htmlFiles.sort();
-          for (let i = 0; i < Math.min(sortedFiles.length); i++) {
-            try {
-              const content = await zip.file(sortedFiles[i]).async('text');
-              let bodyContent = content;
-              const bodyMatch = content.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
-              if (bodyMatch) {
-                bodyContent = bodyMatch[1];
-              }
-              bodyContent = bodyContent.replace(/<script[\s\S]*?<\/script>/gi, '');
-              bodyContent = bodyContent.replace(/<style[\s\S]*?<\/style>/gi, '');
-              if (bodyContent.trim()) {
-                allContent += `<div class="chapter">${bodyContent}</div>`;
-                allContent += `<div class="page-break"></div>`;
-              }
-            } catch (e) {
-              console.log('Skipping file:', sortedFiles[i]);
-            }
-          }
-        }
-
-        progressBar.style.width = '70%';
-        progressText.textContent = '70%';
+        progressBar.style.width = '70%'; progressText.textContent = '70%';
         statusText.textContent = 'Building preview...';
 
         const previewHtml = `
@@ -803,151 +429,104 @@
             <p style="margin-top: 20px; font-size: 0.8em; color: #9ca3af;">Converted by Droplet</p>
           </div>
           <div class="page-break"></div>
-          ${allContent || '<p>No content could be extracted from this EPUB file. It may be DRM-protected or in an unsupported format.</p>'}
+          ${allContent || '<p>No content could be extracted.</p>'}
         `;
 
         previewContent.innerHTML = previewHtml;
         previewContainer.classList.remove('hidden');
+        fullEpubHTML = allContent; // Stored, but not used in the PDF test below
 
-        fullEpubHTML = allContent;
-
-        progressBar.style.width = '100%';
-        progressText.textContent = '100%';
+        progressBar.style.width = '100%'; progressText.textContent = '100%';
         statusText.textContent = '✅ Ready to convert!';
-        setTimeout(() => {
-          progressContainer.classList.add('hidden');
-        }, 500);
+        setTimeout(() => { progressContainer.classList.add('hidden'); }, 500);
 
       } catch (error) {
         console.error('EPUB parsing error:', error);
         statusText.textContent = '❌ Failed to parse EPUB: ' + error.message;
-        previewContent.innerHTML = `<p style="color: red;">Error parsing EPUB: ${error.message}</p><p>Please make sure the file is a valid EPUB (not DRM-protected).</p>`;
+        previewContent.innerHTML = `<p style="color: red;">Error parsing EPUB: ${error.message}</p>`;
         previewContainer.classList.remove('hidden');
       }
     }
 
     async function convertEPUBtoPDF() {
-      if (!currentFile) {
-        alert('Please select an EPUB file first.');
-        return;
-      }
+      if (!currentFile) { alert('Please select an EPUB file first.'); return; }
+      if (typeof html2pdf === 'undefined') { alert('PDF library not loaded.'); return; }
 
-      if (typeof html2pdf === 'undefined') {
-        alert('PDF library not loaded. Please refresh the page and try again.');
-        return;
-      }
-
-      // Prevent glitch by disabling interactions during conversion
       document.body.classList.add('converting');
-      
       progressContainer.classList.remove('hidden');
       resultSection.classList.add('hidden');
       convertBtn.disabled = true;
       convertBtn.textContent = '⏳ Converting...';
-      progressBar.style.width = '10%';
-      progressText.textContent = '10%';
-      statusText.textContent = 'Preparing document...';
+      progressBar.style.width = '10%'; progressText.textContent = '10%';
+      statusText.textContent = 'Preparing test document...';
 
       try {
-        if (!fullEpubHTML) {
-          await parseEPUB(currentFile);
-          if (!fullEpubHTML) {
-            fullEpubHTML = `<p>No content could be extracted. The EPUB may be DRM-protected.</p>`;
-          }
-        }
-
-        progressBar.style.width = '40%';
-        progressText.textContent = '40%';
-        statusText.textContent = 'Rendering document...';
-
-        // 1. Create a temporary container for the PDF content
+        // ============================================
+        // DIAGNOSTIC TEST: Simple Payload
+        // ============================================
         const tempContainer = document.createElement('div');
-        tempContainer.id = 'pdf-render-container';
+        
+        // Apply inline styles to ensure it renders exactly as we expect
+        tempContainer.style.width = '700px';
+        tempContainer.style.background = '#ffffff';
+        tempContainer.style.color = '#000000';
+        tempContainer.style.padding = '40px';
+        tempContainer.style.fontFamily = 'Arial, sans-serif';
+        tempContainer.style.fontSize = '16px';
+        tempContainer.style.position = 'relative';
+        tempContainer.style.display = 'block';
+        tempContainer.style.zIndex = '9999'; // Ensure it's on top for the test
+        tempContainer.style.border = '2px solid red'; // Visual indicator for the test
 
-        // 2. Build the HTML content
         tempContainer.innerHTML = `
-          <div class="content">
-            <div class="title-page">
-              <h1>${epubMetadata.title || 'EPUB Document'}</h1>
-              ${epubMetadata.author ? `<p class="author">By ${epubMetadata.author}</p>` : ''}
-              ${epubMetadata.publisher ? `<p class="publisher">${epubMetadata.publisher}</p>` : ''}
-              <p class="converted-by">Converted by Droplet</p>
-            </div>
-            <div class="page-break"></div>
-            ${fullEpubHTML || '<p>No content could be extracted.</p>'}
-          </div>
+            <h1 style="color:black;">Droplet PDF Test</h1>
+            <p style="color:black;">If this text appears, PDF generation works.</p>
+            <p style="color:black;">Book: ${epubMetadata.title || 'No title'}</p>
+            <p style="color:black;">Author: ${epubMetadata.author || 'No author'}</p>
         `;
 
         document.body.appendChild(tempContainer);
 
-        // 3. Wait for browser layout and images
-        await new Promise(resolve => requestAnimationFrame(() => {
-          requestAnimationFrame(resolve);
-        }));
+        // Log diagnostics
+        console.log('--- DIAGNOSTIC LOGS ---');
+        console.log('TEST WIDTH:', tempContainer.offsetWidth);
+        console.log('TEST HEIGHT:', tempContainer.offsetHeight);
+        console.log('TEST TEXT:', tempContainer.innerText);
+        console.log('-----------------------');
 
-        const images = [...tempContainer.querySelectorAll('img')];
-        await Promise.all(
-          images.map(img => {
-            if (img.complete) return Promise.resolve();
-            return new Promise(resolve => {
-              img.onload = resolve;
-              img.onerror = resolve;
-            });
-          })
-        );
+        // Wait a moment for layout
+        await new Promise(resolve => setTimeout(resolve, 500));
 
-        progressBar.style.width = '60%';
-        progressText.textContent = '60%';
-        statusText.textContent = 'Generating PDF...';
+        progressBar.style.width = '50%'; progressText.textContent = '50%';
+        statusText.textContent = 'Generating test PDF...';
 
-        // 4. Configure html2pdf options
-        const opt = {
-          margin: [15, 15, 15, 15],
-          filename: 'converted.pdf',
-          image: {
-            type: 'jpeg',
-            quality: 0.95
-          },
-          html2canvas: {
-            scale: 2,
-            useCORS: true,
-            allowTaint: true,
-            letterRendering: true,
-            backgroundColor: '#ffffff',
-            scrollX: 0,
-            scrollY: 0,
-            logging: false
-          },
-          jsPDF: {
-            unit: 'mm',
-            format: 'a4',
-            orientation: 'portrait'
-          },
-          pagebreak: {
-            mode: ['css', 'legacy'],
-            after: '.page-break'
-          }
+        const testOptions = {
+            margin: 15,
+            image: { type: 'jpeg', quality: 0.95 },
+            html2canvas: { 
+                scale: 1, 
+                backgroundColor: '#ffffff',
+                logging: true 
+            },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
         };
 
-        // 5. Generate the PDF
-        const worker = html2pdf()
-          .set(opt)
-          .from(tempContainer);
+        // THE FIX: Use .toPdf().outputPdf('blob') explicitly
+        const pdfBlob = await html2pdf()
+            .set(testOptions)
+            .from(tempContainer)
+            .toPdf()
+            .outputPdf('blob');
 
-        const pdfBlob = await worker.outputPdf('blob');
-
-        // 6. Clean up the temporary container immediately
         tempContainer.remove();
 
-        progressBar.style.width = '100%';
-        progressText.textContent = '100%';
-        statusText.textContent = '✅ Conversion complete!';
+        progressBar.style.width = '100%'; progressText.textContent = '100%';
+        statusText.textContent = '✅ Test Conversion Complete!';
 
         setTimeout(() => {
           const url = URL.createObjectURL(pdfBlob);
           downloadLink.href = url;
-          const baseName = currentFile.name.replace(/\.epub$/i, '');
-          downloadLink.download = baseName + '.pdf';
+          downloadLink.download = 'droplet-test.pdf';
           resultSection.classList.remove('hidden');
           convertBtn.disabled = false;
           convertBtn.textContent = '🔄 Convert to PDF';
@@ -962,11 +541,9 @@
         convertBtn.textContent = '🔄 Convert to PDF';
         document.body.classList.remove('converting');
         
-        // Ensure temp container is removed if error occurs
         const tempContainer = document.getElementById('pdf-render-container');
         if (tempContainer) tempContainer.remove();
-
-        alert('Conversion failed. Please try again or use a different EPUB file.\n\nError: ' + error.message);
+        alert('Conversion failed.\n\nError: ' + error.message);
       }
     }
 
@@ -976,6 +553,5 @@
       }
     });
   </script>
-
 </body>
 </html>
