@@ -284,18 +284,19 @@
       opacity: 0.5;
       pointer-events: none;
     }
+    
+    /* FIXED: Off-screen container for PDF generation */
     #pdf-render-container {
       position: absolute;
-      left: 0;
+      left: -9999px; /* Move off-screen instead of z-index to ensure html2canvas captures it */
       top: 0;
-      width: 794px;
+      width: 794px; /* A4 width at 96 DPI */
       background: #ffffff;
       color: #000000;
       padding: 40px;
       box-sizing: border-box;
-      z-index: -1;
+      z-index: 9999;
       overflow: visible;
-      pointer-events: none;
     }
   </style>
 </head>
@@ -829,174 +830,62 @@
         progressText.textContent = '40%';
         statusText.textContent = 'Rendering document...';
 
-        const printHtml = `
-          <!DOCTYPE html>
-          <html>
-          <head>
-            <meta charset="UTF-8">
-            <style>
-              @page { 
-                size: A4; 
-                margin: 25mm 30mm 25mm 30mm;
-              }
-              @media print {
-                * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-                .page-break { page-break-after: always; border: none; margin: 0; padding: 0; height: 0; }
-              }
-              body {
-                font-family: 'Times New Roman', Georgia, serif;
-                font-size: 12pt;
-                line-height: 1.8;
-                color: #000000;
-                background: #ffffff;
-                padding: 0;
-                margin: 0;
-              }
-              .content {
-                max-width: 100%;
-                padding: 20px;
-              }
-              h1 { 
-                font-size: 22pt; 
-                margin: 24pt 0 12pt; 
-                font-weight: 700;
-                color: #000000;
-                text-align: center;
-              }
-              h2 { 
-                font-size: 18pt; 
-                margin: 20pt 0 10pt; 
-                font-weight: 600;
-                color: #000000;
-              }
-              h3 { 
-                font-size: 14pt; 
-                margin: 16pt 0 8pt; 
-                font-weight: 600;
-                color: #000000;
-              }
-              h4 { 
-                font-size: 12pt; 
-                margin: 12pt 0 6pt; 
-                font-weight: 600;
-                color: #000000;
-              }
-              p { 
-                margin: 0.6em 0; 
-                text-align: justify;
-                color: #000000;
-              }
-              table { 
-                border-collapse: collapse; 
-                width: 100%; 
-                margin: 12pt 0; 
-              }
-              td, th { 
-                border: 1px solid #000000; 
-                padding: 4pt 8pt; 
-                text-align: left; 
-                color: #000000;
-              }
-              th {
-                background: #f5f5f5;
-                font-weight: 600;
-              }
-              img { 
-                max-width: 100%; 
-                height: auto; 
-                display: block;
-                margin: 12pt auto;
-              }
-              ul, ol { 
-                padding-left: 2em; 
-                color: #000000;
-              }
-              li {
-                color: #000000;
-              }
-              blockquote { 
-                margin: 10pt 20pt; 
-                border-left: 3px solid #999; 
-                padding-left: 15pt; 
-                font-style: italic;
-                color: #333;
-              }
-              .title-page {
-                text-align: center;
-                padding: 60pt 0 40pt;
-              }
-              .title-page h1 {
-                font-size: 28pt;
-                margin-bottom: 16pt;
-                text-align: center;
-              }
-              .title-page .author {
-                font-size: 16pt;
-                color: #333;
-                margin: 8pt 0;
-              }
-              .title-page .publisher {
-                font-size: 11pt;
-                color: #666;
-                margin-top: 30pt;
-              }
-              .page-break {
-                page-break-after: always;
-                border: none;
-                margin: 0;
-                padding: 0;
-                height: 0;
-              }
-              .chapter {
-                margin-top: 10pt;
-              }
-            </style>
-          </head>
-          <body>
-            <div class="content">
-              <div class="title-page">
-                <h1>${epubMetadata.title || 'EPUB Document'}</h1>
-                ${epubMetadata.author ? `<p class="author">By ${epubMetadata.author}</p>` : ''}
-                ${epubMetadata.publisher ? `<p class="publisher">${epubMetadata.publisher}</p>` : ''}
-                <p style="margin-top: 40pt; font-size: 10pt; color: #999;">Converted by Droplet</p>
-              </div>
-              <div class="page-break"></div>
-              ${fullEpubHTML || '<p>No content could be extracted. The EPUB may be DRM-protected or in an unsupported format.</p>'}
-            </div>
-          </body>
-          </html>
+        // 1. Create a temporary container for the PDF content
+        // We place it off-screen to the left so it doesn't affect the UI
+        const tempContainer = document.createElement('div');
+        tempContainer.id = 'pdf-render-container';
+        
+        // 2. Build the HTML content WITHOUT <html> or <body> tags
+        // We inject the styles directly into the container
+        const styles = `
+          <style>
+            @page { size: A4; margin: 25mm 30mm; }
+            body { font-family: 'Times New Roman', Georgia, serif; font-size: 12pt; line-height: 1.8; color: #000000; background: #ffffff; }
+            .content { max-width: 100%; padding: 0; }
+            h1 { font-size: 22pt; margin: 24pt 0 12pt; font-weight: 700; text-align: center; }
+            h2 { font-size: 18pt; margin: 20pt 0 10pt; font-weight: 600; }
+            h3 { font-size: 14pt; margin: 16pt 0 8pt; font-weight: 600; }
+            p { margin: 0.6em 0; text-align: justify; }
+            table { border-collapse: collapse; width: 100%; margin: 12pt 0; }
+            td, th { border: 1px solid #000000; padding: 4pt 8pt; }
+            th { background: #f5f5f5; }
+            img { max-width: 100%; height: auto; display: block; margin: 12pt auto; }
+            ul, ol { padding-left: 2em; }
+            blockquote { margin: 10pt 20pt; border-left: 3px solid #999; padding-left: 15pt; font-style: italic; color: #333; }
+            .title-page { text-align: center; padding: 60pt 0 40pt; }
+            .title-page h1 { font-size: 28pt; margin-bottom: 16pt; }
+            .title-page .author { font-size: 16pt; color: #333; margin: 8pt 0; }
+            .title-page .publisher { font-size: 11pt; color: #666; margin-top: 30pt; }
+            .page-break { page-break-after: always; border: none; margin: 0; padding: 0; height: 0; }
+          </style>
         `;
+
+        const contentHtml = `
+          <div class="content">
+            <div class="title-page">
+              <h1>${epubMetadata.title || 'EPUB Document'}</h1>
+              ${epubMetadata.author ? `<p class="author">By ${epubMetadata.author}</p>` : ''}
+              ${epubMetadata.publisher ? `<p class="publisher">${epubMetadata.publisher}</p>` : ''}
+              <p style="margin-top: 40pt; font-size: 10pt; color: #999;">Converted by Droplet</p>
+            </div>
+            <div class="page-break"></div>
+            ${fullEpubHTML || '<p>No content could be extracted.</p>'}
+          </div>
+        `;
+
+        tempContainer.innerHTML = styles + contentHtml;
+        document.body.appendChild(tempContainer);
+
+        // 3. Small delay to allow images/fonts to load in the off-screen container
+        await new Promise(resolve => setTimeout(resolve, 1000));
 
         progressBar.style.width = '60%';
         progressText.textContent = '60%';
         statusText.textContent = 'Generating PDF...';
 
-        // Create container - use a dedicated container to avoid UI glitches
-        const containerId = 'pdf-render-container';
-        let tempContainer = document.getElementById(containerId);
-        if (!tempContainer) {
-          tempContainer = document.createElement('div');
-          tempContainer.id = containerId;
-          tempContainer.style.position = 'absolute';
-          tempContainer.style.left = '0';
-          tempContainer.style.top = '0';
-          tempContainer.style.width = '794px';
-          tempContainer.style.backgroundColor = '#ffffff';
-          tempContainer.style.color = '#000000';
-          tempContainer.style.padding = '40px';
-          tempContainer.style.boxSizing = 'border-box';
-          tempContainer.style.zIndex = '-1';
-          tempContainer.style.overflow = 'visible';
-          tempContainer.style.pointerEvents = 'none';
-          document.body.appendChild(tempContainer);
-        }
-        tempContainer.innerHTML = printHtml;
-
-        // Small delay for rendering
-        await new Promise(resolve => setTimeout(resolve, 800));
-
+        // 4. Configure html2pdf options
         const opt = {
-          margin: 0,
+          margin: 0, // We handle margins in CSS @page
           filename: 'converted.pdf',
           image: { type: 'jpeg', quality: 0.98 },
           html2canvas: {
@@ -1004,7 +893,7 @@
             useCORS: true,
             letterRendering: true,
             backgroundColor: '#ffffff',
-            width: 794,
+            width: 794, // Match container width
             logging: false
           },
           jsPDF: {
@@ -1015,14 +904,14 @@
           pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
         };
 
-        progressBar.style.width = '80%';
-        progressText.textContent = '80%';
-        statusText.textContent = 'Finalizing PDF...';
-
+        // 5. Generate the PDF
         const pdfBlob = await html2pdf()
           .set(opt)
-          .from(tempContainer)
+          .from(tempContainer) // Generate from the temp container
           .outputPdf('blob');
+
+        // 6. Clean up the temporary container immediately
+        document.body.removeChild(tempContainer);
 
         progressBar.style.width = '100%';
         progressText.textContent = '100%';
@@ -1046,6 +935,11 @@
         convertBtn.disabled = false;
         convertBtn.textContent = '🔄 Convert to PDF';
         document.body.classList.remove('converting');
+        
+        // Ensure temp container is removed if error occurs
+        const tempContainer = document.getElementById('pdf-render-container');
+        if (tempContainer) document.body.removeChild(tempContainer);
+
         alert('Conversion failed. Please try again or use a different EPUB file.\n\nError: ' + error.message);
       }
     }
