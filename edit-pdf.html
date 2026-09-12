@@ -2,13 +2,13 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Edit PDF - Droplet</title>
 <meta name="description" content="Edit PDF files online for free. 100% client-side, your files never leave your browser.">
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <style>
-  * { box-sizing: border-box; }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; }
   html, body { height: 100%; overflow: hidden; }
 
@@ -457,7 +457,7 @@
   html.dark #theme-toggle { color: #e2e8f0; }
   html.dark #theme-toggle:hover { background: #334155; }
 
-  /* ==================== RESPONSIVE ==================== */
+  /* ==================== RESPONSIVE (desktop/tablet) ==================== */
   @media (max-width: 1024px) {
     .props-panel { width: 260px; min-width: 260px; max-width: 260px; padding: 12px; }
     .left-sidebar { width: 170px; min-width: 170px; max-width: 170px; }
@@ -476,6 +476,227 @@
     .floating-toolbar .tool-btn .icon { font-size: 16px; }
     .doc-title { max-width: 180px; }
     .doc-title .title-text { font-size: 11px; max-width: 110px; }
+  }
+
+  /* ============================================================ */
+  /* MOBILE-FIRST LAYOUT (phones only — desktop untouched)        */
+  /* ============================================================ */
+  @media (max-width: 768px) {
+
+    /* Hide desktop-only chrome */
+    .top-bar .menu-btn,
+    .top-bar .action-btn,
+    .top-bar .zoom-controls,
+    .top-bar .spacer,
+    .top-bar .logo span,
+    .doc-title .title-edit-btn,
+    .left-sidebar,
+    .props-panel,
+    .status-bar {
+      display: none !important;
+    }
+
+    /* Top bar becomes a compact app bar */
+    .top-bar {
+      padding: 8px 12px;
+      min-height: 52px;
+      gap: 8px;
+      justify-content: space-between;
+    }
+    .top-bar .logo img { height: 28px; }
+    .doc-title {
+      max-width: none;
+      flex: 1;
+      padding: 4px 8px;
+    }
+    .doc-title .title-text { font-size: 13px; max-width: 160px; }
+
+    /* Show mobile Export button */
+    .top-bar .export-btn-mobile {
+      display: flex !important;
+      background: #2563eb;
+      color: white;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      align-items: center;
+      gap: 4px;
+    }
+    #theme-toggle { font-size: 1.2rem; padding: 6px; }
+
+    /* Workspace fills the rest */
+    .workspace { padding: 12px; }
+
+    /* Floating toolbar — becomes the Edit tool strip */
+    .floating-toolbar {
+      position: fixed;
+      bottom: 70px;
+      left: 8px;
+      right: 8px;
+      transform: none;
+      padding: 6px;
+      gap: 2px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      border-radius: 12px;
+      max-width: none;
+    }
+    .floating-toolbar::-webkit-scrollbar { display: none; }
+    .floating-toolbar .tool-btn {
+      flex-direction: column;
+      min-width: 52px;
+      padding: 6px 8px;
+      font-size: 9px;
+      gap: 2px;
+    }
+    .floating-toolbar .tool-btn .icon { font-size: 16px; }
+    .floating-toolbar .tool-btn .label { display: block; }
+    .floating-toolbar .tool-divider { display: none; }
+
+    /* Bottom navigation (mobile only) */
+    .mobile-bottom-nav {
+      display: flex !important;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: white;
+      border-top: 1px solid #e2e8f0;
+      padding: 6px 4px;
+      padding-bottom: max(8px, env(safe-area-inset-bottom));
+      z-index: 45;
+      justify-content: space-around;
+      align-items: center;
+    }
+    .mobile-bottom-nav .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      padding: 6px 8px;
+      border-radius: 8px;
+      cursor: pointer;
+      flex: 1;
+      max-width: 70px;
+      background: transparent;
+      border: none;
+      color: #94a3b8;
+      font-size: 10px;
+      font-weight: 500;
+    }
+    .mobile-bottom-nav .nav-item.active { color: #2563eb; }
+    .mobile-bottom-nav .nav-item .nav-icon {
+      width: 36px; height: 36px;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+    }
+    .mobile-bottom-nav .nav-item.active .nav-icon { background: #eff6ff; }
+    .mobile-bottom-nav .nav-item:active { transform: scale(0.95); }
+
+    /* Slide-up sheets (reuse existing .props-panel content) */
+    .props-panel.mobile-open {
+      display: flex !important;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      top: auto;
+      width: 100%;
+      min-width: 0;
+      max-width: none;
+      max-height: 70vh;
+      border-left: none;
+      border-top: 1px solid #e2e8f0;
+      border-radius: 20px 20px 0 0;
+      box-shadow: 0 -8px 40px rgba(0,0,0,0.15);
+      z-index: 50;
+      padding: 8px 16px 24px;
+      padding-bottom: max(24px, env(safe-area-inset-bottom));
+      overflow-y: auto;
+    }
+    .props-panel.mobile-open::before {
+      content: '';
+      display: block;
+      width: 40px; height: 4px;
+      background: #cbd5e1;
+      border-radius: 2px;
+      margin: 8px auto 16px;
+    }
+
+    /* Sidebar (pages) becomes a slide-in from the left */
+    .left-sidebar.mobile-open {
+      display: flex !important;
+      position: fixed;
+      top: 0; bottom: 0; left: 0;
+      width: 280px;
+      min-width: 0;
+      max-width: 85vw;
+      z-index: 60;
+      box-shadow: 4px 0 24px rgba(0,0,0,0.15);
+      padding: 12px;
+    }
+    .left-sidebar.mobile-open .sidebar-title { display: block; }
+    .left-sidebar.mobile-open .add-page-btn span:last-child { display: inline; }
+
+    /* Backdrop for sheets */
+    .mobile-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.5);
+      z-index: 44;
+    }
+    .mobile-backdrop.open { display: block; }
+
+    /* Back-to-home pill repositioned */
+    a[href="/"] {
+      bottom: 80px !important;
+      left: 12px !important;
+      padding: 6px 12px !important;
+      font-size: 11px !important;
+    }
+
+    /* Empty state compact */
+    .empty-state { padding: 24px 16px; }
+    .empty-state h3 { font-size: 18px; }
+    .empty-state p { font-size: 13px; }
+
+    /* Reorder overlay: full-screen friendly */
+    .reorder-overlay { padding: 12px; }
+    .reorder-overlay .reorder-header { flex-direction: column; gap: 10px; align-items: flex-start; }
+    .reorder-overlay .reorder-grid {
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 10px;
+    }
+  }
+
+  /* Hidden by default on desktop */
+  .mobile-bottom-nav,
+  .mobile-backdrop,
+  .export-btn-mobile {
+    display: none;
+  }
+
+  /* Dark mode for mobile chrome */
+  html.dark .mobile-bottom-nav {
+    background: #1e293b;
+    border-color: #334155;
+  }
+  html.dark .mobile-bottom-nav .nav-item { color: #64748b; }
+  html.dark .mobile-bottom-nav .nav-item.active { color: #60a5fa; }
+  html.dark .mobile-bottom-nav .nav-item.active .nav-icon { background: #1e3a5f; }
+  html.dark .props-panel.mobile-open {
+    background: #1e293b;
+    border-color: #334155;
+  }
+  html.dark .props-panel.mobile-open::before { background: #475569; }
+  html.dark .left-sidebar.mobile-open {
+    background: #1e293b;
+    border-color: #334155;
   }
 
   .hidden { display: none !important; }
@@ -621,6 +842,7 @@
       </div>
     </div>
 
+    <button class="export-btn-mobile" onclick="exportPDF()">💾 Export</button>
     <button id="theme-toggle" aria-label="Toggle theme">🌙</button>
 
     <div class="menu-btn" style="border:1px solid #2563eb;background:#2563eb;color:white;border-radius:6px;padding:4px 10px;font-size:12px;font-weight:500;cursor:pointer;">
@@ -1053,6 +1275,28 @@
   <span>Back to Home</span>
 </a>
 
+<!-- ==================== MOBILE BACKDROP ==================== -->
+<div class="mobile-backdrop" id="mobileBackdrop" onclick="closeMobileSheets()"></div>
+
+<!-- ==================== MOBILE BOTTOM NAV ==================== -->
+<nav class="mobile-bottom-nav">
+  <button class="nav-item active" onclick="mobileNav('home')" id="mNavHome">
+    <span class="nav-icon">🏠</span><span>Home</span>
+  </button>
+  <button class="nav-item" onclick="mobileNav('pages')" id="mNavPages">
+    <span class="nav-icon">📄</span><span>Pages</span>
+  </button>
+  <button class="nav-item" onclick="mobileNav('edit')" id="mNavEdit">
+    <span class="nav-icon">✏️</span><span>Edit</span>
+  </button>
+  <button class="nav-item" onclick="mobileNav('props')" id="mNavProps">
+    <span class="nav-icon">⚙️</span><span>Props</span>
+  </button>
+  <button class="nav-item" onclick="mobileNav('more')" id="mNavMore">
+    <span class="nav-icon">⋯</span><span>More</span>
+  </button>
+</nav>
+
 <script>
 // ============================================
 // STATE
@@ -1215,6 +1459,7 @@ function loadPDF(file) {
       updateStatusBar();
       setTool('select');
       updateUndoRedoButtons();
+      if (window.innerWidth <= 768) closeMobileSheets();
     }).catch(err => {
       console.error(err);
       alert('Failed to load PDF: ' + err.message);
@@ -1360,6 +1605,7 @@ function handleThumbnailClick(e, pageNum) {
     selectedPages.clear();
     currentPage = pageNum;
     renderCurrentPage();
+    if (window.innerWidth <= 768) closeMobileSheets();
   }
   lastClickedPage = pageNum;
   updateThumbnailSelection();
@@ -1541,7 +1787,6 @@ function rotateSelected(dir) {
 
 function extractSelected() {
   if (selectedPages.size === 0) return;
-  // Export current PDF (in a real implementation this would create a new PDF with only selected pages)
   exportPDF();
 }
 
@@ -1589,6 +1834,10 @@ function createReorderCard(p, idx) {
   card.addEventListener('dragover', handleDragOver);
   card.addEventListener('drop', handleDrop);
   card.addEventListener('dragend', handleDragEnd);
+  // Touch support
+  card.addEventListener('touchstart', handleTouchStart, { passive: false });
+  card.addEventListener('touchmove', handleTouchMove, { passive: false });
+  card.addEventListener('touchend', handleTouchEnd);
   return card;
 }
 
@@ -1632,6 +1881,37 @@ function handleDrop(e) {
   if (dragSrcIndex === null || dragSrcIndex === targetIndex) return;
   const moved = reorderPagesArr.splice(dragSrcIndex, 1)[0];
   reorderPagesArr.splice(targetIndex, 0, moved);
+  refreshReorderGrid();
+}
+function handleDragEnd() { this.classList.remove('dragging'); dragSrcIndex = null; }
+
+// Touch reorder
+let touchSrcIndex = null;
+function handleTouchStart(e) {
+  touchSrcIndex = parseInt(this.dataset.index);
+  this.style.opacity = '0.5';
+}
+function handleTouchMove(e) {
+  e.preventDefault();
+  const touch = e.touches[0];
+  const el = document.elementFromPoint(touch.clientX, touch.clientY);
+  const card = el?.closest('.reorder-card');
+  if (card && card.dataset.index !== undefined) {
+    const targetIndex = parseInt(card.dataset.index);
+    if (touchSrcIndex !== null && touchSrcIndex !== targetIndex) {
+      const moved = reorderPagesArr.splice(touchSrcIndex, 1)[0];
+      reorderPagesArr.splice(targetIndex, 0, moved);
+      touchSrcIndex = targetIndex;
+      refreshReorderGrid();
+    }
+  }
+}
+function handleTouchEnd() {
+  document.querySelectorAll('.reorder-card').forEach(c => c.style.opacity = '');
+  touchSrcIndex = null;
+}
+
+function refreshReorderGrid() {
   const grid = document.getElementById('reorderGrid');
   grid.innerHTML = '';
   reorderPagesArr.forEach((p, idx) => {
@@ -1640,7 +1920,6 @@ function handleDrop(e) {
     renderReorderPreview(card, p);
   });
 }
-function handleDragEnd() { this.classList.remove('dragging'); dragSrcIndex = null; }
 
 function applyReorder() {
   pushUndoState();
@@ -1781,6 +2060,7 @@ function closeDocument() {
   setDocTitle('Untitled PDF');
   updateStatusBar();
   updateUndoRedoButtons();
+  if (window.innerWidth <= 768) closeMobileSheets();
 }
 
 function createBlankPDF() {
@@ -1799,6 +2079,7 @@ function createBlankPDF() {
   updateStatusBar();
   setTool('select');
   updateUndoRedoButtons();
+  if (window.innerWidth <= 768) closeMobileSheets();
 }
 
 // ============================================
@@ -1848,6 +2129,7 @@ document.addEventListener('keydown', (e) => {
     document.getElementById('zoomDropdown').classList.remove('open');
     document.querySelectorAll('.sidebar-menu .menu-content').forEach(m => m.classList.remove('open'));
     closeReorder();
+    if (window.innerWidth <= 768) closeMobileSheets();
   }
 });
 
@@ -1863,11 +2145,106 @@ window.addEventListener('resize', () => {
 });
 
 // ============================================
+// MOBILE NAV HANDLER (mobile only)
+// ============================================
+function mobileNav(tab) {
+  // Update active state
+  document.querySelectorAll('.mobile-bottom-nav .nav-item').forEach(n => n.classList.remove('active'));
+  const btn = document.getElementById('mNav' + tab.charAt(0).toUpperCase() + tab.slice(1));
+  if (btn) btn.classList.add('active');
+
+  const backdrop = document.getElementById('mobileBackdrop');
+  const sidebar = document.getElementById('leftSidebar');
+  const props = document.getElementById('propsPanel');
+
+  // Close both first
+  sidebar.classList.remove('mobile-open');
+  props.classList.remove('mobile-open');
+  backdrop.classList.remove('open');
+
+  if (tab === 'home') {
+    // Show empty state if no doc
+    if (pages.length === 0) {
+      document.getElementById('emptyState').classList.remove('hidden');
+      document.getElementById('singlePageWrapper').classList.add('hidden');
+    }
+    // If doc is open, just show workspace
+  } else if (tab === 'pages') {
+    sidebar.classList.add('mobile-open');
+    backdrop.classList.add('open');
+    if (pages.length > 0) renderThumbnails();
+  } else if (tab === 'edit') {
+    const tb = document.querySelector('.floating-toolbar');
+    if (tb) tb.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  } else if (tab === 'props') {
+    props.classList.add('mobile-open');
+    backdrop.classList.add('open');
+    showPropsForTool(currentTool);
+  } else if (tab === 'more') {
+    props.classList.add('mobile-open');
+    backdrop.classList.add('open');
+    showMoreMenuMobile();
+  }
+}
+
+function closeMobileSheets() {
+  document.getElementById('leftSidebar').classList.remove('mobile-open');
+  document.getElementById('propsPanel').classList.remove('mobile-open');
+  document.getElementById('mobileBackdrop').classList.remove('open');
+  document.querySelectorAll('.mobile-bottom-nav .nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('mNavHome').classList.add('active');
+}
+
+function showMoreMenuMobile() {
+  const panel = document.getElementById('propsPanel');
+  ['propsEmpty','pageProps','selectedPagesProps','textProps','imageProps','shapeProps'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.add('hidden');
+  });
+  let more = document.getElementById('mobileMoreMenu');
+  if (!more) {
+    more = document.createElement('div');
+    more.id = 'mobileMoreMenu';
+    more.innerHTML = `
+      <div class="section-title">📁 File</div>
+      <div class="action-grid">
+        <button class="action-btn-sm" onclick="document.getElementById('pdfInput').click()">📂 Open</button>
+        <button class="action-btn-sm" onclick="createBlankPDF()">📄 New</button>
+        <button class="action-btn-sm" onclick="exportPDF()">📤 Export</button>
+        <button class="action-btn-sm" onclick="window.print()">🖨️ Print</button>
+      </div>
+      <div class="section-title" style="margin-top:16px;">✂️ Edit</div>
+      <div class="action-grid">
+        <button class="action-btn-sm" onclick="undo()">↶ Undo</button>
+        <button class="action-btn-sm" onclick="redo()">↷ Redo</button>
+        <button class="action-btn-sm" onclick="selectAllPages()">☑️ Select All</button>
+        <button class="action-btn-sm danger" onclick="closeDocument()">✕ Close</button>
+      </div>
+      <div class="section-title" style="margin-top:16px;">📑 Pages</div>
+      <div class="action-grid">
+        <button class="action-btn-sm" onclick="addBlankPage()">📄 Add</button>
+        <button class="action-btn-sm" onclick="duplicatePage()">📋 Duplicate</button>
+        <button class="action-btn-sm" onclick="openReorder()">🔀 Reorder</button>
+        <button class="action-btn-sm danger" onclick="deletePage()">🗑️ Delete</button>
+      </div>
+      <div class="section-title" style="margin-top:16px;">🔍 View</div>
+      <div class="action-grid">
+        <button class="action-btn-sm" onclick="zoomIn()">🔍 Zoom In</button>
+        <button class="action-btn-sm" onclick="zoomOut()">🔍 Zoom Out</button>
+        <button class="action-btn-sm full" onclick="fitPage()">📄 Fit Page</button>
+      </div>
+    `;
+    panel.appendChild(more);
+  }
+  more.classList.remove('hidden');
+}
+
+// ============================================
 // INIT
 // ============================================
 updateStatusBar();
 updateUndoRedoButtons();
-console.log('✏️ Droplet PDF Editor — full build, all features intact');
+console.log('✏️ Droplet PDF Editor — responsive build (desktop + mobile)');
 </script>
 </body>
 </html>
