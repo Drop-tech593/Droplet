@@ -606,7 +606,7 @@
         
         if (page.images && page.images.length > 0) {
           for (const img of page.images) {
-            html += `<div class="preview-image-placeholder">🖼️ Image (${Math.round(img.width / 1.5)} × ${Math.round(img.height / 1.5)} px)</div>`;
+            html += `<div class="preview-image-placeholder">🖼️ Image (${Math.round(img.width / 2)} × ${Math.round(img.height / 2)} px)</div>`;
           }
         }
       }
@@ -748,7 +748,9 @@
           ...img, 
           data: dataURLToUint8Array(canvasToDataURL(crop)),
           originalWidth: img.width / renderScale,   // in PDF points
-          originalHeight: img.height / renderScale
+          originalHeight: img.height / renderScale,
+          originalX: img.x / renderScale,           // in PDF points (from left)
+          originalY: img.y / renderScale            // in PDF points (from top)
         });
       }
 
@@ -932,12 +934,15 @@
         AlignmentType, PageBreak, convertInchesToTwip 
       } = window.docx;
 
-      const children = [];
-
-      // No filename title inserted — that was removed as requested.
+      // Build one section per PDF page to preserve page dimensions
+      const sections = [];
 
       for (let p = 0; p < documentData.pages.length; p++) {
         const page = documentData.pages[p];
+        
+        // Use the actual PDF page dimensions (in points, 72 points = 1 inch)
+        const pageWidthInches = page.width / 72;
+        const pageHeightInches = page.height / 72;
         
         // Build a combined list of elements (text lines + images) with their vertical positions.
         const elements = [];
@@ -951,12 +956,11 @@
           });
         }
 
-        // Add images (convert canvas y to pdf-like y for sorting; but we sort by canvas y anyway)
-        // img.y is in canvas pixels (from top). We'll sort by that.
+        // Add images (use original PDF Y coordinate for sorting)
         for (const img of page.images) {
           elements.push({
             type: 'image',
-            y: img.y / 2.0, // approximate PDF points (since renderScale was 2.0)
+            y: img.originalY,
             data: img
           });
         }
@@ -967,6 +971,8 @@
         // Track whether we are inside a continuous paragraph (for spacing decisions)
         let inContinuousParagraph = false;
         let previousY = 0;
+
+        const children = [];
 
         // Process each element in order
         for (const element of elements) {
@@ -1071,17 +1077,16 @@
             try {
               // Convert canvas pixels to Word sizes (1 px at 96dpi = 1/96 inch)
               // img.originalWidth/Height are in PDF points (1/72 inch)
-              // We'll set the image size in pixels (Word uses px at 96dpi internally)
-              const widthInPoints = img.originalWidth || (img.width / 2.0);
-              const heightInPoints = img.originalHeight || (img.height / 2.0);
+              const widthInPoints = img.originalWidth;
+              const heightInPoints = img.originalHeight;
               
               // Convert points to pixels (1 pt = 1/72 inch, 1 px = 1/96 inch, so px = pt * 96/72 = pt * 1.3333)
               const widthPx = Math.round(widthInPoints * (96 / 72));
               const heightPx = Math.round(heightInPoints * (96 / 72));
 
-              // Cap maximum dimensions to fit page (6.5 inches wide max)
-              const maxWidthPx = Math.round(6.5 * 96); // 624 px
-              const maxHeightPx = Math.round(8.0 * 96); // 768 px
+              // Cap maximum dimensions to fit page (use PDF page width minus margins)
+              const maxWidthPx = Math.round((page.width / 72 - 2.0) * 96); // page width in inches - 2 inches margins
+              const maxHeightPx = Math.round((page.height / 72 - 2.0) * 96);
 
               let finalWidthPx = widthPx;
               let finalHeightPx = heightPx;
@@ -1101,59 +1106,28 @@
               finalWidthPx = Math.max(30, finalWidthPx);
               finalHeightPx = Math.max(20, finalHeightPx);
 
-              // Compute horizontal offset (from left margin) based on PDF x coordinate.
+              // Compute horizontal offset (from left page edge) based on PDF x coordinate.
               // PDF page width in points: page.width (from baseViewport). 
-              // Left margin is 1.25 inches = 90 pt.
-              // Available width = page.width - 180 pt.
-              // img.x is in points (approx). But we stored canvas coords (renderScale=2). 
-              // We'll convert back: canvas x / 2 = PDF points from left.
-              const pdfX = img.x / 2.0; // points from left
-              const pageWidthPt = page.width; // in points
-              const leftMarginPt = 1.25 * 72; // 90 pt
-              const rightMarginPt = 1.25 * 72; // 90 pt
-              
-              // Offset from left margin in points (can be negative if image starts before margin)
-              let offsetPt = pdfX - leftMarginPt;
-              // Clamp so image stays within margins
-              const maxOffsetPt = pageWidthPt - leftMarginPt - rightMarginPt - widthInPoints;
-              if (offsetPt < 0) offsetPt = 0;
-              if (offsetPt > maxOffsetPt) offsetPt = Math.max(0, maxOffsetPt);
+              // img.originalX is in PDF points from left.
+              const pdfX = img.originalX;
+              let offsetPt = pdfX;
 
-              // Convert points to EMU? The floating position uses points? 
-              // According to docx library, floating offsets are in EMU? Actually they use pixels? 
-              // Let's use the "offset" in EMUs? The docs say: horizontalPosition: { offset: number } - offset in EMU? 
-              // Actually the library uses "twip" or "emu"? Quick check: docx uses "offset" in EMU (English Metric Units) for floating.
-              // 1 point = 12700 EMU. But the library expects offset in pixels? 
-              // To be safe, we'll use relative positioning to column or page with offset in EMU.
-              // However, the floating property expects offset in EMU? Let's test with points directly? 
-              // The library's floating.horizontalPosition.offset is in EMU according to docx docs.
-              // So convert points to EMU: 1 pt = 12700 EMU.
+              // Clamp so image stays within page
+              const maxOffsetPt = page.width - widthInPoints;
+              offsetPt = Math.max(0, Math.min(offsetPt, maxOffsetPt));
+
+              // Convert points to EMU (1 pt = 12700 EMU)
               const emuPerPoint = 12700;
               const offsetEmu = Math.round(offsetPt * emuPerPoint);
 
-              // Vertical offset: we can't easily know exact y in Word flow, so we'll just let it flow naturally.
-              // But we want images to appear at their vertical position relative to text.
-              // Floating with verticalPosition relative to page would need y offset, which we don't have reliably.
-              // For now, we'll use floating horizontally only, and let vertical position be in the flow.
-              // Actually, we can use floating with verticalPosition relative to "paragraph" but that's complex.
-              // Instead, let's keep images in the flow but align them left/right/center based on their x position.
-              // Since the user wants to fix the bad placement, we'll use floating for horizontal offset and keep vertical inline.
-              
-              // However, the user specifically asked to use floating with offset for x and y.
-              // We can approximate vertical offset by using the page height and img.y.
-              // img.y is in canvas pixels (renderScale=2), so PDF y from top = img.y / 2.
-              // The page height in points = page.height.
-              // Vertical offset from top margin = (img.y/2) - topMarginPt (1 inch = 72 pt)
-              const pdfY = img.y / 2.0; // from top
-              const topMarginPt = 1.0 * 72; // 72 pt
-              let offsetYPt = pdfY - topMarginPt;
-              if (offsetYPt < 0) offsetYPt = 0;
+              // Vertical offset: use PDF Y coordinate from top.
+              const pdfY = img.originalY;
+              let offsetYPt = pdfY;
+              const maxOffsetYPt = page.height - heightInPoints;
+              offsetYPt = Math.max(0, Math.min(offsetYPt, maxOffsetYPt));
               const offsetYEmu = Math.round(offsetYPt * emuPerPoint);
 
-              // But floating images can overlap text; we need to set wrap to none.
-              // Also, we need to ensure the image doesn't break the flow.
-              // We'll create a paragraph with floating image and no text.
-
+              // Create floating image positioned relative to page
               const imageRun = new ImageRun({
                 data: img.data,
                 transformation: {
@@ -1200,7 +1174,6 @@
 
         // Add tables for this page (they are handled separately; we don't have their y positions)
         // For simplicity, we'll append tables after all text/images on the page.
-        // In a more advanced version, we'd interleave them by y as well.
         for (const table of page.tables) {
           try {
             const { Table, TableRow, TableCell, BorderStyle, WidthType } = window.docx;
@@ -1257,24 +1230,27 @@
         if (p < documentData.pages.length - 1) {
           children.push(new Paragraph({ children: [new PageBreak()] }));
         }
-      }
 
-      const doc = new Document({
-        sections: [{
+        // Create a section for this page with the correct dimensions
+        sections.push({
           properties: {
             page: {
-              width: convertInchesToTwip(8.27),
-              height: convertInchesToTwip(11.69),
+              width: convertInchesToTwip(pageWidthInches),
+              height: convertInchesToTwip(pageHeightInches),
               margin: {
-                top: convertInchesToTwip(1.0),
-                bottom: convertInchesToTwip(1.0),
-                left: convertInchesToTwip(1.25),
-                right: convertInchesToTwip(1.25)
+                top: convertInchesToTwip(0.5),
+                bottom: convertInchesToTwip(0.5),
+                left: convertInchesToTwip(0.5),
+                right: convertInchesToTwip(0.5)
               }
             }
           },
-          children
-        }]
+          children: children
+        });
+      }
+
+      const doc = new Document({
+        sections: sections
       });
 
       return await Packer.toBlob(doc);
