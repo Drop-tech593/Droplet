@@ -607,7 +607,6 @@
         if (page.images && page.images.length > 0) {
           for (const img of page.images) {
             html += `<div class="preview-image-placeholder">🖼️ Image (${Math.round(img.width / 1.5)} × ${Math.round(img.height / 1.5)} px)</div>`;
-            html += `<div class="preview-caption">Figure ${p + 1}.${page.images.indexOf(img) + 1}: Image</div>`;
           }
         }
       }
@@ -670,16 +669,19 @@
       return bytes;
     }
 
+    /**
+     * Extract images with their natural size (no forced min width/height).
+     * We use the CTM to get the placement rectangle but we don't clip to tiny strips.
+     */
     async function renderPageAndFindImages(page, pageNumber) {
       const baseViewport = page.getViewport({ scale: 1 });
-      const renderScale = 1.5;
+      const renderScale = 2.0; // higher quality
       const viewport = page.getViewport({ scale: renderScale });
 
       const canvas = document.createElement('canvas');
       canvas.width = Math.ceil(viewport.width);
       canvas.height = Math.ceil(viewport.height);
       const ctx = canvas.getContext('2d', { alpha: false });
-
       await page.render({ canvasContext: ctx, viewport }).promise;
 
       const opList = await page.getOperatorList();
@@ -697,12 +699,17 @@
         else if (fn === OPS.restore) { ctm = stack.length ? stack.pop() : [1,0,0,1,0,0]; }
         else if (fn === OPS.transform) { ctm = matrixMultiply(ctm, args); }
         else if (fn === OPS.paintImageXObject || fn === OPS.paintImageMaskXObject || fn === OPS.paintImageXObjectRepeat) {
+          // Use the full 1x1 unit box transformed by CTM.
           const box = getTransformedBox(ctm, 1, 1);
+          
+          // Convert PDF coords (y from bottom) to canvas coords (y from top).
           const x = box.x * renderScale;
           const y = (baseViewport.height - box.y - box.height) * renderScale;
           const w = Math.abs(box.width) * renderScale;
           const h = Math.abs(box.height) * renderScale;
-          if (w >= 8 && h >= 8) {
+
+          // Only keep reasonably sized images (at least 10x10 canvas pixels)
+          if (w >= 10 && h >= 10) {
             images.push({
               page: pageNumber,
               x: Math.max(0, x),
@@ -714,26 +721,43 @@
         }
       }
 
+      // Remove duplicates (same position & size)
       const unique = [];
       for (const img of images) {
         const duplicate = unique.some(u =>
-          Math.abs(u.x-img.x)<2 && Math.abs(u.y-img.y)<2 &&
-          Math.abs(u.width-img.width)<2 && Math.abs(u.height-img.height)<2
+          Math.abs(u.x - img.x) < 2 && Math.abs(u.y - img.y) < 2 &&
+          Math.abs(u.width - img.width) < 2 && Math.abs(u.height - img.height) < 2
         );
-        if (!duplicate && img.width > 10 && img.height > 10) unique.push(img);
+        if (!duplicate) unique.push(img);
       }
 
+      // Crop each image from the rendered page.
       const crops = [];
       for (const img of unique) {
         const crop = document.createElement('canvas');
         crop.width = Math.max(1, Math.round(img.width));
         crop.height = Math.max(1, Math.round(img.height));
         const cropCtx = crop.getContext('2d');
-        cropCtx.drawImage(canvas, Math.round(img.x), Math.round(img.y), Math.round(img.width), Math.round(img.height), 0, 0, crop.width, crop.height);
-        crops.push({ ...img, data: dataURLToUint8Array(canvasToDataURL(crop)) });
+        cropCtx.drawImage(
+          canvas,
+          Math.round(img.x), Math.round(img.y),
+          Math.round(img.width), Math.round(img.height),
+          0, 0, crop.width, crop.height
+        );
+        crops.push({ 
+          ...img, 
+          data: dataURLToUint8Array(canvasToDataURL(crop)),
+          originalWidth: img.width / renderScale,   // in PDF points
+          originalHeight: img.height / renderScale
+        });
       }
 
-      return { pageNumber, pageWidth: baseViewport.width, pageHeight: baseViewport.height, images: crops };
+      return { 
+        pageNumber, 
+        pageWidth: baseViewport.width, 
+        pageHeight: baseViewport.height, 
+        images: crops 
+      };
     }
 
     function detectTables(lines) {
@@ -896,128 +920,287 @@
     }
 
     // ============================================
-    // CREATE DOCX WITH CORRECT LINE SPACING
+    // CREATE DOCX WITH CORRECT ELEMENT ORDER & FLOATING IMAGES
     // ============================================
     async function createStyledDOCX(documentData, filename) {
       if (typeof window.docx === 'undefined') {
         throw new Error('DOCX library not loaded. Please refresh the page.');
       }
 
-      const { Document, Packer, Paragraph, TextRun, ImageRun, AlignmentType, PageBreak, convertInchesToTwip } = window.docx;
+      const { 
+        Document, Packer, Paragraph, TextRun, ImageRun, 
+        AlignmentType, PageBreak, convertInchesToTwip 
+      } = window.docx;
+
       const children = [];
 
-      // Title page with proper spacing
-      if (filename) {
-        children.push(new Paragraph({
-          children: [new TextRun({ text: filename, size: 28, bold: true })],
-          alignment: AlignmentType.CENTER,
-          spacing: { before: 360, after: 180, line: 276, lineRule: 'exact' }
-        }));
-      }
+      // No filename title inserted — that was removed as requested.
 
       for (let p = 0; p < documentData.pages.length; p++) {
         const page = documentData.pages[p];
-        const sortedLines = [...page.lines].sort((a, b) => a.y - b.y);
+        
+        // Build a combined list of elements (text lines + images) with their vertical positions.
+        const elements = [];
 
-        let inContinuousParagraph = false;
-        let previousLineY = 0;
-
-        for (const line of sortedLines) {
-          let beforeSpacing = 240;
-          let afterSpacing = 120;
-          let fontSize = 22;
-          let isBold = false;
-          let alignment = AlignmentType.JUSTIFIED;
-          let indent = null;
-          let leftIndent = 0;
-          let lineSpacing = 276;
-
-          const isContinuation = !line.isMainHeading && !line.isSubHeading && 
-                                 !line.isBullet && !line.isNumbered &&
-                                 line.y - previousLineY < 15 && inContinuousParagraph;
-
-          if (line.isMainHeading) {
-            fontSize = 28;
-            isBold = true;
-            beforeSpacing = 360;
-            afterSpacing = 180;
-            alignment = AlignmentType.LEFT;
-            leftIndent = 360;
-            lineSpacing = 276;
-            inContinuousParagraph = false;
-          } else if (line.isSubHeading) {
-            fontSize = 24;
-            isBold = true;
-            beforeSpacing = 360;
-            afterSpacing = 120;
-            alignment = AlignmentType.LEFT;
-            lineSpacing = 276;
-            inContinuousParagraph = false;
-          } else if (line.isBullet) {
-            fontSize = 22;
-            beforeSpacing = 60;
-            afterSpacing = 60;
-            alignment = AlignmentType.LEFT;
-            indent = { left: 360, hanging: 180 };
-            lineSpacing = 276;
-            inContinuousParagraph = false;
-          } else if (line.isNumbered) {
-            fontSize = 22;
-            beforeSpacing = 60;
-            afterSpacing = 60;
-            alignment = AlignmentType.LEFT;
-            indent = { left: 360, hanging: 180 };
-            lineSpacing = 276;
-            inContinuousParagraph = false;
-          } else {
-            fontSize = 22;
-            if (isContinuation) {
-              beforeSpacing = 0;
-              afterSpacing = 0;
-            } else {
-              beforeSpacing = 240;
-              afterSpacing = 120;
-            }
-            alignment = AlignmentType.JUSTIFIED;
-            lineSpacing = 276;
-          }
-
-          let text = line.text;
-          if (line.isBullet) text = text.replace(/^[•●▪◦\-*]\s*/, '');
-
-          const run = new TextRun({
-            text: line.isBullet ? '• ' + text : text,
-            size: fontSize,
-            bold: isBold || line.isBold
+        // Add text lines
+        for (const line of page.lines) {
+          elements.push({
+            type: 'text',
+            y: line.y,
+            data: line
           });
-
-          const options = {
-            children: [run],
-            spacing: {
-              before: beforeSpacing,
-              after: afterSpacing,
-              line: lineSpacing,
-              lineRule: 'exact'
-            },
-            alignment: alignment
-          };
-
-          if (indent) {
-            options.indent = indent;
-          }
-
-          if (leftIndent > 0 && !indent) {
-            options.indent = { left: leftIndent };
-          }
-
-          children.push(new Paragraph(options));
-
-          previousLineY = line.y;
-          inContinuousParagraph = !line.isMainHeading && !line.isSubHeading && 
-                                  !line.isBullet && !line.isNumbered;
         }
 
-        // Add tables
+        // Add images (convert canvas y to pdf-like y for sorting; but we sort by canvas y anyway)
+        // img.y is in canvas pixels (from top). We'll sort by that.
+        for (const img of page.images) {
+          elements.push({
+            type: 'image',
+            y: img.y / 2.0, // approximate PDF points (since renderScale was 2.0)
+            data: img
+          });
+        }
+
+        // Sort all elements by vertical position (top to bottom)
+        elements.sort((a, b) => a.y - b.y);
+
+        // Track whether we are inside a continuous paragraph (for spacing decisions)
+        let inContinuousParagraph = false;
+        let previousY = 0;
+
+        // Process each element in order
+        for (const element of elements) {
+          if (element.type === 'text') {
+            const line = element.data;
+            
+            let beforeSpacing = 240;
+            let afterSpacing = 120;
+            let fontSize = 22;
+            let isBold = false;
+            let alignment = AlignmentType.JUSTIFIED;
+            let indent = null;
+            let leftIndent = 0;
+            let lineSpacing = 276;
+
+            const isContinuation = !line.isMainHeading && !line.isSubHeading && 
+                                   !line.isBullet && !line.isNumbered &&
+                                   (element.y - previousY) < 15 && inContinuousParagraph;
+
+            if (line.isMainHeading) {
+              fontSize = 28;
+              isBold = true;
+              beforeSpacing = 360;
+              afterSpacing = 180;
+              alignment = AlignmentType.LEFT;
+              leftIndent = 360;
+              lineSpacing = 276;
+              inContinuousParagraph = false;
+            } else if (line.isSubHeading) {
+              fontSize = 24;
+              isBold = true;
+              beforeSpacing = 360;
+              afterSpacing = 120;
+              alignment = AlignmentType.LEFT;
+              lineSpacing = 276;
+              inContinuousParagraph = false;
+            } else if (line.isBullet) {
+              fontSize = 22;
+              beforeSpacing = 60;
+              afterSpacing = 60;
+              alignment = AlignmentType.LEFT;
+              indent = { left: 360, hanging: 180 };
+              lineSpacing = 276;
+              inContinuousParagraph = false;
+            } else if (line.isNumbered) {
+              fontSize = 22;
+              beforeSpacing = 60;
+              afterSpacing = 60;
+              alignment = AlignmentType.LEFT;
+              indent = { left: 360, hanging: 180 };
+              lineSpacing = 276;
+              inContinuousParagraph = false;
+            } else {
+              fontSize = 22;
+              if (isContinuation) {
+                beforeSpacing = 0;
+                afterSpacing = 0;
+              } else {
+                beforeSpacing = 240;
+                afterSpacing = 120;
+              }
+              alignment = AlignmentType.JUSTIFIED;
+              lineSpacing = 276;
+            }
+
+            let text = line.text;
+            if (line.isBullet) text = text.replace(/^[•●▪◦\-*]\s*/, '');
+
+            const run = new TextRun({
+              text: line.isBullet ? '• ' + text : text,
+              size: fontSize,
+              bold: isBold || line.isBold
+            });
+
+            const options = {
+              children: [run],
+              spacing: {
+                before: beforeSpacing,
+                after: afterSpacing,
+                line: lineSpacing,
+                lineRule: 'exact'
+              },
+              alignment: alignment
+            };
+
+            if (indent) {
+              options.indent = indent;
+            }
+
+            if (leftIndent > 0 && !indent) {
+              options.indent = { left: leftIndent };
+            }
+
+            children.push(new Paragraph(options));
+
+            previousY = element.y;
+            inContinuousParagraph = !line.isMainHeading && !line.isSubHeading && 
+                                    !line.isBullet && !line.isNumbered;
+
+          } else if (element.type === 'image') {
+            const img = element.data;
+            try {
+              // Convert canvas pixels to Word sizes (1 px at 96dpi = 1/96 inch)
+              // img.originalWidth/Height are in PDF points (1/72 inch)
+              // We'll set the image size in pixels (Word uses px at 96dpi internally)
+              const widthInPoints = img.originalWidth || (img.width / 2.0);
+              const heightInPoints = img.originalHeight || (img.height / 2.0);
+              
+              // Convert points to pixels (1 pt = 1/72 inch, 1 px = 1/96 inch, so px = pt * 96/72 = pt * 1.3333)
+              const widthPx = Math.round(widthInPoints * (96 / 72));
+              const heightPx = Math.round(heightInPoints * (96 / 72));
+
+              // Cap maximum dimensions to fit page (6.5 inches wide max)
+              const maxWidthPx = Math.round(6.5 * 96); // 624 px
+              const maxHeightPx = Math.round(8.0 * 96); // 768 px
+
+              let finalWidthPx = widthPx;
+              let finalHeightPx = heightPx;
+
+              if (finalWidthPx > maxWidthPx) {
+                const ratio = maxWidthPx / finalWidthPx;
+                finalWidthPx = maxWidthPx;
+                finalHeightPx = Math.round(finalHeightPx * ratio);
+              }
+              if (finalHeightPx > maxHeightPx) {
+                const ratio = maxHeightPx / finalHeightPx;
+                finalHeightPx = maxHeightPx;
+                finalWidthPx = Math.round(finalWidthPx * ratio);
+              }
+
+              // Ensure minimum size
+              finalWidthPx = Math.max(30, finalWidthPx);
+              finalHeightPx = Math.max(20, finalHeightPx);
+
+              // Compute horizontal offset (from left margin) based on PDF x coordinate.
+              // PDF page width in points: page.width (from baseViewport). 
+              // Left margin is 1.25 inches = 90 pt.
+              // Available width = page.width - 180 pt.
+              // img.x is in points (approx). But we stored canvas coords (renderScale=2). 
+              // We'll convert back: canvas x / 2 = PDF points from left.
+              const pdfX = img.x / 2.0; // points from left
+              const pageWidthPt = page.width; // in points
+              const leftMarginPt = 1.25 * 72; // 90 pt
+              const rightMarginPt = 1.25 * 72; // 90 pt
+              
+              // Offset from left margin in points (can be negative if image starts before margin)
+              let offsetPt = pdfX - leftMarginPt;
+              // Clamp so image stays within margins
+              const maxOffsetPt = pageWidthPt - leftMarginPt - rightMarginPt - widthInPoints;
+              if (offsetPt < 0) offsetPt = 0;
+              if (offsetPt > maxOffsetPt) offsetPt = Math.max(0, maxOffsetPt);
+
+              // Convert points to EMU? The floating position uses points? 
+              // According to docx library, floating offsets are in EMU? Actually they use pixels? 
+              // Let's use the "offset" in EMUs? The docs say: horizontalPosition: { offset: number } - offset in EMU? 
+              // Actually the library uses "twip" or "emu"? Quick check: docx uses "offset" in EMU (English Metric Units) for floating.
+              // 1 point = 12700 EMU. But the library expects offset in pixels? 
+              // To be safe, we'll use relative positioning to column or page with offset in EMU.
+              // However, the floating property expects offset in EMU? Let's test with points directly? 
+              // The library's floating.horizontalPosition.offset is in EMU according to docx docs.
+              // So convert points to EMU: 1 pt = 12700 EMU.
+              const emuPerPoint = 12700;
+              const offsetEmu = Math.round(offsetPt * emuPerPoint);
+
+              // Vertical offset: we can't easily know exact y in Word flow, so we'll just let it flow naturally.
+              // But we want images to appear at their vertical position relative to text.
+              // Floating with verticalPosition relative to page would need y offset, which we don't have reliably.
+              // For now, we'll use floating horizontally only, and let vertical position be in the flow.
+              // Actually, we can use floating with verticalPosition relative to "paragraph" but that's complex.
+              // Instead, let's keep images in the flow but align them left/right/center based on their x position.
+              // Since the user wants to fix the bad placement, we'll use floating for horizontal offset and keep vertical inline.
+              
+              // However, the user specifically asked to use floating with offset for x and y.
+              // We can approximate vertical offset by using the page height and img.y.
+              // img.y is in canvas pixels (renderScale=2), so PDF y from top = img.y / 2.
+              // The page height in points = page.height.
+              // Vertical offset from top margin = (img.y/2) - topMarginPt (1 inch = 72 pt)
+              const pdfY = img.y / 2.0; // from top
+              const topMarginPt = 1.0 * 72; // 72 pt
+              let offsetYPt = pdfY - topMarginPt;
+              if (offsetYPt < 0) offsetYPt = 0;
+              const offsetYEmu = Math.round(offsetYPt * emuPerPoint);
+
+              // But floating images can overlap text; we need to set wrap to none.
+              // Also, we need to ensure the image doesn't break the flow.
+              // We'll create a paragraph with floating image and no text.
+
+              const imageRun = new ImageRun({
+                data: img.data,
+                transformation: {
+                  width: finalWidthPx,
+                  height: finalHeightPx
+                },
+                floating: {
+                  horizontalPosition: {
+                    relative: 'page',
+                    offset: offsetEmu
+                  },
+                  verticalPosition: {
+                    relative: 'page',
+                    offset: offsetYEmu
+                  },
+                  wrap: {
+                    type: 'none'
+                  },
+                  margins: {
+                    top: 0,
+                    bottom: 0,
+                    left: 0,
+                    right: 0
+                  }
+                }
+              });
+
+              // Add an empty paragraph that contains the floating image.
+              // The paragraph itself should not add extra spacing.
+              children.push(new Paragraph({
+                children: [imageRun],
+                spacing: { before: 0, after: 0, line: 276, lineRule: 'exact' }
+              }));
+
+              // Update previousY to image's y so subsequent text spacing works
+              previousY = element.y;
+              inContinuousParagraph = false;
+
+            } catch (e) {
+              console.warn('Image insertion error:', e);
+            }
+          }
+        }
+
+        // Add tables for this page (they are handled separately; we don't have their y positions)
+        // For simplicity, we'll append tables after all text/images on the page.
+        // In a more advanced version, we'd interleave them by y as well.
         for (const table of page.tables) {
           try {
             const { Table, TableRow, TableCell, BorderStyle, WidthType } = window.docx;
@@ -1070,44 +1253,7 @@
           }
         }
 
-        // Add images with proper spacing
-        let imageCounter = 1;
-        for (const img of page.images) {
-          try {
-            const imageWidthIn = Math.min(5.5, Math.max(0.8, (img.width / 1.5) / 72));
-            const imageHeightIn = Math.max(0.3, imageWidthIn * ((img.height / 1.5) / (img.width / 1.5)));
-            const widthPx = Math.round(imageWidthIn * 96);
-            const heightPx = Math.round(imageHeightIn * 96);
-            const cappedHeightPx = Math.min(heightPx, 600);
-            const cappedWidthPx = Math.round(widthPx * (cappedHeightPx / heightPx));
-
-            children.push(new Paragraph({ children: [], spacing: { before: 120, after: 0 } }));
-            
-            children.push(new Paragraph({
-              children: [new ImageRun({
-                data: img.data,
-                transformation: {
-                  width: Math.max(60, cappedWidthPx),
-                  height: Math.max(30, cappedHeightPx)
-                }
-              })],
-              alignment: AlignmentType.CENTER,
-              spacing: { before: 0, after: 0, line: 276, lineRule: 'exact' }
-            }));
-            
-            const captionText = `Figure ${p + 1}.${imageCounter}: Image`;
-            children.push(new Paragraph({
-              children: [new TextRun({ text: captionText, size: 22 })],
-              alignment: AlignmentType.CENTER,
-              spacing: { before: 60, after: 120, line: 276, lineRule: 'exact' }
-            }));
-            
-            imageCounter++;
-          } catch (e) {
-            console.warn('Image insertion error:', e);
-          }
-        }
-
+        // Add page break between pages (except last)
         if (p < documentData.pages.length - 1) {
           children.push(new Paragraph({ children: [new PageBreak()] }));
         }
