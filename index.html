@@ -1174,12 +1174,12 @@
           </div>
         </a>
 
-        <a href="/edit-pdf.html" class="tool-card-link">
+        <a href="/merge-pdf.html" class="tool-card-link">
           <div class="bg-blue-500 hover:bg-blue-600 text-white p-4 md:p-5 rounded-2xl shadow-sm transition-all cursor-pointer group flex flex-col justify-between min-h-[120px]">
-            <div class="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center text-lg mb-2">✏️</div>
+            <div class="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center text-lg mb-2">🔗</div>
             <div>
-              <span class="text-[10px] font-bold uppercase tracking-wider text-blue-100 block opacity-80">Edit</span>
-              <h4 class="font-extrabold text-sm md:text-base leading-tight mt-0.5">Edit PDF</h4>
+              <span class="text-[10px] font-bold uppercase tracking-wider text-blue-100 block opacity-80">PDF Organize</span>
+              <h4 class="font-extrabold text-sm md:text-base leading-tight mt-0.5">Merge PDF</h4>
             </div>
           </div>
         </a>
@@ -1200,7 +1200,7 @@
         </div>
         <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 transition-colors duration-200">
           <h3 class="font-bold text-slate-900">What file formats are supported?</h3>
-          <p class="text-slate-600 mt-1">We support HEIC to JPG, JSON to CSV, EPUB to PDF, SVG to PNG, PDF to DOCX, WebP to PNG, PSD to PNG, GIF to PNG, Word to PDF, and Edit PDF. More formats are coming soon!</p>
+          <p class="text-slate-600 mt-1">We support HEIC to JPG, JSON to CSV, EPUB to PDF, SVG to PNG, PDF to DOCX, WebP to PNG, PSD to PNG, GIF to PNG, Word to PDF, Merge PDF, and more. More formats are coming soon!</p>
         </div>
         <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 transition-colors duration-200">
           <h3 class="font-bold text-slate-900">Do I need an account?</h3>
@@ -1233,17 +1233,21 @@
     // ============================================
     // 0. DARK MODE TOGGLE
     // ============================================
+    // NEW BEHAVIOR: Default to LIGHT mode for new users.
+    // Only use dark mode if the user explicitly chose it before.
     const themeToggle = document.getElementById('theme-toggle');
     const html = document.documentElement;
     
-    // Check saved theme or system preference
-    let currentTheme = localStorage.getItem('theme') || 
-      (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    // Check saved theme ONLY. Ignore system preference.
+    // This means first-time visitors always see light mode.
+    const savedTheme = localStorage.getItem('theme');
     
-    if (currentTheme === 'dark') {
+    if (savedTheme === 'dark') {
       html.classList.add('dark');
       themeToggle.textContent = '☀️';
     } else {
+      // Default to light mode (even if system is dark)
+      html.classList.remove('dark');
       themeToggle.textContent = '🌙';
     }
     
