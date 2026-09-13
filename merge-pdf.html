@@ -428,7 +428,7 @@
     })();
 
     // ============================================
-    // INDEXEDDB WRAPPER (native, no library)
+    // INDEXEDDB WRAPPER
     // ============================================
     const DB_NAME = 'droplet-merge-db';
     const DB_VERSION = 1;
@@ -527,6 +527,42 @@
     const duplicateBtn = document.getElementById('duplicateBtn');
 
     // ============================================
+    // PDF SANITIZER - Fixes "No PDF header" errors
+    // ============================================
+    function sanitizePdfBytes(uint8Array) {
+      // Look for the %PDF- header signature anywhere in the first 1KB
+      // (some PDFs have leading whitespace, BOM, or garbage bytes)
+      const searchLimit = Math.min(1024, uint8Array.length);
+      let headerOffset = -1;
+      
+      for (let i = 0; i < searchLimit - 4; i++) {
+        if (
+          uint8Array[i] === 0x25 &&     // %
+          uint8Array[i + 1] === 0x50 && // P
+          uint8Array[i + 2] === 0x44 && // D
+          uint8Array[i + 3] === 0x46 && // F
+          uint8Array[i + 4] === 0x2D    // -
+        ) {
+          headerOffset = i;
+          break;
+        }
+      }
+
+      if (headerOffset === -1) {
+        // No PDF header found at all
+        throw new Error('This file does not appear to be a valid PDF (missing %PDF- header).');
+      }
+
+      if (headerOffset === 0) {
+        // Already clean
+        return uint8Array;
+      }
+
+      // Trim everything before the header
+      return uint8Array.slice(headerOffset);
+    }
+
+    // ============================================
     // FILE HANDLING
     // ============================================
     async function handleFiles(files) {
@@ -559,15 +595,54 @@
           throw new Error('PDF library not loaded. Please refresh the page.');
         }
 
-        const arrayBuffer = await file.arrayBuffer();
-        const pdfDoc = await PDFLib.PDFDocument.load(arrayBuffer, { ignoreEncryption: true });
+        // Read raw bytes
+        const rawBytes = new Uint8Array(await file.arrayBuffer());
+        
+        // Sanitize (trim leading garbage before %PDF-)
+        let cleanBytes;
+        try {
+          cleanBytes = sanitizePdfBytes(rawBytes);
+        } catch (sanitizeError) {
+          // If we can't find a header, try anyway with the original (may still work for odd cases)
+          console.warn('Sanitize failed:', sanitizeError.message);
+          cleanBytes = rawBytes;
+        }
+
+        // Try loading with pdf-lib (strict)
+        let pdfDoc;
+        try {
+          pdfDoc = await PDFLib.PDFDocument.load(cleanBytes, { 
+            ignoreEncryption: true,
+            updateMetadata: false
+          });
+        } catch (strictError) {
+          // Fallback: try the raw bytes
+          try {
+            pdfDoc = await PDFLib.PDFDocument.load(rawBytes, { 
+              ignoreEncryption: true,
+              updateMetadata: false
+            });
+          } catch (fallbackError) {
+            // Try loading with pdf.js to see if that library can read it
+            if (typeof pdfjsLib !== 'undefined') {
+              try {
+                await pdfjsLib.getDocument({ data: cleanBytes.slice(0) }).promise;
+                throw new Error('This PDF could not be loaded. It may be corrupted, encrypted, or use an unsupported format.');
+              } catch (pdfjsError) {
+                throw new Error('This PDF could not be parsed. It may be corrupted or password-protected.');
+              }
+            }
+            throw strictError;
+          }
+        }
+
         const pageCount = pdfDoc.getPageCount();
         
         // Generate thumbnail
         let thumbnail = null;
         if (typeof pdfjsLib !== 'undefined') {
           try {
-            const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer.slice(0) });
+            const loadingTask = pdfjsLib.getDocument({ data: cleanBytes.slice(0) });
             const pdf = await loadingTask.promise;
             const page = await pdf.getPage(1);
             const viewport = page.getViewport({ scale: 0.5 });
@@ -592,6 +667,7 @@
           pageCount: pageCount,
           pages: pages,
           blob: file,
+          cleanBytes: cleanBytes, // Store the sanitized bytes
           thumbnail: thumbnail
         };
 
@@ -602,7 +678,7 @@
         dbPut('file-' + fileId, file).catch(e => console.warn('Blob save failed:', e));
       } catch (e) {
         console.error('Error adding file:', e);
-        alert(`Could not load "${file.name}".\n\nReason: ${e.message}\n\nIt may be corrupted or password-protected.`);
+        alert(`Could not load "${file.name}".\n\nReason: ${e.message}\n\nThe file may be corrupted, encrypted, or not a real PDF.`);
       }
     }
 
@@ -635,22 +711,34 @@
           if (!blob) continue;
 
           let thumbnail = null;
-          if (typeof pdfjsLib !== 'undefined') {
+          let cleanBytes = null;
+          
+          try {
+            const rawBytes = new Uint8Array(await blob.arrayBuffer());
             try {
-              const arrayBuffer = await blob.arrayBuffer();
-              const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer.slice(0) });
-              const pdf = await loadingTask.promise;
-              const page = await pdf.getPage(1);
-              const viewport = page.getViewport({ scale: 0.5 });
-              const canvas = document.createElement('canvas');
-              canvas.width = viewport.width;
-              canvas.height = viewport.height;
-              const ctx = canvas.getContext('2d');
-              await page.render({ canvasContext: ctx, viewport }).promise;
-              thumbnail = canvas.toDataURL('image/jpeg', 0.7);
+              cleanBytes = sanitizePdfBytes(rawBytes);
             } catch (e) {
-              console.warn('Restore thumbnail failed:', e);
+              cleanBytes = rawBytes;
             }
+
+            if (typeof pdfjsLib !== 'undefined') {
+              try {
+                const loadingTask = pdfjsLib.getDocument({ data: cleanBytes.slice(0) });
+                const pdf = await loadingTask.promise;
+                const page = await pdf.getPage(1);
+                const viewport = page.getViewport({ scale: 0.5 });
+                const canvas = document.createElement('canvas');
+                canvas.width = viewport.width;
+                canvas.height = viewport.height;
+                const ctx = canvas.getContext('2d');
+                await page.render({ canvasContext: ctx, viewport }).promise;
+                thumbnail = canvas.toDataURL('image/jpeg', 0.7);
+              } catch (e) {
+                console.warn('Restore thumbnail failed:', e);
+              }
+            }
+          } catch (e) {
+            console.warn('Restore bytes failed:', e);
           }
 
           const fileObj = {
@@ -660,6 +748,7 @@
             pageCount: meta.pageCount,
             pages: meta.pages || Array.from({ length: meta.pageCount }, (_, i) => ({ index: i, rotation: 0 })),
             blob: blob,
+            cleanBytes: cleanBytes,
             thumbnail: thumbnail
           };
 
@@ -704,7 +793,6 @@
         </button>
       `;
 
-      // Event delegation for buttons
       card.querySelector('[data-action="manage"]').addEventListener('click', (e) => {
         e.stopPropagation();
         openManageModal(file.id);
@@ -797,10 +885,11 @@
       if (!file) return;
 
       try {
-        const arrayBuffer = await file.blob.arrayBuffer();
+        // Use the sanitized bytes for rendering
+        const bytesForRender = file.cleanBytes || new Uint8Array(await file.blob.arrayBuffer());
         
         if (typeof pdfjsLib !== 'undefined') {
-          const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
+          const loadingTask = pdfjsLib.getDocument({ data: bytesForRender.slice(0) });
           const pdf = await loadingTask.promise;
 
           for (let i = 0; i < workspace.editingPages.length; i++) {
@@ -949,8 +1038,19 @@
           const file = workspace.files[i];
           statusText.textContent = `Processing "${file.name}"...`;
           
-          const arrayBuffer = await file.blob.arrayBuffer();
-          const sourcePdf = await PDFDocument.load(arrayBuffer, { ignoreEncryption: true });
+          // Use sanitized bytes for reliable loading
+          const rawBytes = new Uint8Array(await file.blob.arrayBuffer());
+          let cleanBytes;
+          try {
+            cleanBytes = sanitizePdfBytes(rawBytes);
+          } catch (e) {
+            cleanBytes = rawBytes;
+          }
+          
+          const sourcePdf = await PDFDocument.load(cleanBytes, { 
+            ignoreEncryption: true,
+            updateMetadata: false
+          });
           
           const pageIndices = file.pages.map(p => p.index);
           const copiedPages = await mergedPdf.copyPages(sourcePdf, pageIndices);
@@ -993,7 +1093,7 @@
     }
 
     // ============================================
-    // EVENT LISTENERS (attached immediately)
+    // EVENT LISTENERS
     // ============================================
     dropzone.addEventListener('dragover', (e) => { e.preventDefault(); dropzone.classList.add('dropzone-highlight'); });
     dropzone.addEventListener('dragleave', () => { dropzone.classList.remove('dropzone-highlight'); });
@@ -1022,15 +1122,13 @@
     duplicateBtn.addEventListener('click', duplicateSelectedPage);
 
     // ============================================
-    // INIT (background tasks)
+    // INIT
     // ============================================
     async function init() {
-      // Set pdf.js worker
       if (typeof pdfjsLib !== 'undefined') {
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
       }
 
-      // Initialize Sortable for main file list
       if (typeof Sortable !== 'undefined') {
         new Sortable(fileListEl, {
           animation: 150,
@@ -1050,7 +1148,6 @@
         });
       }
 
-      // Try to restore previous session
       try {
         await restoreWorkspace();
       } catch (e) {
@@ -1058,7 +1155,6 @@
       }
     }
 
-    // Wait for page load then init
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', init);
     } else {
