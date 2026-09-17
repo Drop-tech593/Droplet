@@ -5,20 +5,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Excel to PDF Converter - Droplet</title>
   <meta name="description" content="Convert Excel files to PDF online for free. 100% client-side, your files never leave your browser. Supports .xlsx and .xls.">
-  
+
   <!-- Google AdSense -->
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4006702663328202"
      crossorigin="anonymous"></script>
 
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
-  
+
   <!-- SheetJS for Excel parsing -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-  
+
   <!-- html2pdf for PDF generation -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-  
+
   <style>
     .dropzone-highlight {
       border-color: #3b82f6 !important;
@@ -477,7 +477,7 @@
         </div>
         <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
           <h3 class="font-bold text-slate-900 text-sm">Will my formatting be preserved?</h3>
-          <p class="text-slate-600 text-sm mt-1">The converter preserves data, column headers, and basic table structure. Complex formatting like merged cells may have limitations.</p>
+          <p class="text-slate-600 text-sm mt-1">The converter preserves cell values, the full used range of each sheet, merged cells, and column widths. Visual styling such as fills, fonts, borders, and conditional formatting is not reproduced — the output is a clean data table, not a pixel-perfect copy of the spreadsheet.</p>
         </div>
         <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
           <h3 class="font-bold text-slate-900 text-sm">Can I convert multiple sheets?</h3>
@@ -508,17 +508,17 @@
     // ============================================
     const themeToggle = document.getElementById('theme-toggle');
     const html = document.documentElement;
-    
-    let currentTheme = localStorage.getItem('theme') || 
+
+    let currentTheme = localStorage.getItem('theme') ||
       (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-    
+
     if (currentTheme === 'dark') {
       html.classList.add('dark');
       themeToggle.textContent = '☀️';
     } else {
       themeToggle.textContent = '🌙';
     }
-    
+
     themeToggle.addEventListener('click', () => {
       if (html.classList.contains('dark')) {
         html.classList.remove('dark');
@@ -530,6 +530,18 @@
         localStorage.setItem('theme', 'dark');
       }
     });
+
+    // ============================================
+    // HELPERS
+    // ============================================
+    function escapeHtml(s) {
+      return String(s)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
 
     // ============================================
     // EXCEL TO PDF LOGIC
@@ -642,8 +654,9 @@
       reader.onload = function(e) {
         try {
           const data = new Uint8Array(e.target.result);
-          const workbook = XLSX.read(data, { type: 'array' });
-          
+          // cellStyles:true helps SheetJS preserve merge metadata and column info
+          const workbook = XLSX.read(data, { type: 'array', cellStyles: true });
+
           workbookData = workbook;
           sheetNames = workbook.SheetNames;
           sheetCount.textContent = `📄 ${sheetNames.length} sheets`;
@@ -678,46 +691,81 @@
       reader.readAsArrayBuffer(file);
     }
 
+    // ============================================
+    // GRID BUILDER (used by preview + PDF)
+    // Reconstructs a rectangular grid from the sheet's used range,
+    // honouring merges and preserving blank rows/cols.
+    // ============================================
+    function buildSheetGrid(sheet) {
+      const ref = sheet['!ref'];
+      if (!ref) return { grid: [], merges: [], cols: [], rowCount: 0, colCount: 0 };
+
+      const range = XLSX.utils.decode_range(ref);
+      const merges = sheet['!merges'] || [];
+      const cols = sheet['!cols'] || [];
+
+      const rowCount = range.e.r - range.s.r + 1;
+      const colCount = range.e.c - range.s.c + 1;
+
+      const grid = [];
+      for (let r = range.s.r; r <= range.e.r; r++) {
+        const row = [];
+        for (let c = range.s.c; c <= range.e.c; c++) {
+          const addr = XLSX.utils.encode_cell({ r, c });
+          const cell = sheet[addr];
+          if (!cell) {
+            row.push('');
+            continue;
+          }
+          // Prefer formatted text (cell.w) then raw value (cell.v)
+          let val = cell.w !== undefined ? cell.w : cell.v;
+          if (val === undefined || val === null) val = '';
+          row.push(String(val));
+        }
+        grid.push(row);
+      }
+
+      return { grid, merges, cols, rowCount, colCount };
+    }
+
     function showSheetPreview(index) {
       const sheetName = sheetNames[index];
       const sheet = workbookData.Sheets[sheetName];
-      const data = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
+      const { grid, colCount, rowCount } = buildSheetGrid(sheet);
 
-      if (data.length === 0) {
+      if (grid.length === 0) {
         previewHeader.innerHTML = '';
         previewBody.innerHTML = '<tr><td style="text-align:center;color:#94a3b8;padding:20px;">Empty sheet</td></tr>';
         dataStats.textContent = '0 rows • 0 columns';
         return;
       }
 
-      // Get headers (first row)
-      const headers = data[0] || [];
-      const rows = data.slice(1, 51); // Show first 50 rows
+      // Headers = first row; body = next 50 rows
+      const headers = grid[0] || [];
+      const rows = grid.slice(1, 51);
 
-      // Build header
       let headerHtml = '<tr>';
       headers.forEach(h => {
-        headerHtml += `<th>${h || ''}</th>`;
+        headerHtml += `<th>${escapeHtml(h || '')}</th>`;
       });
       headerHtml += '</tr>';
       previewHeader.innerHTML = headerHtml;
 
-      // Build body
       let bodyHtml = '';
       rows.forEach(row => {
         bodyHtml += '<tr>';
-        headers.forEach((_, colIndex) => {
-          bodyHtml += `<td>${row[colIndex] !== undefined ? row[colIndex] : ''}</td>`;
-        });
+        for (let c = 0; c < colCount; c++) {
+          bodyHtml += `<td>${escapeHtml(row[c] !== undefined ? row[c] : '')}</td>`;
+        }
         bodyHtml += '</tr>';
       });
 
-      if (data.length > 51) {
-        bodyHtml += `<tr><td colspan="${headers.length}" style="text-align:center;color:#94a3b8;font-style:italic;padding:8px;">... and ${data.length - 51} more rows</td></tr>`;
+      if (grid.length > 51) {
+        bodyHtml += `<tr><td colspan="${Math.max(colCount, 1)}" style="text-align:center;color:#94a3b8;font-style:italic;padding:8px;">... and ${grid.length - 51} more rows</td></tr>`;
       }
 
       previewBody.innerHTML = bodyHtml;
-      dataStats.textContent = `${data.length - 1} rows • ${headers.length} columns`;
+      dataStats.textContent = `${Math.max(rowCount - 1, 0)} rows • ${colCount} columns`;
     }
 
     function clearFile() {
@@ -744,6 +792,82 @@
     }
 
     // ============================================
+    // HTML TABLE BUILDER FOR A SHEET
+    // Honours merges (colspan/rowspan) and column widths.
+    // ============================================
+    function buildSheetHtml(sheetName, sheet, isLast) {
+      const { grid, merges, cols, colCount } = buildSheetGrid(sheet);
+
+      if (!grid.length) return '';
+
+      // Index merges by top-left cell
+      const mergeAt = new Map();
+      const covered = new Set();
+      merges.forEach(m => {
+        const key = `${m.s.r}:${m.s.c}`;
+        mergeAt.set(key, m);
+        for (let r = m.s.r; r <= m.e.r; r++) {
+          for (let c = m.s.c; c <= m.e.c; c++) {
+            if (r === m.s.r && c === m.s.c) continue;
+            covered.add(`${r}:${c}`);
+          }
+        }
+      });
+
+      // Column widths as percentages — SheetJS gives wpx (pixels) or wch (chars)
+      const colStyles = [];
+      for (let c = 0; c < colCount; c++) {
+        const info = cols[c] || {};
+        let widthPx = 0;
+        if (info.wpx) widthPx = info.wpx;
+        else if (info.wch) widthPx = Math.round(info.wch * 7 + 5);
+        colStyles.push(widthPx > 0 ? `width:${widthPx}px;` : '');
+      }
+
+      let html = `
+        <div style="page-break-after: ${isLast ? 'avoid' : 'always'}; margin: 0 0 24pt 0;">
+          <h2 style="font-size:14pt;font-weight:bold;margin:0 0 10pt 0;color:#1e293b;">
+            ${escapeHtml(sheetName)}
+          </h2>
+          <table style="width:100%;border-collapse:collapse;font-size:9pt;table-layout:auto;">
+            <tbody>
+      `;
+
+      const maxRows = 5000;
+      const rowsToRender = Math.min(grid.length, maxRows);
+
+      for (let r = 0; r < rowsToRender; r++) {
+        html += '<tr>';
+        for (let c = 0; c < colCount; c++) {
+          const cellKey = `${r}:${c}`;
+          if (covered.has(cellKey)) continue; // merged into another cell
+
+          const value = grid[r][c] !== undefined ? grid[r][c] : '';
+          const merge = mergeAt.get(cellKey);
+          let attrs = '';
+
+          if (merge) {
+            const colspan = merge.e.c - merge.s.c + 1;
+            const rowspan = merge.e.r - merge.s.r + 1;
+            if (colspan > 1) attrs += ` colspan="${colspan}"`;
+            if (rowspan > 1) attrs += ` rowspan="${rowspan}"`;
+          }
+
+          const style = `border:1px solid #cbd5e1;padding:4px 6px;vertical-align:top;${colStyles[c] || ''}`;
+          html += `<td${attrs} style="${style}">${escapeHtml(value)}</td>`;
+        }
+        html += '</tr>';
+      }
+
+      if (grid.length > maxRows) {
+        html += `<tr><td colspan="${colCount}" style="border:1px solid #cbd5e1;padding:8px;text-align:center;color:#94a3b8;font-style:italic;">... and ${grid.length - maxRows} more rows</td></tr>`;
+      }
+
+      html += `</tbody></table></div>`;
+      return html;
+    }
+
+    // ============================================
     // CONVERT EXCEL TO PDF
     // ============================================
     async function convertExcelToPDF() {
@@ -764,60 +888,23 @@
       try {
         const includeAll = includeAllSheets.value === 'yes';
         const sheetsToConvert = includeAll ? sheetNames : [sheetNames[activeSheet]];
-        
+        const orientationValue = orientation.value;
+        const pageSizeValue = pageSize.value;
+
         let allHtml = '';
         let totalRows = 0;
         let sheetIndex = 0;
 
         for (const sheetName of sheetsToConvert) {
           const sheet = workbookData.Sheets[sheetName];
-          const data = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
+          const { rowCount } = buildSheetGrid(sheet);
+          totalRows += Math.max(rowCount - 1, 0); // exclude header row from count
 
-          if (data.length === 0) continue;
-
-          const headers = data[0] || [];
-          const rows = data.slice(1);
-
-          totalRows += rows.length;
-
-          // Build table HTML
-          let tableHtml = `
-            <div style="page-break-after: ${sheetIndex < sheetsToConvert.length - 1 ? 'always' : 'avoid'}; margin: 20px;">
-              <h2 style="font-size: 14pt; font-weight: bold; margin-bottom: 10pt; color: #1e293b;">${sheetName}</h2>
-              <table style="width: 100%; border-collapse: collapse; font-size: 10pt;">
-                <thead>
-                  <tr>
-          `;
-
-          headers.forEach(h => {
-            tableHtml += `<th style="border: 1px solid #94a3b8; padding: 6px 8px; background: #f1f5f9; text-align: left; font-weight: 600;">${h || ''}</th>`;
-          });
-
-          tableHtml += `</tr></thead><tbody>`;
-
-          // Add rows (limit for performance)
-          const maxRows = 5000;
-          const displayRows = rows.slice(0, maxRows);
-          
-          displayRows.forEach(row => {
-            tableHtml += '<tr>';
-            headers.forEach((_, colIndex) => {
-              const value = row[colIndex] !== undefined ? row[colIndex] : '';
-              tableHtml += `<td style="border: 1px solid #e2e8f0; padding: 4px 8px;">${value}</td>`;
-            });
-            tableHtml += '</tr>';
-          });
-
-          if (rows.length > maxRows) {
-            tableHtml += `<tr><td colspan="${headers.length}" style="border: 1px solid #e2e8f0; padding: 8px; text-align: center; color: #94a3b8; font-style: italic;">... and ${rows.length - maxRows} more rows</td></tr>`;
-          }
-
-          tableHtml += `</tbody></table></div>`;
-          allHtml += tableHtml;
+          const isLast = sheetIndex === sheetsToConvert.length - 1;
+          allHtml += buildSheetHtml(sheetName, sheet, isLast);
           sheetIndex++;
 
-          // Update progress
-          const progress = Math.round(((sheetIndex) / sheetsToConvert.length) * 60) + 10;
+          const progress = Math.round((sheetIndex / sheetsToConvert.length) * 60) + 10;
           progressBar.style.width = Math.min(progress, 70) + '%';
           progressText.textContent = Math.min(progress, 70) + '%';
           statusText.textContent = `Processing sheet ${sheetIndex} of ${sheetsToConvert.length}...`;
@@ -827,103 +914,88 @@
         progressText.textContent = '75%';
         statusText.textContent = 'Building PDF...';
 
-        // Create complete HTML for PDF
-        const orientationValue = orientation.value;
-        const pageSizeValue = pageSize.value;
+        // ============================================================
+        // CAPTURE TARGET — FIXED
+        // ============================================================
+        // Rules:
+        //  - Must be ON-SCREEN (no left:-9999px, no display:none, no visibility:hidden)
+        //  - Must NOT contain <html>/<head>/<body> (invalid inside a div)
+        //  - Must be given an explicit width so table layout is deterministic
+        //  - Must be behind the UI (zIndex:-1 + pointerEvents:none) so the user
+        //    doesn't see it while html2canvas is walking the DOM
+        // ============================================================
+        const tempContainer = document.createElement('div');
 
-        const fullHtml = `
-          <!DOCTYPE html>
-          <html>
-          <head>
-            <meta charset="UTF-8">
-            <title>${currentFile.name.replace(/\.[^.]+$/, '')}</title>
-            <style>
-              @page {
-                size: ${pageSizeValue} ${orientationValue};
-                margin: 20mm 15mm;
-              }
-              body {
-                font-family: 'Calibri', 'Arial', sans-serif;
-                font-size: 11pt;
-                color: #1e293b;
-                background: white;
-              }
-              h2 {
-                font-size: 14pt;
-                font-weight: bold;
-                margin-bottom: 10pt;
-                color: #1e293b;
-              }
-              table {
-                width: 100%;
-                border-collapse: collapse;
-                font-size: 9pt;
-                margin-bottom: 10pt;
-              }
-              th {
-                border: 1px solid #94a3b8;
-                padding: 6px 8px;
-                background: #f1f5f9;
-                text-align: left;
-                font-weight: 600;
-              }
-              td {
-                border: 1px solid #e2e8f0;
-                padding: 4px 8px;
-              }
-              .footer {
-                text-align: center;
-                font-size: 8pt;
-                color: #94a3b8;
-                margin-top: 20pt;
-              }
-            </style>
-          </head>
-          <body>
-            <h1 style="text-align: center; font-size: 18pt; margin-bottom: 20pt;">${currentFile.name.replace(/\.[^.]+$/, '')}</h1>
-            ${allHtml}
-            <div class="footer">Generated by Droplet - Excel to PDF Converter</div>
-          </body>
-          </html>
+        tempContainer.style.position = 'absolute';
+        tempContainer.style.left = '0';
+        tempContainer.style.top = '0';
+        tempContainer.style.width = orientationValue === 'landscape' ? '1100px' : '800px';
+        tempContainer.style.backgroundColor = '#ffffff';
+        tempContainer.style.color = '#1e293b';
+        tempContainer.style.fontFamily = 'Calibri, Arial, sans-serif';
+        tempContainer.style.fontSize = '11pt';
+        tempContainer.style.padding = '20px';
+        tempContainer.style.boxSizing = 'border-box';
+        tempContainer.style.pointerEvents = 'none';
+        tempContainer.style.zIndex = '-1';
+
+        tempContainer.innerHTML = `
+          <h1 style="text-align:center;font-size:18pt;margin:0 0 20pt 0;color:#1e293b;">
+            ${escapeHtml(currentFile.name.replace(/\.[^.]+$/, ''))}
+          </h1>
+          ${allHtml}
+          <div style="text-align:center;font-size:8pt;color:#94a3b8;margin-top:20pt;">
+            Generated by Droplet - Excel to PDF Converter
+          </div>
         `;
+
+        document.body.appendChild(tempContainer);
+
+        // Let the browser complete layout + paint for the new subtree.
+        await new Promise(resolve =>
+          requestAnimationFrame(() => requestAnimationFrame(resolve))
+        );
+        // Force a synchronous reflow read — belt and braces.
+        tempContainer.getBoundingClientRect();
 
         progressBar.style.width = '90%';
         progressText.textContent = '90%';
         statusText.textContent = 'Generating PDF...';
 
-        // Create PDF using html2pdf
-        const tempContainer = document.createElement('div');
-        tempContainer.style.position = 'fixed';
-        tempContainer.style.left = '-9999px';
-        tempContainer.style.top = '0';
-        tempContainer.style.zIndex = '-9999';
-        tempContainer.innerHTML = fullHtml;
-        document.body.appendChild(tempContainer);
-
         const opt = {
           margin: 10,
-          filename: 'converted.pdf',
+          filename: currentFile.name.replace(/\.[^.]+$/, '') + '.pdf',
           image: { type: 'jpeg', quality: 0.95 },
-          html2canvas: { 
-            scale: 2, 
-            useCORS: true, 
-            letterRendering: true,
-            backgroundColor: '#ffffff'
+          html2canvas: {
+            scale: 2,
+            useCORS: true,
+            backgroundColor: '#ffffff',
+            logging: false,
+            scrollX: 0,
+            scrollY: 0,
+            windowWidth: tempContainer.scrollWidth,
+            windowHeight: tempContainer.scrollHeight
           },
-          jsPDF: { 
-            unit: 'mm', 
-            format: pageSizeValue, 
-            orientation: orientationValue 
+          jsPDF: {
+            unit: 'mm',
+            format: pageSizeValue,
+            orientation: orientationValue
           },
-          pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+          pagebreak: { mode: ['css', 'legacy'] }
         };
 
-        const pdfBlob = await html2pdf()
-          .set(opt)
-          .from(tempContainer)
-          .outputPdf('blob');
-
-        document.body.removeChild(tempContainer);
+        let pdfBlob;
+        try {
+          pdfBlob = await html2pdf()
+            .set(opt)
+            .from(tempContainer)
+            .outputPdf('blob');
+        } finally {
+          // Always remove the temp node, even if html2canvas throws.
+          if (tempContainer.parentNode) {
+            tempContainer.parentNode.removeChild(tempContainer);
+          }
+        }
 
         convertedBlob = pdfBlob;
 
@@ -937,12 +1009,12 @@
           downloadLink.href = url;
           const baseName = currentFile.name.replace(/\.[^.]+$/, '');
           downloadLink.download = baseName + '.pdf';
-          
+
           const totalSheets = sheetsToConvert.length;
           resultBadgeSheets.textContent = `${totalSheets} sheets`;
           resultBadgeRows.textContent = `${totalRows} rows`;
           resultBadgeSize.textContent = `${(pdfBlob.size / 1024 / 1024).toFixed(2)} MB`;
-          
+
           resultSection.classList.remove('hidden');
           convertBtn.disabled = false;
           convertBtn.textContent = '🔄 Convert to PDF';
