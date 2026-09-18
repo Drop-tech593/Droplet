@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>PDF to Excel Converter - Droplet</title>
-  <meta name="description" content="Extract BOQ tables from PDF and convert to Excel (XLSX) online for free. 100% client-side, your files never leave your browser.">
+  <meta name="description" content="Convert PDF tables to Excel (XLSX) online for free. 100% client-side, your files never leave your browser.">
 
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4006702663328202"
      crossorigin="anonymous"></script>
@@ -190,7 +190,7 @@
       </div>
       <h1 class="text-3xl md:text-4xl font-black text-slate-900 tracking-tight">PDF to Excel Converter</h1>
       <p class="text-slate-500 text-sm md:text-base mt-2 max-w-lg mx-auto">
-        Extract BOQ tables from your PDFs and convert them to Excel spreadsheets. <strong>100% client-side</strong> — your files never leave your browser.
+        Convert tables from your PDFs to Excel spreadsheets. <strong>100% client-side</strong> — your files never leave your browser.
       </p>
     </div>
 
@@ -198,8 +198,8 @@
       <div class="flex items-start gap-3">
         <span class="text-2xl">📊</span>
         <div>
-          <h4 class="font-bold text-sm text-blue-900">Built for BOQ documents</h4>
-          <p class="text-xs text-blue-700 mt-1">This converter reads BOQ-style PDFs — documents with the header <strong>Item No | Unit | Quantity | Rate | Amount</strong> — and reconstructs their structure, preserving section headers, bill titles, and footers as separate rows. Continuation pages without their own header are handled by carrying the column layout forward.</p>
+          <h4 class="font-bold text-sm text-blue-900">Choose the document type</h4>
+          <p class="text-xs text-blue-700 mt-1">Select the kind of PDF you are converting. <strong>BOQ mode</strong> is optimised for Bills of Quantities and is the most reliable. Other modes are best-effort and work on clean examples.</p>
         </div>
       </div>
     </div>
@@ -230,15 +230,24 @@
         <button onclick="clearFile()" class="text-slate-400 hover:text-red-500 transition-colors">✕</button>
       </div>
 
-      <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-slate-50 rounded-lg transition-colors duration-200">
+      <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-slate-50 rounded-lg transition-colors duration-200">
         <div>
-          <label class="block text-xs font-medium text-slate-700 mb-1">📋 Sheet Name</label>
-          <input type="text" id="sheetName" value="BOQ" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white transition-colors duration-200">
+          <label class="block text-xs font-medium text-slate-700 mb-1">📄 Document Type</label>
+          <select id="docType" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white transition-colors duration-200">
+            <option value="boq">BOQ (Bill of Quantities)</option>
+            <option value="invoice">Invoice</option>
+            <option value="bankStatement">Bank Statement</option>
+            <option value="generic">Generic Table</option>
+          </select>
         </div>
         <div>
-          <label class="block text-xs font-medium text-slate-700 mb-1">🎨 Include section headers &amp; titles</label>
+          <label class="block text-xs font-medium text-slate-700 mb-1">📋 Sheet Name</label>
+          <input type="text" id="sheetName" value="Sheet1" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white transition-colors duration-200">
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-slate-700 mb-1">🎨 Include headers &amp; titles</label>
           <select id="includeStructure" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white transition-colors duration-200">
-            <option value="yes">Yes (preserve full structure)</option>
+            <option value="yes">Yes (preserve structure)</option>
             <option value="no">No (items only)</option>
           </select>
         </div>
@@ -270,8 +279,8 @@
           <p class="text-sm text-slate-600">Your Excel spreadsheet is ready to download.</p>
           <div class="mt-2 flex flex-wrap gap-2">
             <span id="pageCountBadge" class="info-badge badge-pages">0 pages</span>
-            <span id="itemCountBadge" class="info-badge badge-tables">0 items</span>
-            <span id="rowCountBadge" class="info-badge badge-rows">0 rows</span>
+            <span id="itemCountBadge" class="info-badge badge-tables">0 rows</span>
+            <span id="rowCountBadge" class="info-badge badge-rows">0 total</span>
           </div>
         </div>
         <div class="flex flex-wrap gap-2">
@@ -313,16 +322,16 @@
           <p class="text-slate-600 text-sm mt-1">Yes! All conversions happen locally in your browser. Your PDF is never uploaded to any server.</p>
         </div>
         <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">What kind of PDFs work best?</h3>
-          <p class="text-slate-600 text-sm mt-1">Text-based BOQ PDFs with a clear header row containing <strong>Item No</strong>, <strong>Unit</strong>, <strong>Quantity</strong>, <strong>Rate</strong> and <strong>Amount</strong>. Scanned or image-only PDFs are not supported.</p>
+          <h3 class="font-bold text-slate-900 text-sm">Which document type should I choose?</h3>
+          <p class="text-slate-600 text-sm mt-1"><strong>BOQ</strong> for construction Bills of Quantities. <strong>Invoice</strong> for supplier or service invoices. <strong>Bank Statement</strong> for account statements. <strong>Generic Table</strong> for any other tabular PDF.</p>
         </div>
         <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">Does it handle continuation pages?</h3>
-          <p class="text-slate-600 text-sm mt-1">Yes. Continuation pages of a bill — which often do not repeat the column header — are handled by carrying the column layout forward from the previous page.</p>
+          <h3 class="font-bold text-slate-900 text-sm">What if the converter finds nothing?</h3>
+          <p class="text-slate-600 text-sm mt-1">The tool will tell you that no matching table was found. Try a different document type from the dropdown, or check that the PDF is text-based and not a scanned image.</p>
         </div>
         <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">What about pages without a BOQ table?</h3>
-          <p class="text-slate-600 text-sm mt-1">Cover pages, instruction pages, and summary tables are automatically skipped. Only pages containing item-like lines are extracted.</p>
+          <h3 class="font-bold text-slate-900 text-sm">Does it handle scanned PDFs?</h3>
+          <p class="text-slate-600 text-sm mt-1">No. Scanned PDFs are images and require OCR. This tool only works on PDFs that contain real text.</p>
         </div>
         <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
           <h3 class="font-bold text-slate-900 text-sm">Are there file size limits?</h3>
@@ -346,6 +355,116 @@
   </footer>
 
   <script>
+    // ============================================================
+    // DOCUMENT PROFILES
+    // ============================================================
+    // Each profile defines how to detect a header, which columns exist,
+    // which are numeric, and how to classify lines below the header.
+    const PROFILES = {
+      boq: {
+        label: 'BOQ',
+        keywords: ['item', 'unit', 'quantity', 'rate', 'amount', 'no'],
+        minHits: 4,
+        columnLabels: ['Item No', 'Description', 'Unit', 'Quantity', 'Rate', 'Amount'],
+        columnKeys:   ['itemNo',  'description', 'unit', 'quantity', 'rate', 'amount'],
+        columnWidths: [10, 70, 8, 12, 14, 16],
+        numericColumns: [3, 4, 5],
+        anchorKeywords: {
+          0: 'item',
+          2: 'unit',
+          3: 'quantity',
+          4: 'rate',
+          5: 'amount'
+          // column 1 (Description) is inferred between 0 and 2
+        },
+        isItemStart: (firstItem, boundaries) => {
+          const b0 = boundaries[0];
+          return firstItem &&
+                 /^\d+$/.test(firstItem.str) &&
+                 firstItem.x >= b0.left && firstItem.x < b0.right;
+        },
+        itemLineMinNumerics: 3,
+        footerPhrases: ['carried forward', 'brought forward'],
+        titleTrigger: /^bill no\./i,
+        skipPatterns: [/^section no\./i, /^-\d+-$/]
+      },
+
+      invoice: {
+        label: 'Invoice',
+        keywords: ['description', 'quantity', 'qty', 'price', 'amount', 'total', 'unit'],
+        minHits: 3,
+        columnLabels: ['Description', 'Quantity', 'Unit Price', 'Amount'],
+        columnKeys:   ['description', 'quantity', 'unitPrice', 'amount'],
+        columnWidths: [60, 12, 14, 16],
+        numericColumns: [1, 2, 3],
+        anchorKeywords: {
+          0: 'description',
+          1: 'quantity',
+          2: 'price',
+          3: 'amount'
+        },
+        isItemStart: (firstItem, boundaries) => {
+          // Invoices have no item-number column. Treat a line as an item
+          // if it has at least 2 text items and starts in the first column.
+          return firstItem &&
+                 firstItem.x >= boundaries[0].left &&
+                 firstItem.x < boundaries[0].right;
+        },
+        itemLineMinNumerics: 2,
+        footerPhrases: ['subtotal', 'total', 'vat', 'grand total', 'amount due'],
+        titleTrigger: null,
+        skipPatterns: [/^-\d+-$/, /^page \d+/i]
+      },
+
+      bankStatement: {
+        label: 'Bank Statement',
+        keywords: ['date', 'description', 'debit', 'credit', 'balance', 'amount'],
+        minHits: 3,
+        columnLabels: ['Date', 'Description', 'Debit', 'Credit', 'Balance'],
+        columnKeys:   ['date', 'description', 'debit', 'credit', 'balance'],
+        columnWidths: [14, 60, 14, 14, 16],
+        numericColumns: [2, 3, 4],
+        anchorKeywords: {
+          0: 'date',
+          1: 'description',
+          2: 'debit',
+          3: 'credit',
+          4: 'balance'
+        },
+        isItemStart: (firstItem, boundaries) => {
+          // Date-led lines. Accept anything starting in the first column
+          // that looks like a date or a small token.
+          return firstItem &&
+                 firstItem.x >= boundaries[0].left &&
+                 firstItem.x < boundaries[0].right;
+        },
+        itemLineMinNumerics: 1,
+        footerPhrases: ['closing balance', 'opening balance', 'total', 'brought forward'],
+        titleTrigger: null,
+        skipPatterns: [/^-\d+-$/, /^page \d+/i]
+      },
+
+      generic: {
+        label: 'Generic Table',
+        keywords: ['description', 'quantity', 'qty', 'price', 'amount', 'total', 'code', 'item', 'no'],
+        minHits: 2,
+        columnLabels: ['Column 1', 'Column 2', 'Column 3', 'Column 4', 'Column 5'],
+        columnKeys:   ['c1', 'c2', 'c3', 'c4', 'c5'],
+        columnWidths: [50, 20, 20, 20, 20],
+        numericColumns: [],  // auto-detect
+        anchorKeywords: {},  // auto-detect
+        isItemStart: (firstItem, boundaries) => {
+          return firstItem &&
+                 firstItem.x >= boundaries[0].left &&
+                 firstItem.x < boundaries[0].right;
+        },
+        itemLineMinNumerics: 1,
+        footerPhrases: ['total', 'subtotal', 'grand total'],
+        titleTrigger: null,
+        skipPatterns: [/^-\d+-$/, /^page \d+/i]
+      }
+    };
+
     // ============================================================
     // DARK MODE
     // ============================================================
@@ -389,6 +508,7 @@
     const previewContainer = document.getElementById('previewContainer');
     const tablePreviewContent = document.getElementById('tablePreviewContent');
     const tableStats = document.getElementById('tableStats');
+    const docTypeInput = document.getElementById('docType');
     const sheetNameInput = document.getElementById('sheetName');
     const includeStructureInput = document.getElementById('includeStructure');
     const pageCountBadge = document.getElementById('pageCountBadge');
@@ -443,6 +563,18 @@
     dropzone.addEventListener('click', e => { if (e.target.tagName !== 'BUTTON') fileInput.click(); });
     fileInput.addEventListener('change', e => { if (e.target.files.length) handleFile(e.target.files[0]); });
 
+    // Update default sheet name when the document type changes
+    docTypeInput.addEventListener('change', () => {
+      const profile = PROFILES[docTypeInput.value];
+      if (sheetNameInput.value === 'Sheet1' ||
+          sheetNameInput.value === 'BOQ' ||
+          sheetNameInput.value === 'Invoice' ||
+          sheetNameInput.value === 'Bank Statement' ||
+          sheetNameInput.value === 'Generic') {
+        sheetNameInput.value = profile.label;
+      }
+    });
+
     async function handleFile(file) {
       if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
         alert('Please select a valid PDF file.');
@@ -461,6 +593,10 @@
       previewContainer.classList.add('hidden');
       convertBtn.disabled = false;
       convertBtn.textContent = '🔄 Convert to Excel';
+
+      // Set default sheet name based on the selected profile
+      const profile = PROFILES[docTypeInput.value];
+      sheetNameInput.value = profile.label;
 
       try {
         const buf = await file.arrayBuffer();
@@ -485,9 +621,20 @@
     function resetConverter() { clearFile(); downloadLink.href = '#'; }
 
     // ============================================================
-    // PER-PAGE EXTRACTOR (with inherited boundaries support)
+    // HEADER ANCHOR LOOKUP
     // ============================================================
-    async function extractPageRows(pageNum, inheritedBoundaries) {
+    function findAnchor(keyword, headerItems) {
+      const kw = keyword.toLowerCase();
+      for (const it of headerItems) if (it.str.toLowerCase() === kw) return it;
+      for (const it of headerItems) if (it.str.toLowerCase().startsWith(kw)) return it;
+      for (const it of headerItems) if (it.str.toLowerCase().includes(kw)) return it;
+      return null;
+    }
+
+    // ============================================================
+    // PER-PAGE EXTRACTOR (profile-driven)
+    // ============================================================
+    async function extractPageRows(pageNum, inheritedBoundaries, profile) {
       const page = await currentPdf.getPage(pageNum);
       const viewport = page.getViewport({ scale: 1 });
       const pageHeight = viewport.height;
@@ -518,12 +665,12 @@
       }
       for (const l of visualLines) l.items.sort((a, b) => a.x - b.x);
 
-      const KEYWORDS = ['item', 'unit', 'quantity', 'rate', 'amount', 'no'];
+      // ---- Header detection ----
       let headerLineIdx = -1, bestHits = 0;
       for (let i = 0; i < visualLines.length; i++) {
         const text = visualLines[i].items.map(it => it.str).join(' ').toLowerCase();
         let hits = 0;
-        for (const k of KEYWORDS) {
+        for (const k of profile.keywords) {
           const re = new RegExp(`(^|[^a-z])${k}([^a-z]|$)`);
           if (re.test(text)) hits++;
         }
@@ -535,7 +682,7 @@
       let headerLineIdxUsed = -1;
       let usedInherited = false;
 
-      if (headerLineIdx >= 0 && bestHits >= 4) {
+      if (headerLineIdx >= 0 && bestHits >= profile.minHits) {
         const headerLine = visualLines[headerLineIdx];
         const nextLine   = visualLines[headerLineIdx + 1];
         let headerItems  = headerLine.items.slice();
@@ -548,41 +695,56 @@
             consumed = 2;
           }
         }
-        function findAnchor(keyword) {
-          const kw = keyword.toLowerCase();
-          for (const it of headerItems) if (it.str.toLowerCase() === kw) return it;
-          for (const it of headerItems) if (it.str.toLowerCase().startsWith(kw)) return it;
-          for (const it of headerItems) if (it.str.toLowerCase().includes(kw)) return it;
-          return null;
+
+        // Find anchors for each column that has one declared
+        const anchorPositions = {};
+        for (const [colIdx, kw] of Object.entries(profile.anchorKeywords)) {
+          const anchor = findAnchor(kw, headerItems);
+          if (anchor) anchorPositions[colIdx] = anchor.x;
         }
-        const anchors = {
-          item:     findAnchor('item'),
-          unit:     findAnchor('unit'),
-          quantity: findAnchor('quantity'),
-          rate:     findAnchor('rate'),
-          amount:   findAnchor('amount')
-        };
-        if (anchors.item && anchors.unit && anchors.quantity &&
-            anchors.rate && anchors.amount) {
-          boundaries = [
-            { name: 'ItemNo',      left: anchors.item.x,       right: anchors.item.x + 25 },
-            { name: 'Description', left: anchors.item.x + 25,  right: anchors.unit.x - 5 },
-            { name: 'Unit',        left: anchors.unit.x,       right: anchors.quantity.x },
-            { name: 'Quantity',    left: anchors.quantity.x,   right: anchors.rate.x   },
-            { name: 'Rate',        left: anchors.rate.x,       right: anchors.amount.x },
-            { name: 'Amount',      left: anchors.amount.x,     right: pageWidth        }
-          ];
+
+        // Sort anchor positions by column index
+        const sortedCols = Object.keys(anchorPositions)
+          .map(Number)
+          .sort((a, b) => a - b);
+
+        if (sortedCols.length >= 3) {
+          // Build boundaries between adjacent anchors
+          const colCount = profile.columnLabels.length;
+          boundaries = [];
+          for (let c = 0; c < colCount; c++) {
+            let left, right;
+
+            if (anchorPositions[c] !== undefined) {
+              left = anchorPositions[c];
+            } else {
+              // No anchor for this column. Infer from the previous column.
+              const prevCols = sortedCols.filter(ci => ci < c);
+              const prevCol = prevCols.length ? prevCols[prevCols.length - 1] : null;
+              left = prevCol !== null ? anchorPositions[prevCol] + 5 : 0;
+            }
+
+            const nextCols = sortedCols.filter(ci => ci > c);
+            const nextCol = nextCols.length ? nextCols[0] : null;
+            right = nextCol !== null ? anchorPositions[nextCol] - 5 : pageWidth;
+
+            // Special handling for the item-number column: it needs
+            // room for a few digits, not the full gap to the next anchor.
+            if (c === 0 && colCount > 2 && profile === PROFILES.boq) {
+              right = left + 25;
+            }
+
+            boundaries.push({ name: profile.columnKeys[c], left, right });
+          }
           headerLineIdxUsed = headerLineIdx;
         }
       }
 
       if (!boundaries && inheritedBoundaries) {
-        const itemLeft  = inheritedBoundaries[0].left;
-        const itemRight = inheritedBoundaries[0].right;
+        const b0 = inheritedBoundaries[0];
         const hasItemLine = visualLines.some(line => {
           const first = line.items[0];
-          return first && /^\d+$/.test(first.str) &&
-                 first.x >= itemLeft && first.x < itemRight;
+          return profile.isItemStart(first, inheritedBoundaries);
         });
         if (hasItemLine) {
           boundaries = inheritedBoundaries;
@@ -598,7 +760,10 @@
 
       function columnOf(it) {
         const cx = it.x + it.w / 2;
-        for (const b of boundaries) if (cx >= b.left && cx < b.right) return b.name;
+        for (let c = 0; c < boundaries.length; c++) {
+          const b = boundaries[c];
+          if (cx >= b.left && cx < b.right) return profile.columnKeys[c];
+        }
         return null;
       }
       const NUM_RE = /^[\d,]+(\.\d+)?$/;
@@ -625,91 +790,107 @@
       function appendToCurrent(it) {
         const col = columnOf(it);
         if (!col) return;
-        if (col === 'Description') current.descParts.push(it.str);
-        else if (col === 'Unit')     current.Unit     = (current.Unit + ' ' + it.str).trim();
-        else if (col === 'Quantity') current.Quantity = (current.Quantity + ' ' + it.str).trim();
-        else if (col === 'Rate')     current.Rate     = (current.Rate + ' ' + it.str).trim();
-        else if (col === 'Amount')   current.Amount   = (current.Amount + ' ' + it.str).trim();
+        if (col === 'description' || col === 'itemNo') {
+          if (col === 'itemNo' && !current.itemNo) current.itemNo = it.str;
+          else current.descParts.push(it.str);
+        } else {
+          current[col] = (current[col] ? current[col] + ' ' : '') + it.str;
+        }
       }
 
       const startLine = (headerLineIdxUsed >= 0) ? (headerLineIdxUsed + consumed) : 0;
-      const itemLeft  = boundaries[0].left;
-      const itemRight = boundaries[0].right;
+      const b0 = boundaries[0];
 
       for (let i = startLine; i < visualLines.length; i++) {
         const line = visualLines[i];
         const lineText = line.items.map(it => it.str).join(' ');
         const lineTextLower = lineText.toLowerCase();
-        const byCol = { ItemNo: [], Description: [], Unit: [], Quantity: [], Rate: [], Amount: [] };
+        const byCol = {};
+        for (const key of profile.columnKeys) byCol[key] = [];
         for (const it of line.items) {
           const col = columnOf(it);
           if (col) byCol[col].push(it);
         }
         const numCount = line.items.filter(it => NUM_RE.test(it.str)).length;
         const firstItem = line.items[0];
-        const firstIsItem = firstItem && /^\d+$/.test(firstItem.str) &&
-                            firstItem.x >= itemLeft && firstItem.x < itemRight;
+        const startsItem = profile.isItemStart(firstItem, boundaries);
         const shortNoNum = numCount === 0 && lineText.length < 80 && line.items.length < 10;
 
-        if (lineTextLower.includes('carried forward') ||
-            lineTextLower.includes('brought forward')) {
+        // Footer
+        if (profile.footerPhrases.some(p => lineTextLower.includes(p))) {
           commitCurrent();
           flushPendingTitle();
           rows.push({
             kind: 'footer',
             label: lineText,
-            Amount: byCol.Amount.map(it => it.str).join(' ')
+            amount: (byCol.amount || []).map(it => it.str).join(' ')
           });
           afterFooter = true;
           continue;
         }
-        if (/^-\d+-$/.test(lineText.trim())) continue;
-        if (/^section no\./i.test(lineTextLower)) continue;
-        if (/^bill no\./i.test(lineTextLower)) {
+
+        // Skip patterns
+        if (profile.skipPatterns.some(re => re.test(lineText.trim()))) continue;
+
+        // Title trigger (BOQ bill no.)
+        if (profile.titleTrigger && profile.titleTrigger.test(lineTextLower)) {
           if (afterFooter) continue;
           commitCurrent();
           flushPendingTitle();
           billNoY = line.yTL;
           continue;
         }
+
+        // Title lines
         if (billNoY !== null && (line.yTL - billNoY) < 50 && shortNoNum) {
           pendingTitleLines.push(lineText);
           continue;
         }
         if (afterFooter && shortNoNum) continue;
 
+        // Skip long prose paragraphs inside an item
+        const amountKey = 'amount';
         if (current && current.kind === 'item' &&
-            (current.Amount || current.Rate) &&
+            (current[amountKey] || current.rate) &&
             numCount === 0 && lineText.length > 60) {
           continue;
         }
 
-        if (firstIsItem) {
+        if (startsItem) {
           commitCurrent();
           flushPendingTitle();
-          current = {
-            kind: 'item', ItemNo: firstItem.str, descParts: [],
-            Unit: '', Quantity: '', Rate: '', Amount: ''
-          };
+          current = { kind: 'item' };
+          for (const key of profile.columnKeys) current[key] = '';
+          current.itemNo = '';
+          current.descParts = [];
           for (const it of line.items) {
-            if (it === firstItem) continue;
+            if (it === firstItem) {
+              // The first item might be the item number or the start
+              // of the description, depending on the profile.
+              const col = columnOf(it);
+              if (col === 'itemNo') current.itemNo = it.str;
+              else if (col === 'description') current.descParts.push(it.str);
+              continue;
+            }
             appendToCurrent(it);
           }
           continue;
         }
 
-        if (numCount >= 3) {
+        if (numCount >= profile.itemLineMinNumerics) {
           if (current && current.kind === 'item') {
             for (const it of line.items) appendToCurrent(it);
           }
           continue;
         }
+
         if (shortNoNum) {
           commitCurrent();
           flushPendingTitle();
           rows.push({ kind: 'header', text: lineText });
           continue;
         }
+
         if (current && current.kind === 'item') {
           for (const it of line.items) appendToCurrent(it);
         }
@@ -722,32 +903,25 @@
     // ============================================================
     // BUILD XLSX WITH EXCELJS
     // ============================================================
-    async function buildXlsx(rows, sheetName, includeStructure) {
+    async function buildXlsx(rows, sheetName, profile, includeStructure) {
       if (typeof ExcelJS === 'undefined') {
-        throw new Error('ExcelJS library not loaded. Check that the ExcelJS script tag is present in <head>.');
+        throw new Error('ExcelJS library not loaded.');
       }
 
       const wb = new ExcelJS.Workbook();
       wb.creator = 'Droplet PDF to Excel';
       wb.created = new Date();
+      const ws = wb.addWorksheet(sheetName || profile.label);
 
-      const ws = wb.addWorksheet(sheetName || 'BOQ');
+      ws.columns = profile.columnLabels.map((label, i) => ({
+        header: label,
+        key: profile.columnKeys[i],
+        width: profile.columnWidths[i]
+      }));
 
-      ws.columns = [
-        { header: 'Item No',     key: 'itemNo',      width: 10 },
-        { header: 'Description', key: 'description', width: 70 },
-        { header: 'Unit',        key: 'unit',        width: 8  },
-        { header: 'Quantity',    key: 'quantity',    width: 12 },
-        { header: 'Rate',        key: 'rate',        width: 14 },
-        { header: 'Amount',      key: 'amount',      width: 16 }
-      ];
-
-      // Style header row: bold, grey fill, thin borders
       const headerRow = ws.getRow(1);
       headerRow.font = { bold: true, name: 'Calibri', size: 11 };
-      headerRow.fill = {
-        type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE2E8F0' }
-      };
+      headerRow.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE2E8F0' } };
       headerRow.alignment = { vertical: 'middle', horizontal: 'left' };
       headerRow.height = 20;
       headerRow.eachCell(cell => {
@@ -766,28 +940,41 @@
         return null;
       }
 
+      const totalCols = profile.columnLabels.length;
+
       for (const r of rows) {
         if (r.kind === 'title') {
           if (!includeStructure) continue;
-          const row = ws.addRow(['', r.text || '', '', '', '', '']);
+          const cells = new Array(totalCols).fill('');
+          cells[1 % totalCols] = r.text || '';
+          if (totalCols > 1) cells[1] = r.text || '';
+          const row = ws.addRow(cells);
           row.font = { bold: true, name: 'Calibri', size: 12 };
-          row.fill = {
-            type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF1F5F9' }
-          };
+          row.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF1F5F9' } };
           row.height = 22;
-          ws.mergeCells(row.number, 2, row.number, 6);
-          row.getCell(2).alignment = { vertical: 'middle', horizontal: 'left', wrapText: true };
+          if (totalCols > 1) {
+            ws.mergeCells(row.number, 2, row.number, totalCols);
+            row.getCell(2).alignment = { vertical: 'middle', horizontal: 'left', wrapText: true };
+          }
         } else if (r.kind === 'header') {
           if (!includeStructure) continue;
-          const row = ws.addRow(['', r.text || '', '', '', '', '']);
+          const cells = new Array(totalCols).fill('');
+          if (totalCols > 1) cells[1] = r.text || '';
+          else cells[0] = r.text || '';
+          const row = ws.addRow(cells);
           row.font = { bold: true, name: 'Calibri', size: 11 };
-          row.getCell(2).alignment = { vertical: 'top', horizontal: 'left', wrapText: true };
+          row.getCell(totalCols > 1 ? 2 : 1).alignment = { vertical: 'top', horizontal: 'left', wrapText: true };
         } else if (r.kind === 'footer') {
-          const row = ws.addRow(['', r.label || 'Carried Forward', '', '', '', r.Amount || '']);
+          const cells = new Array(totalCols).fill('');
+          cells[0] = ''; // Item No left blank for footers
+          if (totalCols > 1) cells[1] = r.label || 'Total';
+          const amountCol = totalCols - 1;
+          cells[amountCol] = r.amount || '';
+          const row = ws.addRow(cells);
           row.font = { italic: true, name: 'Calibri', size: 11 };
-          row.getCell(2).alignment = { vertical: 'top', horizontal: 'left' };
-          const amountCell = row.getCell(6);
-          const num = tryNumber(r.Amount);
+          row.getCell(totalCols > 1 ? 2 : 1).alignment = { vertical: 'top', horizontal: 'left' };
+          const amountCell = row.getCell(amountCol + 1);
+          const num = tryNumber(r.amount);
           if (num !== null) {
             amountCell.value = num;
             amountCell.numFmt = '#,##0.00';
@@ -795,33 +982,28 @@
           amountCell.alignment = { vertical: 'top', horizontal: 'right' };
         } else if (r.kind === 'item') {
           const desc = (r.descParts || []).join(' ').replace(/\s+/g, ' ').trim();
-          const row = ws.addRow([
-            r.ItemNo || '',
-            desc,
-            r.Unit || '',
-            r.Quantity || '',
-            r.Rate || '',
-            r.Amount || ''
-          ]);
+          const cells = profile.columnKeys.map(k => {
+            if (k === 'itemNo') return r.itemNo || '';
+            if (k === 'description') return desc;
+            return r[k] || '';
+          });
+          const row = ws.addRow(cells);
           row.getCell(1).alignment = { vertical: 'top', horizontal: 'center' };
-          row.getCell(2).alignment = { vertical: 'top', horizontal: 'left', wrapText: true };
-          row.getCell(3).alignment = { vertical: 'top', horizontal: 'center' };
-
-          const qNum = tryNumber(r.Quantity);
-          const rNum = tryNumber(r.Rate);
-          const aNum = tryNumber(r.Amount);
-
-          const qCell = row.getCell(4);
-          const rCell = row.getCell(5);
-          const aCell = row.getCell(6);
-
-          if (qNum !== null) { qCell.value = qNum; qCell.numFmt = '#,##0.00'; }
-          if (rNum !== null) { rCell.value = rNum; rCell.numFmt = '#,##0.00'; }
-          if (aNum !== null) { aCell.value = aNum; aCell.numFmt = '#,##0.00'; }
-
-          qCell.alignment = { vertical: 'top', horizontal: 'right' };
-          rCell.alignment = { vertical: 'top', horizontal: 'right' };
-          aCell.alignment = { vertical: 'top', horizontal: 'right' };
+          if (totalCols > 1) {
+            row.getCell(2).alignment = { vertical: 'top', horizontal: 'left', wrapText: true };
+          }
+          if (totalCols > 2) {
+            row.getCell(3).alignment = { vertical: 'top', horizontal: 'center' };
+          }
+          for (const colIdx of profile.numericColumns) {
+            const cell = row.getCell(colIdx + 1);
+            const num = tryNumber(String(cell.value || ''));
+            if (num !== null) {
+              cell.value = num;
+              cell.numFmt = '#,##0.00';
+            }
+            cell.alignment = { vertical: 'top', horizontal: 'right' };
+          }
         }
       }
 
@@ -846,7 +1028,8 @@
         return;
       }
 
-      const sheetNameValue = (sheetNameInput.value || 'BOQ').trim().slice(0, 31);
+      const profile = PROFILES[docTypeInput.value];
+      const sheetNameValue = (sheetNameInput.value || profile.label).trim().slice(0, 31);
       const includeStructure = includeStructureInput.value === 'yes';
 
       convertBtn.disabled = true;
@@ -865,7 +1048,7 @@
           setOverlay(`Extracting page ${p} of ${totalPages}…`, pct);
 
           try {
-            const result = await extractPageRows(p, lastKnownBoundaries);
+            const result = await extractPageRows(p, lastKnownBoundaries, profile);
 
             if (result.boundaries && !result.usedInherited) {
               lastKnownBoundaries = result.boundaries;
@@ -882,8 +1065,23 @@
           await new Promise(r => setTimeout(r, 0));
         }
 
+        const itemCount = allRows.filter(r => r.kind === 'item').length;
+
+        if (itemCount === 0) {
+          hideOverlay();
+          convertBtn.disabled = false;
+          convertBtn.textContent = '🔄 Convert to Excel';
+          alert(
+            'No matching table was found in this PDF for the selected document type (' +
+            profile.label + ').\n\n' +
+            'This usually means the PDF does not contain a header row matching that type. ' +
+            'Try a different Document Type, or check that the PDF is text-based and not scanned.'
+          );
+          return;
+        }
+
         setOverlay('Building workbook…', 96);
-        const blob = await buildXlsx(allRows, sheetNameValue, includeStructure);
+        const blob = await buildXlsx(allRows, sheetNameValue, profile, includeStructure);
 
         setOverlay('Done', 100);
 
@@ -891,17 +1089,16 @@
         downloadLink.href = url;
         downloadLink.download = currentFile.name.replace(/\.pdf$/i, '') + '.xlsx';
 
-        const itemCount   = allRows.filter(r => r.kind === 'item').length;
         const headerCount = allRows.filter(r => r.kind === 'header').length;
         const titleCount  = allRows.filter(r => r.kind === 'title').length;
         const footerCount = allRows.filter(r => r.kind === 'footer').length;
 
         pageCountBadge.textContent = `${totalPages} pages`;
-        itemCountBadge.textContent = `${itemCount} items`;
-        rowCountBadge.textContent = `${allRows.length} rows`;
+        itemCountBadge.textContent = `${itemCount} rows`;
+        rowCountBadge.textContent = `${allRows.length} total`;
 
-        renderPreview(allRows, includeStructure);
-        tableStats.textContent = `${itemCount} items • ${headerCount} headers • ${titleCount} titles • ${footerCount} footers`;
+        renderPreview(allRows, profile, includeStructure);
+        tableStats.textContent = `${itemCount} rows • ${headerCount} headers • ${titleCount} titles • ${footerCount} footers`;
 
         hideOverlay();
         resultSection.classList.remove('hidden');
@@ -921,24 +1118,40 @@
     // ============================================================
     // PREVIEW
     // ============================================================
-    function renderPreview(rows, includeStructure) {
+    function renderPreview(rows, profile, includeStructure) {
       const maxPreview = 100;
-      let html = '<table><thead><tr><th>Item No</th><th>Description</th><th>Unit</th><th>Quantity</th><th>Rate</th><th>Amount</th></tr></thead><tbody>';
-      html += '<tr class="row-header"><td></td><td><strong>Item No | Description | Unit | Quantity | Rate | Amount</strong></td><td></td><td></td><td></td><td></td></tr>';
+      const cols = profile.columnLabels;
+      let html = '<table><thead><tr>';
+      for (const c of cols) html += `<th>${escapeHtml(c)}</th>`;
+      html += '</tr></thead><tbody>';
+
       let shown = 0;
       for (const r of rows) {
         if (shown >= maxPreview) break;
         if ((r.kind === 'title' || r.kind === 'header') && !includeStructure) continue;
 
+        const colSpan = cols.length;
         if (r.kind === 'title') {
-          html += `<tr class="row-title"><td></td><td colspan="5">${escapeHtml(r.text)}</td></tr>`;
+          html += `<tr class="row-title"><td></td><td colspan="${colSpan - 1}">${escapeHtml(r.text)}</td></tr>`;
         } else if (r.kind === 'header') {
-          html += `<tr class="row-header"><td></td><td colspan="5">${escapeHtml(r.text)}</td></tr>`;
+          html += `<tr class="row-header"><td></td><td colspan="${colSpan - 1}">${escapeHtml(r.text)}</td></tr>`;
         } else if (r.kind === 'footer') {
-          html += `<tr class="row-footer"><td></td><td>${escapeHtml(r.label)}</td><td></td><td></td><td></td><td>${escapeHtml(r.Amount || '')}</td></tr>`;
+          const cells = ['', r.label || 'Total'];
+          while (cells.length < colSpan - 1) cells.push('');
+          cells.push(r.amount || '');
+          html += '<tr class="row-footer">';
+          for (const c of cells) html += `<td>${escapeHtml(c)}</td>`;
+          html += '</tr>';
         } else if (r.kind === 'item') {
           const desc = (r.descParts || []).join(' ').replace(/\s+/g, ' ').trim();
-          html += `<tr class="row-item"><td>${escapeHtml(r.ItemNo)}</td><td>${escapeHtml(desc)}</td><td>${escapeHtml(r.Unit)}</td><td>${escapeHtml(r.Quantity)}</td><td>${escapeHtml(r.Rate)}</td><td>${escapeHtml(r.Amount)}</td></tr>`;
+          const values = profile.columnKeys.map(k => {
+            if (k === 'itemNo') return r.itemNo || '';
+            if (k === 'description') return desc;
+            return r[k] || '';
+          });
+          html += '<tr class="row-item">';
+          for (const v of values) html += `<td>${escapeHtml(v)}</td>`;
+          html += '</tr>';
         }
         shown++;
       }
@@ -964,7 +1177,7 @@
       }
     });
 
-    console.log('PDF to Excel converter loaded with ExcelJS writer.');
+    console.log('PDF to Excel converter loaded with profiles: BOQ, Invoice, Bank Statement, Generic.');
   </script>
 
 </body>
