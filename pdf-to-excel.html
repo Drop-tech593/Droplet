@@ -6,6 +6,7 @@
   <title>PDF to Excel Converter - Droplet</title>
   <meta name="description" content="Convert PDF tables to Excel (XLSX) online for free. 100% client-side, your files never leave your browser.">
 
+  <!-- Google AdSense -->
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4006702663328202"
      crossorigin="anonymous"></script>
 
@@ -77,6 +78,14 @@
     }
     #convertOverlay .overlay-bar-inner {
       height: 100%; background: #3b82f6; width: 0%; transition: width 0.35s ease;
+    }
+
+    /* Ad slot wrapper — keeps ads aligned with the page column */
+    .ad-slot {
+      max-width: 42rem;   /* same as max-w-2xl */
+      margin: 24px auto;
+      min-height: 90px;
+      text-align: center;
     }
 
     html.dark body { background: #0f172a; color: #e2e8f0; }
@@ -194,6 +203,21 @@
       </p>
     </div>
 
+    <!-- ============================================================ -->
+    <!-- AD SLOT 1 — Top of page, above the info box                  -->
+    <!-- ============================================================ -->
+    <div class="ad-slot">
+      <ins class="adsbygoogle"
+           style="display:block"
+           data-ad-client="ca-pub-4006702663328202"
+           data-ad-slot="XXXXXXXXXX"
+           data-ad-format="auto"
+           data-full-width-responsive="true"></ins>
+      <script>
+        (adsbygoogle = window.adsbygoogle || []).push({});
+      </script>
+    </div>
+
     <div class="max-w-2xl mx-auto mb-8 bg-blue-50 border border-blue-200 rounded-xl p-4 transition-colors duration-200">
       <div class="flex items-start gap-3">
         <span class="text-2xl">📊</span>
@@ -296,6 +320,21 @@
       </div>
     </div>
 
+    <!-- ============================================================ -->
+    <!-- AD SLOT 2 — Between the result section and the info cards    -->
+    <!-- ============================================================ -->
+    <div class="ad-slot">
+      <ins class="adsbygoogle"
+           style="display:block"
+           data-ad-client="ca-pub-4006702663328202"
+           data-ad-slot="XXXXXXXXXX"
+           data-ad-format="auto"
+           data-full-width-responsive="true"></ins>
+      <script>
+        (adsbygoogle = window.adsbygoogle || []).push({});
+      </script>
+    </div>
+
     <div class="max-w-2xl mx-auto mt-12 grid grid-cols-1 md:grid-cols-3 gap-4">
       <div class="bg-white p-4 rounded-xl border border-slate-100 text-center transition-colors duration-200">
         <div class="text-2xl mb-1">🔒</div>
@@ -312,6 +351,21 @@
         <h4 class="font-bold text-sm">Fast &amp; Free</h4>
         <p class="text-xs text-slate-500">No sign-up required</p>
       </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- AD SLOT 3 — Between the info cards and the FAQ               -->
+    <!-- ============================================================ -->
+    <div class="ad-slot">
+      <ins class="adsbygoogle"
+           style="display:block"
+           data-ad-client="ca-pub-4006702663328202"
+           data-ad-slot="XXXXXXXXXX"
+           data-ad-format="auto"
+           data-full-width-responsive="true"></ins>
+      <script>
+        (adsbygoogle = window.adsbygoogle || []).push({});
+      </script>
     </div>
 
     <section class="max-w-2xl mx-auto mt-12">
@@ -358,8 +412,6 @@
     // ============================================================
     // DOCUMENT PROFILES
     // ============================================================
-    // Each profile defines how to detect a header, which columns exist,
-    // which are numeric, and how to classify lines below the header.
     const PROFILES = {
       boq: {
         label: 'BOQ',
@@ -375,7 +427,6 @@
           3: 'quantity',
           4: 'rate',
           5: 'amount'
-          // column 1 (Description) is inferred between 0 and 2
         },
         isItemStart: (firstItem, boundaries) => {
           const b0 = boundaries[0];
@@ -404,8 +455,6 @@
           3: 'amount'
         },
         isItemStart: (firstItem, boundaries) => {
-          // Invoices have no item-number column. Treat a line as an item
-          // if it has at least 2 text items and starts in the first column.
           return firstItem &&
                  firstItem.x >= boundaries[0].left &&
                  firstItem.x < boundaries[0].right;
@@ -432,8 +481,6 @@
           4: 'balance'
         },
         isItemStart: (firstItem, boundaries) => {
-          // Date-led lines. Accept anything starting in the first column
-          // that looks like a date or a small token.
           return firstItem &&
                  firstItem.x >= boundaries[0].left &&
                  firstItem.x < boundaries[0].right;
@@ -451,8 +498,8 @@
         columnLabels: ['Column 1', 'Column 2', 'Column 3', 'Column 4', 'Column 5'],
         columnKeys:   ['c1', 'c2', 'c3', 'c4', 'c5'],
         columnWidths: [50, 20, 20, 20, 20],
-        numericColumns: [],  // auto-detect
-        anchorKeywords: {},  // auto-detect
+        numericColumns: [],
+        anchorKeywords: {},
         isItemStart: (firstItem, boundaries) => {
           return firstItem &&
                  firstItem.x >= boundaries[0].left &&
@@ -563,7 +610,6 @@
     dropzone.addEventListener('click', e => { if (e.target.tagName !== 'BUTTON') fileInput.click(); });
     fileInput.addEventListener('change', e => { if (e.target.files.length) handleFile(e.target.files[0]); });
 
-    // Update default sheet name when the document type changes
     docTypeInput.addEventListener('change', () => {
       const profile = PROFILES[docTypeInput.value];
       if (sheetNameInput.value === 'Sheet1' ||
@@ -594,7 +640,6 @@
       convertBtn.disabled = false;
       convertBtn.textContent = '🔄 Convert to Excel';
 
-      // Set default sheet name based on the selected profile
       const profile = PROFILES[docTypeInput.value];
       sheetNameInput.value = profile.label;
 
@@ -665,7 +710,6 @@
       }
       for (const l of visualLines) l.items.sort((a, b) => a.x - b.x);
 
-      // ---- Header detection ----
       let headerLineIdx = -1, bestHits = 0;
       for (let i = 0; i < visualLines.length; i++) {
         const text = visualLines[i].items.map(it => it.str).join(' ').toLowerCase();
@@ -696,20 +740,17 @@
           }
         }
 
-        // Find anchors for each column that has one declared
         const anchorPositions = {};
         for (const [colIdx, kw] of Object.entries(profile.anchorKeywords)) {
           const anchor = findAnchor(kw, headerItems);
           if (anchor) anchorPositions[colIdx] = anchor.x;
         }
 
-        // Sort anchor positions by column index
         const sortedCols = Object.keys(anchorPositions)
           .map(Number)
           .sort((a, b) => a - b);
 
         if (sortedCols.length >= 3) {
-          // Build boundaries between adjacent anchors
           const colCount = profile.columnLabels.length;
           boundaries = [];
           for (let c = 0; c < colCount; c++) {
@@ -718,7 +759,6 @@
             if (anchorPositions[c] !== undefined) {
               left = anchorPositions[c];
             } else {
-              // No anchor for this column. Infer from the previous column.
               const prevCols = sortedCols.filter(ci => ci < c);
               const prevCol = prevCols.length ? prevCols[prevCols.length - 1] : null;
               left = prevCol !== null ? anchorPositions[prevCol] + 5 : 0;
@@ -728,8 +768,6 @@
             const nextCol = nextCols.length ? nextCols[0] : null;
             right = nextCol !== null ? anchorPositions[nextCol] - 5 : pageWidth;
 
-            // Special handling for the item-number column: it needs
-            // room for a few digits, not the full gap to the next anchor.
             if (c === 0 && colCount > 2 && profile === PROFILES.boq) {
               right = left + 25;
             }
@@ -799,7 +837,6 @@
       }
 
       const startLine = (headerLineIdxUsed >= 0) ? (headerLineIdxUsed + consumed) : 0;
-      const b0 = boundaries[0];
 
       for (let i = startLine; i < visualLines.length; i++) {
         const line = visualLines[i];
@@ -816,7 +853,6 @@
         const startsItem = profile.isItemStart(firstItem, boundaries);
         const shortNoNum = numCount === 0 && lineText.length < 80 && line.items.length < 10;
 
-        // Footer
         if (profile.footerPhrases.some(p => lineTextLower.includes(p))) {
           commitCurrent();
           flushPendingTitle();
@@ -829,10 +865,8 @@
           continue;
         }
 
-        // Skip patterns
         if (profile.skipPatterns.some(re => re.test(lineText.trim()))) continue;
 
-        // Title trigger (BOQ bill no.)
         if (profile.titleTrigger && profile.titleTrigger.test(lineTextLower)) {
           if (afterFooter) continue;
           commitCurrent();
@@ -841,14 +875,12 @@
           continue;
         }
 
-        // Title lines
         if (billNoY !== null && (line.yTL - billNoY) < 50 && shortNoNum) {
           pendingTitleLines.push(lineText);
           continue;
         }
         if (afterFooter && shortNoNum) continue;
 
-        // Skip long prose paragraphs inside an item
         const amountKey = 'amount';
         if (current && current.kind === 'item' &&
             (current[amountKey] || current.rate) &&
@@ -865,8 +897,6 @@
           current.descParts = [];
           for (const it of line.items) {
             if (it === firstItem) {
-              // The first item might be the item number or the start
-              // of the description, depending on the profile.
               const col = columnOf(it);
               if (col === 'itemNo') current.itemNo = it.str;
               else if (col === 'description') current.descParts.push(it.str);
@@ -966,7 +996,7 @@
           row.getCell(totalCols > 1 ? 2 : 1).alignment = { vertical: 'top', horizontal: 'left', wrapText: true };
         } else if (r.kind === 'footer') {
           const cells = new Array(totalCols).fill('');
-          cells[0] = ''; // Item No left blank for footers
+          cells[0] = '';
           if (totalCols > 1) cells[1] = r.label || 'Total';
           const amountCol = totalCols - 1;
           cells[amountCol] = r.amount || '';
@@ -1177,7 +1207,7 @@
       }
     });
 
-    console.log('PDF to Excel converter loaded with profiles: BOQ, Invoice, Bank Statement, Generic.');
+    console.log('PDF to Excel converter loaded with profiles and ad slots.');
   </script>
 
 </body>
