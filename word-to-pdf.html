@@ -35,7 +35,7 @@
       min-height: 297mm;
       background: #ffffff;
       pointer-events: none;
-      overflow: hidden;
+      overflow: visible;
       z-index: -9999;
       opacity: 0;
     }
@@ -481,7 +481,7 @@
           <span id="resultSize" class="text-xs bg-green-100 text-green-700 px-3 py-1 rounded-full transition-colors duration-200">0 MB</span>
         </div>
         <div class="mt-4 flex flex-wrap gap-3 justify-center">
-          <a id="downloadLink" href="#" download="converted.pdf" class="bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-2.5 rounded-xl transition-all shadow-md shadow-green-500/20">📥 Download PDF</a>
+          <a id="downloadLink" href="#" download="Dropletweb.pdf" class="bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-2.5 rounded-xl transition-all shadow-md shadow-green-500/20">📥 Download PDF</a>
           <button onclick="resetAll()" class="px-6 py-2.5 border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors text-sm font-medium">Convert Another</button>
         </div>
       </div>
@@ -792,8 +792,10 @@
         const contentWrapper = document.createElement('div');
         contentWrapper.style.width = '100%';
         contentWrapper.style.maxWidth = '100%';
-        contentWrapper.style.overflow = 'hidden';
-        contentWrapper.style.wordWrap = 'break-word';
+        contentWrapper.style.overflow = 'visible';
+        contentWrapper.style.wordWrap = 'normal';
+        contentWrapper.style.overflowWrap = 'anywhere';
+        contentWrapper.style.wordBreak = 'normal';
         contentWrapper.style.fontFamily = '"Times New Roman", Georgia, serif';
         contentWrapper.style.fontSize = '11pt';
         contentWrapper.style.lineHeight = '1.6';
@@ -803,20 +805,44 @@
         contentWrapper.querySelectorAll('table').forEach(t => {
           t.style.width = '100%';
           t.style.maxWidth = '100%';
-          t.style.tableLayout = 'fixed';
+          t.style.tableLayout = 'auto';
           t.style.borderCollapse = 'collapse';
           t.style.margin = '8pt 0';
         });
-        contentWrapper.querySelectorAll('td, th').forEach(c => {
-          c.style.border = '1px solid #aaa';
-          c.style.padding = '4pt 8pt';
-          c.style.wordWrap = 'break-word';
+        contentWrapper.querySelectorAll('td, th').forEach(cell => {
+          cell.style.border = '1px solid #aaa';
+          cell.style.padding = '4pt 8pt';
+          cell.style.overflow = 'visible';
+          cell.style.overflowWrap = 'anywhere';
+          cell.style.wordBreak = 'normal';
+          cell.style.whiteSpace = 'normal';
         });
         contentWrapper.querySelectorAll('img').forEach(img => {
           img.style.maxWidth = '100%';
           img.style.height = 'auto';
           img.style.display = 'block';
           img.style.margin = '6pt auto';
+          img.style.objectFit = 'contain';
+          img.style.pageBreakInside = 'avoid';
+        });
+
+        // Additional safety for paragraphs, lists and inline elements
+        contentWrapper.querySelectorAll('p, li, div, span').forEach(el => {
+          el.style.maxWidth = '100%';
+          el.style.overflowWrap = 'anywhere';
+          el.style.wordBreak = 'normal';
+        });
+
+        // Avoid page breaks right after headings
+        contentWrapper.querySelectorAll('h1, h2, h3, h4').forEach(el => {
+          el.style.pageBreakAfter = 'avoid';
+          el.style.breakAfter = 'avoid';
+        });
+
+        // Avoid breaking inside tables, rows and images
+        contentWrapper.querySelectorAll('table, tr, img').forEach(el => {
+          el.style.pageBreakInside = 'avoid';
+          el.style.breakInside = 'avoid';
         });
         
         root.appendChild(contentWrapper);
@@ -847,7 +873,7 @@
 
         const opt = {
           margin: 0,
-          filename: 'converted.pdf',
+          filename: 'Dropletweb.pdf',
           image: { type: 'jpeg', quality: qual },
           html2canvas: {
             scale: 2,
@@ -870,7 +896,10 @@
             compress: true,
             hotfixes: ['px_scaling']
           },
-          pagebreak: { mode: ['css', 'legacy'] }
+          pagebreak: {
+            mode: ['css', 'legacy'],
+            avoid: ['img', 'table', 'tr', 'h1', 'h2', 'h3']
+          }
         };
 
         const pdfBlob = await html2pdf()
@@ -886,8 +915,8 @@
         setTimeout(() => {
           const url = URL.createObjectURL(pdfBlob);
           downloadLink.href = url;
-          const baseName = currentFile.name.replace(/\.docx$/i, '');
-          downloadLink.download = baseName + '.pdf';
+          // Fixed filename: always Dropletweb.pdf
+          downloadLink.download = 'Dropletweb.pdf';
           resultPages.textContent = `${pageCount || '?'} pages`;
           resultSize.textContent = formatSize(pdfBlob.size);
           resultSection.classList.remove('hidden');
@@ -917,7 +946,7 @@
       }
     });
 
-    console.log('📝 Word to PDF Converter loaded - Dark mode supported');
+    console.log('📝 Word to PDF Converter loaded - Dark mode supported, filename fixed to Dropletweb.pdf');
   </script>
 
 </body>
