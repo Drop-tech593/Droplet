@@ -16,6 +16,9 @@
   <!-- DOCX Library for real Word document generation -->
   <script src="https://unpkg.com/docx@8.5.0/build/index.umd.js"></script>
   
+  <!-- Tesseract.js for OCR (PDF to TXT conversion) -->
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5.0.4/dist/tesseract.min.js"></script>
+  
   <style>
     .dropzone-highlight {
       border-color: #3b82f6 !important;
@@ -69,6 +72,86 @@
       .preview-controls .info-text { margin-left: 0; text-align: center; }
       .preview-container { padding: 15px 20px; }
     }
+
+    /* ============================================ */
+    /* SCANNED-PDF MODAL                            */
+    /* ============================================ */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(4px);
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+    }
+    .modal-backdrop.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .modal-card {
+      background: white;
+      border-radius: 20px;
+      max-width: 520px;
+      width: 100%;
+      padding: 32px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      transform: translateY(20px) scale(0.96);
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      text-align: center;
+    }
+    .modal-backdrop.show .modal-card {
+      transform: translateY(0) scale(1);
+    }
+    html.dark .modal-card {
+      background: #1e293b;
+      color: #e2e8f0;
+    }
+    html.dark .modal-card h3 { color: #f1f5f9; }
+    html.dark .modal-card p { color: #94a3b8; }
+    html.dark .modal-card .modal-info-box {
+      background: #0f172a !important;
+      border-color: #475569 !important;
+    }
+    html.dark .modal-card .modal-info-box .modal-info-title { color: #93c5fd !important; }
+    html.dark .modal-card .modal-info-box .modal-info-text { color: #94a3b8 !important; }
+    html.dark .modal-card button.modal-secondary {
+      background: #0f172a !important;
+      border-color: #475569 !important;
+      color: #e2e8f0 !important;
+    }
+    html.dark .modal-card button.modal-secondary:hover {
+      background: #334155 !important;
+    }
+
+    .modal-icon-wrap {
+      display: inline-flex;
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+      align-items: center;
+      justify-content: center;
+      font-size: 38px;
+      margin-bottom: 16px;
+      animation: popIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;
+    }
+    @keyframes popIn {
+      from { transform: scale(0.5); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    /* OCR progress bar inside modal */
+    .ocr-progress-wrap {
+      margin-top: 16px;
+      display: none;
+    }
+    .ocr-progress-wrap.active { display: block; }
 
     /* Dark mode overrides */
     html.dark body {
@@ -415,7 +498,7 @@
       <h3 class="font-bold text-slate-900">Conversion Complete!</h3>
       <p class="text-sm text-slate-600 mt-1">Your Word document is ready to download.</p>
       <div class="mt-4 flex flex-wrap gap-3 justify-center">
-        <a id="downloadLink" href="#" download="converted.docx" class="bg-green-600 hover:bg-green-700 text-white font-bold px-6 py-3 rounded-xl transition-all shadow-md shadow-green-500/20">
+        <a id="downloadLink" href="#" download="Dropletweb.pdf" class="bg-green-600 hover:bg-green-700 text-white font-bold px-6 py-3 rounded-xl transition-all shadow-md shadow-green-500/20">
           📥 Download DOCX
         </a>
         <button onclick="resetConverter()" class="px-6 py-3 border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors text-sm">
@@ -479,6 +562,64 @@
     </div>
   </footer>
 
+  <!-- ============================================ -->
+  <!-- SCANNED-PDF MODAL                            -->
+  <!-- ============================================ -->
+  <div id="scannedModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="scannedModalTitle">
+    <div class="modal-card">
+      <div class="modal-icon-wrap">⚠️</div>
+
+      <h3 id="scannedModalTitle" class="text-2xl font-black text-slate-900 mb-2">
+        Scanned Image PDF Detected
+      </h3>
+      <p class="text-slate-600 text-sm mb-4">
+        Some pages in your PDF appear to be scanned images rather than real text. The DOCX conversion may not extract everything as editable text.
+      </p>
+
+      <div class="modal-info-box text-left bg-blue-50 border border-blue-200 rounded-xl p-4 mb-5">
+        <div class="flex items-start gap-2">
+          <span class="text-lg">💡</span>
+          <div>
+            <p class="modal-info-title text-xs font-bold text-blue-900 mb-1">
+              Need the text instead?
+            </p>
+            <p class="modal-info-text text-xs text-blue-700">
+              Our <strong>PDF to TXT</strong> converter uses OCR (Optical Character Recognition) to read the text from scanned images. This is slower but works on image-based PDFs.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex flex-col sm:flex-row gap-3">
+        <button onclick="closeScannedModal()" class="modal-secondary flex-1 px-5 py-3 border-2 border-slate-200 rounded-xl font-bold text-slate-700 text-sm hover:bg-slate-50 transition-all active:scale-95">
+          Continue with DOCX
+        </button>
+        <button onclick="startOCRConversion()" class="flex-1 px-5 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold rounded-xl text-sm shadow-lg shadow-blue-500/30 transition-all active:scale-95">
+          🅾️ Use OCR (PDF → TXT)
+        </button>
+      </div>
+
+      <!-- OCR progress (hidden until OCR starts) -->
+      <div id="ocrProgressWrap" class="ocr-progress-wrap">
+        <div class="flex justify-between text-xs text-slate-500 mb-1 mt-4">
+          <span id="ocrStatusLabel">Initializing OCR engine...</span>
+          <span id="ocrPercent">0%</span>
+        </div>
+        <div class="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
+          <div id="ocrProgressBar" class="bg-gradient-to-r from-blue-500 to-indigo-500 h-2 rounded-full progress-bar" style="width: 0%"></div>
+        </div>
+        <p id="ocrStatusText" class="text-xs text-slate-400 mt-2 text-center">
+          OCR reads text from images. First page may take up to 30 seconds.
+        </p>
+        <div class="mt-3 flex flex-wrap gap-3 justify-center">
+          <a id="ocrDownloadLink" href="#" download="Dropletweb.pdf" class="hidden bg-green-600 hover:bg-green-700 text-white font-bold px-5 py-2.5 rounded-xl text-sm shadow-md shadow-green-500/20 transition-all">
+            📥 Download TXT
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script>
     // ============================================
     // DARK MODE TOGGLE
@@ -509,14 +650,15 @@
     });
 
     // ============================================
-    // CONVERTER LOGIC
+    // CONVERTER STATE
     // ============================================
     let currentFile = null;
     let convertedBlob = null;
     let pdfjsLib = null;
-    let documentData = null;
+    let documentModel = null;
     let extractedText = '';
     let currentPreviewMode = 'formatted';
+    let pdfArrayBufferForOCR = null;   // cached for OCR path
 
     // DOM Elements
     const dropzone = document.getElementById('dropzone');
@@ -536,6 +678,43 @@
     const previewContent = document.getElementById('previewContent');
     const charCount = document.getElementById('charCount');
     const previewInfo = document.getElementById('previewInfo');
+
+    // Modal elements
+    const scannedModal = document.getElementById('scannedModal');
+    const ocrProgressWrap = document.getElementById('ocrProgressWrap');
+    const ocrProgressBar = document.getElementById('ocrProgressBar');
+    const ocrPercent = document.getElementById('ocrPercent');
+    const ocrStatusLabel = document.getElementById('ocrStatusLabel');
+    const ocrStatusText = document.getElementById('ocrStatusText');
+    const ocrDownloadLink = document.getElementById('ocrDownloadLink');
+
+    function openScannedModal() {
+      scannedModal.classList.add('show');
+      // Reset OCR progress state
+      ocrProgressWrap.classList.remove('active');
+      ocrProgressBar.style.width = '0%';
+      ocrPercent.textContent = '0%';
+      ocrStatusLabel.textContent = 'Initializing OCR engine...';
+      ocrStatusText.textContent = 'OCR reads text from images. First page may take up to 30 seconds.';
+      ocrDownloadLink.classList.add('hidden');
+      ocrDownloadLink.href = '#';
+    }
+
+    function closeScannedModal() {
+      scannedModal.classList.remove('show');
+    }
+
+    // Close on backdrop click
+    scannedModal.addEventListener('click', (e) => {
+      if (e.target === scannedModal) closeScannedModal();
+    });
+
+    // Close on ESC
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && scannedModal.classList.contains('show')) {
+        closeScannedModal();
+      }
+    });
 
     function setPreviewMode(mode) {
       currentPreviewMode = mode;
@@ -558,60 +737,54 @@
     }
 
     function renderFormattedPreview() {
-      if (!documentData || !documentData.pages || documentData.pages.length === 0) {
+      if (!documentModel || !documentModel.pages || documentModel.pages.length === 0) {
         previewContent.innerHTML = '<p style="color:#94a3b8;text-align:center;">No document to preview</p>';
         return;
       }
       let html = '';
-      const maxPages = Math.min(3, documentData.pages.length);
+      const maxPages = Math.min(3, documentModel.pages.length);
       for (let p = 0; p < maxPages; p++) {
-        const page = documentData.pages[p];
+        const page = documentModel.pages[p];
         if (p > 0) html += `<div class="preview-page-break">— Page ${p + 1} —</div>`;
-        
-        for (const line of page.lines) {
-          if (line.isMainHeading) {
-            html += `<div class="preview-main-heading">${line.text}</div>`;
-          } else if (line.isSubHeading) {
-            html += `<div class="preview-subheading">${line.text}</div>`;
-          } else if (line.isBullet) {
-            html += `<div class="preview-bullet">• ${line.text.replace(/^[•●▪◦\-*]\s*/, '')}</div>`;
-          } else if (line.isNumbered) {
-            html += `<div class="preview-numbered">${line.text}</div>`;
-          } else {
-            html += `<div class="preview-paragraph">${line.text}</div>`;
-          }
-        }
-        
-        if (page.tables && page.tables.length > 0) {
-          for (const table of page.tables) {
+
+        for (const el of page.elements) {
+          if (el.type === 'heading') {
+            if (el.level === 1) {
+              html += `<div class="preview-main-heading">${el.text}</div>`;
+            } else {
+              html += `<div class="preview-subheading">${el.text}</div>`;
+            }
+          } else if (el.type === 'paragraph') {
+            html += `<div class="preview-paragraph">${el.text}</div>`;
+          } else if (el.type === 'bullet') {
+            html += `<div class="preview-bullet">• ${el.text}</div>`;
+          } else if (el.type === 'numbered') {
+            html += `<div class="preview-numbered">${el.text}</div>`;
+          } else if (el.type === 'caption') {
+            html += `<div class="preview-caption">${el.text}</div>`;
+          } else if (el.type === 'url') {
+            html += `<div class="preview-paragraph" style="word-break:break-all;color:#2563eb;">${el.text}</div>`;
+          } else if (el.type === 'table') {
             html += `<table class="preview-table">`;
-            if (table.header) {
+            if (el.rows.length > 0) {
               html += `<thead><tr>`;
-              for (const cell of table.header) {
-                html += `<th>${cell}</th>`;
+              for (const cell of el.rows[0]) html += `<th>${cell}</th>`;
+              html += `</tr></thead><tbody>`;
+              for (let r = 1; r < el.rows.length; r++) {
+                html += `<tr>`;
+                for (const cell of el.rows[r]) html += `<td>${cell}</td>`;
+                html += `</tr>`;
               }
-              html += `</tr></thead>`;
+              html += `</tbody>`;
             }
-            html += `<tbody>`;
-            for (const row of table.rows) {
-              html += `<tr>`;
-              for (const cell of row) {
-                html += `<td>${cell}</td>`;
-              }
-              html += `</tr>`;
-            }
-            html += `</tbody></table>`;
-          }
-        }
-        
-        if (page.images && page.images.length > 0) {
-          for (const img of page.images) {
-            html += `<div class="preview-image-placeholder">🖼️ Image (${Math.round(img.width / 2)} × ${Math.round(img.height / 2)} px)</div>`;
+            html += `</table>`;
+          } else if (el.type === 'image') {
+            html += `<div class="preview-image-placeholder">🖼️ Embedded image (${el.width} × ${el.height} px)</div>`;
           }
         }
       }
-      if (documentData.pages.length > 3) {
-        html += `<div class="preview-page-break">... and ${documentData.pages.length - 3} more pages</div>`;
+      if (documentModel.pages.length > 3) {
+        html += `<div class="preview-page-break">... and ${documentModel.pages.length - 3} more pages</div>`;
       }
       previewContent.innerHTML = html || '<p style="color:#94a3b8;text-align:center;">No content to preview</p>';
     }
@@ -635,32 +808,8 @@
     }
 
     // ============================================
-    // MATRIX UTILITY FUNCTIONS
+    // UTILITY FUNCTIONS
     // ============================================
-    function matrixMultiply(a, b) {
-      return [
-        a[0]*b[0] + a[2]*b[1], a[1]*b[0] + a[3]*b[1],
-        a[0]*b[2] + a[2]*b[3], a[1]*b[2] + a[3]*b[3],
-        a[0]*b[4] + a[2]*b[5] + a[4], a[1]*b[4] + a[3]*b[5] + a[5]
-      ];
-    }
-
-    function transformPoint(m, x, y) {
-      return { x: m[0]*x + m[2]*y + m[4], y: m[1]*x + m[3]*y + m[5] };
-    }
-
-    function getTransformedBox(m, w = 1, h = 1) {
-      const pts = [transformPoint(m,0,0), transformPoint(m,w,0), transformPoint(m,0,h), transformPoint(m,w,h)];
-      return {
-        x: Math.min(...pts.map(p=>p.x)),
-        y: Math.min(...pts.map(p=>p.y)),
-        width: Math.max(...pts.map(p=>p.x)) - Math.min(...pts.map(p=>p.x)),
-        height: Math.max(...pts.map(p=>p.y)) - Math.min(...pts.map(p=>p.y))
-      };
-    }
-
-    function canvasToDataURL(canvas) { return canvas.toDataURL('image/png', 0.92); }
-
     function dataURLToUint8Array(dataURL) {
       const base64 = dataURL.split(',')[1];
       const binary = atob(base64);
@@ -669,537 +818,797 @@
       return bytes;
     }
 
-    /**
-     * Extract images with their natural size (no forced min width/height).
-     * We use the CTM to get the placement rectangle but we don't clip to tiny strips.
-     */
-    async function renderPageAndFindImages(page, pageNumber) {
-      const baseViewport = page.getViewport({ scale: 1 });
-      const renderScale = 2.0; // higher quality
-      const viewport = page.getViewport({ scale: renderScale });
-
-      const canvas = document.createElement('canvas');
-      canvas.width = Math.ceil(viewport.width);
-      canvas.height = Math.ceil(viewport.height);
-      const ctx = canvas.getContext('2d', { alpha: false });
-      await page.render({ canvasContext: ctx, viewport }).promise;
-
+    // ============================================
+    // ROBUST EMBEDDED IMAGE EXTRACTION
+    // ============================================
+    async function extractEmbeddedImages(page, pageNumber) {
       const opList = await page.getOperatorList();
       const OPS = pdfjsLib.OPS;
 
-      let ctm = [1,0,0,1,0,0];
-      const stack = [];
       const images = [];
+      const processedIds = new Set();
 
-      for (let i = 0; i < opList.fnArray.length; i++) {
-        const fn = opList.fnArray[i];
-        const args = opList.argsArray[i];
+      async function getPdfObject(objId) {
+        return new Promise((resolve) => {
+          try {
+            if (page.objs && page.objs.has(objId)) {
+              try {
+                resolve(page.objs.get(objId));
+                return;
+              } catch (_) {}
+            }
 
-        if (fn === OPS.save) { stack.push(ctm.slice()); }
-        else if (fn === OPS.restore) { ctm = stack.length ? stack.pop() : [1,0,0,1,0,0]; }
-        else if (fn === OPS.transform) { ctm = matrixMultiply(ctm, args); }
-        else if (fn === OPS.paintImageXObject || fn === OPS.paintImageMaskXObject || fn === OPS.paintImageXObjectRepeat) {
-          // Use the full 1x1 unit box transformed by CTM.
-          const box = getTransformedBox(ctm, 1, 1);
-          
-          // Convert PDF coords (y from bottom) to canvas coords (y from top).
-          const x = box.x * renderScale;
-          const y = (baseViewport.height - box.y - box.height) * renderScale;
-          const w = Math.abs(box.width) * renderScale;
-          const h = Math.abs(box.height) * renderScale;
+            if (page.commonObjs && page.commonObjs.has(objId)) {
+              try {
+                resolve(page.commonObjs.get(objId));
+                return;
+              } catch (_) {}
+            }
 
-          // Only keep reasonably sized images (at least 10x10 canvas pixels)
-          if (w >= 10 && h >= 10) {
-            images.push({
-              page: pageNumber,
-              x: Math.max(0, x),
-              y: Math.max(0, y),
-              width: Math.min(canvas.width - Math.max(0, x), w),
-              height: Math.min(canvas.height - Math.max(0, y), h)
-            });
+            if (page.objs) {
+              try {
+                page.objs.get(objId, (data) => {
+                  resolve(data || null);
+                });
+
+                setTimeout(() => resolve(null), 1500);
+                return;
+              } catch (_) {}
+            }
+
+            resolve(null);
+
+          } catch (error) {
+            console.warn('Could not retrieve PDF image:', objId, error);
+            resolve(null);
           }
-        }
-      }
-
-      // Remove duplicates (same position & size)
-      const unique = [];
-      for (const img of images) {
-        const duplicate = unique.some(u =>
-          Math.abs(u.x - img.x) < 2 && Math.abs(u.y - img.y) < 2 &&
-          Math.abs(u.width - img.width) < 2 && Math.abs(u.height - img.height) < 2
-        );
-        if (!duplicate) unique.push(img);
-      }
-
-      // Crop each image from the rendered page.
-      const crops = [];
-      for (const img of unique) {
-        const crop = document.createElement('canvas');
-        crop.width = Math.max(1, Math.round(img.width));
-        crop.height = Math.max(1, Math.round(img.height));
-        const cropCtx = crop.getContext('2d');
-        cropCtx.drawImage(
-          canvas,
-          Math.round(img.x), Math.round(img.y),
-          Math.round(img.width), Math.round(img.height),
-          0, 0, crop.width, crop.height
-        );
-        crops.push({ 
-          ...img, 
-          data: dataURLToUint8Array(canvasToDataURL(crop)),
-          originalWidth: img.width / renderScale,   // in PDF points
-          originalHeight: img.height / renderScale,
-          originalX: img.x / renderScale,           // in PDF points (from left)
-          originalY: img.y / renderScale            // in PDF points (from top)
         });
       }
 
-      return { 
-        pageNumber, 
-        pageWidth: baseViewport.width, 
-        pageHeight: baseViewport.height, 
-        images: crops 
-      };
-    }
+      function imageDataToPNG(imgData) {
+        if (!imgData || !imgData.width || !imgData.height) {
+          return null;
+        }
 
-    function detectTables(lines) {
-      const tables = [];
-      let currentTable = [];
-      let headerRow = null;
-      let inTable = false;
-      let tableStartY = 0;
+        const width = imgData.width;
+        const height = imgData.height;
 
-      for (let i = 0; i < lines.length; i++) {
-        const line = lines[i];
-        const text = line.text.trim();
-        if (!text) {
-          if (inTable && currentTable.length >= 2) {
-            tables.push({ header: headerRow, rows: currentTable.slice(1) });
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+
+        const ctx = canvas.getContext('2d', {
+          willReadFrequently: true
+        });
+
+        if (!ctx) return null;
+
+        try {
+          if (
+            imgData.bitmap &&
+            typeof ctx.drawImage === 'function'
+          ) {
+            ctx.drawImage(
+              imgData.bitmap,
+              0,
+              0,
+              width,
+              height
+            );
+
+            return {
+              data: dataURLToUint8Array(
+                canvas.toDataURL('image/png')
+              ),
+              width,
+              height
+            };
           }
-          inTable = false;
-          currentTable = [];
-          headerRow = null;
+
+          if (!imgData.data) {
+            return null;
+          }
+
+          const src = imgData.data;
+          const output = ctx.createImageData(width, height);
+          const dst = output.data;
+
+          const pixels = width * height;
+
+          if (src.length === pixels * 4) {
+            dst.set(src);
+          } else if (src.length === pixels * 3) {
+            for (
+              let s = 0, d = 0;
+              s < src.length;
+              s += 3, d += 4
+            ) {
+              dst[d] = src[s];
+              dst[d + 1] = src[s + 1];
+              dst[d + 2] = src[s + 2];
+              dst[d + 3] = 255;
+            }
+          } else if (src.length === pixels) {
+            for (
+              let s = 0, d = 0;
+              s < src.length;
+              s++, d += 4
+            ) {
+              const value = src[s];
+              dst[d] = value;
+              dst[d + 1] = value;
+              dst[d + 2] = value;
+              dst[d + 3] = 255;
+            }
+          } else {
+            console.warn(
+              'Unsupported image buffer:',
+              width,
+              height,
+              src.length
+            );
+            return null;
+          }
+
+          ctx.putImageData(output, 0, 0);
+
+          return {
+            data: dataURLToUint8Array(
+              canvas.toDataURL('image/png')
+            ),
+            width,
+            height
+          };
+
+        } catch (error) {
+          console.warn(
+            'Failed converting PDF image:',
+            error
+          );
+
+          return null;
+        }
+      }
+
+      for (let i = 0; i < opList.fnArray.length; i++) {
+
+        const fn = opList.fnArray[i];
+        const args = opList.argsArray[i];
+
+        if (
+          fn !== OPS.paintImageXObject &&
+          fn !== OPS.paintImageMaskXObject &&
+          fn !== OPS.paintImageXObjectRepeat
+        ) {
           continue;
         }
 
-        const parts = text.split(/\s{3,}/).filter(p => p.trim());
-        if (parts.length >= 2) {
-          if (!inTable) {
-            inTable = true;
-            headerRow = parts;
-            currentTable = [parts];
-            tableStartY = line.y;
-          } else if (Math.abs(line.y - tableStartY) < 50) {
-            if (parts.length === headerRow.length || Math.abs(parts.length - headerRow.length) <= 1) {
-              currentTable.push(parts);
-            } else {
-              if (currentTable.length >= 2) {
-                tables.push({ header: headerRow, rows: currentTable.slice(1) });
-              }
-              headerRow = parts;
-              currentTable = [parts];
-              tableStartY = line.y;
-            }
+        const objId = args && args[0];
+
+        if (!objId) continue;
+        if (processedIds.has(objId)) continue;
+
+        processedIds.add(objId);
+
+        try {
+
+          const imgData = await getPdfObject(objId);
+
+          if (!imgData) {
+            console.warn(
+              `Page ${pageNumber}: image object not available`,
+              objId
+            );
+            continue;
           }
-        } else {
-          if (inTable && currentTable.length >= 2) {
-            tables.push({ header: headerRow, rows: currentTable.slice(1) });
+
+          const converted = imageDataToPNG(imgData);
+
+          if (!converted) {
+            console.warn(
+              `Page ${pageNumber}: image could not be converted`,
+              objId
+            );
+            continue;
           }
-          inTable = false;
-          currentTable = [];
-          headerRow = null;
+
+          if (
+            converted.width < 20 ||
+            converted.height < 20
+          ) {
+            continue;
+          }
+
+          images.push({
+            type: 'image',
+            width: converted.width,
+            height: converted.height,
+            data: converted.data,
+            page: pageNumber,
+            objectId: objId
+          });
+
+          console.log(
+            `PAGE ${pageNumber}: extracted image`,
+            objId,
+            `${converted.width}x${converted.height}`
+          );
+
+        } catch (error) {
+
+          console.warn(
+            `Page ${pageNumber}: failed image ${objId}`,
+            error
+          );
         }
       }
 
-      if (inTable && currentTable.length >= 2) {
-        tables.push({ header: headerRow, rows: currentTable.slice(1) });
-      }
+      console.log(
+        `PAGE ${pageNumber}: ${images.length} images extracted`
+      );
 
-      return tables;
+      return images;
     }
 
     // ============================================
-    // EXTRACT DOCUMENT CONTENT
+    // GEOMETRY-AWARE PAGE ANALYSIS
     // ============================================
-    async function extractDocumentContent(arrayBuffer, showProgress = true) {
+    async function extractPageLayout(page) {
+      const viewport = page.getViewport({ scale: 1 });
+      const textContent = await page.getTextContent();
+
+      const items = textContent.items
+        .filter(item => item.str && item.str.trim())
+        .map(item => {
+          const tx = pdfjsLib.Util.transform(viewport.transform, item.transform);
+          const fontSize = Math.max(1, Math.hypot(tx[2], tx[3]));
+          return {
+            text: item.str,
+            x: tx[4],
+            y: tx[5],
+            width: item.width || 0,
+            height: Math.abs(item.height || item.transform[3] || 10),
+            fontSize: fontSize,
+            fontName: item.fontName || '',
+            isBold: /bold|black|demi|heavy|semibold/i.test(item.fontName || ''),
+            hasEOL: !!item.hasEOL,
+            pageWidth: viewport.width,
+            pageHeight: viewport.height
+          };
+        });
+
+      return {
+        width: viewport.width,
+        height: viewport.height,
+        items
+      };
+    }
+
+    function groupIntoLines(items) {
+      const tolerance = 3;
+      const lines = [];
+
+      const sorted = [...items].sort((a, b) => {
+        if (Math.abs(a.y - b.y) > tolerance) return a.y - b.y;
+        return a.x - b.x;
+      });
+
+      for (const item of sorted) {
+        let line = lines.find(l => Math.abs(l.y - item.y) <= tolerance);
+        if (!line) {
+          line = { y: item.y, items: [] };
+          lines.push(line);
+        }
+        line.items.push(item);
+      }
+
+      for (const line of lines) {
+        line.items.sort((a, b) => a.x - b.x);
+        line.x = Math.min(...line.items.map(i => i.x));
+        line.right = Math.max(...line.items.map(i => i.x + i.width));
+        line.y = line.items[0].y;
+        line.fontSize = Math.max(...line.items.map(i => i.fontSize));
+        line.isBold = line.items.some(i => i.isBold);
+        line.text = joinLineItems(line.items);
+      }
+
+      return lines.sort((a, b) => a.y - b.y);
+    }
+
+    function joinLineItems(items) {
+      let output = '';
+      for (let i = 0; i < items.length; i++) {
+        const item = items[i];
+        if (i === 0) {
+          output = item.text;
+          continue;
+        }
+        const previous = items[i - 1];
+        const previousRight = previous.x + previous.width;
+        const gap = item.x - previousRight;
+        if (gap > 2 && !/\s$/.test(output)) {
+          output += ' ';
+        }
+        output += item.text;
+      }
+      return output.trim();
+    }
+
+    function isFooterLine(line, pageHeight) {
+      const text = line.text.trim();
+      const pageNumberPattern = /^\d+\s*\|\s*Page$/i.test(text) ||
+                                /^Page\s*\|\s*\d+$/i.test(text);
+      const nearBottom = line.y > pageHeight * 0.88;
+      return pageNumberPattern && nearBottom;
+    }
+
+    function isUrlLine(text) {
+      return /^https?:\/\/\S+/i.test(text.trim());
+    }
+
+    function isCaptionLine(text) {
+      return /^(Figure|Table)\s*\d+[:.]/i.test(text.trim());
+    }
+
+    function classifyHeading(line, inTOC) {
+      const text = line.text.trim();
+      if (!text) return null;
+
+      if (inTOC) return null;
+
+      if (/^\d+\.\d+\.?\s+\S/.test(text)) {
+        return { type: 'heading', level: 2 };
+      }
+
+      if (/^\d+\.?\s+[A-Z]/.test(text) && text.length < 90) {
+        return { type: 'heading', level: 1 };
+      }
+
+      const specialHeadings = [
+        'EXECUTIVE SUMMARY',
+        'TABLE OF CONTENTS',
+        'REFERENCES',
+        'APPENDIX'
+      ];
+      for (const h of specialHeadings) {
+        if (text.toUpperCase().startsWith(h)) {
+          return { type: 'heading', level: 1 };
+        }
+      }
+
+      return null;
+    }
+
+    function classifyBullet(line, bodyLeftX) {
+      const text = line.text.trim();
+      if (/^[•●▪◦●○◆◇]\s*/.test(text)) {
+        return {
+          type: 'bullet',
+          text: text.replace(/^[•●▪◦●○◆◇]\s*/, '')
+        };
+      }
+      if (/^[-*]\s+\S/.test(text) && line.x - bodyLeftX > 4) {
+        return {
+          type: 'bullet',
+          text: text.replace(/^[-*]\s+/, '')
+        };
+      }
+      return null;
+    }
+
+    function classifyNumbered(line, bodyLeftX) {
+      const text = line.text.trim();
+      if (/^\d+[.)]\s+\S/.test(text)) {
+        const isSectionHeading = /^\d+\.?\s+[A-Z][a-z]/.test(text) &&
+                                 text.length < 90 &&
+                                 !/^\d+[.)]\s/.test(text);
+        if (isSectionHeading) return null;
+
+        if (line.x - bodyLeftX > 4) {
+          return { type: 'numbered', text };
+        }
+      }
+      return null;
+    }
+
+    function computeBodyLeftX(lines) {
+      if (lines.length === 0) return 0;
+      const xs = lines.map(l => l.x).sort((a, b) => a - b);
+      const idx = Math.floor(xs.length * 0.25);
+      return xs[idx];
+    }
+
+    function looksLikeTOCEntry(text) {
+      if (/\.{3,}\s*\d+\s*$/.test(text)) return true;
+      if (/\s{3,}\d+\s*$/.test(text) && text.length > 30) return true;
+      return false;
+    }
+
+    function buildParagraphs(lines, bodyLeftX, pageHeight) {
+      const elements = [];
+      let current = null;
+
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+
+        if (isFooterLine(line, pageHeight)) continue;
+
+        const text = line.text.trim();
+        if (!text) continue;
+
+        const isUrl = isUrlLine(text);
+        const isCaption = isCaptionLine(text);
+        const bulletInfo = classifyBullet(line, bodyLeftX);
+        const numberedInfo = classifyNumbered(line, bodyLeftX);
+        const headingInfo = classifyHeading(line, false);
+
+        const startsNewBlock =
+          headingInfo || bulletInfo || numberedInfo || isUrl || isCaption ||
+          looksLikeTOCEntry(text);
+
+        if (current && !startsNewBlock) {
+          const prevLine = current._lastLine;
+          const yGap = line.y - prevLine.y;
+          const fsRatio = line.fontSize / prevLine.fontSize;
+
+          const sameFontSize = fsRatio > 0.85 && fsRatio < 1.18;
+          const closeEnough = yGap < 22;
+
+          if (sameFontSize && closeEnough) {
+            if (!/\s$/.test(current.text)) current.text += ' ';
+            current.text += text;
+            current._lastLine = line;
+            continue;
+          }
+        }
+
+        if (current) {
+          delete current._lastLine;
+          elements.push(current);
+          current = null;
+        }
+
+        if (headingInfo) {
+          elements.push({
+            type: 'heading',
+            level: headingInfo.level,
+            text: text
+          });
+          continue;
+        }
+
+        if (bulletInfo) {
+          elements.push({ type: 'bullet', text: bulletInfo.text });
+          continue;
+        }
+
+        if (numberedInfo) {
+          elements.push({ type: 'numbered', text: numberedInfo.text });
+          continue;
+        }
+
+        if (isUrl) {
+          elements.push({ type: 'url', text: text });
+          continue;
+        }
+
+        if (isCaption) {
+          elements.push({ type: 'caption', text: text });
+          continue;
+        }
+
+        if (looksLikeTOCEntry(text)) {
+          elements.push({ type: 'paragraph', text: text });
+          continue;
+        }
+
+        current = {
+          type: 'paragraph',
+          text: text,
+          _lastLine: line
+        };
+      }
+
+      if (current) {
+        delete current._lastLine;
+        elements.push(current);
+      }
+
+      return elements;
+    }
+
+    function detectTablesFromLines(lines, bodyLeftX) {
+      const tables = [];
+
+      let currentRun = [];
+      let currentColumnStarts = null;
+
+      const flush = () => {
+        if (currentRun.length >= 2) {
+          const rows = currentRun.map(r => r.cells);
+          tables.push({ rows });
+        }
+        currentRun = [];
+        currentColumnStarts = null;
+      };
+
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+
+        if (isFooterLine(line, line._pageHeight || 0)) { flush(); continue; }
+        if (classifyHeading(line, false)) { flush(); continue; }
+        if (isCaptionLine(line.text)) { flush(); continue; }
+        if (isUrlLine(line.text)) { flush(); continue; }
+
+        if (!line.items || line.items.length < 2) { flush(); continue; }
+
+        const cells = [];
+        let currentCell = [line.items[0]];
+        for (let k = 1; k < line.items.length; k++) {
+          const prev = line.items[k - 1];
+          const item = line.items[k];
+          const prevRight = prev.x + prev.width;
+          const gap = item.x - prevRight;
+          if (gap > 15) {
+            cells.push(currentCell);
+            currentCell = [item];
+          } else {
+            currentCell.push(item);
+          }
+        }
+        cells.push(currentCell);
+
+        if (cells.length < 2) { flush(); continue; }
+
+        const starts = cells.map(c => c[0].x);
+
+        if (currentColumnStarts === null) {
+          currentColumnStarts = starts;
+          currentRun.push({
+            line,
+            cells: cells.map(c => joinLineItems(c))
+          });
+        } else if (starts.length === currentColumnStarts.length) {
+          const aligned = starts.every((s, idx) =>
+            Math.abs(s - currentColumnStarts[idx]) < 25
+          );
+          if (aligned) {
+            currentRun.push({
+              line,
+              cells: cells.map(c => joinLineItems(c))
+            });
+          } else {
+            flush();
+            currentColumnStarts = starts;
+            currentRun.push({
+              line,
+              cells: cells.map(c => joinLineItems(c))
+            });
+          }
+        } else {
+          flush();
+          currentColumnStarts = starts;
+          currentRun.push({
+            line,
+            cells: cells.map(c => joinLineItems(c))
+          });
+        }
+      }
+
+      flush();
+      return tables;
+    }
+
+    async function analysePage(page, pageIndex) {
+      const layout = await extractPageLayout(page);
+      const lines = groupIntoLines(layout.items);
+
+      for (const line of lines) {
+        line._pageHeight = layout.height;
+      }
+
+      const bodyLeftX = computeBodyLeftX(
+        lines.filter(l => !isFooterLine(l, layout.height))
+      );
+
+      const images = await extractEmbeddedImages(page, pageIndex);
+
+      const textElements = buildParagraphs(lines, bodyLeftX, layout.height);
+
+      const tableCandidates = detectTablesFromLines(lines, bodyLeftX);
+
+      const elements = [...textElements];
+
+      for (const table of tableCandidates) {
+        if (table.rows.length >= 2) {
+          elements.push({ type: 'table', rows: table.rows });
+        }
+      }
+
+      for (const img of images) {
+        elements.push({
+          type: 'image',
+          width: img.width,
+          height: img.height,
+          data: img.data
+        });
+      }
+
+      const textLength = lines.reduce((sum, l) => sum + l.text.length, 0);
+      let isScanned = false;
+      if (textLength < 50 && images.length > 0) {
+        isScanned = true;
+      }
+
+      return {
+        page: pageIndex,
+        width: layout.width,
+        height: layout.height,
+        elements,
+        isScanned
+      };
+    }
+
+    async function extractDocumentModel(arrayBuffer, showProgress = true) {
       if (!pdfjsLib) await loadPDFJS();
 
       const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
       const pages = [];
       let fullText = '';
-      let totalImages = 0;
+      let scannedPageCount = 0;
 
       for (let pageIndex = 1; pageIndex <= pdf.numPages; pageIndex++) {
         const page = await pdf.getPage(pageIndex);
-        const viewport = page.getViewport({ scale: 1 });
-        const textContent = await page.getTextContent();
+        const analysis = await analysePage(page, pageIndex - 1);
+        if (analysis.isScanned) scannedPageCount++;
+        pages.push(analysis);
 
-        const items = textContent.items.map(item => {
-          const tx = pdfjsLib.Util.transform(viewport.transform, item.transform);
-          const fontSize = Math.max(1, Math.sqrt(tx[2] * tx[2] + tx[3] * tx[3]));
-          const x = tx[4];
-          const y = viewport.height - tx[5];
-          const isBold = /bold|black|demi|heavy|semibold/i.test(item.fontName || '');
-          return { text: item.str || '', x, y, width: item.width || 0, fontSize, isBold };
-        }).filter(item => item.text.trim());
-
-        const lines = [];
-        const tolerance = 2.5;
-        for (const item of items) {
-          let found = null;
-          for (const line of lines) {
-            if (Math.abs(line.y - item.y) <= tolerance) { found = line; break; }
+        for (const el of analysis.elements) {
+          if (el.type === 'heading' || el.type === 'paragraph' ||
+              el.type === 'bullet' || el.type === 'numbered' ||
+              el.type === 'caption' || el.type === 'url') {
+            fullText += el.text + '\n';
           }
-          if (!found) { found = { y: item.y, items: [] }; lines.push(found); }
-          found.items.push(item);
         }
-
-        lines.sort((a, b) => a.y - b.y);
-
-        const structuredLines = [];
-        for (const line of lines) {
-          line.items.sort((a, b) => a.x - b.x);
-          let lineText = '';
-          let lastRight = 0;
-          for (const item of line.items) {
-            if (lastRight > 0 && (item.x - lastRight) > 5) lineText += ' ';
-            lineText += item.text;
-            lastRight = item.x + item.width;
-          }
-          lineText = lineText.trim();
-          if (!lineText) continue;
-
-          const maxFontSize = Math.max(...line.items.map(i => i.fontSize));
-          const hasBold = line.items.some(i => i.isBold);
-          const isAllCaps = /^[A-Z0-9\s\-–—.,:;()]+$/.test(lineText) && /[A-Z]/.test(lineText);
-          
-          const isMainHeading = (isAllCaps && lineText.length < 80 && /^[A-Z][A-Z\s]+$/.test(lineText)) ||
-                                /^\d+\.\s+[A-Z]/.test(lineText) ||
-                                /^(EXECUTIVE SUMMARY|TABLE OF CONTENTS|INTRODUCTION|CONCLUSION|RECOMMENDATIONS|REFERENCES|APPENDIX)/i.test(lineText);
-          
-          const isSubHeading = /^\d+\.\d+\s+[A-Z]/.test(lineText) ||
-                               /^[A-Z][a-z]+.*:$/.test(lineText) && lineText.length < 80 ||
-                               (maxFontSize >= 14 && maxFontSize < 16);
-
-          structuredLines.push({
-            text: lineText,
-            fontSize: maxFontSize,
-            isBold: hasBold,
-            isMainHeading: isMainHeading,
-            isSubHeading: isSubHeading || (!isMainHeading && maxFontSize >= 14),
-            isBullet: /^[•●▪◦\-*]\s*/.test(lineText),
-            isNumbered: /^\d+[\.)]\s/.test(lineText),
-            page: pageIndex - 1,
-            y: line.y,
-            x: Math.min(...line.items.map(i => i.x))
-          });
-
-          fullText += lineText + '\n';
-        }
-
-        const tables = detectTables(structuredLines);
-        const visual = await renderPageAndFindImages(page, pageIndex - 1);
-        totalImages += visual.images.length;
-
-        pages.push({
-          page: pageIndex - 1,
-          width: visual.pageWidth,
-          height: visual.pageHeight,
-          lines: structuredLines,
-          images: visual.images,
-          tables: tables
-        });
 
         if (showProgress) {
           const progress = Math.round((pageIndex / pdf.numPages) * 60) + 30;
           progressBar.style.width = progress + '%';
           progressText.textContent = progress + '%';
-          statusText.textContent = `Processing page ${pageIndex} of ${pdf.numPages} • ${totalImages} images • ${tables.length} tables`;
+          statusText.textContent = `Analysing page ${pageIndex} of ${pdf.numPages}…`;
         }
       }
 
-      return { pages, text: fullText, pageCount: pdf.numPages, imageCount: totalImages };
+      return {
+        pages,
+        text: fullText,
+        pageCount: pdf.numPages,
+        scannedPageCount
+      };
     }
 
     // ============================================
-    // CREATE DOCX WITH CORRECT ELEMENT ORDER & FLOATING IMAGES
+    // BUILD DOCX FROM DOCUMENT MODEL
     // ============================================
-    async function createStyledDOCX(documentData, filename) {
+    async function buildDOCX(model) {
       if (typeof window.docx === 'undefined') {
         throw new Error('DOCX library not loaded. Please refresh the page.');
       }
 
-      const { 
-        Document, Packer, Paragraph, TextRun, ImageRun, 
-        AlignmentType, PageBreak, convertInchesToTwip 
+      const {
+        Document, Packer, Paragraph, TextRun, ImageRun,
+        AlignmentType, PageBreak, convertInchesToTwip,
+        Table, TableRow, TableCell, BorderStyle, WidthType,
+        Footer, PageNumber
       } = window.docx;
 
-      // Build one section per PDF page to preserve page dimensions
-      const sections = [];
+      const allChildren = [];
 
-      for (let p = 0; p < documentData.pages.length; p++) {
-        const page = documentData.pages[p];
-        
-        // Use the actual PDF page dimensions (in points, 72 points = 1 inch)
-        const pageWidthInches = page.width / 72;
-        const pageHeightInches = page.height / 72;
-        
-        // Build a combined list of elements (text lines + images) with their vertical positions.
-        const elements = [];
+      for (let p = 0; p < model.pages.length; p++) {
+        const page = model.pages[p];
 
-        // Add text lines
-        for (const line of page.lines) {
-          elements.push({
-            type: 'text',
-            y: line.y,
-            data: line
-          });
+        if (page.isScanned) {
+          allChildren.push(new Paragraph({
+            children: [
+              new TextRun({
+                text: '⚠️ This page appears to be a scanned image. OCR would be required to extract editable text.',
+                size: 20,
+                italics: true,
+                color: 'cc6600'
+              })
+            ],
+            spacing: { before: 240, after: 120 }
+          }));
         }
 
-        // Add images (use original PDF Y coordinate for sorting)
-        for (const img of page.images) {
-          elements.push({
-            type: 'image',
-            y: img.originalY,
-            data: img
-          });
-        }
+        let prevElement = null;
 
-        // Sort all elements by vertical position (top to bottom)
-        elements.sort((a, b) => a.y - b.y);
+        for (const el of page.elements) {
+          if (el.type === 'heading') {
+            const fontSize = el.level === 1 ? 28 : 24;
+            allChildren.push(new Paragraph({
+              children: [
+                new TextRun({
+                  text: el.text,
+                  bold: true,
+                  size: fontSize,
+                  color: el.level === 1 ? '1E3A8A' : '1E40AF'
+                })
+              ],
+              spacing: { before: 360, after: 160, line: 276, lineRule: 'exact' },
+              alignment: AlignmentType.LEFT,
+              indent: el.level === 1 ? { left: 0 } : { left: 360 }
+            }));
 
-        // Track whether we are inside a continuous paragraph (for spacing decisions)
-        let inContinuousParagraph = false;
-        let previousY = 0;
+          } else if (el.type === 'bullet') {
+            allChildren.push(new Paragraph({
+              children: [
+                new TextRun({ text: '• ' + el.text, size: 22 })
+              ],
+              spacing: { before: 60, after: 60, line: 276, lineRule: 'exact' },
+              alignment: AlignmentType.LEFT,
+              indent: { left: 720, hanging: 360 }
+            }));
 
-        const children = [];
+          } else if (el.type === 'numbered') {
+            allChildren.push(new Paragraph({
+              children: [
+                new TextRun({ text: el.text, size: 22 })
+              ],
+              spacing: { before: 60, after: 60, line: 276, lineRule: 'exact' },
+              alignment: AlignmentType.LEFT,
+              indent: { left: 720, hanging: 360 }
+            }));
 
-        // Process each element in order
-        for (const element of elements) {
-          if (element.type === 'text') {
-            const line = element.data;
-            
-            let beforeSpacing = 240;
-            let afterSpacing = 120;
-            let fontSize = 22;
-            let isBold = false;
-            let alignment = AlignmentType.JUSTIFIED;
-            let indent = null;
-            let leftIndent = 0;
-            let lineSpacing = 276;
+          } else if (el.type === 'caption') {
+            allChildren.push(new Paragraph({
+              children: [
+                new TextRun({
+                  text: el.text,
+                  italics: true,
+                  size: 20,
+                  color: '475569'
+                })
+              ],
+              spacing: { before: 60, after: 120, line: 276, lineRule: 'exact' },
+              alignment: AlignmentType.CENTER
+            }));
 
-            const isContinuation = !line.isMainHeading && !line.isSubHeading && 
-                                   !line.isBullet && !line.isNumbered &&
-                                   (element.y - previousY) < 15 && inContinuousParagraph;
+          } else if (el.type === 'url') {
+            allChildren.push(new Paragraph({
+              children: [
+                new TextRun({
+                  text: el.text,
+                  size: 20,
+                  color: '2563EB'
+                })
+              ],
+              spacing: { before: 60, after: 120, line: 276, lineRule: 'exact' },
+              alignment: AlignmentType.LEFT
+            }));
 
-            if (line.isMainHeading) {
-              fontSize = 28;
-              isBold = true;
-              beforeSpacing = 360;
-              afterSpacing = 180;
-              alignment = AlignmentType.LEFT;
-              leftIndent = 360;
-              lineSpacing = 276;
-              inContinuousParagraph = false;
-            } else if (line.isSubHeading) {
-              fontSize = 24;
-              isBold = true;
-              beforeSpacing = 360;
-              afterSpacing = 120;
-              alignment = AlignmentType.LEFT;
-              lineSpacing = 276;
-              inContinuousParagraph = false;
-            } else if (line.isBullet) {
-              fontSize = 22;
-              beforeSpacing = 60;
-              afterSpacing = 60;
-              alignment = AlignmentType.LEFT;
-              indent = { left: 360, hanging: 180 };
-              lineSpacing = 276;
-              inContinuousParagraph = false;
-            } else if (line.isNumbered) {
-              fontSize = 22;
-              beforeSpacing = 60;
-              afterSpacing = 60;
-              alignment = AlignmentType.LEFT;
-              indent = { left: 360, hanging: 180 };
-              lineSpacing = 276;
-              inContinuousParagraph = false;
-            } else {
-              fontSize = 22;
-              if (isContinuation) {
-                beforeSpacing = 0;
-                afterSpacing = 0;
-              } else {
-                beforeSpacing = 240;
-                afterSpacing = 120;
-              }
-              alignment = AlignmentType.JUSTIFIED;
-              lineSpacing = 276;
-            }
-
-            let text = line.text;
-            if (line.isBullet) text = text.replace(/^[•●▪◦\-*]\s*/, '');
-
-            const run = new TextRun({
-              text: line.isBullet ? '• ' + text : text,
-              size: fontSize,
-              bold: isBold || line.isBold
-            });
-
-            const options = {
-              children: [run],
+          } else if (el.type === 'paragraph') {
+            allChildren.push(new Paragraph({
+              children: [new TextRun({ text: el.text, size: 22 })],
               spacing: {
-                before: beforeSpacing,
-                after: afterSpacing,
-                line: lineSpacing,
+                before: prevElement && prevElement.type === 'paragraph' ? 0 : 240,
+                after: 120,
+                line: 276,
                 lineRule: 'exact'
               },
-              alignment: alignment
-            };
+              alignment: AlignmentType.JUSTIFIED
+            }));
 
-            if (indent) {
-              options.indent = indent;
-            }
-
-            if (leftIndent > 0 && !indent) {
-              options.indent = { left: leftIndent };
-            }
-
-            children.push(new Paragraph(options));
-
-            previousY = element.y;
-            inContinuousParagraph = !line.isMainHeading && !line.isSubHeading && 
-                                    !line.isBullet && !line.isNumbered;
-
-          } else if (element.type === 'image') {
-            const img = element.data;
+          } else if (el.type === 'table') {
             try {
-              // Convert canvas pixels to Word sizes (1 px at 96dpi = 1/96 inch)
-              // img.originalWidth/Height are in PDF points (1/72 inch)
-              const widthInPoints = img.originalWidth;
-              const heightInPoints = img.originalHeight;
-              
-              // Convert points to pixels (1 pt = 1/72 inch, 1 px = 1/96 inch, so px = pt * 96/72 = pt * 1.3333)
-              const widthPx = Math.round(widthInPoints * (96 / 72));
-              const heightPx = Math.round(heightInPoints * (96 / 72));
-
-              // Cap maximum dimensions to fit page (use PDF page width minus margins)
-              const maxWidthPx = Math.round((page.width / 72 - 2.0) * 96); // page width in inches - 2 inches margins
-              const maxHeightPx = Math.round((page.height / 72 - 2.0) * 96);
-
-              let finalWidthPx = widthPx;
-              let finalHeightPx = heightPx;
-
-              if (finalWidthPx > maxWidthPx) {
-                const ratio = maxWidthPx / finalWidthPx;
-                finalWidthPx = maxWidthPx;
-                finalHeightPx = Math.round(finalHeightPx * ratio);
-              }
-              if (finalHeightPx > maxHeightPx) {
-                const ratio = maxHeightPx / finalHeightPx;
-                finalHeightPx = maxHeightPx;
-                finalWidthPx = Math.round(finalWidthPx * ratio);
-              }
-
-              // Ensure minimum size
-              finalWidthPx = Math.max(30, finalWidthPx);
-              finalHeightPx = Math.max(20, finalHeightPx);
-
-              // Compute horizontal offset (from left page edge) based on PDF x coordinate.
-              // PDF page width in points: page.width (from baseViewport). 
-              // img.originalX is in PDF points from left.
-              const pdfX = img.originalX;
-              let offsetPt = pdfX;
-
-              // Clamp so image stays within page
-              const maxOffsetPt = page.width - widthInPoints;
-              offsetPt = Math.max(0, Math.min(offsetPt, maxOffsetPt));
-
-              // Convert points to EMU (1 pt = 12700 EMU)
-              const emuPerPoint = 12700;
-              const offsetEmu = Math.round(offsetPt * emuPerPoint);
-
-              // Vertical offset: use PDF Y coordinate from top.
-              const pdfY = img.originalY;
-              let offsetYPt = pdfY;
-              const maxOffsetYPt = page.height - heightInPoints;
-              offsetYPt = Math.max(0, Math.min(offsetYPt, maxOffsetYPt));
-              const offsetYEmu = Math.round(offsetYPt * emuPerPoint);
-
-              // Create floating image positioned relative to page
-              const imageRun = new ImageRun({
-                data: img.data,
-                transformation: {
-                  width: finalWidthPx,
-                  height: finalHeightPx
-                },
-                floating: {
-                  horizontalPosition: {
-                    relative: 'page',
-                    offset: offsetEmu
-                  },
-                  verticalPosition: {
-                    relative: 'page',
-                    offset: offsetYEmu
-                  },
-                  wrap: {
-                    type: 'none'
-                  },
-                  margins: {
-                    top: 0,
-                    bottom: 0,
-                    left: 0,
-                    right: 0
-                  }
-                }
-              });
-
-              // Add an empty paragraph that contains the floating image.
-              // The paragraph itself should not add extra spacing.
-              children.push(new Paragraph({
-                children: [imageRun],
-                spacing: { before: 0, after: 0, line: 276, lineRule: 'exact' }
-              }));
-
-              // Update previousY to image's y so subsequent text spacing works
-              previousY = element.y;
-              inContinuousParagraph = false;
-
-            } catch (e) {
-              console.warn('Image insertion error:', e);
-            }
-          }
-        }
-
-        // Add tables for this page (they are handled separately; we don't have their y positions)
-        // For simplicity, we'll append tables after all text/images on the page.
-        for (const table of page.tables) {
-          try {
-            const { Table, TableRow, TableCell, BorderStyle, WidthType } = window.docx;
-
-            const rows = [];
-            const headerCells = table.header.map(cell => 
-              new TableCell({
-                children: [new Paragraph({
-                  children: [new TextRun({ text: cell || '', bold: true, size: 20 })],
-                  spacing: { before: 0, after: 60, line: 276, lineRule: 'exact' }
-                })],
-                borders: {
-                  top: { style: BorderStyle.SINGLE, size: 1 },
-                  bottom: { style: BorderStyle.SINGLE, size: 1 },
-                  left: { style: BorderStyle.SINGLE, size: 1 },
-                  right: { style: BorderStyle.SINGLE, size: 1 }
-                }
-              })
-            );
-            rows.push(new TableRow({ children: headerCells }));
-
-            for (const rowData of table.rows) {
-              const cells = rowData.map(cell => 
-                new TableCell({
+              const rows = el.rows.map((rowData, rowIdx) => {
+                const cells = rowData.map(cellText => new TableCell({
                   children: [new Paragraph({
-                    children: [new TextRun({ text: cell || '', size: 20 })],
+                    children: [new TextRun({
+                      text: cellText || '',
+                      bold: rowIdx === 0,
+                      size: 20
+                    })],
                     spacing: { before: 0, after: 60, line: 276, lineRule: 'exact' }
                   })],
                   borders: {
@@ -1208,52 +1617,192 @@
                     left: { style: BorderStyle.SINGLE, size: 1 },
                     right: { style: BorderStyle.SINGLE, size: 1 }
                   }
+                }));
+                return new TableRow({ children: cells });
+              });
+
+              const tableObj = new Table({
+                rows,
+                width: { size: 100, type: WidthType.PERCENTAGE }
+              });
+
+              allChildren.push(new Paragraph({ children: [], spacing: { before: 120, after: 0 } }));
+              allChildren.push(tableObj);
+              allChildren.push(new Paragraph({ children: [], spacing: { before: 0, after: 120 } }));
+            } catch (e) {
+              console.warn('Table creation error:', e);
+            }
+
+          } else if (el.type === 'image') {
+            try {
+              let w = el.width;
+              let h = el.height;
+
+              const maxWidthPx = 600;
+              const maxHeightPx = 700;
+
+              if (w > maxWidthPx) {
+                const ratio = maxWidthPx / w;
+                w = maxWidthPx;
+                h = Math.round(h * ratio);
+              }
+
+              if (h > maxHeightPx) {
+                const ratio = maxHeightPx / h;
+                h = maxHeightPx;
+                w = Math.round(w * ratio);
+              }
+
+              const imageRun = new ImageRun({
+                data: el.data,
+                transformation: {
+                  width: Math.round(w),
+                  height: Math.round(h)
+                }
+              });
+
+              allChildren.push(
+                new Paragraph({
+                  children: [imageRun],
+                  spacing: {
+                    before: 120,
+                    after: 120
+                  },
+                  alignment: AlignmentType.CENTER
                 })
               );
-              rows.push(new TableRow({ children: cells }));
+            } catch (e) {
+              console.warn('Image insertion error:', e);
             }
-
-            const tableObj = new Table({
-              rows: rows,
-              width: { size: 100, type: WidthType.PERCENTAGE },
-            });
-
-            children.push(new Paragraph({ children: [], spacing: { before: 120, after: 0 } }));
-            children.push(tableObj);
-            children.push(new Paragraph({ children: [], spacing: { before: 0, after: 120 } }));
-          } catch (e) {
-            console.warn('Table creation error:', e);
           }
+
+          prevElement = el;
         }
 
-        // Add page break between pages (except last)
-        if (p < documentData.pages.length - 1) {
-          children.push(new Paragraph({ children: [new PageBreak()] }));
+        if (p < model.pages.length - 1) {
+          allChildren.push(new Paragraph({ children: [new PageBreak()] }));
         }
-
-        // Create a section for this page with the correct dimensions
-        sections.push({
-          properties: {
-            page: {
-              width: convertInchesToTwip(pageWidthInches),
-              height: convertInchesToTwip(pageHeightInches),
-              margin: {
-                top: convertInchesToTwip(0.5),
-                bottom: convertInchesToTwip(0.5),
-                left: convertInchesToTwip(0.5),
-                right: convertInchesToTwip(0.5)
-              }
-            }
-          },
-          children: children
-        });
       }
 
       const doc = new Document({
-        sections: sections
+        sections: [{
+          properties: {
+            page: {
+              margin: {
+                top: convertInchesToTwip(0.6),
+                bottom: convertInchesToTwip(0.6),
+                left: convertInchesToTwip(0.7),
+                right: convertInchesToTwip(0.7)
+              }
+            }
+          },
+          footers: {
+            default: new Footer({
+              children: [new Paragraph({
+                alignment: AlignmentType.CENTER,
+                children: [
+                  new TextRun({ text: 'Page ', size: 18, color: '666666' }),
+                  new TextRun({ children: [PageNumber.CURRENT], size: 18, color: '666666' }),
+                  new TextRun({ text: ' of ', size: 18, color: '666666' }),
+                  new TextRun({ children: [PageNumber.TOTAL_PAGES], size: 18, color: '666666' })
+                ]
+              })]
+            })
+          },
+          children: allChildren
+        }]
       });
 
       return await Packer.toBlob(doc);
+    }
+
+    // ============================================
+    // OCR PIPELINE (PDF → TXT)
+    // ============================================
+    async function renderPageToCanvas(page, scale = 2.0) {
+      const viewport = page.getViewport({ scale });
+      const canvas = document.createElement('canvas');
+      canvas.width = Math.ceil(viewport.width);
+      canvas.height = Math.ceil(viewport.height);
+      const ctx = canvas.getContext('2d');
+      await page.render({ canvasContext: ctx, viewport }).promise;
+      return canvas;
+    }
+
+    async function runOCRConversion() {
+      if (!currentFile) {
+        alert('No file selected.');
+        return;
+      }
+
+      ocrProgressWrap.classList.add('active');
+      ocrStatusLabel.textContent = 'Loading PDF...';
+      ocrStatusText.textContent = 'Preparing pages for OCR...';
+      ocrProgressBar.style.width = '3%';
+      ocrPercent.textContent = '3%';
+
+      try {
+        // Use the cached buffer if available, otherwise load it
+        let arrayBuffer = pdfArrayBufferForOCR;
+        if (!arrayBuffer) {
+          arrayBuffer = await currentFile.arrayBuffer();
+          pdfArrayBufferForOCR = arrayBuffer;
+        }
+
+        if (!pdfjsLib) await loadPDFJS();
+
+        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer.slice(0) }).promise;
+        const totalPages = pdf.numPages;
+        const allText = [];
+
+        ocrStatusLabel.textContent = 'Loading OCR engine...';
+        ocrStatusText.textContent = 'Tesseract.js is initializing (first time may be slow)...';
+        ocrProgressBar.style.width = '8%';
+        ocrPercent.textContent = '8%';
+
+        const worker = await Tesseract.createWorker('eng');
+
+        for (let p = 1; p <= totalPages; p++) {
+          const page = await pdf.getPage(p);
+          const canvas = await renderPageToCanvas(page, 2.0);
+
+          ocrStatusLabel.textContent = `Recognising page ${p} of ${totalPages}...`;
+          ocrStatusText.textContent = `OCR is reading text from page ${p}. This may take a moment.`;
+
+          const { data } = await worker.recognize(canvas);
+          allText.push(data.text.trim());
+
+          const percent = Math.round(8 + ((p / totalPages) * 88));
+          ocrProgressBar.style.width = percent + '%';
+          ocrPercent.textContent = percent + '%';
+        }
+
+        await worker.terminate();
+
+        ocrStatusLabel.textContent = 'OCR complete!';
+        ocrStatusText.textContent = 'Your TXT file is ready to download.';
+        ocrProgressBar.style.width = '100%';
+        ocrPercent.textContent = '100%';
+
+        // Build TXT blob
+        const txtContent = allText.join('\n\n===== Page Break =====\n\n');
+        const txtBlob = new Blob([txtContent], { type: 'text/plain;charset=utf-8' });
+        const url = URL.createObjectURL(txtBlob);
+
+        ocrDownloadLink.href = url;
+        // TXT download — keep same base name pattern for consistency
+        ocrDownloadLink.download = 'Dropletweb.pdf.txt';
+        ocrDownloadLink.classList.remove('hidden');
+
+        // Also update the main result section so the user can download
+        // the DOCX if they want after OCR completes.
+        convertedBlob = null;
+
+      } catch (error) {
+        console.error('OCR error:', error);
+        ocrStatusLabel.textContent = 'OCR failed';
+        ocrStatusText.textContent = 'Error: ' + error.message;
+      }
     }
 
     // ============================================
@@ -1278,39 +1827,52 @@
       if (file.size > 100 * 1024 * 1024) { alert('File is too large. Please use a PDF under 100MB.'); return; }
 
       currentFile = file;
+      pdfArrayBufferForOCR = null;   // reset
       fileName.textContent = file.name;
       fileSize.textContent = (file.size / 1024 / 1024).toFixed(2) + ' MB';
       fileInfo.classList.remove('hidden');
       dropzone.classList.add('hidden');
       resultSection.classList.add('hidden');
-      progressContainer.classList.add('hidden');
+      progressContainer.classList.remove('hidden');
       previewContainer.classList.add('hidden');
       convertBtn.disabled = false;
+      progressBar.style.width = '10%';
+      progressText.textContent = '10%';
+      statusText.textContent = 'Loading preview...';
 
       try {
-        statusText.textContent = 'Loading preview...';
-        progressContainer.classList.remove('hidden');
-        progressBar.style.width = '10%';
-        progressText.textContent = '10%';
-
         if (!pdfjsLib) await loadPDFJS();
 
         const arrayBuffer = await file.arrayBuffer();
-        const result = await extractDocumentContent(arrayBuffer, false);
-        documentData = result;
-        extractedText = result.text;
-        
-        let totalTables = 0;
-        for (const page of result.pages) totalTables += page.tables.length;
-        pageCount.textContent = `📄 ${result.pageCount} pages • 🖼️ ${result.imageCount} images • 📊 ${totalTables} tables`;
+        pdfArrayBufferForOCR = arrayBuffer;
+
+        const model = await extractDocumentModel(arrayBuffer, false);
+        documentModel = model;
+        extractedText = model.text;
+
+        const totalImages = model.pages.reduce((sum, p) => {
+          return sum + p.elements.filter(e => e.type === 'image').length;
+        }, 0);
+        const totalTables = model.pages.reduce((sum, p) => {
+          return sum + p.elements.filter(e => e.type === 'table').length;
+        }, 0);
+
+        pageCount.textContent = `📄 ${model.pageCount} pages • 🖼️ ${totalImages} images • 📊 ${totalTables} tables • 🔍 ${model.scannedPageCount} scanned`;
 
         const wordCount = extractedText.split(/\s+/).filter(w => w.length > 0).length;
-        charCount.textContent = `${extractedText.length.toLocaleString()} chars • ${wordCount.toLocaleString()} words • ${result.pageCount} pages`;
+        charCount.textContent = `${extractedText.length.toLocaleString()} chars • ${wordCount.toLocaleString()} words • ${model.pageCount} pages`;
 
         renderFormattedPreview();
         previewContainer.classList.remove('hidden');
         progressContainer.classList.add('hidden');
         statusText.textContent = '✅ Ready to convert';
+
+        // =========================================================
+        // SHOW SCANNED-PDF MODAL IF ANY SCANNED PAGES DETECTED
+        // =========================================================
+        if (model.scannedPageCount > 0) {
+          setTimeout(() => openScannedModal(), 400);
+        }
       } catch (error) {
         console.error('Preview error:', error);
         previewContent.innerHTML = '<p style="color:#94a3b8;text-align:center;">⚠️ Could not generate preview.</p>';
@@ -1321,10 +1883,12 @@
     }
 
     function clearFile() {
-      currentFile = null; extractedText = ''; documentData = null; fileInput.value = '';
+      currentFile = null; extractedText = ''; documentModel = null; fileInput.value = '';
+      pdfArrayBufferForOCR = null;
       fileInfo.classList.add('hidden'); dropzone.classList.remove('hidden'); resultSection.classList.add('hidden');
       progressContainer.classList.add('hidden'); previewContainer.classList.add('hidden');
       progressBar.style.width = '0%'; progressText.textContent = '0%';
+      closeScannedModal();
     }
 
     function resetConverter() { clearFile(); convertedBlob = null; downloadLink.href = '#'; }
@@ -1341,24 +1905,51 @@
       statusText.textContent = 'Reading PDF file...';
 
       try {
-        if (!documentData) {
+        if (!documentModel) {
           const arrayBuffer = await currentFile.arrayBuffer();
           if (!pdfjsLib) await loadPDFJS();
-          documentData = await extractDocumentContent(arrayBuffer, true);
-          extractedText = documentData.text;
+          documentModel = await extractDocumentModel(arrayBuffer, true);
+          extractedText = documentModel.text;
         }
 
-        if (!documentData || documentData.pages.length === 0) throw new Error('Could not read the PDF.');
+        if (!documentModel || documentModel.pages.length === 0) {
+          throw new Error('Could not read the PDF.');
+        }
 
         progressBar.style.width = '60%';
         progressText.textContent = '60%';
-        let totalTables = 0;
-        for (const page of documentData.pages) totalTables += page.tables.length;
-        statusText.textContent = `Building Word document • ${documentData.imageCount} images • ${totalTables} tables...`;
+        statusText.textContent = `Building Word document…`;
 
-        const baseName = currentFile.name.replace(/\.pdf$/i, '');
-        const docxBlob = await createStyledDOCX(documentData, baseName);
+        console.log("===== DOCX DIAGNOSTIC =====");
+        console.log("Pages:", documentModel.pages.length);
+        console.log("Extracted text chars:", documentModel.text.length);
+
+        let totalImagesInModel = 0;
+        documentModel.pages.forEach((page, i) => {
+          const counts = {};
+          for (const el of page.elements) {
+            counts[el.type] = (counts[el.type] || 0) + 1;
+          }
+          totalImagesInModel += (counts.image || 0);
+          console.log(`PAGE ${i + 1}`, {
+            width: page.width.toFixed(1),
+            height: page.height.toFixed(1),
+            elementCounts: counts,
+            sampleElements: page.elements.slice(0, 3).map(e => ({
+              type: e.type,
+              text: e.text ? e.text.substring(0, 60) : undefined
+            })),
+            isScanned: page.isScanned
+          });
+        });
+        console.log("Total images in model:", totalImagesInModel);
+        console.log("===========================");
+
+        // FIX: Always use "Dropletweb.pdf" as the download name
+        const docxBlob = await buildDOCX(documentModel);
         convertedBlob = docxBlob;
+
+        console.log("DOCX blob size:", docxBlob.size, "bytes");
 
         progressBar.style.width = '90%';
         progressText.textContent = '90%';
@@ -1367,7 +1958,8 @@
         setTimeout(() => {
           const url = URL.createObjectURL(convertedBlob);
           downloadLink.href = url;
-          downloadLink.download = baseName + '.docx';
+          // Always download as Dropletweb.pdf
+          downloadLink.download = 'Dropletweb.pdf';
           resultSection.classList.remove('hidden');
           convertBtn.disabled = false;
           convertBtn.textContent = '🔄 Convert to DOCX';
