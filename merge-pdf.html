@@ -22,6 +22,27 @@
     .progress-bar { transition: width 0.3s ease; }
     .hidden { display: none !important; }
 
+    /* ---------- FIXED RESPONSIVE LAYOUT (no Tailwind visibility conflicts) ---------- */
+    .desktop-merge-panel {
+      display: block;
+    }
+    .mobile-merge-bar {
+      display: none;
+    }
+    @media (max-width: 1023px) {
+      .desktop-merge-panel {
+        display: none;
+      }
+      .mobile-merge-bar {
+        display: block;
+      }
+    }
+    /* Make sure the mobile bar stays hidden when explicitly hidden by JS */
+    .mobile-merge-bar.hidden {
+      display: none !important;
+    }
+    /* ---------------------------------------------------------------------------- */
+
     .pdf-card {
       transition: transform 0.2s, box-shadow 0.2s;
       cursor: grab;
@@ -252,7 +273,8 @@
           <div id="fileList" class="space-y-3"></div>
         </div>
 
-        <div class="hidden lg:block w-80 flex-shrink-0">
+        <!-- DESKTOP SUMMARY PANEL – using custom class, no Tailwind visibility conflict -->
+        <div class="desktop-merge-panel w-80 flex-shrink-0">
           <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 sticky top-24 transition-colors duration-200">
             <div class="flex items-center justify-between mb-4">
               <h3 class="font-black text-lg text-slate-900">Merge Summary</h3>
@@ -359,7 +381,8 @@
     </section>
   </main>
 
-  <div id="mobileBar" class="hidden lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 p-3 z-40 shadow-2xl transition-colors duration-200">
+  <!-- MOBILE ACTION BAR – using custom class, no Tailwind visibility conflict -->
+  <div id="mobileBar" class="mobile-merge-bar hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 p-3 z-40 shadow-2xl transition-colors duration-200">
     <div class="flex items-center gap-2 mb-2">
       <div class="flex-1 text-xs">
         <span id="mobileSummary" class="font-bold text-slate-900">0 files • 0 pages</span>
@@ -611,8 +634,6 @@
     // ============================================
     // THUMBNAIL CACHE
     // ============================================
-    // Key format: `${fileId}:${pageIndex}:${rotation}`
-    // This makes rotate/delete/duplicate instant because we reuse cached images.
     const thumbnailCache = new Map();
 
     async function getPageThumbnail(fileId, pageIndex, rotation, pdfDoc) {
@@ -622,7 +643,6 @@
         return thumbnailCache.get(cacheKey);
       }
 
-      // Not cached - render it now
       try {
         const page = await pdfDoc.getPage(pageIndex + 1);
         const viewport = page.getViewport({ scale: 0.7, rotation: rotation });
@@ -742,7 +762,13 @@
       dropzone.classList.add('hidden');
       workspaceEl.classList.remove('hidden');
       addMoreBtn.classList.remove('hidden');
-      if (window.innerWidth < 1024) mobileBar.classList.remove('hidden');
+      
+      // Responsive: show mobile bar only on small screens, using our custom class
+      if (window.innerWidth < 1024) {
+        mobileBar.classList.remove('hidden');
+      } else {
+        mobileBar.classList.add('hidden');
+      }
 
       for (const file of pdfFiles) {
         await addFile(file);
@@ -785,7 +811,6 @@
 
         const pageCount = pdfDoc.getPageCount();
         
-        // Higher quality thumbnail for card
         let thumbnail = null;
         if (typeof pdfjsLib !== 'undefined') {
           try {
@@ -853,7 +878,9 @@
         dropzone.classList.add('hidden');
         workspaceEl.classList.remove('hidden');
         addMoreBtn.classList.remove('hidden');
-        if (window.innerWidth < 1024) mobileBar.classList.remove('hidden');
+        if (window.innerWidth < 1024) {
+          mobileBar.classList.remove('hidden');
+        }
 
         for (const meta of metadata) {
           const blob = await dbGet('file-' + meta.id);
@@ -986,7 +1013,6 @@
       if (card) card.remove();
       dbPut('file-' + id, null).catch(() => {});
       
-      // Clean up cached thumbnails for this file
       for (const key of thumbnailCache.keys()) {
         if (key.startsWith(id + ':')) thumbnailCache.delete(key);
       }
@@ -1039,18 +1065,14 @@
       manageModal.classList.remove('hidden');
       document.body.style.overflow = 'hidden';
       
-      // Show loading state
       pageGrid.innerHTML = '<div class="col-span-full text-center py-12 text-slate-400">Loading pages...</div>';
       
-      // Load PDF doc once
       const pdfDoc = await getPdfDocForFile(file);
       
-      // Render the grid with cached thumbnails
       await renderPageGrid(pdfDoc);
       updateSelectionInfo();
     }
 
-    // Cache pdf.js documents by fileId so we don't reload them every time
     const pdfDocCache = new Map();
     
     async function getPdfDocForFile(file) {
@@ -1113,7 +1135,6 @@
 
       // Set up Sortable for reordering
       if (typeof Sortable !== 'undefined') {
-        // Destroy old instance if it exists
         if (pageGrid._sortable) {
           pageGrid._sortable.destroy();
         }
@@ -1166,20 +1187,63 @@
       return Array.from(workspace.selectedPageIndices).sort((a, b) => a - b);
     }
 
+    // ----- FIXED: Rotate without lag (use cache + update only changed images) -----
     async function rotateSelectedPage() {
       const selected = getSelectedPageIndices();
       if (selected.length === 0) { alert('Please select a page first.'); return; }
       
+      const file = workspace.files.find(f => f.id === workspace.editingFileId);
+      if (!file) return;
+
       // Rotate selected pages
       selected.forEach(idx => {
         workspace.editingPages[idx].rotation = (workspace.editingPages[idx].rotation + 90) % 360;
       });
 
-      // Re-render but keep selection (thumbnails come from cache when not rotated,
-      // only newly-rotated ones need rendering)
-      const file = workspace.files.find(f => f.id === workspace.editingFileId);
+      // --- LAG FIX: Update only the rotated thumbnails in place, no full re-render ---
       const pdfDoc = await getPdfDocForFile(file);
-      await renderPageGrid(pdfDoc);
+      
+      // Process each selected page individually
+      for (const idx of selected) {
+        const pageDiv = pageGrid.querySelector(`.page-item[data-page-index="${idx}"]`);
+        if (!pageDiv) continue;
+
+        const page = workspace.editingPages[idx];
+        const cacheKey = `${file.id}:${page.index}:${page.rotation}`;
+        
+        // If cached, use it; otherwise render and cache it
+        let thumb = thumbnailCache.get(cacheKey);
+        if (!thumb) {
+          try {
+            const pdfPage = await pdfDoc.getPage(page.index + 1);
+            const viewport = pdfPage.getViewport({ scale: 0.7, rotation: page.rotation });
+            const canvas = document.createElement('canvas');
+            canvas.width = viewport.width;
+            canvas.height = viewport.height;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            await pdfPage.render({ canvasContext: ctx, viewport }).promise;
+            thumb = canvas.toDataURL('image/jpeg', 0.8);
+            thumbnailCache.set(cacheKey, thumb);
+          } catch (e) {
+            console.warn('Rotate thumbnail failed:', e);
+            continue;
+          }
+        }
+
+        // Update the existing <img> if present, otherwise create one
+        let img = pageDiv.querySelector('img');
+        if (img) {
+          img.src = thumb;
+        } else {
+          img = document.createElement('img');
+          img.src = thumb;
+          img.alt = `Page ${idx + 1}`;
+          pageDiv.insertBefore(img, pageDiv.firstChild);
+        }
+      }
+
       updateSelectionInfo();
     }
 
@@ -1219,7 +1283,6 @@
       } else {
         workspace.selectedPageIndices = new Set(workspace.editingPages.map((_, i) => i));
       }
-      // Update just the classes - no need to re-render
       pageGrid.querySelectorAll('.page-item').forEach((item, idx) => {
         if (workspace.selectedPageIndices.has(idx)) {
           item.classList.add('selected');
@@ -1261,11 +1324,12 @@
     }
 
     // ============================================
-    // ADD PAGES MODAL
+    // ADD PAGES MODAL – now supports local file upload
     // ============================================
     function openAddPagesModal() {
       sourcePdfSelect.innerHTML = '<option value="">Select a PDF...</option>';
       
+      // 1) Add already uploaded files (excluding the current one)
       workspace.files.forEach(file => {
         if (file.id !== workspace.editingFileId) {
           const option = document.createElement('option');
@@ -1275,11 +1339,13 @@
         }
       });
 
-      if (sourcePdfSelect.options.length === 1) {
-        alert('You need at least one other PDF in the workspace to add pages from.');
-        return;
-      }
+      // 2) Add an option to upload a new PDF from local storage
+      const localOption = document.createElement('option');
+      localOption.value = '__local__';
+      localOption.textContent = '📂 Upload a PDF from your device...';
+      sourcePdfSelect.appendChild(localOption);
 
+      // If no other uploaded PDFs exist, the user can still use local upload
       addPagesModal.classList.remove('hidden');
     }
 
@@ -1298,9 +1364,69 @@
         return;
       }
 
-      const sourceFile = workspace.files.find(f => f.id === sourceId);
-      if (!sourceFile) return;
+      let sourceFile;
 
+      // ---- HANDLE LOCAL FILE UPLOAD ----
+      if (sourceId === '__local__') {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '.pdf,application/pdf';
+        input.multiple = false;
+
+        const filePicked = await new Promise((resolve) => {
+          input.onchange = (e) => resolve(e.target.files[0]);
+          input.click();
+        });
+
+        if (!filePicked) return; // user cancelled
+
+        try {
+          const rawBytes = new Uint8Array(await filePicked.arrayBuffer());
+          let cleanBytes;
+          try {
+            cleanBytes = sanitizePdfBytes(rawBytes);
+          } catch (e) {
+            cleanBytes = rawBytes;
+          }
+
+          const pdfDoc = await PDFLib.PDFDocument.load(cleanBytes, { 
+            ignoreEncryption: true,
+            updateMetadata: false
+          });
+
+          const pageCount = pdfDoc.getPageCount();
+          const fileId = 'local-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+          const pages = Array.from({ length: pageCount }, (_, i) => ({ index: i, rotation: 0 }));
+
+          sourceFile = {
+            id: fileId,
+            name: filePicked.name,
+            size: filePicked.size,
+            pageCount: pageCount,
+            pages: pages,
+            blob: filePicked,
+            cleanBytes: cleanBytes,
+            thumbnail: null
+          };
+
+          // Also store it in the main workspace so it can be merged later
+          workspace.files.push(sourceFile);
+          renderFileCard(sourceFile);
+          dbPut('file-' + fileId, filePicked).catch(e => console.warn('Blob save failed:', e));
+          await saveWorkspace();
+          updateSummary();
+
+        } catch (e) {
+          alert('Could not read the selected PDF: ' + e.message);
+          return;
+        }
+      } else {
+        // Normal path: source from already uploaded files
+        sourceFile = workspace.files.find(f => f.id === sourceId);
+        if (!sourceFile) return;
+      }
+
+      // Determine insert index
       let insertIndex;
       const selected = getSelectedPageIndices();
       
@@ -1319,7 +1445,7 @@
       const newPages = sourceFile.pages.map(p => ({ 
         index: p.index, 
         rotation: p.rotation,
-        sourceFileId: sourceId 
+        sourceFileId: sourceFile.id
       }));
       workspace.editingPages.splice(insertIndex, 0, ...newPages);
 
@@ -1332,10 +1458,16 @@
       const pdfDoc = await getPdfDocForFile(file);
       
       // Pre-cache source thumbnails so insertion feels instant
-      const sourcePdfDoc = await getPdfDocForFile(sourceFile);
-      await Promise.all(
-        newPages.map(p => getPageThumbnail(sourceId, p.index, p.rotation, sourcePdfDoc))
-      );
+      if (sourceFile.id !== workspace.editingFileId) {
+        try {
+          const sourcePdfDoc = await getPdfDocForFile(sourceFile);
+          await Promise.all(
+            newPages.map(p => getPageThumbnail(sourceFile.id, p.index, p.rotation, sourcePdfDoc))
+          );
+        } catch (e) {
+          console.warn('Pre-cache source thumbnails failed:', e);
+        }
+      }
       
       await renderPageGrid(pdfDoc);
       updateSelectionInfo();
@@ -1385,7 +1517,6 @@
           statusText.textContent = msg;
           statusTextMobile.textContent = msg;
           
-          // Group pages by their source file (some may have been added from other PDFs)
           const groupedBySource = {};
           file.pages.forEach((p) => {
             const srcId = p.sourceFileId || file.id;
@@ -1480,6 +1611,21 @@
     }
 
     // ============================================
+    // RESPONSIVE UI (single source of truth)
+    // ============================================
+    function updateResponsiveUI() {
+      if (workspace.files.length === 0) {
+        mobileBar.classList.add('hidden');
+        return;
+      }
+      if (window.innerWidth < 1024) {
+        mobileBar.classList.remove('hidden');
+      } else {
+        mobileBar.classList.add('hidden');
+      }
+    }
+
+    // ============================================
     // EVENT LISTENERS
     // ============================================
     dropzone.addEventListener('dragover', (e) => { e.preventDefault(); dropzone.classList.add('dropzone-highlight'); });
@@ -1516,6 +1662,9 @@
     cancelAddPagesBtn.addEventListener('click', closeAddPagesModal);
     confirmAddPagesBtn.addEventListener('click', confirmAddPages);
 
+    // Handle window resize for responsive UI
+    window.addEventListener('resize', updateResponsiveUI);
+
     // ============================================
     // INIT
     // ============================================
@@ -1551,6 +1700,9 @@
       } catch (e) {
         console.warn('Restore failed:', e);
       }
+      
+      // Ensure responsive UI is correct after restore
+      updateResponsiveUI();
     }
 
     if (document.readyState === 'loading') {
