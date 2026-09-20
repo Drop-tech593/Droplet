@@ -2,16 +2,18 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Edit PDF - Droplet</title>
-<meta name="description" content="Edit PDF files online for free. 100% client-side, your files never leave your browser.">
+<meta name="description" content="Edit PDF files online for free. Convert PDF text to editable objects, add text, images, signatures, shapes, drawings, highlights, form fields, and OCR. 100% client-side.">
 
 <!-- Google AdSense -->
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4006702663328202"
-     crossorigin="anonymous"></script>
+   crossorigin="anonymous"></script>
 
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+
 <style>
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; }
@@ -21,6 +23,7 @@
   .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
   .scrollbar-thin::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
   .scrollbar-thin::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+  .hidden { display: none !important; }
 
   /* ==================== TOP BAR ==================== */
   .top-bar {
@@ -29,24 +32,20 @@
     gap: 6px; flex-wrap: nowrap; min-height: 48px;
     position: relative; z-index: 10; flex-shrink: 0;
   }
-  .top-bar .logo {
-    font-weight: 700; font-size: 15px; color: #0f172a;
-    display: flex; align-items: center; gap: 6px;
-    margin-right: 4px; flex-shrink: 0;
-  }
+  .top-bar .logo { font-weight: 700; font-size: 15px; color: #0f172a; display: flex; align-items: center; gap: 6px; margin-right: 4px; flex-shrink: 0; }
   .top-bar .logo img { height: 26px; width: auto; border-radius: 6px; }
   .top-bar .menu-btn {
     padding: 4px 10px; font-size: 12px; font-weight: 500;
     color: #475569; border-radius: 6px; cursor: pointer;
-    transition: background 0.15s; background: transparent;
-    border: none; position: relative; white-space: nowrap;
+    transition: background 0.15s; background: transparent; border: none;
+    position: relative; white-space: nowrap;
   }
   .top-bar .menu-btn:hover { background: #f1f5f9; }
   .top-bar .menu-btn .dropdown {
     display: none; position: absolute; top: 100%; left: 0;
     min-width: 220px; background: white; border-radius: 8px;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.15);
-    border: 1px solid #e2e8f0; padding: 4px 0; z-index: 100;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.15); border: 1px solid #e2e8f0;
+    padding: 4px 0; z-index: 100;
   }
   .top-bar .menu-btn:hover .dropdown { display: block; }
   .top-bar .menu-btn .dropdown a {
@@ -60,312 +59,153 @@
     text-transform: uppercase; letter-spacing: 0.05em; color: #94a3b8;
   }
   .top-bar .action-btn {
-    padding: 4px 10px; font-size: 12px; font-weight: 500;
-    border-radius: 6px; cursor: pointer; transition: all 0.15s;
-    border: 1px solid #e2e8f0; background: white; color: #475569;
-    display: flex; align-items: center; gap: 4px; white-space: nowrap;
+    padding: 4px 10px; font-size: 12px; font-weight: 500; border-radius: 6px;
+    cursor: pointer; transition: all 0.15s; border: 1px solid #e2e8f0;
+    background: white; color: #475569; display: flex; align-items: center; gap: 4px;
+    white-space: nowrap;
   }
   .top-bar .action-btn:hover { background: #f1f5f9; border-color: #cbd5e1; }
   .top-bar .action-btn.primary { background: #2563eb; color: white; border-color: #2563eb; }
   .top-bar .action-btn.primary:hover { background: #1d4ed8; }
   .top-bar .spacer { flex: 1; min-width: 8px; }
 
-  /* Document title */
-  .doc-title {
-    display: flex; align-items: center; justify-content: center;
-    flex: 1; min-width: 0; max-width: 420px; margin: 0 auto;
-    padding: 4px 10px; border-radius: 6px;
-    transition: background 0.15s; gap: 6px; cursor: pointer;
-  }
+  .doc-title { display: flex; align-items: center; justify-content: center; flex: 1; min-width: 0; max-width: 420px; margin: 0 auto; padding: 4px 10px; border-radius: 6px; transition: background 0.15s; gap: 6px; cursor: pointer; }
   .doc-title:hover { background: #f1f5f9; }
-  .doc-title .title-text {
-    font-size: 13px; font-weight: 600; color: #1e293b;
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 280px;
-  }
-  .doc-title .title-edit-btn {
-    font-size: 11px; color: #2563eb; background: #eff6ff;
-    border: 1px solid #bfdbfe; border-radius: 4px;
-    padding: 1px 6px; font-weight: 500; white-space: nowrap;
-  }
-  .doc-title .title-input {
-    font-size: 13px; font-weight: 600; color: #1e293b;
-    border: 1px solid #2563eb; border-radius: 4px;
-    padding: 2px 6px; outline: none; width: 100%;
-    max-width: 280px; display: none;
-  }
+  .doc-title .title-text { font-size: 13px; font-weight: 600; color: #1e293b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 280px; }
+  .doc-title .title-edit-btn { font-size: 11px; color: #2563eb; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 4px; padding: 1px 6px; font-weight: 500; white-space: nowrap; }
+  .doc-title .title-input { font-size: 13px; font-weight: 600; color: #1e293b; border: 1px solid #2563eb; border-radius: 4px; padding: 2px 6px; outline: none; width: 100%; max-width: 280px; display: none; }
 
-  .zoom-controls {
-    display: flex; align-items: center; gap: 2px;
-    font-size: 12px; color: #475569; position: relative;
-  }
-  .zoom-controls button {
-    width: 26px; height: 26px; border-radius: 6px;
-    border: 1px solid #e2e8f0; background: white; cursor: pointer;
-    font-size: 13px; display: flex; align-items: center;
-    justify-content: center; transition: all 0.15s;
-  }
+  .zoom-controls { display: flex; align-items: center; gap: 2px; font-size: 12px; color: #475569; position: relative; }
+  .zoom-controls button { width: 26px; height: 26px; border-radius: 6px; border: 1px solid #e2e8f0; background: white; cursor: pointer; font-size: 13px; display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
   .zoom-controls button:hover { background: #f1f5f9; }
-  .zoom-controls .zoom-level {
-    padding: 4px 6px; font-size: 12px; font-weight: 500;
-    cursor: pointer; border-radius: 4px; transition: background 0.15s;
-    min-width: 42px; text-align: center;
-  }
+  .zoom-controls .zoom-level { padding: 4px 6px; font-size: 12px; font-weight: 500; cursor: pointer; border-radius: 4px; transition: background 0.15s; min-width: 42px; text-align: center; }
   .zoom-controls .zoom-level:hover { background: #f1f5f9; }
-  .zoom-dropdown {
-    display: none; position: absolute; top: 100%; right: 0;
-    min-width: 130px; background: white; border-radius: 8px;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.15);
-    border: 1px solid #e2e8f0; padding: 4px 0; z-index: 100; margin-top: 4px;
-  }
+  .zoom-dropdown { display: none; position: absolute; top: 100%; right: 0; min-width: 130px; background: white; border-radius: 8px; box-shadow: 0 10px 40px rgba(0,0,0,0.15); border: 1px solid #e2e8f0; padding: 4px 0; z-index: 100; margin-top: 4px; }
   .zoom-dropdown.open { display: block; }
-  .zoom-dropdown a {
-    display: block; padding: 5px 14px; font-size: 12px;
-    color: #1e293b; text-decoration: none; cursor: pointer;
-  }
+  .zoom-dropdown a { display: block; padding: 5px 14px; font-size: 12px; color: #1e293b; text-decoration: none; cursor: pointer; }
   .zoom-dropdown a:hover { background: #f1f5f9; }
-  .zoom-dropdown .divider { height: 1px; background: #e2e8f0; margin: 4px 8px; }
 
   /* ==================== APP SHELL ==================== */
   .app-shell { display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
   .app-body { display: flex; flex: 1; min-height: 0; overflow: hidden; }
 
   /* ==================== LEFT SIDEBAR ==================== */
-  .left-sidebar {
-    width: 200px; min-width: 200px; max-width: 200px;
-    background: white; border-right: 1px solid #e2e8f0;
-    padding: 10px; overflow-y: auto; display: flex; flex-direction: column;
-    flex-shrink: 0;
-  }
-  .left-sidebar .sidebar-header {
-    display: flex; align-items: center; justify-content: space-between;
-    margin-bottom: 8px; padding: 0 2px; flex-shrink: 0;
-  }
-  .left-sidebar .sidebar-title {
-    font-size: 10px; font-weight: 700; text-transform: uppercase;
-    letter-spacing: 0.05em; color: #94a3b8;
-  }
-  .left-sidebar .sidebar-actions { display: flex; gap: 4px; align-items: center; }
-  .left-sidebar .add-page-btn {
-    display: flex; align-items: center; gap: 4px;
-    padding: 4px 8px; font-size: 11px; font-weight: 600;
-    background: #2563eb; color: white; border: none;
-    border-radius: 6px; cursor: pointer; transition: all 0.15s;
-    white-space: nowrap;
-  }
+  .left-sidebar { width: 200px; min-width: 200px; max-width: 200px; background: white; border-right: 1px solid #e2e8f0; padding: 10px; overflow-y: auto; display: flex; flex-direction: column; flex-shrink: 0; }
+  .left-sidebar .sidebar-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; padding: 0 2px; flex-shrink: 0; }
+  .left-sidebar .sidebar-title { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #94a3b8; }
+  .left-sidebar .add-page-btn { display: flex; align-items: center; gap: 4px; padding: 4px 8px; font-size: 11px; font-weight: 600; background: #2563eb; color: white; border: none; border-radius: 6px; cursor: pointer; transition: all 0.15s; white-space: nowrap; }
   .left-sidebar .add-page-btn:hover { background: #1d4ed8; }
-  .left-sidebar .sidebar-icon-btn {
-    width: 24px; height: 24px; border-radius: 6px; border: none;
-    background: transparent; color: #64748b; cursor: pointer;
-    font-size: 14px; display: flex; align-items: center;
-    justify-content: center; transition: all 0.15s;
-  }
-  .left-sidebar .sidebar-icon-btn:hover { background: #f1f5f9; color: #2563eb; }
-  .left-sidebar .sidebar-menu { position: relative; }
-  .left-sidebar .sidebar-menu .menu-content {
-    display: none; position: absolute; top: 100%; right: 0;
-    min-width: 190px; background: white; border-radius: 8px;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.15);
-    border: 1px solid #e2e8f0; padding: 4px 0; z-index: 100;
-  }
-  .left-sidebar .sidebar-menu .menu-content.open { display: block; }
-  .left-sidebar .sidebar-menu .menu-content a {
-    display: block; padding: 5px 14px; font-size: 12px;
-    color: #1e293b; text-decoration: none; cursor: pointer;
-  }
-  .left-sidebar .sidebar-menu .menu-content a:hover { background: #f1f5f9; }
-  .left-sidebar .sidebar-menu .menu-content .divider { height: 1px; background: #e2e8f0; margin: 4px 8px; }
 
-  /* Thumbnail */
-  .page-thumbnail {
-    position: relative; border: 2px solid transparent;
-    border-radius: 6px; cursor: pointer; transition: all 0.2s;
-    background: white; overflow: hidden; margin-bottom: 8px;
-    user-select: none;
-  }
+  .page-thumbnail { position: relative; border: 2px solid transparent; border-radius: 6px; cursor: pointer; transition: all 0.2s; background: white; overflow: hidden; margin-bottom: 8px; user-select: none; }
   .page-thumbnail:hover { border-color: #94a3b8; }
   .page-thumbnail.active { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15); }
-  .page-thumbnail.selected { border-color: #2563eb; background: #eff6ff; }
-  .page-thumbnail .thumb-canvas-wrap {
-    width: 100%; background: #f8fafc;
-    display: flex; align-items: center; justify-content: center;
-    min-height: 100px; overflow: hidden;
-  }
-  .page-thumbnail .thumb-canvas-wrap canvas {
-    max-width: 100%; max-height: 130px; display: block;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.08);
-  }
-  .page-thumbnail .page-number {
-    position: absolute; bottom: 3px; right: 4px;
-    font-size: 9px; font-weight: 600; color: #fff;
-    background: rgba(0,0,0,0.55); padding: 1px 6px; border-radius: 4px;
-  }
-  .page-thumbnail .selection-check {
-    position: absolute; top: 4px; left: 4px;
-    width: 18px; height: 18px; border-radius: 50%;
-    background: #2563eb; color: white; font-size: 11px;
-    display: none; align-items: center; justify-content: center;
-    z-index: 2; border: 2px solid white;
-  }
-  .page-thumbnail.selected .selection-check { display: flex; }
+  .page-thumbnail .thumb-canvas-wrap { width: 100%; background: #f8fafc; display: flex; align-items: center; justify-content: center; min-height: 100px; overflow: hidden; }
+  .page-thumbnail .thumb-canvas-wrap canvas { max-width: 100%; max-height: 130px; display: block; box-shadow: 0 1px 2px rgba(0,0,0,0.08); }
+  .page-thumbnail .page-number { position: absolute; bottom: 3px; right: 4px; font-size: 9px; font-weight: 600; color: #fff; background: rgba(0,0,0,0.55); padding: 1px 6px; border-radius: 4px; }
+  .page-thumbnail .recon-badge { position: absolute; top: 4px; left: 4px; font-size: 8px; font-weight: 700; color: #fff; background: #10b981; padding: 1px 5px; border-radius: 4px; }
 
   /* ==================== WORKSPACE ==================== */
-  .workspace {
-    background: #e9edf2; flex: 1; overflow: auto;
-    display: flex; flex-direction: column; align-items: center;
-    padding: 20px; min-height: 0; position: relative; min-width: 0;
-  }
-  .workspace .page-container {
-    background: #ffffff; border-radius: 2px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 8px 24px rgba(0,0,0,0.12);
-    position: relative; flex-shrink: 0; max-width: 100%;
-  }
-  .workspace .page-container canvas {
-    display: block; width: 100%; height: auto; max-width: 100%;
-  }
-  .workspace .page-container .page-number-overlay {
-    position: absolute; bottom: 20px; right: 30px;
-    font-size: 12px; color: #1e293b;
-    background: rgba(255,255,255,0.9);
-    padding: 2px 8px; border-radius: 4px; pointer-events: none;
-  }
+  .workspace { background: #e9edf2; flex: 1; overflow: auto; display: flex; flex-direction: column; align-items: center; padding: 20px; min-height: 0; position: relative; min-width: 0; }
+  .workspace .page-container { background: #ffffff; border-radius: 2px; box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 8px 24px rgba(0,0,0,0.12); position: relative; flex-shrink: 0; max-width: 100%; }
+  .workspace .page-container canvas { display: block; width: 100%; height: auto; max-width: 100%; }
 
-  /* ==================== REORDER OVERLAY ==================== */
-  .reorder-overlay {
-    position: fixed; inset: 0; background: rgba(15, 23, 42, 0.92);
-    z-index: 200; display: none; flex-direction: column;
-    padding: 24px; overflow: auto;
+  /* Scan notice (F2) */
+  .scan-notice {
+    position: absolute; bottom: 16px; left: 50%; transform: translateX(-50%);
+    background: white; border-radius: 12px; padding: 12px 16px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.15); border: 1px solid #e2e8f0;
+    display: flex; align-items: center; gap: 12px; z-index: 20; max-width: 90%;
   }
-  .reorder-overlay.open { display: flex; }
-  .reorder-overlay .reorder-header {
-    display: flex; align-items: center; justify-content: space-between;
-    margin-bottom: 16px; color: white;
+  .scan-notice .sn-icon { font-size: 22px; }
+  .scan-notice .sn-text { font-size: 12px; color: #475569; }
+  .scan-notice .sn-text strong { color: #0f172a; display: block; margin-bottom: 2px; font-size: 13px; }
+  .scan-notice .sn-btn { background: #2563eb; color: white; border: none; padding: 8px 14px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; white-space: nowrap; transition: background 0.15s; }
+  .scan-notice .sn-btn:hover { background: #1d4ed8; }
+  .scan-notice .sn-btn.secondary { background: white; color: #475569; border: 1px solid #e2e8f0; }
+  .scan-notice .sn-btn.secondary:hover { background: #f1f5f9; }
+
+  /* Reconstruct toast */
+  .recon-toast {
+    position: absolute; top: 16px; left: 50%; transform: translateX(-50%);
+    background: rgba(15,23,42,0.9); color: white; padding: 8px 16px;
+    border-radius: 999px; font-size: 12px; font-weight: 500;
+    display: flex; align-items: center; gap: 8px;
+    z-index: 20; opacity: 0; transition: opacity 0.3s;
+    pointer-events: none;
   }
-  .reorder-overlay .reorder-header h2 { font-size: 20px; font-weight: 700; margin: 0; }
-  .reorder-overlay .reorder-header button {
-    background: #2563eb; color: white; border: none;
-    padding: 8px 20px; border-radius: 8px; font-size: 14px;
-    font-weight: 600; cursor: pointer;
+  .recon-toast.show { opacity: 1; }
+  .recon-toast .rt-spinner {
+    width: 12px; height: 12px; border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: white; border-radius: 50%; animation: spin 0.7s linear infinite;
   }
-  .reorder-overlay .reorder-header button.cancel { background: #475569; }
-  .reorder-overlay .reorder-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-    gap: 16px; padding: 10px;
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ==================== CANVAS WRAP & OVERLAY ==================== */
+  .canvas-wrap { position: relative; }
+  .canvas-wrap .pdf-canvas { display: block; width: 100%; height: auto; }
+  .canvas-wrap .overlay {
+    position: absolute; inset: 0; cursor: default;
   }
-  .reorder-overlay .reorder-card {
-    background: white; border-radius: 8px; padding: 8px;
-    cursor: grab; position: relative;
-    transition: transform 0.15s, box-shadow 0.15s;
-    border: 2px solid transparent; user-select: none;
-  }
-  .reorder-overlay .reorder-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
-  }
-  .reorder-overlay .reorder-card.dragging { opacity: 0.4; border-color: #2563eb; }
-  .reorder-overlay .reorder-card .card-canvas-wrap {
-    width: 100%; height: 200px; background: #f1f5f9;
-    border-radius: 4px; display: flex; align-items: center;
-    justify-content: center; overflow: hidden;
-  }
-  .reorder-overlay .reorder-card .card-canvas-wrap canvas {
-    max-width: 100%; max-height: 100%; display: block;
-  }
-  .reorder-overlay .reorder-card .card-label {
-    text-align: center; font-size: 11px; font-weight: 600;
-    color: #1e293b; margin-top: 6px;
-  }
-  .reorder-overlay .reorder-card .card-index {
-    position: absolute; top: 6px; left: 6px;
-    background: #2563eb; color: white; font-size: 11px;
-    font-weight: 700; border-radius: 50%; width: 24px; height: 24px;
-    display: flex; align-items: center; justify-content: center;
-    z-index: 2;
+  .canvas-wrap .overlay.tool-text { cursor: text; }
+  .canvas-wrap .overlay.tool-draw { cursor: crosshair; }
+  .canvas-wrap .overlay.tool-highlight { cursor: crosshair; }
+  .canvas-wrap .overlay.tool-whiteout { cursor: crosshair; }
+  .canvas-wrap .overlay.tool-shape { cursor: crosshair; }
+  .canvas-wrap .overlay.tool-sign { cursor: crosshair; }
+  .canvas-wrap .overlay.tool-image { cursor: copy; }
+  .canvas-wrap .overlay.tool-forms { cursor: pointer; }
+  .canvas-wrap .overlay.tool-select { cursor: default; }
+
+  /* Inline text editor for reconstructed/created text objects */
+  .canvas-wrap .inline-editor {
+    position: absolute; border: 2px solid #2563eb; background: rgba(255,255,255,0.98);
+    padding: 2px 4px; outline: none; font-family: Helvetica, Arial, sans-serif;
+    z-index: 6; border-radius: 3px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    resize: none; overflow: hidden; white-space: pre-wrap; word-wrap: break-word;
   }
 
   /* ==================== RIGHT PANEL ==================== */
-  .props-panel {
-    width: 300px; min-width: 300px; max-width: 300px;
-    background: white; border-left: 1px solid #e2e8f0;
-    padding: 14px; overflow-y: auto; display: flex; flex-direction: column;
-    flex-shrink: 0;
-  }
-  .props-panel .panel-empty {
-    display: flex; flex-direction: column; align-items: center;
-    justify-content: center; height: 100%; min-height: 200px;
-    color: #94a3b8; text-align: center; padding: 20px;
-  }
+  .props-panel { width: 300px; min-width: 300px; max-width: 300px; background: white; border-left: 1px solid #e2e8f0; padding: 14px; overflow-y: auto; display: flex; flex-direction: column; flex-shrink: 0; }
+  .props-panel .panel-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; min-height: 200px; color: #94a3b8; text-align: center; padding: 20px; }
   .props-panel .panel-empty .icon { font-size: 32px; margin-bottom: 8px; }
   .props-panel .panel-empty p { font-size: 12px; max-width: 180px; }
-  .props-panel .section-title {
-    font-size: 10px; font-weight: 700; text-transform: uppercase;
-    letter-spacing: 0.05em; color: #94a3b8; margin-bottom: 8px;
-    padding-bottom: 4px; border-bottom: 1px solid #e2e8f0; flex-shrink: 0;
-  }
+  .props-panel .section-title { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #94a3b8; margin-bottom: 8px; padding-bottom: 4px; border-bottom: 1px solid #e2e8f0; flex-shrink: 0; }
   .props-panel .prop-group { margin-bottom: 10px; }
-  .props-panel .prop-group label {
-    display: block; font-size: 11px; font-weight: 500;
-    color: #64748b; margin-bottom: 3px;
-  }
-  .props-panel .prop-group input[type="color"] {
-    width: 32px; height: 32px; border: 2px solid #e2e8f0;
-    border-radius: 6px; cursor: pointer; padding: 2px;
-  }
+  .props-panel .prop-group label { display: block; font-size: 11px; font-weight: 500; color: #64748b; margin-bottom: 3px; }
+  .props-panel .prop-group input[type="color"] { width: 32px; height: 32px; border: 2px solid #e2e8f0; border-radius: 6px; cursor: pointer; padding: 2px; }
   .props-panel .prop-group input[type="range"] { width: 100%; accent-color: #2563eb; }
-  .props-panel .prop-group select {
-    width: 100%; padding: 5px 8px; border: 1px solid #e2e8f0;
-    border-radius: 6px; font-size: 12px; background: white; outline: none;
-  }
-  .props-panel .prop-group .flex-row {
-    display: flex; gap: 6px; align-items: center; flex-wrap: wrap;
-  }
-  .props-panel .prop-group .flex-row input[type="number"] {
-    width: 60px; padding: 4px 6px; border: 1px solid #e2e8f0;
-    border-radius: 4px; font-size: 12px;
-  }
-  .props-panel .action-btn-sm {
-    padding: 6px 10px; font-size: 12px; font-weight: 500;
-    border-radius: 6px; border: 1px solid #e2e8f0; background: white;
-    cursor: pointer; transition: all 0.15s;
-  }
+  .props-panel .prop-group input[type="text"], .props-panel .prop-group input[type="number"] { width: 100%; padding: 5px 8px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 12px; outline: none; }
+  .props-panel .prop-group select { width: 100%; padding: 5px 8px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 12px; background: white; outline: none; }
+  .props-panel .prop-group textarea { width: 100%; padding: 6px 8px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 12px; font-family: inherit; resize: vertical; outline: none; }
+  .props-panel .prop-group .flex-row { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+  .props-panel .action-btn-sm { padding: 6px 10px; font-size: 12px; font-weight: 500; border-radius: 6px; border: 1px solid #e2e8f0; background: white; cursor: pointer; transition: all 0.15s; }
   .props-panel .action-btn-sm:hover { background: #f1f5f9; }
   .props-panel .action-btn-sm.danger { color: #ef4444; border-color: #ef4444; }
   .props-panel .action-btn-sm.danger:hover { background: #fef2f2; }
   .props-panel .action-btn-sm.primary { color: #2563eb; border-color: #2563eb; }
   .props-panel .action-btn-sm.primary:hover { background: #eff6ff; }
-  .props-panel .action-grid {
-    display: grid; grid-template-columns: 1fr 1fr; gap: 6px;
-  }
-  .props-panel .action-grid .full { grid-column: 1 / -1; }
-  .props-panel .action-grid .half { grid-column: span 1; }
+  .props-panel .action-btn-sm.full { width: 100%; }
+  .props-panel .action-btn-sm.toggle-on { background: #2563eb; color: white; border-color: #2563eb; }
 
-  .props-tabs {
-    display: flex; gap: 2px; margin-bottom: 10px;
-    border-bottom: 1px solid #e2e8f0; padding-bottom: 6px; flex-shrink: 0;
-  }
-  .props-tabs button {
-    padding: 4px 12px; font-size: 11px; font-weight: 500;
-    border-radius: 6px; border: none; background: transparent;
-    color: #94a3b8; cursor: pointer; transition: all 0.15s;
-  }
-  .props-tabs button:hover { background: #f1f5f9; color: #475569; }
-  .props-tabs button.active { background: #eff6ff; color: #2563eb; }
+  .props-panel .segmented { display: flex; border: 1px solid #e2e8f0; border-radius: 6px; overflow: hidden; }
+  .props-panel .segmented button { flex: 1; padding: 6px 4px; font-size: 11px; font-weight: 500; background: white; border: none; cursor: pointer; color: #475569; transition: background 0.15s; }
+  .props-panel .segmented button:hover { background: #f8fafc; }
+  .props-panel .segmented button.active { background: #2563eb; color: white; }
+  .props-panel .segmented button + button { border-left: 1px solid #e2e8f0; }
 
   /* ==================== FLOATING TOOLBAR ==================== */
   .floating-toolbar {
-    position: fixed; bottom: 20px; left: 50%;
-    transform: translateX(-50%); background: white;
-    border-radius: 14px;
+    position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+    background: white; border-radius: 14px;
     box-shadow: 0 4px 24px rgba(0,0,0,0.15), 0 1px 3px rgba(0,0,0,0.05);
-    padding: 6px 10px; display: flex; gap: 2px;
-    align-items: center; border: 1px solid #e2e8f0; z-index: 40;
+    padding: 6px 10px; display: flex; gap: 2px; align-items: center;
+    border: 1px solid #e2e8f0; z-index: 40;
   }
   .floating-toolbar .tool-btn {
     display: flex; align-items: center; gap: 4px;
     padding: 5px 10px; border-radius: 8px; font-size: 12px;
     font-weight: 500; color: #475569; border: 2px solid transparent;
-    cursor: pointer; transition: all 0.15s; background: transparent;
-    white-space: nowrap;
+    cursor: pointer; transition: all 0.15s; background: transparent; white-space: nowrap;
   }
   .floating-toolbar .tool-btn:hover { background: #f1f5f9; color: #1e293b; }
   .floating-toolbar .tool-btn.active { border-color: #2563eb; background: #eff6ff; color: #2563eb; }
@@ -373,11 +213,7 @@
   .floating-toolbar .tool-divider { width: 1px; height: 24px; background: #e2e8f0; margin: 0 4px; }
 
   /* ==================== EMPTY STATE ==================== */
-  .empty-state {
-    display: flex; flex-direction: column; align-items: center;
-    justify-content: center; height: 100%; min-height: 400px;
-    text-align: center; padding: 40px;
-  }
+  .empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; min-height: 400px; text-align: center; padding: 40px; }
   .empty-state .icon { font-size: 56px; margin-bottom: 12px; }
   .empty-state h3 { font-size: 20px; font-weight: 700; color: #1e293b; margin-bottom: 4px; }
   .empty-state p { font-size: 14px; color: #94a3b8; max-width: 360px; margin-bottom: 16px; }
@@ -386,24 +222,18 @@
   .status-bar {
     background: white; border-top: 1px solid #e2e8f0;
     padding: 4px 16px; display: flex; align-items: center;
-    justify-content: space-between; font-size: 11px;
-    color: #94a3b8; min-height: 28px; flex-shrink: 0;
+    justify-content: space-between; font-size: 11px; color: #94a3b8;
+    min-height: 28px; flex-shrink: 0;
   }
   .status-bar .status-left { display: flex; gap: 20px; align-items: center; }
   .status-bar .status-right { display: flex; gap: 12px; align-items: center; }
-  .status-bar .status-right button {
-    background: none; border: none; color: #94a3b8;
-    cursor: pointer; font-size: 11px; padding: 2px 6px;
-    border-radius: 4px; transition: background 0.15s;
-  }
+  .status-bar .status-right button { background: none; border: none; color: #94a3b8; cursor: pointer; font-size: 11px; padding: 2px 6px; border-radius: 4px; transition: background 0.15s; }
   .status-bar .status-right button:hover { background: #f1f5f9; }
 
   /* ==================== DARK MODE ==================== */
   html.dark body { background: #0f172a; color: #e2e8f0; }
   html.dark .top-bar, html.dark .left-sidebar, html.dark .props-panel,
-  html.dark .floating-toolbar, html.dark .status-bar {
-    background: #1e293b; border-color: #334155;
-  }
+  html.dark .floating-toolbar, html.dark .status-bar { background: #1e293b; border-color: #334155; }
   html.dark .top-bar .logo { color: #f1f5f9; }
   html.dark .top-bar .menu-btn { color: #94a3b8; }
   html.dark .top-bar .menu-btn:hover { background: #334155; }
@@ -415,16 +245,19 @@
   html.dark .top-bar .action-btn:hover { background: #334155; }
   html.dark .top-bar .action-btn.primary { background: #2563eb; border-color: #2563eb; color: white; }
   html.dark .workspace { background: #111827; }
-  html.dark .workspace .page-container { background: white; }
   html.dark .props-panel .section-title { color: #64748b; border-color: #334155; }
   html.dark .props-panel .prop-group label { color: #94a3b8; }
-  html.dark .props-panel .prop-group select { background: #0f172a; border-color: #334155; color: #f1f5f9; }
-  html.dark .props-panel .prop-group input[type="color"] { border-color: #334155; }
-  html.dark .props-panel .prop-group input[type="number"] { background: #0f172a; border-color: #334155; color: #f1f5f9; }
+  html.dark .props-panel .prop-group select,
+  html.dark .props-panel .prop-group input[type="text"],
+  html.dark .props-panel .prop-group input[type="number"],
+  html.dark .props-panel .prop-group textarea { background: #0f172a; border-color: #334155; color: #f1f5f9; }
   html.dark .props-panel .action-btn-sm { background: #0f172a; border-color: #334155; color: #e2e8f0; }
   html.dark .props-panel .action-btn-sm:hover { background: #334155; }
-  html.dark .props-panel .action-btn-sm.danger { color: #ef4444; border-color: #ef4444; }
-  html.dark .props-panel .action-btn-sm.primary { color: #60a5fa; border-color: #3b82f6; }
+  html.dark .props-panel .segmented { border-color: #334155; }
+  html.dark .props-panel .segmented button { background: #0f172a; color: #cbd5e1; }
+  html.dark .props-panel .segmented button:hover { background: #334155; }
+  html.dark .props-panel .segmented button.active { background: #2563eb; color: white; }
+  html.dark .props-panel .segmented button + button { border-left-color: #334155; }
   html.dark .floating-toolbar .tool-btn { color: #94a3b8; }
   html.dark .floating-toolbar .tool-btn:hover { background: #334155; color: #f1f5f9; }
   html.dark .floating-toolbar .tool-btn.active { border-color: #3b82f6; background: #1e3a5f; color: #60a5fa; }
@@ -434,16 +267,10 @@
   html.dark .page-thumbnail { background: #1e293b; }
   html.dark .page-thumbnail .thumb-canvas-wrap { background: #0f172a; }
   html.dark .page-thumbnail.active { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); }
-  html.dark .page-thumbnail.selected { border-color: #3b82f6; background: #1e3a5f; }
-  html.dark .left-sidebar .sidebar-icon-btn:hover { background: #334155; color: #60a5fa; }
-  html.dark .left-sidebar .sidebar-menu .menu-content { background: #1e293b; border-color: #334155; }
-  html.dark .left-sidebar .sidebar-menu .menu-content a { color: #e2e8f0; }
-  html.dark .left-sidebar .sidebar-menu .menu-content a:hover { background: #334155; }
   html.dark .status-bar { color: #64748b; }
   html.dark .status-bar .status-right button:hover { background: #334155; }
   html.dark .zoom-controls button { background: #0f172a; border-color: #334155; color: #e2e8f0; }
   html.dark .zoom-controls button:hover { background: #334155; }
-  html.dark .zoom-controls { color: #94a3b8; }
   html.dark .zoom-dropdown { background: #1e293b; border-color: #334155; }
   html.dark .zoom-dropdown a { color: #e2e8f0; }
   html.dark .zoom-dropdown a:hover { background: #334155; }
@@ -451,18 +278,41 @@
   html.dark .doc-title .title-text { color: #f1f5f9; }
   html.dark .doc-title .title-input { background: #0f172a; border-color: #3b82f6; color: #f1f5f9; }
   html.dark .doc-title .title-edit-btn { background: #1e3a5f; border-color: #3b82f6; color: #60a5fa; }
-  html.dark .workspace .page-container .page-number-overlay { background: rgba(30,41,59,0.9); color: #f1f5f9; }
+  html.dark .canvas-wrap .inline-editor { background: #1e293b; color: #f1f5f9; border-color: #3b82f6; }
+  html.dark .scan-notice { background: #1e293b; border-color: #334155; }
+  html.dark .scan-notice .sn-text { color: #94a3b8; }
+  html.dark .scan-notice .sn-text strong { color: #f1f5f9; }
+  html.dark .scan-notice .sn-btn.secondary { background: #0f172a; color: #cbd5e1; border-color: #334155; }
 
-  #theme-toggle {
-    background: none; border: none; font-size: 1.1rem;
-    cursor: pointer; padding: 4px 6px; border-radius: 6px;
-    transition: background 0.2s; color: #475569;
-  }
+  #theme-toggle { background: none; border: none; font-size: 1.1rem; cursor: pointer; padding: 4px 6px; border-radius: 6px; transition: background 0.2s; color: #475569; }
   #theme-toggle:hover { background: #f1f5f9; }
   html.dark #theme-toggle { color: #e2e8f0; }
   html.dark #theme-toggle:hover { background: #334155; }
 
-  /* ==================== RESPONSIVE (desktop/tablet) ==================== */
+  /* Toast */
+  #toast {
+    position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%);
+    background: #0f172a; color: white; padding: 10px 18px; border-radius: 10px;
+    font-size: 13px; z-index: 9999; opacity: 0; pointer-events: none;
+    transition: opacity 0.25s, transform 0.25s; box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+    max-width: 90vw; text-align: center;
+  }
+  #toast.show { opacity: 1; transform: translateX(-50%) translateY(-4px); }
+  html.dark #toast { background: #2563eb; }
+
+  /* Loading overlay */
+  #loadingOverlay {
+    position: fixed; inset: 0; background: rgba(15,23,42,0.55);
+    backdrop-filter: blur(3px); display: flex; align-items: center;
+    justify-content: center; z-index: 9998; color: white; font-size: 14px;
+    flex-direction: column; gap: 12px;
+  }
+  #loadingOverlay .spinner {
+    width: 42px; height: 42px; border: 4px solid rgba(255,255,255,0.25);
+    border-top-color: #60a5fa; border-radius: 50%; animation: spin 0.9s linear infinite;
+  }
+
+  /* Responsive */
   @media (max-width: 1024px) {
     .props-panel { width: 260px; min-width: 260px; max-width: 260px; padding: 12px; }
     .left-sidebar { width: 170px; min-width: 170px; max-width: 170px; }
@@ -482,278 +332,42 @@
     .doc-title { max-width: 180px; }
     .doc-title .title-text { font-size: 11px; max-width: 110px; }
   }
-
-  /* ============================================================ */
-  /* MOBILE-FIRST LAYOUT (phones only — desktop untouched)        */
-  /* ============================================================ */
-  @media (max-width: 768px) {
-
-    /* Hide desktop-only chrome */
-    .top-bar .menu-btn,
-    .top-bar .action-btn,
-    .top-bar .zoom-controls,
-    .top-bar .spacer,
-    .top-bar .logo span,
-    .doc-title .title-edit-btn,
-    .left-sidebar,
-    .props-panel,
-    .status-bar {
-      display: none !important;
-    }
-
-    /* Top bar becomes a compact app bar */
-    .top-bar {
-      padding: 8px 12px;
-      min-height: 52px;
-      gap: 8px;
-      justify-content: space-between;
-    }
-    .top-bar .logo img { height: 28px; }
-    .doc-title {
-      max-width: none;
-      flex: 1;
-      padding: 4px 8px;
-    }
-    .doc-title .title-text { font-size: 13px; max-width: 160px; }
-
-    /* Show mobile Export button */
-    .top-bar .export-btn-mobile {
-      display: flex !important;
-      background: #2563eb;
-      color: white;
-      border: none;
-      padding: 8px 14px;
-      border-radius: 8px;
-      font-size: 12px;
-      font-weight: 600;
-      cursor: pointer;
-      align-items: center;
-      gap: 4px;
-    }
-    #theme-toggle { font-size: 1.2rem; padding: 6px; }
-
-    /* Workspace fills the rest */
-    .workspace { padding: 12px; }
-
-    /* Floating toolbar — becomes the Edit tool strip */
-    .floating-toolbar {
-      position: fixed;
-      bottom: 70px;
-      left: 8px;
-      right: 8px;
-      transform: none;
-      padding: 6px;
-      gap: 2px;
-      overflow-x: auto;
-      scrollbar-width: none;
-      border-radius: 12px;
-      max-width: none;
-    }
-    .floating-toolbar::-webkit-scrollbar { display: none; }
-    .floating-toolbar .tool-btn {
-      flex-direction: column;
-      min-width: 52px;
-      padding: 6px 8px;
-      font-size: 9px;
-      gap: 2px;
-    }
-    .floating-toolbar .tool-btn .icon { font-size: 16px; }
-    .floating-toolbar .tool-btn .label { display: block; }
-    .floating-toolbar .tool-divider { display: none; }
-
-    /* Bottom navigation (mobile only) */
-    .mobile-bottom-nav {
-      display: flex !important;
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: white;
-      border-top: 1px solid #e2e8f0;
-      padding: 6px 4px;
-      padding-bottom: max(8px, env(safe-area-inset-bottom));
-      z-index: 45;
-      justify-content: space-around;
-      align-items: center;
-    }
-    .mobile-bottom-nav .nav-item {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 2px;
-      padding: 6px 8px;
-      border-radius: 8px;
-      cursor: pointer;
-      flex: 1;
-      max-width: 70px;
-      background: transparent;
-      border: none;
-      color: #94a3b8;
-      font-size: 10px;
-      font-weight: 500;
-    }
-    .mobile-bottom-nav .nav-item.active { color: #2563eb; }
-    .mobile-bottom-nav .nav-item .nav-icon {
-      width: 36px; height: 36px;
-      border-radius: 10px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 18px;
-    }
-    .mobile-bottom-nav .nav-item.active .nav-icon { background: #eff6ff; }
-    .mobile-bottom-nav .nav-item:active { transform: scale(0.95); }
-
-    /* Slide-up sheets (reuse existing .props-panel content) */
-    .props-panel.mobile-open {
-      display: flex !important;
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      top: auto;
-      width: 100%;
-      min-width: 0;
-      max-width: none;
-      max-height: 70vh;
-      border-left: none;
-      border-top: 1px solid #e2e8f0;
-      border-radius: 20px 20px 0 0;
-      box-shadow: 0 -8px 40px rgba(0,0,0,0.15);
-      z-index: 50;
-      padding: 8px 16px 24px;
-      padding-bottom: max(24px, env(safe-area-inset-bottom));
-      overflow-y: auto;
-    }
-    .props-panel.mobile-open::before {
-      content: '';
-      display: block;
-      width: 40px; height: 4px;
-      background: #cbd5e1;
-      border-radius: 2px;
-      margin: 8px auto 16px;
-    }
-
-    /* Sidebar (pages) becomes a slide-in from the left */
-    .left-sidebar.mobile-open {
-      display: flex !important;
-      position: fixed;
-      top: 0; bottom: 0; left: 0;
-      width: 280px;
-      min-width: 0;
-      max-width: 85vw;
-      z-index: 60;
-      box-shadow: 4px 0 24px rgba(0,0,0,0.15);
-      padding: 12px;
-    }
-    .left-sidebar.mobile-open .sidebar-title { display: block; }
-    .left-sidebar.mobile-open .add-page-btn span:last-child { display: inline; }
-
-    /* Backdrop for sheets */
-    .mobile-backdrop {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(15, 23, 42, 0.5);
-      z-index: 44;
-    }
-    .mobile-backdrop.open { display: block; }
-
-    /* Back-to-home pill repositioned */
-    a[href="/"] {
-      bottom: 80px !important;
-      left: 12px !important;
-      padding: 6px 12px !important;
-      font-size: 11px !important;
-    }
-
-    /* Empty state compact */
-    .empty-state { padding: 24px 16px; }
-    .empty-state h3 { font-size: 18px; }
-    .empty-state p { font-size: 13px; }
-
-    /* Reorder overlay: full-screen friendly */
-    .reorder-overlay { padding: 12px; }
-    .reorder-overlay .reorder-header { flex-direction: column; gap: 10px; align-items: flex-start; }
-    .reorder-overlay .reorder-grid {
-      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-      gap: 10px;
-    }
-  }
-
-  /* Hidden by default on desktop */
-  .mobile-bottom-nav,
-  .mobile-backdrop,
-  .export-btn-mobile {
-    display: none;
-  }
-
-  /* Dark mode for mobile chrome */
-  html.dark .mobile-bottom-nav {
-    background: #1e293b;
-    border-color: #334155;
-  }
-  html.dark .mobile-bottom-nav .nav-item { color: #64748b; }
-  html.dark .mobile-bottom-nav .nav-item.active { color: #60a5fa; }
-  html.dark .mobile-bottom-nav .nav-item.active .nav-icon { background: #1e3a5f; }
-  html.dark .props-panel.mobile-open {
-    background: #1e293b;
-    border-color: #334155;
-  }
-  html.dark .props-panel.mobile-open::before { background: #475569; }
-  html.dark .left-sidebar.mobile-open {
-    background: #1e293b;
-    border-color: #334155;
-  }
-
-  .hidden { display: none !important; }
 </style>
 </head>
 <body>
 
 <div class="app-shell">
-  <!-- ==================== TOP BAR ==================== -->
   <header class="top-bar">
     <div class="logo">
       <img src="Gemini_Generated_Image_sdu6v7sdu6v7sdu6.jpg" alt="Droplet">
       <span>Droplet</span>
     </div>
 
-    <!-- File -->
     <div class="menu-btn">
       File
       <div class="dropdown">
         <a onclick="document.getElementById('pdfInput').click()">📂 Open PDF</a>
         <a onclick="createBlankPDF()">📄 New Blank PDF</a>
-        <a onclick="document.getElementById('pdfInput').click()">📎 Add PDF / Merge</a>
         <div class="divider"></div>
-        <a onclick="saveProject()">💾 Save Project</a>
-        <a onclick="saveProjectAs()">📁 Save Project As...</a>
-        <div class="divider"></div>
-        <a onclick="exportPDF()">📤 Export PDF</a>
+        <a onclick="exportPDF()">📤 Export PDF (with edits)</a>
         <a onclick="window.print()">🖨️ Print</a>
         <div class="divider"></div>
         <a onclick="closeDocument()">✕ Close Document</a>
       </div>
     </div>
 
-    <!-- Edit -->
     <div class="menu-btn">
       Edit
       <div class="dropdown">
         <a onclick="undo()">↶ Undo</a>
         <a onclick="redo()">↷ Redo</a>
         <div class="divider"></div>
-        <a onclick="cutSelection()">✂️ Cut</a>
-        <a onclick="copySelection()">📋 Copy</a>
-        <a onclick="pasteSelection()">📋 Paste</a>
-        <a onclick="deleteSelection()">🗑️ Delete</a>
-        <a onclick="selectAll()">☑️ Select All</a>
-        <div class="divider"></div>
-        <a onclick="findText()">🔍 Find</a>
-        <a onclick="replaceText()">🔄 Replace</a>
+        <a onclick="deleteSelection()">🗑️ Delete Selected</a>
+        <a onclick="clearPageObjects()">🧹 Clear Edits on Page</a>
+        <a onclick="revealAllText()">👁️ Reveal All Text</a>
       </div>
     </div>
 
-    <!-- Insert -->
     <div class="menu-btn">
       Insert
       <div class="dropdown">
@@ -762,64 +376,32 @@
         <a onclick="setTool('image')">🖼️ Image</a>
         <a onclick="setTool('shape')">▢ Shape</a>
         <a onclick="setTool('sign')">✍️ Signature</a>
-        <a onclick="insertLink()">🔗 Link</a>
+        <div class="divider"></div>
+        <div class="submenu-label">Markup</div>
+        <a onclick="setTool('highlight')">▰ Highlight</a>
+        <a onclick="setTool('whiteout')">▱ Whiteout</a>
+        <a onclick="setTool('draw')">✎ Draw</a>
         <div class="divider"></div>
         <div class="submenu-label">Form</div>
-        <a onclick="insertFormField('text')">📝 Text Field</a>
-        <a onclick="insertFormField('checkbox')">☑️ Checkbox</a>
-        <a onclick="insertFormField('radio')">🔘 Radio</a>
-        <a onclick="insertFormField('dropdown')">▼ Dropdown</a>
-        <a onclick="insertFormField('date')">📅 Date</a>
-        <a onclick="insertFormField('signature')">✍️ Signature Field</a>
-        <div class="divider"></div>
-        <div class="submenu-label">Page</div>
-        <a onclick="insertPageNumber()">🔢 Page Number</a>
-        <a onclick="insertWatermark()">💧 Watermark</a>
-        <a onclick="addBlankPage()">📄 Blank Page</a>
-        <a onclick="document.getElementById('pdfInput').click()">📎 PDF</a>
+        <a onclick="setTool('forms')">☑️ Form Fields</a>
       </div>
     </div>
 
-    <!-- Pages -->
     <div class="menu-btn">
       Pages
       <div class="dropdown">
         <a onclick="addBlankPage()">📄 Add Page</a>
         <a onclick="duplicatePage()">📋 Duplicate Page</a>
         <div class="divider"></div>
-        <a onclick="rotatePage('left')">🔄 Rotate Left</a>
-        <a onclick="rotatePage('right')">🔄 Rotate Right</a>
+        <a onclick="rotatePage(-90)">↺ Rotate Left</a>
+        <a onclick="rotatePage(90)">↻ Rotate Right</a>
+        <div class="divider"></div>
         <a onclick="deletePage()">🗑️ Delete Page</a>
-        <div class="divider"></div>
-        <a onclick="openReorder()">📋 Reorder Pages</a>
-        <a onclick="extractPages()">📤 Extract Pages</a>
-        <a onclick="splitPDF()">✂️ Split PDF</a>
-        <a onclick="mergePDF()">🔗 Merge PDF</a>
-      </div>
-    </div>
-
-    <!-- View -->
-    <div class="menu-btn">
-      View
-      <div class="dropdown">
-        <div class="submenu-label">Page View</div>
-        <a onclick="setViewMode('single')">📄 Single Page</a>
-        <a onclick="setViewMode('continuous')" id="viewContinuous">📑 Continuous ✓</a>
-        <a onclick="setViewMode('two')">📖 Two Page</a>
-        <div class="divider"></div>
-        <a onclick="zoomIn()">🔍 Zoom In</a>
-        <a onclick="zoomOut()">🔍 Zoom Out</a>
-        <a onclick="setZoom(1)">1:1 Actual Size</a>
-        <a onclick="fitPage()">📄 Fit Page</a>
-        <a onclick="fitWidth()">📄 Fit Width</a>
-        <div class="divider"></div>
-        <a onclick="togglePropsPanel()">📋 Toggle Properties</a>
       </div>
     </div>
 
     <div class="spacer"></div>
 
-    <!-- Doc title (clickable) -->
     <div class="doc-title" id="docTitle" onclick="editDocTitle()">
       <span class="title-text" id="docTitleText">Untitled PDF</span>
       <span class="title-edit-btn" id="docTitleEditBtn">✏️ Edit</span>
@@ -841,82 +423,36 @@
         <a onclick="setZoom(1.25)">125%</a>
         <a onclick="setZoom(1.5)">150%</a>
         <a onclick="setZoom(2)">200%</a>
-        <div class="divider"></div>
-        <a onclick="fitPage()">Fit Page</a>
-        <a onclick="fitWidth()">Fit Width</a>
       </div>
     </div>
 
-    <button class="export-btn-mobile" onclick="exportPDF()">💾 Export</button>
     <button id="theme-toggle" aria-label="Toggle theme">🌙</button>
 
-    <div class="menu-btn" style="border:1px solid #2563eb;background:#2563eb;color:white;border-radius:6px;padding:4px 10px;font-size:12px;font-weight:500;cursor:pointer;">
-      💾 Export ▼
-      <div class="dropdown" style="min-width:220px;right:0;left:auto;">
-        <a onclick="exportPDF()">📤 Export PDF</a>
-        <a onclick="downloadPDF()">⬇️ Download PDF</a>
-        <a onclick="window.print()">🖨️ Print</a>
-        <div class="divider"></div>
-        <a onclick="compressPDF()">📦 Compress before export</a>
-        <a onclick="flattenAnnotations()">📄 Flatten annotations</a>
-        <div class="divider"></div>
-        <div style="padding:6px 14px;font-size:11px;color:#94a3b8;">File name:</div>
-        <div style="padding:0 14px 6px;">
-          <input type="text" id="exportFileName" value="document-edited.pdf" style="width:100%;padding:4px 6px;border:1px solid #e2e8f0;border-radius:4px;font-size:11px;outline:none;">
-        </div>
-      </div>
-    </div>
+    <button class="action-btn primary" onclick="exportPDF()">💾 Export</button>
   </header>
 
-  <!-- ==================== APP BODY ==================== -->
   <div class="app-body">
-
-    <!-- ==================== LEFT SIDEBAR ==================== -->
     <div class="left-sidebar scrollbar-thin" id="leftSidebar">
       <div class="sidebar-header">
         <span class="sidebar-title">Pages</span>
-        <div class="sidebar-actions">
-          <button class="add-page-btn" onclick="togglePagesMenu(event)" title="Add page">
-            <span>＋</span><span>Add</span>
-          </button>
-          <div class="sidebar-menu" style="position:relative;">
-            <button class="sidebar-icon-btn" onclick="togglePagesMoreMenu(event)" title="More">⋯</button>
-            <div class="menu-content" id="pagesAddMenu">
-              <a onclick="addBlankPage()">📄 Add blank page</a>
-              <a onclick="document.getElementById('pdfInput').click()">📎 Add PDF</a>
-              <a onclick="addImageAsPage()">🖼️ Add image as page</a>
-            </div>
-            <div class="menu-content" id="pagesMoreMenu">
-              <a onclick="selectAllPages()">☑️ Select all pages</a>
-              <a onclick="rotateSelected('left')">🔄 Rotate left</a>
-              <a onclick="rotateSelected('right')">🔄 Rotate right</a>
-              <a onclick="extractSelected()">📤 Extract selected</a>
-              <a onclick="deleteSelected()">🗑️ Delete selected</a>
-              <div class="divider"></div>
-              <a onclick="duplicatePage()">📋 Duplicate current</a>
-              <a onclick="extractPages()">📤 Extract pages…</a>
-              <a onclick="deletePage()">🗑️ Delete current</a>
-            </div>
-          </div>
-        </div>
+        <button class="add-page-btn" onclick="addBlankPage()" title="Add page">
+          <span>＋</span><span>Add</span>
+        </button>
       </div>
-
       <div id="pageThumbnails" style="flex:1; min-height: 0;">
         <div class="text-center text-slate-400 text-xs py-8" id="emptyThumbnails">
           <div class="text-3xl mb-2">📄</div>
           <p>No pages</p>
-          <p class="text-[10px] mt-1">Open a PDF</p>
         </div>
         <div id="thumbnailList"></div>
       </div>
     </div>
 
-    <!-- ==================== WORKSPACE ==================== -->
     <div class="workspace scrollbar-thin" id="workspace">
       <div class="empty-state" id="emptyState">
         <div class="icon">📄</div>
         <h3>Edit a PDF</h3>
-        <p>Open a PDF to add text, images, signatures, drawings and more.</p>
+        <p>Open a PDF to automatically convert its text into editable objects. Then add, edit, and rearrange freely.</p>
         <div class="flex flex-wrap gap-3 justify-center">
           <button onclick="document.getElementById('pdfInput').click()" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2.5 rounded-xl text-sm shadow-md transition-all active:scale-95">
             📂 Open PDF
@@ -926,18 +462,12 @@
           </button>
         </div>
         <p class="text-xs text-slate-400 mt-4">🔒 Processed locally in your browser</p>
-        <input type="file" id="pdfInput" accept=".pdf,application/pdf" class="hidden" multiple>
       </div>
 
-      <div id="singlePageWrapper" class="hidden" style="display:flex;flex-direction:column;align-items:center;width:100%;">
-        <!-- Current page renders here -->
-      </div>
+      <div id="singlePageWrapper" class="hidden" style="display:flex;flex-direction:column;align-items:center;width:100%;"></div>
     </div>
 
-    <!-- ==================== RIGHT PANEL ==================== -->
     <div class="props-panel scrollbar-thin" id="propsPanel">
-
-      <!-- Empty -->
       <div id="propsEmpty" class="panel-empty">
         <div class="icon">📋</div>
         <p>No selection</p>
@@ -948,299 +478,189 @@
       <div id="pageProps" class="hidden">
         <div class="section-title">📄 Page</div>
         <div class="prop-group">
-          <label>Size</label>
-          <select>
-            <option value="a4">A4 (210 × 297 mm)</option>
-            <option value="letter">Letter (8.5 × 11 in)</option>
-            <option value="legal">Legal (8.5 × 14 in)</option>
-            <option value="a3">A3 (297 × 420 mm)</option>
-          </select>
-        </div>
-        <div class="prop-group">
-          <label>Orientation</label>
-          <div class="flex-row" style="gap:4px;">
-            <button class="action-btn-sm" onclick="rotatePage('left')" style="flex:1;">▯ Portrait</button>
-            <button class="action-btn-sm" onclick="rotatePage('right')" style="flex:1;">▭ Landscape</button>
-          </div>
-        </div>
-        <div class="prop-group">
           <label>Page</label>
-          <div class="flex-row">
-            <span style="font-size:12px;color:#94a3b8;" id="pageInfoText">1 of 1</span>
-          </div>
+          <span style="font-size:12px;color:#94a3b8;" id="pageInfoText">1 of 1</span>
+        </div>
+
+        <div class="section-title" style="margin-top:16px;">🔄 Rotate</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+          <button class="action-btn-sm" onclick="rotatePage(-90)">↺ Left 90°</button>
+          <button class="action-btn-sm" onclick="rotatePage(90)">↻ Right 90°</button>
         </div>
 
         <div class="section-title" style="margin-top:16px;">📑 Operations</div>
-        <div class="action-grid">
-          <button class="action-btn-sm" onclick="rotatePage('left')">🔄 Left</button>
-          <button class="action-btn-sm" onclick="rotatePage('right')">🔄 Right</button>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
           <button class="action-btn-sm" onclick="duplicatePage()">📋 Duplicate</button>
           <button class="action-btn-sm danger" onclick="deletePage()">🗑️ Delete</button>
-          <button class="action-btn-sm full" onclick="openReorder()">📋 Reorder Pages</button>
+          <button class="action-btn-sm full" onclick="clearPageObjects()" style="grid-column:1/-1;">🧹 Clear All Edits</button>
+          <button class="action-btn-sm full" onclick="revealAllText()" style="grid-column:1/-1;">👁️ Reveal All Reconstructed Text</button>
         </div>
 
-        <div class="section-title" style="margin-top:16px;">✂️ Clipboard</div>
-        <div class="action-grid">
-          <button class="action-btn-sm" onclick="cutSelection()">✂️ Cut</button>
-          <button class="action-btn-sm" onclick="copySelection()">📋 Copy</button>
-          <button class="action-btn-sm full" onclick="pasteSelection()">📋 Paste</button>
-        </div>
+        <div class="section-title" style="margin-top:16px;">🅾️ OCR</div>
+        <p style="font-size:11px;color:#94a3b8;line-height:1.5;margin-bottom:8px;">
+          If this page is a scanned image, run OCR to place an editable text overlay on top of it.
+        </p>
+        <button class="action-btn-sm primary full" id="ocrBtn" onclick="runOCROnCurrentPage()">🔍 OCR This Page</button>
       </div>
 
-      <!-- SELECTED PAGES -->
-      <div id="selectedPagesProps" class="hidden">
-        <div class="section-title">📑 Selected Pages</div>
-        <div class="prop-group">
-          <label id="selectedCountText">0 pages</label>
-        </div>
-        <div class="action-grid">
-          <button class="action-btn-sm" onclick="rotateSelected('left')">🔄 Left</button>
-          <button class="action-btn-sm" onclick="rotateSelected('right')">🔄 Right</button>
-          <button class="action-btn-sm" onclick="extractSelected()">📤 Extract</button>
-          <button class="action-btn-sm danger" onclick="deleteSelected()">🗑️ Delete</button>
-        </div>
-        <div class="section-title" style="margin-top:16px;">✂️ Clipboard</div>
-        <div class="action-grid">
-          <button class="action-btn-sm" onclick="cutSelection()">✂️ Cut</button>
-          <button class="action-btn-sm" onclick="copySelection()">📋 Copy</button>
-          <button class="action-btn-sm full" onclick="pasteSelection()">📋 Paste</button>
-        </div>
-      </div>
-
-      <!-- TEXT PROPS -->
+      <!-- TEXT OBJECT PROPS -->
       <div id="textProps" class="hidden">
-        <div class="props-tabs">
-          <button class="active" onclick="switchPropTab('text','style')">Style</button>
-          <button onclick="switchPropTab('text','position')">Position</button>
+        <div class="section-title">📝 Text</div>
+
+        <div class="prop-group">
+          <label>Content</label>
+          <textarea id="tp_text" rows="3"></textarea>
         </div>
-        <div id="textStyleTab">
-          <div class="section-title">✏️ Text Style</div>
-          <div class="prop-group">
-            <label>Font</label>
-            <select>
-              <option>Arial</option><option>Times New Roman</option>
-              <option>Helvetica</option><option>Courier</option>
-              <option>Georgia</option><option>Verdana</option>
-            </select>
-          </div>
-          <div class="prop-group">
-            <label>Size</label>
-            <div class="flex-row">
-              <input type="range" min="8" max="72" value="12" style="flex:1;">
-              <span style="font-size:12px;color:#94a3b8;min-width:30px;">12</span>
-            </div>
-          </div>
-          <div class="prop-group">
-            <label>Color</label>
-            <div class="flex-row">
-              <input type="color" value="#1e293b">
-              <span style="font-size:12px;color:#94a3b8;">Text</span>
-            </div>
-          </div>
-          <div class="prop-group">
-            <label>Opacity</label>
-            <div class="flex-row">
-              <input type="range" min="10" max="100" value="100" style="flex:1;">
-              <span style="font-size:12px;color:#94a3b8;min-width:30px;">100%</span>
-            </div>
-          </div>
-          <div class="prop-group">
-            <label>Style</label>
-            <div class="flex-row" style="gap:4px;flex-wrap:wrap;">
-              <button class="action-btn-sm" style="font-weight:700;">B</button>
-              <button class="action-btn-sm" style="font-style:italic;">I</button>
-              <button class="action-btn-sm" style="text-decoration:underline;">U</button>
-              <button class="action-btn-sm" style="text-decoration:line-through;">S</button>
-            </div>
-          </div>
-          <div class="prop-group">
-            <label>Alignment</label>
-            <div class="flex-row" style="gap:3px;">
-              <button class="action-btn-sm">⬅</button>
-              <button class="action-btn-sm">⏹</button>
-              <button class="action-btn-sm">➡</button>
-              <button class="action-btn-sm">↔</button>
-            </div>
-          </div>
-          <div class="prop-group">
-            <label>Line spacing</label>
-            <div class="flex-row">
-              <input type="range" min="1" max="3" step="0.1" value="1.2" style="flex:1;">
-              <span style="font-size:12px;color:#94a3b8;min-width:30px;">1.2</span>
-            </div>
+
+        <div class="prop-group">
+          <label>Font Family</label>
+          <select id="tp_fontFamily">
+            <option value="Helvetica, Arial, sans-serif">Helvetica / Arial</option>
+            <option value="'Times New Roman', Times, serif">Times New Roman</option>
+            <option value="Georgia, serif">Georgia</option>
+            <option value="'Courier New', Courier, monospace">Courier New</option>
+            <option value="Verdana, Geneva, sans-serif">Verdana</option>
+            <option value="Calibri, Carlito, sans-serif">Calibri</option>
+          </select>
+        </div>
+
+        <div class="prop-group">
+          <label>Size <span id="tp_fontSizeValue" style="color:#94a3b8;">14</span>pt</label>
+          <input type="range" id="tp_fontSize" min="6" max="96" value="14" step="0.5">
+        </div>
+
+        <div class="prop-group">
+          <label>Style</label>
+          <div class="segmented">
+            <button id="tp_bold" onclick="toggleTextStyle('bold')" style="font-weight:700;">B</button>
+            <button id="tp_italic" onclick="toggleTextStyle('italic')" style="font-style:italic;">I</button>
+            <button id="tp_underline" onclick="toggleTextStyle('underline')" style="text-decoration:underline;">U</button>
           </div>
         </div>
-        <div id="textPositionTab" class="hidden">
-          <div class="section-title">📍 Position</div>
-          <div class="prop-group">
-            <label>X / Y</label>
-            <div class="flex-row">
-              <input type="number" value="125" placeholder="X" style="width:70px;">
-              <input type="number" value="260" placeholder="Y" style="width:70px;">
-            </div>
-          </div>
-          <div class="prop-group">
-            <label>Width / Height</label>
-            <div class="flex-row">
-              <input type="number" value="200" placeholder="W" style="width:70px;">
-              <input type="number" value="50" placeholder="H" style="width:70px;">
-            </div>
-          </div>
-          <div class="prop-group">
-            <label>Rotation</label>
-            <div class="flex-row">
-              <input type="range" min="0" max="360" value="0" style="flex:1;">
-              <span style="font-size:12px;color:#94a3b8;min-width:30px;">0°</span>
-            </div>
-          </div>
-          <div class="section-title" style="margin-top:12px;">📐 Arrange</div>
-          <div class="prop-group">
-            <div class="flex-row" style="gap:4px;flex-wrap:wrap;">
-              <button class="action-btn-sm">⬆ Forward</button>
-              <button class="action-btn-sm">⬇ Backward</button>
-              <button class="action-btn-sm">⬆⬆ Front</button>
-              <button class="action-btn-sm">⬇⬇ Back</button>
-            </div>
-          </div>
-          <div class="prop-group">
-            <button class="action-btn-sm" style="width:100%;">🔒 Lock</button>
+
+        <div class="prop-group">
+          <label>Color</label>
+          <div class="flex-row">
+            <input type="color" id="tp_color" value="#1e293b">
+            <input type="text" id="tp_colorHex" style="flex:1;font-family:monospace;" value="#1e293b">
           </div>
         </div>
-        <div class="prop-group" style="border-top:1px solid #e2e8f0;padding-top:12px;margin-top:8px;">
-          <button class="action-btn-sm danger" onclick="deleteSelection()">🗑️ Delete</button>
+
+        <div class="prop-group">
+          <label>Alignment</label>
+          <div class="segmented">
+            <button id="tp_alignLeft" onclick="setTextAlign('left')" title="Left">⬅</button>
+            <button id="tp_alignCenter" onclick="setTextAlign('center')" title="Center">⬌</button>
+            <button id="tp_alignRight" onclick="setTextAlign('right')" title="Right">➡</button>
+            <button id="tp_alignJustify" onclick="setTextAlign('justify')" title="Justify">≡</button>
+          </div>
+        </div>
+
+        <div class="prop-group">
+          <label>Line Height <span id="tp_lineHeightValue" style="color:#94a3b8;">1.2</span></label>
+          <input type="range" id="tp_lineHeight" min="0.8" max="3" value="1.2" step="0.05">
+        </div>
+
+        <div class="prop-group">
+          <label>Letter Spacing <span id="tp_letterSpacingValue" style="color:#94a3b8;">0</span>px</label>
+          <input type="range" id="tp_letterSpacing" min="-3" max="10" value="0" step="0.1">
+        </div>
+
+        <div class="prop-group">
+          <label>Opacity <span id="tp_opacityValue" style="color:#94a3b8;">100%</span></label>
+          <input type="range" id="tp_opacity" min="5" max="100" value="100">
+        </div>
+
+        <div class="section-title" style="margin-top:16px;">📐 Position</div>
+        <div class="prop-group">
+          <label>X / Y</label>
+          <div class="flex-row">
+            <input type="number" id="tp_x" placeholder="X">
+            <input type="number" id="tp_y" placeholder="Y">
+          </div>
+        </div>
+        <div class="prop-group">
+          <label>W / H</label>
+          <div class="flex-row">
+            <input type="number" id="tp_w" placeholder="W">
+            <input type="number" id="tp_h" placeholder="H">
+          </div>
+        </div>
+
+        <div style="border-top:1px solid #e2e8f0;padding-top:12px;margin-top:8px;">
+          <button class="action-btn-sm danger full" onclick="deleteSelection()">🗑️ Delete Object</button>
         </div>
       </div>
 
-      <!-- IMAGE PROPS -->
-      <div id="imageProps" class="hidden">
-        <div class="props-tabs">
-          <button class="active" onclick="switchPropTab('image','style')">Image</button>
-          <button onclick="switchPropTab('image','position')">Position</button>
-        </div>
-        <div id="imageStyleTab">
-          <div class="section-title">🖼️ Image</div>
-          <div class="prop-group">
-            <label>Replace</label>
-            <button class="action-btn-sm primary" style="width:100%;">📂 Choose file</button>
-          </div>
-          <div class="prop-group">
-            <label>Crop</label>
-            <div class="flex-row">
-              <button class="action-btn-sm" style="flex:1;">✂️ Crop</button>
-              <button class="action-btn-sm" style="flex:1;">↺ Reset</button>
-            </div>
-          </div>
-          <div class="prop-group">
-            <label>Opacity</label>
-            <div class="flex-row">
-              <input type="range" min="10" max="100" value="100" style="flex:1;">
-              <span style="font-size:12px;color:#94a3b8;min-width:30px;">100%</span>
-            </div>
-          </div>
-          <div class="prop-group">
-            <label>Border</label>
-            <div class="flex-row">
-              <input type="range" min="0" max="10" value="0" style="flex:1;">
-              <span style="font-size:12px;color:#94a3b8;min-width:30px;">0px</span>
-            </div>
-          </div>
-        </div>
-        <div id="imagePositionTab" class="hidden">
-          <div class="section-title">📍 Position</div>
-          <div class="prop-group">
-            <label>X / Y</label>
-            <div class="flex-row">
-              <input type="number" value="100" placeholder="X" style="width:70px;">
-              <input type="number" value="150" placeholder="Y" style="width:70px;">
-            </div>
-          </div>
-          <div class="prop-group">
-            <label>Width / Height</label>
-            <div class="flex-row">
-              <input type="number" value="200" placeholder="W" style="width:70px;">
-              <input type="number" value="150" placeholder="H" style="width:70px;">
-            </div>
-          </div>
-          <div class="prop-group">
-            <label>Rotation</label>
-            <div class="flex-row">
-              <input type="range" min="0" max="360" value="0" style="flex:1;">
-              <span style="font-size:12px;color:#94a3b8;min-width:30px;">0°</span>
-            </div>
-          </div>
-          <div class="section-title" style="margin-top:12px;">📐 Arrange</div>
-          <div class="prop-group">
-            <div class="flex-row" style="gap:4px;flex-wrap:wrap;">
-              <button class="action-btn-sm">⬆ Forward</button>
-              <button class="action-btn-sm">⬇ Backward</button>
-              <button class="action-btn-sm">⬆⬆ Front</button>
-              <button class="action-btn-sm">⬇⬇ Back</button>
-            </div>
-          </div>
-        </div>
-        <div class="prop-group" style="border-top:1px solid #e2e8f0;padding-top:12px;margin-top:8px;">
-          <button class="action-btn-sm danger" onclick="deleteSelection()">🗑️ Delete</button>
-        </div>
-      </div>
+      <!-- GENERIC OBJECT PROPS (for non-text objects) -->
+      <div id="objectProps" class="hidden">
+        <div class="section-title" id="objectTypeLabel">Object</div>
 
-      <!-- SHAPE PROPS -->
-      <div id="shapeProps" class="hidden">
-        <div class="section-title">⬛ Shape</div>
-        <div class="prop-group">
-          <label>Fill Color</label>
-          <div class="flex-row"><input type="color" value="#3b82f6"></div>
+        <div class="prop-group" id="opColorGroup" style="display:none;">
+          <label>Color</label>
+          <input type="color" id="op_color" value="#2563eb">
         </div>
-        <div class="prop-group">
-          <label>Border Color</label>
-          <div class="flex-row"><input type="color" value="#1e293b"></div>
+
+        <div class="prop-group" id="opStrokeGroup" style="display:none;">
+          <label>Stroke Width <span id="op_strokeValue" style="color:#94a3b8;">3</span></label>
+          <input type="range" id="op_stroke" min="1" max="40" value="3">
         </div>
+
+        <div class="prop-group" id="opOpacityGroup" style="display:none;">
+          <label>Opacity <span id="op_opacityValue" style="color:#94a3b8;">100%</span></label>
+          <input type="range" id="op_opacity" min="5" max="100" value="100">
+        </div>
+
+        <div class="prop-group" id="opShapeGroup" style="display:none;">
+          <label>Shape</label>
+          <select id="op_shape">
+            <option value="rect">Rectangle</option>
+            <option value="ellipse">Ellipse</option>
+            <option value="line">Line</option>
+            <option value="arrow">Arrow</option>
+          </select>
+        </div>
+
+        <div class="prop-group" id="opFillGroup" style="display:none;">
+          <label><input type="checkbox" id="op_fill" style="margin-right:6px;">Fill with color</label>
+        </div>
+
+        <div class="section-title" style="margin-top:16px;">📐 Position</div>
         <div class="prop-group">
-          <label>Border Thickness</label>
+          <label>X / Y</label>
           <div class="flex-row">
-            <input type="range" min="0" max="10" value="2" style="flex:1;">
-            <span style="font-size:12px;color:#94a3b8;min-width:30px;">2px</span>
+            <input type="number" id="op_x" placeholder="X">
+            <input type="number" id="op_y" placeholder="Y">
           </div>
         </div>
         <div class="prop-group">
-          <label>Opacity</label>
+          <label>W / H</label>
           <div class="flex-row">
-            <input type="range" min="10" max="100" value="100" style="flex:1;">
-            <span style="font-size:12px;color:#94a3b8;min-width:30px;">100%</span>
+            <input type="number" id="op_w" placeholder="W">
+            <input type="number" id="op_h" placeholder="H">
           </div>
         </div>
-        <div class="prop-group" style="border-top:1px solid #e2e8f0;padding-top:12px;">
-          <button class="action-btn-sm danger" onclick="deleteSelection()">🗑️ Delete</button>
+
+        <div style="border-top:1px solid #e2e8f0;padding-top:12px;margin-top:8px;">
+          <button class="action-btn-sm danger full" onclick="deleteSelection()">🗑️ Delete Object</button>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- ==================== STATUS BAR ==================== -->
   <div class="status-bar">
     <div class="status-left">
       <span id="statusPage">Page 1 of 1</span>
-      <span id="statusSize">210 × 297 mm</span>
+      <span id="statusTool">Tool: Select</span>
+      <span id="statusRecon"></span>
     </div>
     <div class="status-right">
-      <button onclick="fitPage()">Fit Page</button>
-      <button onclick="fitWidth()">Fit Width</button>
+      <button onclick="clearPageObjects()">Clear Edits</button>
+      <button onclick="exportPDF()">Export PDF</button>
     </div>
   </div>
 </div>
 
-<!-- ==================== REORDER OVERLAY ==================== -->
-<div class="reorder-overlay" id="reorderOverlay">
-  <div class="reorder-header">
-    <h2>📋 Reorder Pages — drag to rearrange</h2>
-    <div style="display:flex;gap:10px;">
-      <button onclick="applyReorder()" style="background:#22c55e;">✓ Apply</button>
-      <button class="cancel" onclick="closeReorder()">✕ Cancel</button>
-    </div>
-  </div>
-  <div class="reorder-grid" id="reorderGrid"></div>
-</div>
-
-<!-- ==================== FLOATING TOOLBAR ==================== -->
 <div class="floating-toolbar">
   <button class="tool-btn active" data-tool="select" onclick="setTool('select')">
     <span class="icon">↖</span><span class="label">Select</span>
@@ -1262,994 +682,2273 @@
     <span class="icon">▱</span><span class="label">Whiteout</span>
   </button>
   <button class="tool-btn" data-tool="shape" onclick="setTool('shape')">
-    <span class="icon">▢</span><span class="label">Shape ▼</span>
+    <span class="icon">▢</span><span class="label">Shape</span>
   </button>
   <button class="tool-btn" data-tool="sign" onclick="setTool('sign')">
-    <span class="icon">✍</span><span class="label">Sign ▼</span>
+    <span class="icon">✍</span><span class="label">Sign</span>
   </button>
   <button class="tool-btn" data-tool="forms" onclick="setTool('forms')">
-    <span class="icon">☑</span><span class="label">Forms ▼</span>
+    <span class="icon">☑</span><span class="label">Forms</span>
   </button>
 </div>
 
-<!-- ==================== BACK TO HOME ==================== -->
-<a href="/" title="Back to Home" style="position:fixed;bottom:80px;left:16px;z-index:60;display:flex;align-items:center;gap:8px;padding:8px 14px;background:white;border:1px solid #e2e8f0;border-radius:50px;box-shadow:0 4px 12px rgba(0,0,0,0.08);font-size:12px;font-weight:500;color:#475569;text-decoration:none;transition:all 0.2s;">
-  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;flex-shrink:0;">
-    <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-  </svg>
-  <span>Back to Home</span>
-</a>
+<div id="toast"></div>
 
-<!-- ==================== MOBILE BACKDROP ==================== -->
-<div class="mobile-backdrop" id="mobileBackdrop" onclick="closeMobileSheets()"></div>
-
-<!-- ==================== MOBILE BOTTOM NAV ==================== -->
-<nav class="mobile-bottom-nav">
-  <button class="nav-item active" onclick="mobileNav('home')" id="mNavHome">
-    <span class="nav-icon">🏠</span><span>Home</span>
-  </button>
-  <button class="nav-item" onclick="mobileNav('pages')" id="mNavPages">
-    <span class="nav-icon">📄</span><span>Pages</span>
-  </button>
-  <button class="nav-item" onclick="mobileNav('edit')" id="mNavEdit">
-    <span class="nav-icon">✏️</span><span>Edit</span>
-  </button>
-  <button class="nav-item" onclick="mobileNav('props')" id="mNavProps">
-    <span class="nav-icon">⚙️</span><span>Props</span>
-  </button>
-  <button class="nav-item" onclick="mobileNav('more')" id="mNavMore">
-    <span class="nav-icon">⋯</span><span>More</span>
-  </button>
-</nav>
+<input type="file" id="pdfInput" accept=".pdf,application/pdf" class="hidden">
+<input type="file" id="imageInput" accept="image/*" class="hidden">
+<input type="file" id="signInput" accept="image/*" class="hidden">
 
 <script>
-// ============================================
-// STATE
-// ============================================
-let currentTool = 'select';
-let docTitle = 'Untitled PDF';
-let zoomLevel = 1.0;
-let pages = [];  // { num, pdfPage, rotation, blank, pageNumberOverlay }
-let selectedPages = new Set();
-let lastClickedPage = null;
-let currentPage = 1;
-let pdfDoc = null;
-let pdfData = null;
-let thumbObserver = null;
-let viewMode = 'continuous';
+// ============================================================
+// SECTION: CONSTANTS & UTILITIES
+// ============================================================
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-// Undo / Redo
-let undoStack = [];
-let redoStack = [];
+const RENDER_SCALE = 1.5;
+const HIT_TOLERANCE = 6;
+const MIN_TEXT_ITEMS_FOR_DIGITAL = 5;   // below this -> treat as scanned (F2)
+const RECON_DEBOUNCE_MS = 250;
 
-// Clipboard
-let clipboard = null;
+function uid() { return 'o' + Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4); }
+function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
 
-// ============================================
-// DARK MODE
-// ============================================
-const html = document.documentElement;
-const themeToggle = document.getElementById('theme-toggle');
-const savedTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-if (savedTheme === 'dark') { html.classList.add('dark'); themeToggle.textContent = '☀️'; }
-else { themeToggle.textContent = '🌙'; }
-themeToggle.addEventListener('click', () => {
-  if (html.classList.contains('dark')) {
-    html.classList.remove('dark'); themeToggle.textContent = '🌙'; localStorage.setItem('theme', 'light');
-  } else {
-    html.classList.add('dark'); themeToggle.textContent = '☀️'; localStorage.setItem('theme', 'dark');
+function toast(msg, ms) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(el._t);
+  el._t = setTimeout(() => el.classList.remove('show'), ms || 2200);
+}
+
+function hexToRgb(hex) {
+  const m = hex.replace('#','');
+  const v = m.length === 3 ? m.split('').map(c=>c+c).join('') : m;
+  const n = parseInt(v, 16);
+  return { r: ((n >> 16) & 255) / 255, g: ((n >> 8) & 255) / 255, b: (n & 255) / 255 };
+}
+
+function rgbToHex(r, g, b) {
+  return '#' + [r,g,b].map(v => Math.round(clamp(v,0,255)).toString(16).padStart(2,'0')).join('');
+}
+
+// ============================================================
+// SECTION: STATE
+// ============================================================
+const state = {
+  pdfBytes: null,
+  pdfDoc: null,
+  numPages: 0,
+  currentPage: 1,
+  zoom: 1,
+  tool: 'select',
+
+  // pages[i] = { pdfPageNumber, width, height, blank, objects, ocr,
+  //              reconstructed: false, reconStatus: 'idle'|'working'|'done'|'scanned' }
+  pages: [],
+
+  selectedObjectId: null,
+  interaction: null,
+  undoStack: [],
+  redoStack: [],
+
+  // Per-page pixel sampler cache (canvas of rendered page for mask sampling)
+  pageCanvasCache: {}
+};
+
+const toolDefaults = {
+  text:      { fontSize: 14, color: '#1e293b', text: '' },
+  highlight: { color: '#fde047', opacity: 0.45 },
+  whiteout:  { color: '#ffffff', opacity: 1 },
+  draw:      { color: '#ef4444', strokeWidth: 3 },
+  shape:     { shape: 'rect', color: '#2563eb', strokeWidth: 3, fill: false },
+  sign:      { color: '#0f172a' },
+  forms:     { formType: 'text' }
+};
+
+// ============================================================
+// SECTION: FONT FAMILY FALLBACK TABLE
+// ============================================================
+const FONT_FALLBACKS = [
+  // Order matters — first match wins.
+  { re: /arial|helvetica|liberation\s*sans|nimbus\s*sans/i, family: 'Helvetica, Arial, sans-serif', pdfFamily: 'Helvetica' },
+  { re: /times|liberation\s*serif|nimbus\s*roman/i, family: "'Times New Roman', Times, serif", pdfFamily: 'Times-Roman' },
+  { re: /courier|mono/i, family: "'Courier New', Courier, monospace", pdfFamily: 'Courier' },
+  { re: /georgia/i, family: 'Georgia, serif', pdfFamily: 'Times-Roman' },
+  { re: /verdana/i, family: 'Verdana, Geneva, sans-serif', pdfFamily: 'Helvetica' },
+  { re: /calibri|carlito/i, family: 'Calibri, Carlito, sans-serif', pdfFamily: 'Helvetica' },
+  { re: /cambria/i, family: 'Cambria, Georgia, serif', pdfFamily: 'Times-Roman' },
+  { re: /roboto|open\s*sans|lato|inter|noto/i, family: 'Helvetica, Arial, sans-serif', pdfFamily: 'Helvetica' }
+];
+
+function mapPdfFontToWeb(fontName, isBold, isItalic) {
+  const raw = String(fontName || '');
+  // Strip subset prefix like "ABCDEE+"
+  const clean = raw.replace(/^[A-Z]{6}\+/, '');
+  for (const f of FONT_FALLBACKS) {
+    if (f.re.test(clean)) {
+      let fam = f.family;
+      return { cssFamily: fam, pdfFamily: f.pdfFamily, bold: !!isBold, italic: !!isItalic };
+    }
   }
-});
+  return { cssFamily: 'Helvetica, Arial, sans-serif', pdfFamily: 'Helvetica', bold: !!isBold, italic: !!isItalic };
+}
 
-// ============================================
-// DOC TITLE
-// ============================================
+function detectBold(fontName) { return /bold|black|heavy|demi|semibold|700|800|900/i.test(fontName || ''); }
+function detectItalic(fontName) { return /italic|oblique|it\b/i.test(fontName || ''); }
+
+// ============================================================
+// SECTION: DOM
+// ============================================================
+const el = {
+  pdfInput: document.getElementById('pdfInput'),
+  imageInput: document.getElementById('imageInput'),
+  signInput: document.getElementById('signInput'),
+  workspace: document.getElementById('workspace'),
+  emptyState: document.getElementById('emptyState'),
+  singlePageWrapper: document.getElementById('singlePageWrapper'),
+  thumbnailList: document.getElementById('thumbnailList'),
+  emptyThumbnails: document.getElementById('emptyThumbnails'),
+  propsEmpty: document.getElementById('propsEmpty'),
+  pageProps: document.getElementById('pageProps'),
+  textProps: document.getElementById('textProps'),
+  objectProps: document.getElementById('objectProps'),
+  objectTypeLabel: document.getElementById('objectTypeLabel'),
+  pageInfoText: document.getElementById('pageInfoText'),
+  statusPage: document.getElementById('statusPage'),
+  statusTool: document.getElementById('statusTool'),
+  statusRecon: document.getElementById('statusRecon'),
+  docTitleText: document.getElementById('docTitleText'),
+  zoomLevel: document.getElementById('zoomLevel'),
+  undoBtn: document.getElementById('undoBtn'),
+  redoBtn: document.getElementById('redoBtn'),
+  ocrBtn: document.getElementById('ocrBtn')
+};
+
+// ============================================================
+// SECTION: DARK MODE
+// ============================================================
+(function() {
+  const html = document.documentElement;
+  const t = document.getElementById('theme-toggle');
+  const saved = localStorage.getItem('theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  if (saved === 'dark') { html.classList.add('dark'); t.textContent = '☀️'; }
+  t.addEventListener('click', () => {
+    if (html.classList.contains('dark')) { html.classList.remove('dark'); t.textContent = '🌙'; localStorage.setItem('theme','light'); }
+    else { html.classList.add('dark'); t.textContent = '☀️'; localStorage.setItem('theme','dark'); }
+  });
+})();
+
+// ============================================================
+// SECTION: DOC TITLE
+// ============================================================
+let docTitle = 'Untitled PDF';
+function setDocTitle(name) {
+  docTitle = name || 'Untitled PDF';
+  el.docTitleText.textContent = docTitle;
+}
 function editDocTitle() {
-  const titleEl = document.getElementById('docTitle');
-  const textEl = document.getElementById('docTitleText');
-  const editBtn = document.getElementById('docTitleEditBtn');
-  if (titleEl.querySelector('input')) return;
-
+  const wrap = document.getElementById('docTitle');
+  const text = document.getElementById('docTitleText');
+  const btn = document.getElementById('docTitleEditBtn');
+  if (wrap.querySelector('input')) return;
   const input = document.createElement('input');
   input.type = 'text'; input.className = 'title-input';
   input.value = docTitle; input.style.display = 'block';
-  textEl.style.display = 'none'; editBtn.style.display = 'none';
-  titleEl.appendChild(input); input.focus(); input.select();
-
+  text.style.display = 'none'; btn.style.display = 'none';
+  wrap.appendChild(input); input.focus(); input.select();
   const finish = () => {
-    const newTitle = input.value.trim() || 'Untitled PDF';
-    docTitle = newTitle;
-    textEl.textContent = newTitle;
-    input.remove(); textEl.style.display = ''; editBtn.style.display = '';
-    const exportInput = document.getElementById('exportFileName');
-    if (exportInput && newTitle !== 'Untitled PDF') {
-      const base = newTitle.replace(/\.pdf$/i, '');
-      exportInput.value = base + '-edited.pdf';
-    }
+    setDocTitle(input.value.trim() || 'Untitled PDF');
+    input.remove(); text.style.display = ''; btn.style.display = '';
   };
   input.addEventListener('blur', finish);
-  input.addEventListener('keydown', (e) => {
+  input.addEventListener('keydown', e => {
     if (e.key === 'Enter') { e.preventDefault(); input.blur(); }
     if (e.key === 'Escape') { input.value = docTitle; input.blur(); }
   });
 }
 
-function setDocTitle(name) {
-  docTitle = name || 'Untitled PDF';
-  document.getElementById('docTitleText').textContent = docTitle;
-  const exportInput = document.getElementById('exportFileName');
-  if (exportInput && docTitle !== 'Untitled PDF') {
-    exportInput.value = docTitle.replace(/\.pdf$/i, '') + '-edited.pdf';
-  }
-}
-
-// ============================================
-// TOOLS
-// ============================================
-function setTool(tool) {
-  currentTool = tool;
-  document.querySelectorAll('.floating-toolbar .tool-btn').forEach(btn => {
-    btn.classList.toggle('active', btn.dataset.tool === tool);
+// ============================================================
+// SECTION: HISTORY
+// ============================================================
+function snapshot() {
+  return JSON.stringify({
+    pages: state.pages.map(p => ({
+      ...p,
+      objects: p.objects.map(o => {
+        // strip live _img reference (not serializable)
+        const { _img, ...rest } = o;
+        return rest;
+      })
+    })),
+    currentPage: state.currentPage,
+    selectedObjectId: state.selectedObjectId
   });
-  showPropsForTool(tool);
 }
 
-function showPropsForTool(tool) {
-  ['propsEmpty','pageProps','selectedPagesProps','textProps','imageProps','shapeProps'].forEach(id => {
-    document.getElementById(id).classList.add('hidden');
-  });
-  if (pages.length === 0) {
-    document.getElementById('propsEmpty').classList.remove('hidden');
-    return;
-  }
-  if (selectedPages.size > 1) {
-    document.getElementById('selectedPagesProps').classList.remove('hidden');
-    document.getElementById('selectedCountText').textContent = selectedPages.size + ' pages selected';
-    return;
-  }
-  const map = {
-    'select':'pageProps','text':'textProps','image':'imageProps',
-    'shape':'shapeProps','sign':'pageProps','draw':'pageProps',
-    'highlight':'pageProps','whiteout':'pageProps','forms':'pageProps'
-  };
-  document.getElementById(map[tool] || 'pageProps').classList.remove('hidden');
+function pushHistory() {
+  state.undoStack.push(snapshot());
+  if (state.undoStack.length > 100) state.undoStack.shift();
+  state.redoStack = [];
+  updateHistoryButtons();
 }
 
-function switchPropTab(type, tab) {
-  if (type === 'text') {
-    document.getElementById('textStyleTab').classList.toggle('hidden', tab !== 'style');
-    document.getElementById('textPositionTab').classList.toggle('hidden', tab !== 'position');
-    document.querySelectorAll('#textProps .props-tabs button').forEach((btn, i) => {
-      btn.classList.toggle('active', (i === 0 && tab === 'style') || (i === 1 && tab === 'position'));
-    });
-  } else if (type === 'image') {
-    document.getElementById('imageStyleTab').classList.toggle('hidden', tab !== 'style');
-    document.getElementById('imagePositionTab').classList.toggle('hidden', tab !== 'position');
-    document.querySelectorAll('#imageProps .props-tabs button').forEach((btn, i) => {
-      btn.classList.toggle('active', (i === 0 && tab === 'style') || (i === 1 && tab === 'position'));
-    });
-  }
+async function undo() {
+  if (state.undoStack.length === 0) return;
+  const current = snapshot();
+  const prev = state.undoStack.pop();
+  state.redoStack.push(current);
+  await applySnapshot(prev);
+  toast('Undo');
 }
 
-// ============================================
-// PDF LOAD
-// ============================================
-document.getElementById('pdfInput').addEventListener('change', function(e) {
-  if (this.files.length > 0) loadPDF(this.files[0]);
-  this.value = '';
-});
+async function redo() {
+  if (state.redoStack.length === 0) return;
+  const current = snapshot();
+  const next = state.redoStack.pop();
+  state.undoStack.push(current);
+  await applySnapshot(next);
+  toast('Redo');
+}
 
-function loadPDF(file) {
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    const typedarray = new Uint8Array(e.target.result);
-    pdfData = typedarray;
-    pdfjsLib.getDocument(typedarray).promise.then(function(pdf) {
-      pdfDoc = pdf;
-      pages = [];
-      for (let i = 1; i <= pdf.numPages; i++) {
-        pages.push({ num: i, pdfPage: i, rotation: 0, blank: false, pageNumberOverlay: false });
+async function applySnapshot(json) {
+  const s = JSON.parse(json);
+  state.pages = s.pages;
+  state.currentPage = clamp(s.currentPage, 1, s.pages.length);
+  state.selectedObjectId = s.selectedObjectId || null;
+  // Rehydrate _img for image objects
+  for (const p of state.pages) {
+    for (const o of p.objects) {
+      if ((o.type === 'image' || o.type === 'sign') && o.dataUrl && !o._img) {
+        try { o._img = await loadImage(o.dataUrl); } catch(_) {}
       }
-      document.getElementById('emptyState').classList.add('hidden');
-      document.getElementById('singlePageWrapper').classList.remove('hidden');
-      document.getElementById('emptyThumbnails').classList.add('hidden');
-      setDocTitle(file.name);
-      currentPage = 1;
-      selectedPages.clear();
-      undoStack = []; redoStack = [];
-      renderCurrentPage();
-      renderThumbnails();
-      document.getElementById('propsEmpty').classList.add('hidden');
-      document.getElementById('pageProps').classList.remove('hidden');
-      updateStatusBar();
-      setTool('select');
-      updateUndoRedoButtons();
-      if (window.innerWidth <= 768) closeMobileSheets();
-    }).catch(err => {
-      console.error(err);
-      alert('Failed to load PDF: ' + err.message);
-    });
-  };
-  reader.readAsArrayBuffer(file);
+    }
+  }
+  await renderCurrentPage();
+  renderThumbnails();
+  renderProps();
+  updateStatusBar();
+  updateHistoryButtons();
 }
 
-// ============================================
-// RENDER CURRENT PAGE (single-page, fits screen)
-// ============================================
-function renderCurrentPage() {
-  const wrapper = document.getElementById('singlePageWrapper');
-  wrapper.innerHTML = '';
-  if (pages.length === 0) return;
+function updateHistoryButtons() {
+  el.undoBtn.style.opacity = state.undoStack.length ? '1' : '0.4';
+  el.redoBtn.style.opacity = state.redoStack.length ? '1' : '0.4';
+}
 
-  const p = pages[currentPage - 1];
-  if (!p) { currentPage = 1; return; }
+// ============================================================
+// SECTION: OBJECT MODEL
+// ============================================================
+function createObject(type, x, y, w, h, extra) {
+  return Object.assign({ id: uid(), type, x, y, w, h }, extra || {});
+}
 
-  const workspace = document.getElementById('workspace');
-  const availableWidth = workspace.clientWidth - 60;
-  const availableHeight = workspace.clientHeight - 80;
+function currentPageData() { return state.pages[state.currentPage - 1]; }
+function objectsOnCurrentPage() { const p = currentPageData(); return p ? p.objects : []; }
 
-  if (p.blank || p.pdfPage === null) {
-    const w = Math.min(availableWidth, 595 * zoomLevel);
-    const h = w * (842 / 595);
-    const container = document.createElement('div');
-    container.className = 'page-container';
-    container.style.width = w + 'px';
-    container.style.height = h + 'px';
-    container.innerHTML = `
-      <div style="display:flex;align-items:center;justify-content:center;height:100%;background:white;color:#cbd5e1;font-size:14px;">Blank Page</div>
-      ${p.pageNumberOverlay ? `<div class="page-number-overlay">Page ${p.num}</div>` : ''}
-    `;
-    wrapper.appendChild(container);
-    updateStatusBar();
-    return;
+function findObject(id) {
+  for (const p of state.pages) {
+    const o = p.objects.find(x => x.id === id);
+    if (o) return { page: p, obj: o };
+  }
+  return null;
+}
+
+// ============================================================
+// SECTION: HIT TESTING
+// ============================================================
+function hitTest(obj, px, py) {
+  const { x, y, w, h } = obj;
+  const tol = HIT_TOLERANCE;
+
+  if (obj.type === 'draw') {
+    const pts = obj.points || [];
+    for (let i = 1; i < pts.length; i++) {
+      const d = pointSegmentDistance(px, py, pts[i-1].x, pts[i-1].y, pts[i].x, pts[i].y);
+      if (d <= (obj.strokeWidth / 2) + tol) return true;
+    }
+    return false;
   }
 
-  pdfDoc.getPage(p.pdfPage).then(page => {
-    const baseViewport = page.getViewport({ scale: 1 });
-    const fitScaleW = availableWidth / baseViewport.width;
-    const fitScaleH = availableHeight / baseViewport.height;
-    const fitScale = Math.min(fitScaleW, fitScaleH);
-    const finalScale = fitScale * zoomLevel;
+  if (obj.type === 'shape' && (obj.shape === 'line' || obj.shape === 'arrow')) {
+    const d = pointSegmentDistance(px, py, x, y, x + w, y + h);
+    return d <= (obj.strokeWidth / 2) + tol;
+  }
 
-    const viewport = page.getViewport({ scale: finalScale, rotation: p.rotation || 0 });
-    const container = document.createElement('div');
-    container.className = 'page-container';
-    container.style.width = viewport.width + 'px';
-    container.style.height = viewport.height + 'px';
+  return px >= x - tol && px <= x + w + tol && py >= y - tol && py <= y + h + tol;
+}
 
-    const canvas = document.createElement('canvas');
-    canvas.width = viewport.width;
-    canvas.height = viewport.height;
-    canvas.style.display = 'block';
-    canvas.style.width = '100%';
-    canvas.style.height = 'auto';
-    container.appendChild(canvas);
+function pointSegmentDistance(px, py, x1, y1, x2, y2) {
+  const dx = x2 - x1, dy = y2 - y1;
+  const len2 = dx*dx + dy*dy;
+  if (len2 === 0) return Math.hypot(px - x1, py - y1);
+  let t = ((px - x1) * dx + (py - y1) * dy) / len2;
+  t = clamp(t, 0, 1);
+  return Math.hypot(px - (x1 + t*dx), py - (y1 + t*dy));
+}
 
-    if (p.pageNumberOverlay) {
-      const overlay = document.createElement('div');
-      overlay.className = 'page-number-overlay';
-      overlay.textContent = `Page ${p.num}`;
-      container.appendChild(overlay);
+function topmostObjectAt(px, py) {
+  const objs = objectsOnCurrentPage();
+  for (let i = objs.length - 1; i >= 0; i--) {
+    if (hitTest(objs[i], px, py)) return objs[i];
+  }
+  return null;
+}
+
+// ============================================================
+// SECTION: TEXT RECONSTRUCTION ENGINE
+// ============================================================
+//
+// Reconstructs a page's embedded PDF text into Droplet text objects.
+// Uses getTextContent() — not OCR — so the extracted text is exact.
+//
+// Pipeline:
+//   items -> normalize -> group into lines -> detect paragraph blocks
+//         -> classify by size histogram (B2) -> produce objects
+//
+async function reconstructPageText(page, pdfPageNumber) {
+  const pdfPage = await state.pdfDoc.getPage(pdfPageNumber);
+  const viewport = pdfPage.getViewport({ scale: 1 });
+  const pageH = viewport.height;
+
+  const tc = await pdfPage.getTextContent({ includeMarkedContent: false });
+  const rawItems = tc.items || [];
+
+  // Some PDFs emit items without 'str' — skip them
+  const items = rawItems.filter(it => it && typeof it.str === 'string');
+
+  // ---- Detect scanned page (F2 trigger) ----
+  const nonSpaceChars = items.reduce((sum, it) => sum + (it.str.replace(/\s/g,'').length), 0);
+  const isScanned = items.length < MIN_TEXT_ITEMS_FOR_DIGITAL || nonSpaceChars < 15;
+
+  if (isScanned) {
+    return { status: 'scanned', objects: [] };
+  }
+
+  // ---- Normalize items: convert from PDF space to "top-left origin, y down" ----
+  // PDF.js text item transform: [a, b, c, d, e, f] where (e, f) is the baseline.
+  // We compute a top-left y by taking (pageH - f - fontSize).
+  const normalized = items.map(it => {
+    const tx = it.transform;
+    const fontSize = Math.hypot(tx[2], tx[3]) || it.height || 12;
+    const x = tx[4];
+    const yBaseline = tx[5];
+    const yTop = pageH - yBaseline - fontSize;
+    const width = it.width || 0;
+    const fontName = it.fontName || '';
+    return {
+      str: it.str,
+      x,
+      y: yTop,
+      yBaseline,
+      width,
+      fontSize,
+      fontName,
+      bold: detectBold(fontName),
+      italic: detectItalic(fontName),
+      hasEOL: !!it.hasEOL
+    };
+  });
+
+  // ---- Group into lines ----
+  // A line = items whose yTop values are within ±fontSize * 0.4
+  const lines = [];
+  const sorted = [...normalized].sort((a, b) => {
+    if (Math.abs(a.y - b.y) > 2) return a.y - b.y;
+    return a.x - b.x;
+  });
+
+  for (const it of sorted) {
+    if (!it.str) continue;
+    const tol = Math.max(2, it.fontSize * 0.4);
+    let line = lines.find(L => Math.abs(L.y - it.y) <= tol);
+    if (!line) {
+      line = { y: it.y, yBaseline: it.yBaseline, items: [], fontSize: it.fontSize };
+      lines.push(line);
+    }
+    line.items.push(it);
+    // Recompute the line's y as a weighted average
+    line.y = (line.y * (line.items.length - 1) + it.y) / line.items.length;
+    line.fontSize = Math.max(line.fontSize, it.fontSize);
+  }
+
+  // Sort each line's items by x, join into a string, compute bbox
+  for (const L of lines) {
+    L.items.sort((a, b) => a.x - b.x);
+    L.x = L.items[0].x;
+    L.right = Math.max(...L.items.map(i => i.x + i.width));
+    L.y = L.items[0].y;
+    L.fontSize = Math.max(...L.items.map(i => i.fontSize));
+    L.bold = L.items.every(i => i.bold);
+    L.italic = L.items.every(i => i.italic);
+    L.text = joinLineItems(L.items);
+    L.fontName = L.items[0].fontName || '';
+    L.width = L.right - L.x;
+  }
+
+  lines.sort((a, b) => a.y - b.y);
+
+  // ---- Build size histogram (B2) ----
+  const sizeBuckets = {};
+  for (const L of lines) {
+    const s = Math.round(L.fontSize * 2) / 2;
+    sizeBuckets[s] = (sizeBuckets[s] || 0) + L.text.length;
+  }
+  // Body size = mode of the histogram (weighted by chars)
+  let bodySize = 12;
+  let bestWeight = 0;
+  for (const [s, w] of Object.entries(sizeBuckets)) {
+    if (w > bestWeight) { bestWeight = w; bodySize = parseFloat(s); }
+  }
+
+  // ---- Group lines into paragraph blocks ----
+  // A new block starts when:
+  //   - previous line was a heading (bigger / bold)
+  //   - gap is large (>= 1.8 * fontSize)
+  //   - x offset differs by more than fontSize
+  //   - alignment differs (we infer per-line)
+  //   - end punctuation suggests line joined with next? we simply preserve line breaks
+  const blocks = [];
+  let cur = null;
+
+  for (let i = 0; i < lines.length; i++) {
+    const L = lines[i];
+    const isHeading = classifyHeading(L, bodySize, lines, i);
+    const align = inferAlignment(L, lines);
+
+    if (!cur) {
+      cur = { lines: [L], heading: isHeading, alignment: align, fontSize: L.fontSize, bold: L.bold, italic: L.italic, fontName: L.fontName };
+      continue;
     }
 
-    wrapper.appendChild(container);
-    const context = canvas.getContext('2d');
-    return page.render({ canvasContext: context, viewport: viewport }).promise;
-  }).then(() => updateStatusBar());
-}
+    const prev = cur.lines[cur.lines.length - 1];
+    const gapY = L.y - (prev.y + prev.fontSize * 1.1);
+    const xDiff = Math.abs(L.x - prev.x);
 
-// ============================================
-// THUMBNAILS (real canvas previews, lazy)
-// ============================================
-function renderThumbnails() {
-  const list = document.getElementById('thumbnailList');
-  list.innerHTML = '';
-  if (thumbObserver) { thumbObserver.disconnect(); thumbObserver = null; }
+    const sameParagraph =
+      !isHeading &&
+      !cur.heading &&
+      Math.abs(L.fontSize - cur.fontSize) < 0.6 &&
+      L.bold === cur.bold &&
+      L.italic === cur.italic &&
+      align === cur.alignment &&
+      xDiff < Math.max(6, cur.fontSize * 0.6) &&
+      gapY < Math.max(6, cur.fontSize * 0.9);
 
-  pages.forEach((p) => {
-    const div = document.createElement('div');
-    div.className = 'page-thumbnail' + (p.num === currentPage ? ' active' : '');
-    div.dataset.page = p.num;
-    div.innerHTML = `
-      <div class="selection-check">✓</div>
-      <div class="thumb-canvas-wrap"><div style="font-size:24px;color:#cbd5e1;">📄</div></div>
-      <div class="page-number">${p.num}</div>
-    `;
-    div.onclick = (e) => handleThumbnailClick(e, p.num);
-    list.appendChild(div);
-  });
-  updateThumbnailSelection();
+    if (sameParagraph) {
+      cur.lines.push(L);
+    } else {
+      blocks.push(cur);
+      cur = { lines: [L], heading: isHeading, alignment: align, fontSize: L.fontSize, bold: L.bold, italic: L.italic, fontName: L.fontName };
+    }
+  }
+  if (cur) blocks.push(cur);
 
-  thumbObserver = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        const thumbEl = entry.target;
-        const num = parseInt(thumbEl.dataset.page);
-        renderThumbnailCanvas(thumbEl, num);
-        thumbObserver.unobserve(thumbEl);
-      }
+  // ---- Produce objects ----
+  const objects = [];
+  for (const b of blocks) {
+    const x = Math.min(...b.lines.map(L => L.x));
+    const yTop = b.lines[0].y;
+    const right = Math.max(...b.lines.map(L => L.right));
+    const yBot = Math.max(...b.lines.map(L => L.y + L.fontSize * 1.15));
+    const w = right - x;
+    const h = yBot - yTop;
+
+    const text = b.lines.map(L => L.text).join('\n');
+
+    const fontMapping = mapPdfFontToWeb(b.fontName, b.bold, b.italic);
+
+    objects.push({
+      id: uid(),
+      type: 'text',
+      source: 'pdf',
+      text: text,
+      x, y: yTop, w, h,
+      fontSize: b.fontSize,
+      fontFamily: fontMapping.cssFamily,
+      pdfFamily: fontMapping.pdfFamily,
+      fontWeight: b.bold ? 'bold' : 'normal',
+      fontStyle: b.italic ? 'italic' : 'normal',
+      textDecoration: 'none',
+      color: '#000000',   // PDF text color is hard to extract per-item; use black
+      textAlign: b.alignment,
+      lineHeight: 1.15,
+      letterSpacing: 0,
+      opacity: 1,
+      _isHeading: b.heading,
+      _masked: false,        // becomes true once user edits
+      _maskColor: null,      // sampled when masking
+      _revealed: false       // if user clicks "reveal all"
     });
-  }, { root: list, threshold: 0.05 });
+  }
 
-  document.querySelectorAll('.page-thumbnail').forEach(el => thumbObserver.observe(el));
+  return { status: 'done', objects, bodySize };
 }
 
-function renderThumbnailCanvas(thumbEl, pageNum) {
-  const p = pages.find(pg => pg.num === pageNum);
-  if (!p) return;
-  const wrap = thumbEl.querySelector('.thumb-canvas-wrap');
-  if (p.blank || p.pdfPage === null) {
-    wrap.innerHTML = `<div style="width:80%;height:110px;background:white;border:1px solid #e2e8f0;display:flex;align-items:center;justify-content:center;color:#cbd5e1;font-size:10px;">Blank</div>`;
+function joinLineItems(items) {
+  let out = '';
+  for (let i = 0; i < items.length; i++) {
+    if (i === 0) { out = items[i].str; continue; }
+    const prev = items[i-1];
+    const gap = items[i].x - (prev.x + prev.width);
+    // Insert a space if the gap is significant
+    if (gap > 1 && !/\s$/.test(out)) out += ' ';
+    out += items[i].str;
+  }
+  return out.replace(/\s+/g, ' ').trim();
+}
+
+function classifyHeading(line, bodySize, allLines, idx) {
+  const r = line.fontSize / bodySize;
+  if (r >= 1.7) return 'h1';
+  if (r >= 1.4) return 'h2';
+  if (r >= 1.15) return 'h3';
+
+  // Bold at body size: check surroundings
+  if (line.bold && line.fontSize >= bodySize * 0.95) {
+    // Surrounding non-bold lines?
+    const neighbors = [allLines[idx-1], allLines[idx+1]].filter(Boolean);
+    if (neighbors.length && neighbors.every(n => !n.bold)) return 'h3';
+  }
+  return null;
+}
+
+function inferAlignment(line, allLines) {
+  // Compare line's left vs page's typical left margin
+  if (!allLines.length) return 'left';
+  const lefts = allLines.map(L => L.x);
+  const rights = allLines.map(L => L.right);
+  const minX = Math.min(...lefts);
+  const maxRight = Math.max(...rights);
+  const leftGap = line.x - minX;
+  const rightGap = maxRight - line.right;
+
+  // If both gaps are small -> justify or full width
+  if (leftGap < 2 && rightGap < 2) return 'justify';
+  // If left gap large but right gap small -> right aligned
+  if (leftGap > 20 && rightGap < 10) return 'right';
+  // If both gaps similar and large -> center
+  if (Math.abs(leftGap - rightGap) < 15 && leftGap > 20) return 'center';
+  return 'left';
+}
+
+// ============================================================
+// SECTION: BACKGROUND MASK SAMPLING
+// ============================================================
+//
+// When the user first edits a reconstructed text object, we sample the
+// pixels under its bbox to determine a background color to mask the
+// original PDF text.
+//
+function sampleBackgroundColor(page, obj) {
+  // Ensure we have a canvas for this page
+  const key = page.pdfPageNumber || 'blank-' + state.currentPage;
+  let canvas = state.pageCanvasCache[key];
+  if (!canvas) return '#ffffff';
+
+  const ctx = canvas.getContext('2d');
+  const scaleX = canvas.width / page.width;
+  const scaleY = canvas.height / page.height;
+
+  const sx = clamp(Math.floor(obj.x * scaleX), 0, canvas.width - 1);
+  const sy = clamp(Math.floor(obj.y * scaleY), 0, canvas.height - 1);
+  const sw = clamp(Math.ceil(obj.w * scaleX), 1, canvas.width - sx);
+  const sh = clamp(Math.ceil(obj.h * scaleY), 1, canvas.height - sy);
+
+  let data;
+  try {
+    data = ctx.getImageData(sx, sy, sw, sh).data;
+  } catch (e) {
+    return '#ffffff';
+  }
+
+  // Median color
+  const hist = { r: {}, g: {}, b: {} };
+  for (let i = 0; i < data.length; i += 4) {
+    hist.r[data[i]] = (hist.r[data[i]] || 0) + 1;
+    hist.g[data[i+1]] = (hist.g[data[i+1]] || 0) + 1;
+    hist.b[data[i+2]] = (hist.b[data[i+2]] || 0) + 1;
+  }
+  const modeOf = (h) => {
+    let best = 255, bestCount = -1;
+    for (const k in h) { if (h[k] > bestCount) { bestCount = h[k]; best = parseInt(k, 10); } }
+    return best;
+  };
+  return rgbToHex(modeOf(hist.r), modeOf(hist.g), modeOf(hist.b));
+}
+
+// ============================================================
+// SECTION: RENDERER
+// ============================================================
+async function renderCurrentPage() {
+  const wrap = el.singlePageWrapper;
+  wrap.innerHTML = '';
+  const page = currentPageData();
+  if (!page) return;
+
+  const container = document.createElement('div');
+  container.className = 'page-container';
+
+  const scale = RENDER_SCALE * state.zoom;
+  const cssW = page.width * scale;
+  const cssH = page.height * scale;
+  container.style.width = cssW + 'px';
+  container.style.height = cssH + 'px';
+
+  const canvasWrap = document.createElement('div');
+  canvasWrap.className = 'canvas-wrap';
+  canvasWrap.style.width = cssW + 'px';
+  canvasWrap.style.height = cssH + 'px';
+  canvasWrap.style.position = 'relative';
+
+  const pdfCanvas = document.createElement('canvas');
+  pdfCanvas.className = 'pdf-canvas';
+  pdfCanvas.width = cssW;
+  pdfCanvas.height = cssH;
+  pdfCanvas.style.width = cssW + 'px';
+  pdfCanvas.style.height = cssH + 'px';
+  canvasWrap.appendChild(pdfCanvas);
+
+  const overlayCanvas = document.createElement('canvas');
+  overlayCanvas.className = 'overlay-canvas';
+  overlayCanvas.width = cssW;
+  overlayCanvas.height = cssH;
+  overlayCanvas.style.position = 'absolute';
+  overlayCanvas.style.inset = '0';
+  overlayCanvas.style.width = cssW + 'px';
+  overlayCanvas.style.height = cssH + 'px';
+  overlayCanvas.style.pointerEvents = 'none';
+  canvasWrap.appendChild(overlayCanvas);
+
+  const overlay = document.createElement('div');
+  overlay.className = 'overlay tool-' + state.tool;
+  overlay.style.position = 'absolute';
+  overlay.style.inset = '0';
+  overlay.style.zIndex = '3';
+  canvasWrap.appendChild(overlay);
+
+  container.appendChild(canvasWrap);
+  wrap.appendChild(container);
+
+  // Render PDF page (or white for blank)
+  if (page.blank) {
+    const ctx = pdfCanvas.getContext('2d');
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, pdfCanvas.width, pdfCanvas.height);
+    // Cache blank canvas for sampling
+    state.pageCanvasCache['blank-' + state.currentPage] = pdfCanvas;
+  } else if (state.pdfDoc) {
+    try {
+      const p = await state.pdfDoc.getPage(page.pdfPageNumber);
+      const viewport = p.getViewport({ scale });
+      await p.render({ canvasContext: pdfCanvas.getContext('2d'), viewport }).promise;
+      // Cache the rendered canvas for later background sampling
+      state.pageCanvasCache[page.pdfPageNumber] = pdfCanvas;
+    } catch (e) { console.warn('Render failed:', e); }
+  }
+
+  // Render objects
+  renderObjectsToOverlay(overlayCanvas, page, scale);
+
+  // Attach interaction
+  attachOverlayHandlers(overlay, overlayCanvas, page, scale);
+
+  // Reconstructed text need hover overlay for A2+A3 hybrid
+  attachReconstructionHover(overlay, overlayCanvas, page, scale);
+
+  if (state.selectedObjectId) drawSelectionOutline(overlayCanvas, page, scale);
+
+  // Show scan notice (F2) if page is scanned
+  if (page.reconStatus === 'scanned') {
+    showScanNotice(container);
+  }
+
+  updateStatusBar();
+}
+
+function renderObjectsToOverlay(canvas, page, scale) {
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  for (const o of page.objects) {
+    // A2+A3: reconstructed text is invisible unless revealed or selected.
+    if (o.source === 'pdf' && o.type === 'text') {
+      const isSelected = o.id === state.selectedObjectId;
+      if (!isSelected && !o._revealed && !o._masked) {
+        continue;   // invisible
+      }
+    }
+    drawObject(ctx, o, scale);
+  }
+}
+
+function drawObject(ctx, o, scale) {
+  ctx.save();
+  ctx.globalAlpha = o.opacity != null ? o.opacity : 1;
+
+  // Draw mask rectangle under reconstructed text
+  if (o._masked && o._maskColor) {
+    ctx.fillStyle = o._maskColor;
+    // Slight padding so anti-aliased edges are covered
+    const pad = 1.5 * scale;
+    ctx.fillRect(o.x * scale - pad, o.y * scale - pad, o.w * scale + pad * 2, o.h * scale + pad * 2);
+  }
+
+  if (o.type === 'highlight' || o.type === 'whiteout') {
+    ctx.fillStyle = o.color;
+    ctx.fillRect(o.x * scale, o.y * scale, o.w * scale, o.h * scale);
+  } else if (o.type === 'text') {
+    const fam = o.fontFamily || 'Helvetica, Arial, sans-serif';
+    const weight = o.fontWeight || 'normal';
+    const style = o.fontStyle || 'normal';
+    const decor = o.textDecoration || 'none';
+    const fs = (o.fontSize || 14) * scale;
+    ctx.font = `${style} ${weight} ${fs}px ${fam}`;
+    ctx.fillStyle = o.color || '#1e293b';
+    ctx.textBaseline = 'top';
+    ctx.textAlign = 'left';
+    if (o.letterSpacing) {
+      // Approximate letter-spacing by manual per-char draw
+      drawTextWithLetterSpacing(ctx, o.text || '', o.x * scale, o.y * scale, o.w * scale, fs * (o.lineHeight || 1.15), o.letterSpacing * scale, o.textAlign || 'left', decor);
+    } else {
+      wrapText(ctx, o.text || '', o.x * scale, o.y * scale, o.w * scale, fs * (o.lineHeight || 1.15), o.textAlign || 'left', decor);
+    }
+  } else if (o.type === 'draw') {
+    ctx.strokeStyle = o.color;
+    ctx.lineWidth = o.strokeWidth * scale;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    const pts = o.points || [];
+    if (pts.length > 0) {
+      ctx.beginPath();
+      ctx.moveTo(pts[0].x * scale, pts[0].y * scale);
+      for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x * scale, pts[i].y * scale);
+      ctx.stroke();
+    }
+  } else if (o.type === 'shape') {
+    ctx.strokeStyle = o.color;
+    ctx.lineWidth = o.strokeWidth * scale;
+    if (o.shape === 'rect') {
+      if (o.fill) {
+        ctx.fillStyle = o.color + '33';
+        ctx.fillRect(o.x * scale, o.y * scale, o.w * scale, o.h * scale);
+      }
+      ctx.strokeRect(o.x * scale, o.y * scale, o.w * scale, o.h * scale);
+    } else if (o.shape === 'ellipse') {
+      ctx.beginPath();
+      ctx.ellipse((o.x + o.w/2) * scale, (o.y + o.h/2) * scale, Math.abs(o.w/2) * scale, Math.abs(o.h/2) * scale, 0, 0, Math.PI * 2);
+      if (o.fill) { ctx.fillStyle = o.color + '33'; ctx.fill(); }
+      ctx.stroke();
+    } else if (o.shape === 'line') {
+      ctx.beginPath();
+      ctx.moveTo(o.x * scale, o.y * scale);
+      ctx.lineTo((o.x + o.w) * scale, (o.y + o.h) * scale);
+      ctx.stroke();
+    } else if (o.shape === 'arrow') {
+      const x1 = o.x * scale, y1 = o.y * scale;
+      const x2 = (o.x + o.w) * scale, y2 = (o.y + o.h) * scale;
+      ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+      const angle = Math.atan2(y2 - y1, x2 - x1);
+      const ah = 10 * scale;
+      ctx.beginPath();
+      ctx.moveTo(x2, y2);
+      ctx.lineTo(x2 - ah * Math.cos(angle - Math.PI/6), y2 - ah * Math.sin(angle - Math.PI/6));
+      ctx.lineTo(x2 - ah * Math.cos(angle + Math.PI/6), y2 - ah * Math.sin(angle + Math.PI/6));
+      ctx.closePath();
+      ctx.fillStyle = o.color; ctx.fill();
+    }
+  } else if (o.type === 'image' || o.type === 'sign') {
+    if (o._img) {
+      ctx.drawImage(o._img, o.x * scale, o.y * scale, o.w * scale, o.h * scale);
+    }
+  } else if (o.type === 'form') {
+    ctx.fillStyle = 'rgba(37,99,235,0.06)';
+    ctx.fillRect(o.x * scale, o.y * scale, o.w * scale, o.h * scale);
+    ctx.strokeStyle = '#2563eb';
+    ctx.lineWidth = 1.5;
+    ctx.strokeRect(o.x * scale, o.y * scale, o.w * scale, o.h * scale);
+    ctx.fillStyle = '#2563eb';
+    ctx.font = `${11 * scale}px Helvetica, Arial, sans-serif`;
+    ctx.fillText('[' + o.formType + ']', o.x * scale + 4, o.y * scale + 12 * scale);
+  }
+
+  ctx.restore();
+}
+
+function wrapText(ctx, text, x, y, maxWidth, lineHeight, align, decor) {
+  const lines = String(text).split('\n');
+  let yy = y;
+  for (const rawLine of lines) {
+    const words = rawLine.split(/\s+/).filter(Boolean);
+    if (words.length === 0) { yy += lineHeight; continue; }
+    let line = '';
+    for (let n = 0; n < words.length; n++) {
+      const test = line ? line + ' ' + words[n] : words[n];
+      const m = ctx.measureText(test);
+      if (m.width > maxWidth && line) {
+        drawAlignedLine(ctx, line, x, yy, maxWidth, align, decor);
+        line = words[n];
+        yy += lineHeight;
+      } else {
+        line = test;
+      }
+    }
+    if (line) {
+      drawAlignedLine(ctx, line, x, yy, maxWidth, align, decor);
+      yy += lineHeight;
+    }
+  }
+}
+
+function drawAlignedLine(ctx, line, x, y, maxWidth, align, decor) {
+  let drawX = x;
+  const w = ctx.measureText(line).width;
+  if (align === 'center') drawX = x + (maxWidth - w) / 2;
+  else if (align === 'right') drawX = x + maxWidth - w;
+  ctx.fillText(line, drawX, y);
+  if (decor === 'underline') {
+    ctx.fillRect(drawX, y + ctx.measureText('M').width * 0.9, w, 1);
+  }
+}
+
+function drawTextWithLetterSpacing(ctx, text, x, y, maxWidth, lineHeight, spacing, align, decor) {
+  const lines = String(text).split('\n');
+  let yy = y;
+  for (const line of lines) {
+    // Measure with spacing
+    let total = 0;
+    for (const ch of line) total += ctx.measureText(ch).width + spacing;
+    total -= spacing;
+    let drawX = x;
+    if (align === 'center') drawX = x + (maxWidth - total) / 2;
+    else if (align === 'right') drawX = x + maxWidth - total;
+    let cx = drawX;
+    for (const ch of line) {
+      ctx.fillText(ch, cx, yy);
+      cx += ctx.measureText(ch).width + spacing;
+    }
+    yy += lineHeight;
+  }
+}
+
+function drawSelectionOutline(canvas, page, scale) {
+  const found = findObject(state.selectedObjectId);
+  if (!found || found.page !== page) return;
+  const o = found.obj;
+  const ctx = canvas.getContext('2d');
+  ctx.save();
+  ctx.strokeStyle = '#2563eb';
+  ctx.lineWidth = 2;
+  ctx.setLineDash([6, 4]);
+  ctx.strokeRect(o.x * scale - 2, o.y * scale - 2, o.w * scale + 4, o.h * scale + 4);
+  ctx.setLineDash([]);
+  const handles = [
+    [o.x * scale - 6, o.y * scale - 6],
+    [(o.x + o.w) * scale - 2, o.y * scale - 6],
+    [o.x * scale - 6, (o.y + o.h) * scale - 2],
+    [(o.x + o.w) * scale - 2, (o.y + o.h) * scale - 2]
+  ];
+  ctx.fillStyle = '#2563eb';
+  for (const [hx, hy] of handles) ctx.fillRect(hx, hy, 8, 8);
+  ctx.restore();
+}
+
+// ============================================================
+// SECTION: RECONSTRUCTION HOVER (A2+A3 hybrid)
+// ============================================================
+function attachReconstructionHover(overlay, overlayCanvas, page, scale) {
+  let hoveredId = null;
+
+  const onMove = (e) => {
+    if (state.tool !== 'select') return;
+    const rect = overlayCanvas.getBoundingClientRect();
+    const px = (e.clientX - rect.left) / scale;
+    const py = (e.clientY - rect.top) / scale;
+
+    // Find reconstructed text under cursor (topmost wins)
+    let found = null;
+    const objs = objectsOnCurrentPage();
+    for (let i = objs.length - 1; i >= 0; i--) {
+      const o = objs[i];
+      if (o.source !== 'pdf' || o.type !== 'text') continue;
+      if (hitTest(o, px, py)) { found = o; break; }
+    }
+
+    const foundId = found ? found.id : null;
+    if (foundId === hoveredId) return;
+    hoveredId = foundId;
+
+    // Repaint overlay
+    renderObjectsToOverlay(overlayCanvas, page, scale);
+
+    if (found) {
+      const ctx = overlayCanvas.getContext('2d');
+      ctx.save();
+      ctx.strokeStyle = 'rgba(37,99,235,0.6)';
+      ctx.lineWidth = 1.5;
+      ctx.setLineDash([4, 3]);
+      ctx.strokeRect(found.x * scale - 2, found.y * scale - 2, found.w * scale + 4, found.h * scale + 4);
+      ctx.setLineDash([]);
+      // Peek the text at very low opacity
+      ctx.globalAlpha = 0.06;
+      const fam = found.fontFamily || 'Helvetica, Arial, sans-serif';
+      const fs = (found.fontSize || 14) * scale;
+      ctx.font = `${found.fontStyle || 'normal'} ${found.fontWeight || 'normal'} ${fs}px ${fam}`;
+      ctx.fillStyle = found.color || '#1e293b';
+      ctx.textBaseline = 'top';
+      wrapText(ctx, found.text || '', found.x * scale, found.y * scale, found.w * scale, fs * (found.lineHeight || 1.15), found.textAlign || 'left', 'none');
+      ctx.restore();
+    }
+
+    if (state.selectedObjectId) drawSelectionOutline(overlayCanvas, page, scale);
+  };
+
+  const onLeave = () => {
+    if (hoveredId === null) return;
+    hoveredId = null;
+    renderObjectsToOverlay(overlayCanvas, page, scale);
+    if (state.selectedObjectId) drawSelectionOutline(overlayCanvas, page, scale);
+  };
+
+  overlay.addEventListener('pointermove', onMove);
+  overlay.addEventListener('pointerleave', onLeave);
+}
+
+// ============================================================
+// SECTION: SCAN NOTICE (F2)
+// ============================================================
+function showScanNotice(container) {
+  // Remove existing
+  const existing = container.querySelector('.scan-notice');
+  if (existing) existing.remove();
+
+  const notice = document.createElement('div');
+  notice.className = 'scan-notice';
+  notice.innerHTML = `
+    <div class="sn-icon">🖼️</div>
+    <div class="sn-text">
+      <strong>This page looks scanned.</strong>
+      Run OCR to make the text editable, or add your own text on top.
+    </div>
+    <button class="sn-btn" onclick="runOCROnCurrentPage()">🔍 OCR</button>
+    <button class="sn-btn secondary" onclick="dismissScanNotice(this)">Later</button>
+  `;
+  container.appendChild(notice);
+}
+
+function dismissScanNotice(btn) {
+  const notice = btn.closest('.scan-notice');
+  if (notice) notice.remove();
+}
+
+// ============================================================
+// SECTION: LAZY RECONSTRUCTION (F1 for text pages)
+// ============================================================
+async function ensurePageReconstructed(page) {
+  if (!page) return;
+  if (page.reconstructed) return;
+  if (page.reconStatus === 'working') return;
+  if (page.blank) { page.reconstructed = true; return; }
+  if (!state.pdfDoc) return;
+
+  page.reconStatus = 'working';
+  showReconToast('Converting text to editable objects…');
+
+  try {
+    const result = await reconstructPageText(page, page.pdfPageNumber);
+    if (result.status === 'scanned') {
+      page.reconStatus = 'scanned';
+      page.reconstructed = true;
+    } else {
+      // Place reconstructed objects at the BOTTOM of the object list so user-added
+      // objects (highlights, annotations) stay on top.
+      page.objects = [...result.objects, ...page.objects];
+      page.reconStatus = 'done';
+      page.reconstructed = true;
+      page.bodySize = result.bodySize;
+    }
+  } catch (e) {
+    console.warn('Reconstruction failed:', e);
+    page.reconStatus = 'idle';
+  } finally {
+    hideReconToast();
+    // Re-render current page if we're still on it
+    if (currentPageData() === page) {
+      await renderCurrentPage();
+      updateStatusBar();
+    }
+  }
+}
+
+let reconToastEl = null;
+function showReconToast(msg) {
+  hideReconToast();
+  const page = currentPageData();
+  if (!page) return;
+  const wrap = el.singlePageWrapper.querySelector('.page-container');
+  if (!wrap) return;
+  reconToastEl = document.createElement('div');
+  reconToastEl.className = 'recon-toast show';
+  reconToastEl.innerHTML = '<div class="rt-spinner"></div><span>' + msg + '</span>';
+  wrap.style.position = 'relative';
+  wrap.appendChild(reconToastEl);
+}
+function hideReconToast() {
+  if (reconToastEl && reconToastEl.parentNode) reconToastEl.parentNode.removeChild(reconToastEl);
+  reconToastEl = null;
+}
+
+// ============================================================
+// SECTION: OVERLAY INTERACTION
+// ============================================================
+function attachOverlayHandlers(overlay, overlayCanvas, page, scale) {
+  const toPageCoords = (clientX, clientY) => {
+    const rect = overlayCanvas.getBoundingClientRect();
+    return {
+      x: (clientX - rect.left) / scale,
+      y: (clientY - rect.top) / scale
+    };
+  };
+
+  const refresh = () => {
+    renderObjectsToOverlay(overlayCanvas, page, scale);
+    if (state.selectedObjectId) drawSelectionOutline(overlayCanvas, page, scale);
+  };
+
+  overlay.addEventListener('pointerdown', async (e) => {
+    if (e.button !== 0) return;
+    overlay.setPointerCapture(e.pointerId);
+    const { x, y } = toPageCoords(e.clientX, e.clientY);
+
+    // SELECT tool
+    if (state.tool === 'select') {
+      const hit = topmostObjectAt(x, y);
+      if (hit) {
+        // A2+A3: on first select of a reconstructed text object,
+        // mask the underlying PDF text and reveal it fully.
+        if (hit.source === 'pdf' && hit.type === 'text' && !hit._masked) {
+          hit._maskColor = sampleBackgroundColor(page, hit);
+          hit._masked = true;
+          pushHistory();
+        }
+        state.selectedObjectId = hit.id;
+        state.interaction = {
+          mode: 'drag',
+          objId: hit.id,
+          startX: x,
+          startY: y,
+          origX: hit.x,
+          origY: hit.y
+        };
+        refresh();
+        renderProps();
+      } else {
+        state.selectedObjectId = null;
+        state.interaction = null;
+        refresh();
+        renderProps();
+      }
+      return;
+    }
+
+    // TEXT tool — create a new text object, open inline editor
+    if (state.tool === 'text') {
+      const o = createObject('text', x, y, 240, 24, {
+        text: '',
+        fontSize: toolDefaults.text.fontSize,
+        fontFamily: 'Helvetica, Arial, sans-serif',
+        fontWeight: 'normal',
+        fontStyle: 'normal',
+        textDecoration: 'none',
+        color: toolDefaults.text.color,
+        textAlign: 'left',
+        lineHeight: 1.15,
+        letterSpacing: 0,
+        opacity: 1,
+        _masked: false
+      });
+      page.objects.push(o);
+      state.selectedObjectId = o.id;
+      pushHistory();
+      refresh();
+      renderProps();
+      openInlineTextEditor(overlay, overlayCanvas, page, scale, o);
+      return;
+    }
+
+    // IMAGE / SIGN
+    if (state.tool === 'image' || state.tool === 'sign') {
+      const inputId = state.tool === 'image' ? 'imageInput' : 'signInput';
+      const input = document.getElementById(inputId);
+      input.onchange = async (ev) => {
+        const f = ev.target.files[0];
+        if (!f) return;
+        const dataUrl = await readFileAsDataURL(f);
+        const img = await loadImage(dataUrl);
+        const maxW = 240;
+        const ratio = img.naturalHeight / img.naturalWidth;
+        const w = Math.min(maxW, img.naturalWidth / 2);
+        const h = w * ratio;
+        const o = createObject(state.tool === 'image' ? 'image' : 'sign',
+          x, y, w, h,
+          { dataUrl, naturalW: img.naturalWidth, naturalH: img.naturalHeight, opacity: 1 }
+        );
+        o._img = img;
+        page.objects.push(o);
+        state.selectedObjectId = o.id;
+        pushHistory();
+        refresh();
+        renderProps();
+        input.value = '';
+      };
+      input.click();
+      return;
+    }
+
+    // HIGHLIGHT / WHITEOUT / SHAPE
+    if (state.tool === 'highlight' || state.tool === 'whiteout' || state.tool === 'shape') {
+      state.interaction = {
+        mode: 'create-rect',
+        tool: state.tool,
+        startX: x,
+        startY: y,
+        curX: x,
+        curY: y,
+        shape: toolDefaults.shape.shape
+      };
+      return;
+    }
+
+    // DRAW
+    if (state.tool === 'draw') {
+      const o = createObject('draw', x, y, 0, 0, {
+        points: [{ x, y }],
+        color: toolDefaults.draw.color,
+        strokeWidth: toolDefaults.draw.strokeWidth,
+        opacity: 1
+      });
+      page.objects.push(o);
+      state.selectedObjectId = o.id;
+      state.interaction = { mode: 'draw', objId: o.id };
+      refresh();
+      return;
+    }
+
+    // FORMS
+    if (state.tool === 'forms') {
+      const type = prompt('Form field type:\n\ntext, checkbox, radio, dropdown, date, signature', 'text');
+      if (!type) return;
+      const t = ['text','checkbox','radio','dropdown','date','signature'].includes(type) ? type : 'text';
+      const o = createObject('form', x, y, 160, 28, { formType: t, opacity: 1 });
+      page.objects.push(o);
+      state.selectedObjectId = o.id;
+      pushHistory();
+      refresh();
+      renderProps();
+      return;
+    }
+  });
+
+  overlay.addEventListener('pointermove', (e) => {
+    if (!state.interaction) return;
+    const { x, y } = toPageCoords(e.clientX, e.clientY);
+    const it = state.interaction;
+
+    if (it.mode === 'drag') {
+      const found = findObject(it.objId);
+      if (!found) return;
+      found.obj.x = it.origX + (x - it.startX);
+      found.obj.y = it.origY + (y - it.startY);
+      refresh();
+      renderProps();
+    } else if (it.mode === 'create-rect') {
+      it.curX = x; it.curY = y;
+      refresh();
+      const ctx = overlayCanvas.getContext('2d');
+      const rx = Math.min(it.startX, it.curX) * scale;
+      const ry = Math.min(it.startY, it.curY) * scale;
+      const rw = Math.abs(it.curX - it.startX) * scale;
+      const rh = Math.abs(it.curY - it.startY) * scale;
+      ctx.save();
+      ctx.setLineDash([5, 4]);
+      ctx.strokeStyle = '#2563eb';
+      ctx.lineWidth = 1.5;
+      if (it.tool === 'highlight') { ctx.fillStyle = 'rgba(253,224,71,0.5)'; ctx.fillRect(rx, ry, rw, rh); }
+      if (it.tool === 'whiteout') { ctx.fillStyle = 'rgba(255,255,255,0.9)'; ctx.fillRect(rx, ry, rw, rh); }
+      ctx.strokeRect(rx, ry, rw, rh);
+      ctx.restore();
+    } else if (it.mode === 'draw') {
+      const found = findObject(it.objId);
+      if (!found) return;
+      found.obj.points.push({ x, y });
+      refresh();
+    }
+  });
+
+  overlay.addEventListener('pointerup', (e) => {
+    if (!state.interaction) return;
+    const { x, y } = toPageCoords(e.clientX, e.clientY);
+    const it = state.interaction;
+
+    if (it.mode === 'drag') {
+      pushHistory();
+      state.interaction = null;
+      renderProps();
+      return;
+    }
+
+    if (it.mode === 'create-rect') {
+      const rx = Math.min(it.startX, it.curX);
+      const ry = Math.min(it.startY, it.curY);
+      const rw = Math.abs(it.curX - it.startX);
+      const rh = Math.abs(it.curY - it.startY);
+      if (rw < 4 && rh < 4) { state.interaction = null; refresh(); return; }
+
+      if (it.tool === 'highlight') {
+        page.objects.push(createObject('highlight', rx, ry, rw, rh, { color: toolDefaults.highlight.color, opacity: toolDefaults.highlight.opacity }));
+      } else if (it.tool === 'whiteout') {
+        page.objects.push(createObject('whiteout', rx, ry, rw, rh, { color: toolDefaults.whiteout.color, opacity: toolDefaults.whiteout.opacity }));
+      } else if (it.tool === 'shape') {
+        page.objects.push(createObject('shape', rx, ry, rw, rh, {
+          shape: it.shape || toolDefaults.shape.shape,
+          color: toolDefaults.shape.color,
+          strokeWidth: toolDefaults.shape.strokeWidth,
+          fill: toolDefaults.shape.fill,
+          opacity: 1
+        }));
+      }
+      state.selectedObjectId = page.objects[page.objects.length - 1].id;
+      state.interaction = null;
+      pushHistory();
+      refresh();
+      renderProps();
+      return;
+    }
+
+    if (it.mode === 'draw') {
+      const found = findObject(it.objId);
+      if (found) {
+        const pts = found.obj.points;
+        const xs = pts.map(p => p.x), ys = pts.map(p => p.y);
+        found.obj.x = Math.min(...xs);
+        found.obj.y = Math.min(...ys);
+        found.obj.w = Math.max(...xs) - found.obj.x;
+        found.obj.h = Math.max(...ys) - found.obj.y;
+      }
+      state.interaction = null;
+      pushHistory();
+      refresh();
+      renderProps();
+      return;
+    }
+  });
+
+  overlay.addEventListener('dblclick', (e) => {
+    if (state.tool !== 'select') return;
+    const { x, y } = toPageCoords(e.clientX, e.clientY);
+    const hit = topmostObjectAt(x, y);
+    if (hit && hit.type === 'text') {
+      if (hit.source === 'pdf' && !hit._masked) {
+        hit._maskColor = sampleBackgroundColor(page, hit);
+        hit._masked = true;
+      }
+      state.selectedObjectId = hit.id;
+      refresh();
+      renderProps();
+      openInlineTextEditor(overlay, overlayCanvas, page, scale, hit);
+    }
+  });
+}
+
+function readFileAsDataURL(file) {
+  return new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload = () => res(r.result);
+    r.onerror = rej;
+    r.readAsDataURL(file);
+  });
+}
+
+function loadImage(src) {
+  return new Promise((res, rej) => {
+    const img = new Image();
+    img.onload = () => res(img);
+    img.onerror = rej;
+    img.src = src;
+  });
+}
+
+// ============================================================
+// SECTION: INLINE TEXT EDITOR
+// ============================================================
+function openInlineTextEditor(overlay, overlayCanvas, page, scale, obj) {
+  const existing = overlay.querySelector('.inline-editor');
+  if (existing) existing.remove();
+
+  const ta = document.createElement('textarea');
+  ta.className = 'inline-editor';
+  ta.value = obj.text || '';
+  const fs = (obj.fontSize || 14) * scale;
+  const lh = obj.lineHeight || 1.15;
+  ta.style.left = (obj.x * scale) + 'px';
+  ta.style.top = (obj.y * scale) + 'px';
+  ta.style.minWidth = Math.max(120, (obj.w || 200) * scale) + 'px';
+  ta.style.minHeight = Math.max(24, (obj.h || 24) * scale) + 'px';
+  ta.style.fontSize = fs + 'px';
+  ta.style.lineHeight = String(lh);
+  ta.style.fontFamily = obj.fontFamily || 'Helvetica, Arial, sans-serif';
+  ta.style.fontWeight = obj.fontWeight || 'normal';
+  ta.style.fontStyle = obj.fontStyle || 'normal';
+  ta.style.color = obj.color || '#1e293b';
+  ta.style.textAlign = obj.textAlign || 'left';
+  ta.style.letterSpacing = (obj.letterSpacing || 0) + 'px';
+  overlay.appendChild(ta);
+
+  const autosize = () => {
+    ta.style.height = 'auto';
+    ta.style.height = (ta.scrollHeight + 4) + 'px';
+    ta.style.width = 'auto';
+    ta.style.width = Math.max(120, ta.scrollWidth + 8) + 'px';
+  };
+  ta.addEventListener('input', autosize);
+  autosize();
+
+  const commit = () => {
+    const text = ta.value;
+    if (!text.trim()) {
+      page.objects = page.objects.filter(o => o.id !== obj.id);
+      state.selectedObjectId = null;
+      pushHistory();
+    } else {
+      obj.text = text;
+      obj.w = Math.max(20, ta.scrollWidth / scale);
+      obj.h = Math.max(12, ta.scrollHeight / scale);
+      pushHistory();
+    }
+    ta.remove();
+    renderObjectsToOverlay(overlayCanvas, page, scale);
+    if (state.selectedObjectId) drawSelectionOutline(overlayCanvas, page, scale);
+    renderProps();
+  };
+
+  ta.addEventListener('blur', commit);
+  ta.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') { ta.value = obj.text || ''; ta.blur(); }
+    if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) ta.blur();
+  });
+  setTimeout(() => { ta.focus(); ta.select(); }, 0);
+}
+
+// ============================================================
+// SECTION: TOOL SWITCHING
+// ============================================================
+function setTool(tool) {
+  state.tool = tool;
+  document.querySelectorAll('.floating-toolbar .tool-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.tool === tool);
+  });
+  el.statusTool.textContent = 'Tool: ' + tool.charAt(0).toUpperCase() + tool.slice(1);
+  renderCurrentPage();
+}
+
+// ============================================================
+// SECTION: PROPERTIES PANEL
+// ============================================================
+function renderProps() {
+  const page = currentPageData();
+  if (!page) {
+    el.pageProps.classList.add('hidden');
+    el.textProps.classList.add('hidden');
+    el.objectProps.classList.add('hidden');
+    el.propsEmpty.classList.remove('hidden');
     return;
   }
-  pdfDoc.getPage(p.pdfPage).then(page => {
-    const baseViewport = page.getViewport({ scale: 1 });
-    const targetWidth = 150;
-    const scale = targetWidth / baseViewport.width;
-    const viewport = page.getViewport({ scale: scale, rotation: p.rotation || 0 });
-    const canvas = document.createElement('canvas');
-    canvas.width = viewport.width;
-    canvas.height = viewport.height;
-    wrap.innerHTML = '';
-    wrap.appendChild(canvas);
-    const ctx = canvas.getContext('2d');
-    page.render({ canvasContext: ctx, viewport: viewport }).promise;
-  });
+
+  const found = state.selectedObjectId ? findObject(state.selectedObjectId) : null;
+
+  if (found && found.page === page) {
+    el.pageProps.classList.add('hidden');
+    el.propsEmpty.classList.add('hidden');
+    if (found.obj.type === 'text') {
+      el.textProps.classList.remove('hidden');
+      el.objectProps.classList.add('hidden');
+      populateTextProps(found.obj);
+    } else {
+      el.textProps.classList.add('hidden');
+      el.objectProps.classList.remove('hidden');
+      populateObjectProps(found.obj);
+    }
+  } else {
+    el.textProps.classList.add('hidden');
+    el.objectProps.classList.add('hidden');
+    el.propsEmpty.classList.add('hidden');
+    el.pageProps.classList.remove('hidden');
+    el.pageInfoText.textContent = `${state.currentPage} of ${state.pages.length}`;
+  }
 }
 
-function handleThumbnailClick(e, pageNum) {
-  if (e.ctrlKey || e.metaKey) {
-    if (selectedPages.has(pageNum)) selectedPages.delete(pageNum);
-    else selectedPages.add(pageNum);
-  } else if (e.shiftKey && lastClickedPage !== null) {
-    const start = Math.min(lastClickedPage, pageNum);
-    const end = Math.max(lastClickedPage, pageNum);
-    selectedPages.clear();
-    for (let i = start; i <= end; i++) selectedPages.add(i);
-  } else {
-    selectedPages.clear();
-    currentPage = pageNum;
-    renderCurrentPage();
-    if (window.innerWidth <= 768) closeMobileSheets();
+function populateTextProps(o) {
+  document.getElementById('tp_text').value = o.text || '';
+  document.getElementById('tp_fontFamily').value = o.fontFamily || 'Helvetica, Arial, sans-serif';
+  const fs = o.fontSize || 14;
+  document.getElementById('tp_fontSize').value = fs;
+  document.getElementById('tp_fontSizeValue').textContent = fs;
+  toggleBtnClass('tp_bold', o.fontWeight === 'bold');
+  toggleBtnClass('tp_italic', o.fontStyle === 'italic');
+  toggleBtnClass('tp_underline', o.textDecoration === 'underline');
+  document.getElementById('tp_color').value = o.color || '#1e293b';
+  document.getElementById('tp_colorHex').value = o.color || '#1e293b';
+  setAlignBtnActive(o.textAlign || 'left');
+  const lh = o.lineHeight || 1.15;
+  document.getElementById('tp_lineHeight').value = lh;
+  document.getElementById('tp_lineHeightValue').textContent = lh.toFixed(2);
+  const ls = o.letterSpacing || 0;
+  document.getElementById('tp_letterSpacing').value = ls;
+  document.getElementById('tp_letterSpacingValue').textContent = ls;
+  const op = Math.round((o.opacity != null ? o.opacity : 1) * 100);
+  document.getElementById('tp_opacity').value = op;
+  document.getElementById('tp_opacityValue').textContent = op + '%';
+  document.getElementById('tp_x').value = Math.round(o.x);
+  document.getElementById('tp_y').value = Math.round(o.y);
+  document.getElementById('tp_w').value = Math.round(o.w);
+  document.getElementById('tp_h').value = Math.round(o.h);
+}
+
+function toggleBtnClass(id, on) {
+  const e = document.getElementById(id);
+  if (e) e.classList.toggle('toggle-on', on);
+}
+function setAlignBtnActive(align) {
+  ['tp_alignLeft','tp_alignCenter','tp_alignRight','tp_alignJustify'].forEach(id => {
+    document.getElementById(id).classList.remove('toggle-on');
+  });
+  const map = { left:'tp_alignLeft', center:'tp_alignCenter', right:'tp_alignRight', justify:'tp_alignJustify' };
+  const id = map[align];
+  if (id) document.getElementById(id).classList.add('toggle-on');
+}
+
+function toggleTextStyle(style) {
+  const found = findObject(state.selectedObjectId);
+  if (!found || found.obj.type !== 'text') return;
+  const o = found.obj;
+  if (style === 'bold') o.fontWeight = o.fontWeight === 'bold' ? 'normal' : 'bold';
+  if (style === 'italic') o.fontStyle = o.fontStyle === 'italic' ? 'normal' : 'italic';
+  if (style === 'underline') o.textDecoration = o.textDecoration === 'underline' ? 'none' : 'underline';
+  pushHistory();
+  populateTextProps(o);
+  reRenderOverlayOnly();
+}
+
+function setTextAlign(align) {
+  const found = findObject(state.selectedObjectId);
+  if (!found || found.obj.type !== 'text') return;
+  found.obj.textAlign = align;
+  pushHistory();
+  setAlignBtnActive(align);
+  reRenderOverlayOnly();
+}
+
+function populateObjectProps(o) {
+  el.objectTypeLabel.textContent = '✏️ ' + o.type.charAt(0).toUpperCase() + o.type.slice(1);
+  const show = (id, v) => { const e = document.getElementById(id); if (e) e.style.display = v ? '' : 'none'; };
+
+  show('opColorGroup', ['draw','highlight','whiteout','shape'].includes(o.type));
+  show('opStrokeGroup', ['draw','shape'].includes(o.type));
+  show('opOpacityGroup', ['highlight','whiteout','image','sign'].includes(o.type));
+  show('opShapeGroup', o.type === 'shape');
+  show('opFillGroup', o.type === 'shape');
+
+  if (o.color) {
+    const c = document.getElementById('op_color');
+    if (c) c.value = o.color;
   }
-  lastClickedPage = pageNum;
-  updateThumbnailSelection();
-  updateSelectedPagesProps();
+  if (o.strokeWidth) {
+    const s = document.getElementById('op_stroke');
+    if (s) s.value = o.strokeWidth;
+    document.getElementById('op_strokeValue').textContent = o.strokeWidth;
+  }
+  if (o.opacity != null) {
+    const v = Math.round(o.opacity * 100);
+    document.getElementById('op_opacity').value = v;
+    document.getElementById('op_opacityValue').textContent = v + '%';
+  }
+  if (o.shape) document.getElementById('op_shape').value = o.shape;
+  if (o.fill != null) document.getElementById('op_fill').checked = !!o.fill;
+
+  document.getElementById('op_x').value = Math.round(o.x);
+  document.getElementById('op_y').value = Math.round(o.y);
+  document.getElementById('op_w').value = Math.round(o.w);
+  document.getElementById('op_h').value = Math.round(o.h);
+}
+
+// Wire text props inputs
+(function wireTextProps() {
+  const found = () => findObject(state.selectedObjectId);
+  document.getElementById('tp_text').addEventListener('input', (e) => {
+    const f = found(); if (!f) return;
+    f.obj.text = e.target.value;
+    reRenderOverlayOnly();
+  });
+  document.getElementById('tp_fontFamily').addEventListener('change', (e) => {
+    const f = found(); if (!f) return;
+    f.obj.fontFamily = e.target.value;
+    pushHistory(); reRenderOverlayOnly();
+  });
+  document.getElementById('tp_fontSize').addEventListener('input', (e) => {
+    const f = found(); if (!f) return;
+    f.obj.fontSize = parseFloat(e.target.value);
+    document.getElementById('tp_fontSizeValue').textContent = e.target.value;
+    reRenderOverlayOnly();
+  });
+  document.getElementById('tp_fontSize').addEventListener('change', () => pushHistory());
+  document.getElementById('tp_color').addEventListener('input', (e) => {
+    const f = found(); if (!f) return;
+    f.obj.color = e.target.value;
+    document.getElementById('tp_colorHex').value = e.target.value;
+    reRenderOverlayOnly();
+  });
+  document.getElementById('tp_colorHex').addEventListener('change', (e) => {
+    const f = found(); if (!f) return;
+    if (/^#[0-9a-f]{6}$/i.test(e.target.value)) {
+      f.obj.color = e.target.value;
+      document.getElementById('tp_color').value = e.target.value;
+      reRenderOverlayOnly();
+    }
+  });
+  document.getElementById('tp_lineHeight').addEventListener('input', (e) => {
+    const f = found(); if (!f) return;
+    f.obj.lineHeight = parseFloat(e.target.value);
+    document.getElementById('tp_lineHeightValue').textContent = parseFloat(e.target.value).toFixed(2);
+    reRenderOverlayOnly();
+  });
+  document.getElementById('tp_lineHeight').addEventListener('change', () => pushHistory());
+  document.getElementById('tp_letterSpacing').addEventListener('input', (e) => {
+    const f = found(); if (!f) return;
+    f.obj.letterSpacing = parseFloat(e.target.value);
+    document.getElementById('tp_letterSpacingValue').textContent = e.target.value;
+    reRenderOverlayOnly();
+  });
+  document.getElementById('tp_letterSpacing').addEventListener('change', () => pushHistory());
+  document.getElementById('tp_opacity').addEventListener('input', (e) => {
+    const f = found(); if (!f) return;
+    f.obj.opacity = parseInt(e.target.value, 10) / 100;
+    document.getElementById('tp_opacityValue').textContent = e.target.value + '%';
+    reRenderOverlayOnly();
+  });
+  document.getElementById('tp_opacity').addEventListener('change', () => pushHistory());
+  ['tp_x','tp_y','tp_w','tp_h'].forEach(id => {
+    document.getElementById(id).addEventListener('change', (e) => {
+      const f = found(); if (!f) return;
+      const v = parseFloat(e.target.value);
+      if (id === 'tp_x') f.obj.x = v;
+      if (id === 'tp_y') f.obj.y = v;
+      if (id === 'tp_w') f.obj.w = Math.max(4, v);
+      if (id === 'tp_h') f.obj.h = Math.max(4, v);
+      pushHistory(); reRenderOverlayOnly();
+    });
+  });
+})();
+
+// Wire generic object props inputs
+(function wireObjectProps() {
+  const found = () => findObject(state.selectedObjectId);
+  document.getElementById('op_color').addEventListener('input', (e) => {
+    const f = found(); if (!f) return;
+    f.obj.color = e.target.value;
+    reRenderOverlayOnly();
+  });
+  document.getElementById('op_stroke').addEventListener('input', (e) => {
+    const f = found(); if (!f) return;
+    f.obj.strokeWidth = parseFloat(e.target.value);
+    document.getElementById('op_strokeValue').textContent = e.target.value;
+    reRenderOverlayOnly();
+  });
+  document.getElementById('op_opacity').addEventListener('input', (e) => {
+    const f = found(); if (!f) return;
+    f.obj.opacity = parseInt(e.target.value, 10) / 100;
+    document.getElementById('op_opacityValue').textContent = e.target.value + '%';
+    reRenderOverlayOnly();
+  });
+  document.getElementById('op_shape').addEventListener('change', (e) => {
+    const f = found(); if (!f) return;
+    f.obj.shape = e.target.value;
+    reRenderOverlayOnly();
+  });
+  document.getElementById('op_fill').addEventListener('change', (e) => {
+    const f = found(); if (!f) return;
+    f.obj.fill = e.target.checked;
+    reRenderOverlayOnly();
+  });
+  ['op_x','op_y','op_w','op_h'].forEach(id => {
+    document.getElementById(id).addEventListener('change', (e) => {
+      const f = found(); if (!f) return;
+      const v = parseFloat(e.target.value);
+      if (id === 'op_x') f.obj.x = v;
+      if (id === 'op_y') f.obj.y = v;
+      if (id === 'op_w') f.obj.w = Math.max(4, v);
+      if (id === 'op_h') f.obj.h = Math.max(4, v);
+      pushHistory(); reRenderOverlayOnly();
+    });
+  });
+})();
+
+function reRenderOverlayOnly() {
+  const page = currentPageData();
+  if (!page) return;
+  const canvas = document.querySelector('.overlay-canvas');
+  if (!canvas) return;
+  const scale = RENDER_SCALE * state.zoom;
+  renderObjectsToOverlay(canvas, page, scale);
+  if (state.selectedObjectId) drawSelectionOutline(canvas, page, scale);
+}
+
+// ============================================================
+// SECTION: DOCUMENT OPERATIONS
+// ============================================================
+async function loadPDFBytes(bytes, name) {
+  state.pdfBytes = bytes;
+  try {
+    state.pdfDoc = await pdfjsLib.getDocument({ data: bytes.slice(0) }).promise;
+    state.numPages = state.pdfDoc.numPages;
+  } catch (e) {
+    toast('Could not open PDF: ' + e.message, 3500);
+    return;
+  }
+  state.pages = [];
+  state.undoStack = [];
+  state.redoStack = [];
+  state.selectedObjectId = null;
+  state.currentPage = 1;
+  state.pageCanvasCache = {};
+
+  for (let i = 1; i <= state.numPages; i++) {
+    const p = await state.pdfDoc.getPage(i);
+    const vp = p.getViewport({ scale: 1 });
+    state.pages.push({
+      pdfPageNumber: i,
+      width: vp.width,
+      height: vp.height,
+      blank: false,
+      objects: [],
+      ocr: null,
+      reconstructed: false,
+      reconStatus: 'idle'
+    });
+  }
+
+  setDocTitle(name || 'Untitled PDF');
+  el.emptyState.classList.add('hidden');
+  el.singlePageWrapper.classList.remove('hidden');
+  el.emptyThumbnails.classList.add('hidden');
+  await renderCurrentPage();
+  renderThumbnails();
+  renderProps();
   updateStatusBar();
+  updateHistoryButtons();
+
+  // F1: silent lazy reconstruction for the current page
+  ensurePageReconstructed(currentPageData());
 }
 
-function updateThumbnailSelection() {
-  document.querySelectorAll('.page-thumbnail').forEach(el => {
-    const num = parseInt(el.dataset.page);
-    el.classList.toggle('selected', selectedPages.has(num));
-    el.classList.toggle('active', num === currentPage);
-  });
-}
-
-function updateSelectedPagesProps() {
-  const selected = document.getElementById('selectedPagesProps');
-  const pageProps = document.getElementById('pageProps');
-  if (selectedPages.size > 1) {
-    pageProps.classList.add('hidden');
-    selected.classList.remove('hidden');
-    document.getElementById('selectedCountText').textContent = selectedPages.size + ' pages selected';
-  } else {
-    selected.classList.add('hidden');
-    if (pages.length > 0) pageProps.classList.remove('hidden');
-  }
-}
-
-function updateStatusBar() {
-  const total = pages.length || 1;
-  document.getElementById('statusPage').textContent = `Page ${currentPage} of ${total}`;
-  document.getElementById('pageInfoText').textContent = `${currentPage} of ${total}`;
-}
-
-// ============================================
-// ZOOM
-// ============================================
-function setZoom(level) {
-  zoomLevel = level;
-  document.getElementById('zoomLevel').textContent = Math.round(level * 100) + '%';
-  document.getElementById('zoomDropdown').classList.remove('open');
+function createBlankPDF() {
+  state.pdfBytes = null;
+  state.pdfDoc = null;
+  state.pages = [{
+    pdfPageNumber: null,
+    width: 595, height: 842,
+    blank: true, objects: [], ocr: null,
+    reconstructed: true, reconStatus: 'done'
+  }];
+  state.numPages = 1;
+  state.currentPage = 1;
+  state.undoStack = [];
+  state.redoStack = [];
+  state.selectedObjectId = null;
+  state.pageCanvasCache = {};
+  setDocTitle('Untitled PDF');
+  el.emptyState.classList.add('hidden');
+  el.singlePageWrapper.classList.remove('hidden');
+  el.emptyThumbnails.classList.add('hidden');
   renderCurrentPage();
+  renderThumbnails();
+  renderProps();
+  updateStatusBar();
+  updateHistoryButtons();
+  toast('Blank page created. Pick a tool to start editing.', 3000);
 }
-function zoomIn() {
-  const levels = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 2, 3, 4];
-  setZoom(levels.find(l => l > zoomLevel) || levels[levels.length - 1]);
-}
-function zoomOut() {
-  const levels = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 2, 3, 4];
-  setZoom([...levels].reverse().find(l => l < zoomLevel) || levels[0]);
-}
-function fitPage() { zoomLevel = 1.0; document.getElementById('zoomLevel').textContent = '100%'; renderCurrentPage(); }
-function fitWidth() { zoomLevel = 1.0; document.getElementById('zoomLevel').textContent = '100%'; renderCurrentPage(); }
-function toggleZoomDropdown() { document.getElementById('zoomDropdown').classList.toggle('open'); }
 
-document.addEventListener('click', (e) => {
-  if (!e.target.closest('.zoom-controls')) document.getElementById('zoomDropdown').classList.remove('open');
-  if (!e.target.closest('.sidebar-menu')) document.querySelectorAll('.sidebar-menu .menu-content').forEach(m => m.classList.remove('open'));
+function closeDocument() {
+  state.pdfBytes = null;
+  state.pdfDoc = null;
+  state.pages = [];
+  state.numPages = 0;
+  state.currentPage = 1;
+  state.undoStack = [];
+  state.redoStack = [];
+  state.selectedObjectId = null;
+  state.pageCanvasCache = {};
+  el.singlePageWrapper.innerHTML = '';
+  el.singlePageWrapper.classList.add('hidden');
+  el.emptyState.classList.remove('hidden');
+  el.emptyThumbnails.classList.remove('hidden');
+  el.thumbnailList.innerHTML = '';
+  el.textProps.classList.add('hidden');
+  el.objectProps.classList.add('hidden');
+  el.pageProps.classList.add('hidden');
+  el.propsEmpty.classList.remove('hidden');
+  setDocTitle('Untitled PDF');
+  updateStatusBar();
+  updateHistoryButtons();
+}
+
+el.pdfInput.addEventListener('change', async (e) => {
+  const f = e.target.files[0];
+  if (!f) return;
+  const buf = await f.arrayBuffer();
+  await loadPDFBytes(buf, f.name);
+  el.pdfInput.value = '';
 });
 
-// ============================================
-// UNDO / REDO
-// ============================================
-function pushUndoState() {
-  undoStack.push(JSON.stringify({
-    pages: pages.map(p => ({ ...p })),
-    currentPage: currentPage
-  }));
-  if (undoStack.length > 50) undoStack.shift();
-  redoStack = [];
-  updateUndoRedoButtons();
-}
-function undo() {
-  if (undoStack.length === 0) return;
-  redoStack.push(JSON.stringify({
-    pages: pages.map(p => ({ ...p })),
-    currentPage: currentPage
-  }));
-  const state = JSON.parse(undoStack.pop());
-  pages = state.pages;
-  currentPage = state.currentPage;
-  renderThumbnails();
-  renderCurrentPage();
-  updateStatusBar();
-  updateUndoRedoButtons();
-}
-function redo() {
-  if (redoStack.length === 0) return;
-  undoStack.push(JSON.stringify({
-    pages: pages.map(p => ({ ...p })),
-    currentPage: currentPage
-  }));
-  const state = JSON.parse(redoStack.pop());
-  pages = state.pages;
-  currentPage = state.currentPage;
-  renderThumbnails();
-  renderCurrentPage();
-  updateStatusBar();
-  updateUndoRedoButtons();
-}
-function updateUndoRedoButtons() {
-  const u = document.getElementById('undoBtn');
-  const r = document.getElementById('redoBtn');
-  if (u) u.style.opacity = undoStack.length > 0 ? '1' : '0.4';
-  if (r) r.style.opacity = redoStack.length > 0 ? '1' : '0.4';
-}
-
-// ============================================
-// PAGE OPERATIONS (silent — no alert popups)
-// ============================================
-function renumberPages() { pages.forEach((p, i) => p.num = i + 1); }
-
+// ============================================================
+// SECTION: PAGE OPERATIONS
+// ============================================================
 function addBlankPage() {
-  pushUndoState();
-  const newNum = pages.length + 1;
-  pages.push({ num: newNum, pdfPage: null, rotation: 0, blank: true, pageNumberOverlay: false });
+  pushHistory();
+  state.pages.push({
+    pdfPageNumber: null,
+    width: 595, height: 842,
+    blank: true, objects: [], ocr: null,
+    reconstructed: true, reconStatus: 'done'
+  });
+  state.currentPage = state.pages.length;
+  renderCurrentPage();
   renderThumbnails();
   updateStatusBar();
 }
 
 function duplicatePage() {
-  if (pages.length === 0) return;
-  pushUndoState();
-  const target = currentPage || 1;
-  const source = pages[target - 1];
-  if (!source) return;
-  pages.splice(target, 0, {
-    num: 0, pdfPage: source.pdfPage, rotation: source.rotation || 0,
-    blank: source.blank, pageNumberOverlay: source.pageNumberOverlay || false
-  });
-  renumberPages();
-  currentPage = target + 1;
-  renderThumbnails();
+  if (!state.pages.length) return;
+  pushHistory();
+  const p = state.pages[state.currentPage - 1];
+  const copy = {
+    pdfPageNumber: p.pdfPageNumber,
+    width: p.width, height: p.height,
+    blank: p.blank,
+    objects: JSON.parse(JSON.stringify(p.objects.map(o => { const { _img, ...rest } = o; return rest; }))),
+    ocr: p.ocr ? JSON.parse(JSON.stringify(p.ocr)) : null,
+    reconstructed: p.reconstructed,
+    reconStatus: p.reconStatus
+  };
+  (async () => {
+    for (const o of copy.objects) {
+      if ((o.type === 'image' || o.type === 'sign') && o.dataUrl) {
+        try { o._img = await loadImage(o.dataUrl); } catch (_) {}
+      }
+    }
+  })();
+  state.pages.splice(state.currentPage, 0, copy);
+  state.currentPage++;
   renderCurrentPage();
+  renderThumbnails();
   updateStatusBar();
-}
-
-function rotatePage(dir) {
-  if (pages.length === 0) return;
-  pushUndoState();
-  const target = currentPage || 1;
-  const p = pages[target - 1];
-  if (!p) return;
-  p.rotation = (p.rotation || 0) + (dir === 'left' ? -90 : 90);
-  renderCurrentPage();
-  renderThumbnails();
 }
 
 function deletePage() {
-  if (pages.length <= 1) return;
-  pushUndoState();
-  const target = currentPage || 1;
-  pages.splice(target - 1, 1);
-  renumberPages();
-  currentPage = Math.min(currentPage, pages.length);
-  selectedPages.clear();
-  renderThumbnails();
+  if (state.pages.length <= 1) { toast('Cannot delete the only page'); return; }
+  if (!confirm('Delete this page?')) return;
+  pushHistory();
+  state.pages.splice(state.currentPage - 1, 1);
+  state.currentPage = clamp(state.currentPage, 1, state.pages.length);
+  state.selectedObjectId = null;
   renderCurrentPage();
+  renderThumbnails();
+  renderProps();
   updateStatusBar();
 }
 
-function selectAllPages() {
-  selectedPages.clear();
-  pages.forEach(p => selectedPages.add(p.num));
-  updateThumbnailSelection();
-  updateSelectedPagesProps();
-}
+function rotatePage(degrees) {
+  const page = currentPageData();
+  if (!page) return;
+  pushHistory();
+  const rad = degrees * Math.PI / 180;
+  const cos = Math.cos(rad);
+  const sin = Math.sin(rad);
 
-function rotateSelected(dir) {
-  if (selectedPages.size === 0) return;
-  pushUndoState();
-  selectedPages.forEach(num => {
-    const p = pages.find(pg => pg.num === num);
-    if (p) p.rotation = (p.rotation || 0) + (dir === 'left' ? -90 : 90);
-  });
+  // Rotate all objects around the page center
+  const cx = page.width / 2, cy = page.height / 2;
+  for (const o of page.objects) {
+    if (o.type === 'draw') {
+      for (const p of (o.points || [])) {
+        const dx = p.x - cx, dy = p.y - cy;
+        const nx = cx + dx * cos - dy * sin;
+        const ny = cy + dx * sin + dy * cos;
+        p.x = nx; p.y = ny;
+      }
+      // recompute bbox
+      const xs = o.points.map(p => p.x), ys = o.points.map(p => p.y);
+      if (xs.length) {
+        o.x = Math.min(...xs); o.y = Math.min(...ys);
+        o.w = Math.max(...xs) - o.x; o.h = Math.max(...ys) - o.y;
+      }
+    } else {
+      // Rotate bbox corners
+      const corners = [
+        [o.x, o.y], [o.x + o.w, o.y], [o.x + o.w, o.y + o.h], [o.x, o.y + o.h]
+      ].map(([x, y]) => {
+        const dx = x - cx, dy = y - cy;
+        return [cx + dx * cos - dy * sin, cy + dx * sin + dy * cos];
+      });
+      const xs = corners.map(c => c[0]), ys = corners.map(c => c[1]);
+      o.x = Math.min(...xs); o.y = Math.min(...ys);
+      o.w = Math.max(...xs) - o.x; o.h = Math.max(...ys) - o.y;
+    }
+  }
+
+  // Swap width/height for 90/270
+  if (Math.abs(degrees) % 180 === 90) {
+    const t = page.width; page.width = page.height; page.height = t;
+  }
+
+  // PDF.js doesn't easily rotate the underlying page while preserving
+  // reconstruction, so instead of rotating the source page, we re-render
+  // the canvas with an additional rotation and mark the page's rotation.
+  page._extraRotation = (page._extraRotation || 0) + degrees;
+
   renderCurrentPage();
   renderThumbnails();
-}
-
-function extractSelected() {
-  if (selectedPages.size === 0) return;
-  exportPDF();
-}
-
-function deleteSelected() {
-  if (selectedPages.size === 0) return;
-  if (!confirm(`Delete ${selectedPages.size} pages?`)) return;
-  pushUndoState();
-  pages = pages.filter(p => !selectedPages.has(p.num));
-  renumberPages();
-  selectedPages.clear();
-  if (currentPage > pages.length) currentPage = pages.length;
-  renderThumbnails();
-  renderCurrentPage();
   updateStatusBar();
+  toast('Page rotated ' + (degrees > 0 ? '90° right' : '90° left'));
 }
 
-// ============================================
-// REORDER (real canvas previews)
-// ============================================
-let reorderPagesArr = [];
-function openReorder() {
-  if (pages.length < 2) return;
-  reorderPagesArr = pages.map(p => ({ ...p }));
-  const grid = document.getElementById('reorderGrid');
-  grid.innerHTML = '';
-  reorderPagesArr.forEach((p, idx) => {
-    const card = createReorderCard(p, idx);
-    grid.appendChild(card);
-    renderReorderPreview(card, p);
-  });
-  document.getElementById('reorderOverlay').classList.add('open');
+function clearPageObjects() {
+  const p = currentPageData();
+  if (!p || p.objects.length === 0) { toast('No edits on this page'); return; }
+  if (!confirm('Remove all objects on this page? (Reconstructed text will be restored.)')) return;
+  pushHistory();
+  p.objects = [];
+  p.ocr = null;
+  p.reconstructed = false;
+  p.reconStatus = 'idle';
+  state.selectedObjectId = null;
+  renderCurrentPage();
+  renderProps();
+  ensurePageReconstructed(p);
 }
 
-function createReorderCard(p, idx) {
-  const card = document.createElement('div');
-  card.className = 'reorder-card';
-  card.draggable = true;
-  card.dataset.index = idx;
-  card.innerHTML = `
-    <div class="card-index">${idx + 1}</div>
-    <div class="card-canvas-wrap"><div style="font-size:32px;color:#cbd5e1;">📄</div></div>
-    <div class="card-label">Page ${p.num}</div>
-  `;
-  card.addEventListener('dragstart', handleDragStart);
-  card.addEventListener('dragover', handleDragOver);
-  card.addEventListener('drop', handleDrop);
-  card.addEventListener('dragend', handleDragEnd);
-  // Touch support
-  card.addEventListener('touchstart', handleTouchStart, { passive: false });
-  card.addEventListener('touchmove', handleTouchMove, { passive: false });
-  card.addEventListener('touchend', handleTouchEnd);
-  return card;
+function revealAllText() {
+  const p = currentPageData();
+  if (!p) return;
+  pushHistory();
+  let any = false;
+  for (const o of p.objects) {
+    if (o.source === 'pdf' && o.type === 'text' && !o._masked) {
+      if (!o._maskColor) o._maskColor = sampleBackgroundColor(p, o);
+      o._masked = true;
+      any = true;
+    }
+  }
+  if (!any) { toast('No reconstructed text to reveal'); return; }
+  reRenderOverlayOnly();
+  toast('Revealed all reconstructed text on this page');
 }
 
-function renderReorderPreview(card, p) {
-  const wrap = card.querySelector('.card-canvas-wrap');
-  if (p.blank || p.pdfPage === null) {
-    wrap.innerHTML = `<div style="width:80%;height:80%;background:white;border:1px solid #e2e8f0;display:flex;align-items:center;justify-content:center;color:#cbd5e1;font-size:12px;">Blank</div>`;
+function deleteSelection() {
+  if (!state.selectedObjectId) return;
+  const found = findObject(state.selectedObjectId);
+  if (!found) return;
+  pushHistory();
+  found.page.objects = found.page.objects.filter(o => o.id !== state.selectedObjectId);
+  state.selectedObjectId = null;
+  reRenderOverlayOnly();
+  renderProps();
+}
+
+// ============================================================
+// SECTION: THUMBNAILS
+// ============================================================
+async function renderThumbnails() {
+  el.thumbnailList.innerHTML = '';
+  if (!state.pages.length) return;
+
+  for (let i = 0; i < state.pages.length; i++) {
+    const p = state.pages[i];
+    const div = document.createElement('div');
+    div.className = 'page-thumbnail' + (i === state.currentPage - 1 ? ' active' : '');
+    const badge = p.reconStatus === 'done' && p.objects.some(o => o.source === 'pdf')
+      ? '<div class="recon-badge">editable</div>' : '';
+    div.innerHTML = `
+      <div class="thumb-canvas-wrap"><div style="font-size:24px;color:#cbd5e1;">📄</div></div>
+      <div class="page-number">${i + 1}</div>
+      ${badge}
+    `;
+    div.onclick = async () => {
+      state.currentPage = i + 1;
+      state.selectedObjectId = null;
+      await renderCurrentPage();
+      renderThumbnails();
+      renderProps();
+      updateStatusBar();
+      ensurePageReconstructed(currentPageData());
+    };
+    el.thumbnailList.appendChild(div);
+
+    (async () => {
+      const wrap = div.querySelector('.thumb-canvas-wrap');
+      const targetW = 150;
+      const scale = targetW / p.width;
+      const canvas = document.createElement('canvas');
+      canvas.width = p.width * scale;
+      canvas.height = p.height * scale;
+      const ctx = canvas.getContext('2d');
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      if (!p.blank && state.pdfDoc && p.pdfPageNumber) {
+        try {
+          const pg = await state.pdfDoc.getPage(p.pdfPageNumber);
+          const vp = pg.getViewport({ scale });
+          await pg.render({ canvasContext: ctx, viewport: vp }).promise;
+        } catch (_) {}
+      }
+      for (const o of p.objects) {
+        if (o.source === 'pdf' && !o._masked && !o._revealed) continue;
+        drawObject(ctx, o, scale);
+      }
+      wrap.innerHTML = '';
+      wrap.appendChild(canvas);
+    })();
+  }
+}
+
+// ============================================================
+// SECTION: ZOOM & STATUS
+// ============================================================
+function setZoom(z) {
+  state.zoom = clamp(z, 0.25, 4);
+  el.zoomLevel.textContent = Math.round(state.zoom * 100) + '%';
+  document.getElementById('zoomDropdown').classList.remove('open');
+  renderCurrentPage();
+}
+function zoomIn() { setZoom(state.zoom + 0.25); }
+function zoomOut() { setZoom(state.zoom - 0.25); }
+function toggleZoomDropdown() { document.getElementById('zoomDropdown').classList.toggle('open'); }
+
+function updateStatusBar() {
+  el.statusPage.textContent = state.pages.length
+    ? `Page ${state.currentPage} of ${state.pages.length}`
+    : 'No document';
+  const p = currentPageData();
+  if (p) {
+    const reconCount = p.objects.filter(o => o.source === 'pdf').length;
+    el.statusRecon.textContent = p.reconStatus === 'scanned'
+      ? '· Scanned page'
+      : reconCount ? `· ${reconCount} editable text objects` : '';
+  } else {
+    el.statusRecon.textContent = '';
+  }
+}
+
+// ============================================================
+// SECTION: OCR (stays as previously implemented)
+// ============================================================
+async function runOCROnCurrentPage() {
+  const page = currentPageData();
+  if (!page) return;
+  if (!state.pdfDoc || page.blank) {
+    toast('OCR requires a scanned PDF page');
     return;
   }
-  pdfDoc.getPage(p.pdfPage).then(page => {
-    const baseViewport = page.getViewport({ scale: 1 });
-    const targetWidth = 170;
-    const scale = targetWidth / baseViewport.width;
-    const viewport = page.getViewport({ scale: scale, rotation: p.rotation || 0 });
-    const canvas = document.createElement('canvas');
-    canvas.width = viewport.width;
-    canvas.height = viewport.height;
-    canvas.style.maxWidth = '100%';
-    canvas.style.maxHeight = '100%';
-    wrap.innerHTML = '';
-    wrap.appendChild(canvas);
-    const ctx = canvas.getContext('2d');
-    page.render({ canvasContext: ctx, viewport: viewport }).promise;
-  });
-}
-
-function closeReorder() {
-  document.getElementById('reorderOverlay').classList.remove('open');
-}
-
-let dragSrcIndex = null;
-function handleDragStart(e) {
-  dragSrcIndex = parseInt(this.dataset.index);
-  this.classList.add('dragging');
-  e.dataTransfer.effectAllowed = 'move';
-}
-function handleDragOver(e) { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; }
-function handleDrop(e) {
-  e.preventDefault();
-  const targetIndex = parseInt(this.dataset.index);
-  if (dragSrcIndex === null || dragSrcIndex === targetIndex) return;
-  const moved = reorderPagesArr.splice(dragSrcIndex, 1)[0];
-  reorderPagesArr.splice(targetIndex, 0, moved);
-  refreshReorderGrid();
-}
-function handleDragEnd() { this.classList.remove('dragging'); dragSrcIndex = null; }
-
-// Touch reorder
-let touchSrcIndex = null;
-function handleTouchStart(e) {
-  touchSrcIndex = parseInt(this.dataset.index);
-  this.style.opacity = '0.5';
-}
-function handleTouchMove(e) {
-  e.preventDefault();
-  const touch = e.touches[0];
-  const el = document.elementFromPoint(touch.clientX, touch.clientY);
-  const card = el?.closest('.reorder-card');
-  if (card && card.dataset.index !== undefined) {
-    const targetIndex = parseInt(card.dataset.index);
-    if (touchSrcIndex !== null && touchSrcIndex !== targetIndex) {
-      const moved = reorderPagesArr.splice(touchSrcIndex, 1)[0];
-      reorderPagesArr.splice(targetIndex, 0, moved);
-      touchSrcIndex = targetIndex;
-      refreshReorderGrid();
+  if (typeof Tesseract === 'undefined') {
+    toast('Loading OCR engine (first time may take a few seconds)…', 3000);
+    try {
+      await loadScript('https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js');
+    } catch (e) {
+      toast('Could not load OCR engine.');
+      return;
     }
   }
-}
-function handleTouchEnd() {
-  document.querySelectorAll('.reorder-card').forEach(c => c.style.opacity = '');
-  touchSrcIndex = null;
-}
 
-function refreshReorderGrid() {
-  const grid = document.getElementById('reorderGrid');
-  grid.innerHTML = '';
-  reorderPagesArr.forEach((p, idx) => {
-    const card = createReorderCard(p, idx);
-    grid.appendChild(card);
-    renderReorderPreview(card, p);
-  });
-}
-
-function applyReorder() {
-  pushUndoState();
-  pages = reorderPagesArr.map(p => ({ ...p }));
-  renumberPages();
-  currentPage = 1;
-  renderThumbnails();
-  renderCurrentPage();
-  updateStatusBar();
-  closeReorder();
-}
-
-// ============================================
-// PAGE NUMBER
-// ============================================
-function insertPageNumber() {
-  if (pages.length === 0) return;
-  pushUndoState();
-  const p = pages[currentPage - 1];
-  if (!p) return;
-  p.pageNumberOverlay = !p.pageNumberOverlay;
-  renderCurrentPage();
-}
-
-// ============================================
-// CLIPBOARD
-// ============================================
-function cutSelection() {
-  if (selectedPages.size === 0) return;
-  clipboard = Array.from(selectedPages).map(num => {
-    const p = pages.find(pg => pg.num === num);
-    return p ? { ...p } : null;
-  }).filter(Boolean);
-  pushUndoState();
-  pages = pages.filter(p => !selectedPages.has(p.num));
-  renumberPages();
-  selectedPages.clear();
-  if (currentPage > pages.length) currentPage = pages.length;
-  renderThumbnails();
-  renderCurrentPage();
-  updateStatusBar();
-}
-function copySelection() {
-  if (selectedPages.size === 0) return;
-  clipboard = Array.from(selectedPages).map(num => {
-    const p = pages.find(pg => pg.num === num);
-    return p ? { ...p } : null;
-  }).filter(Boolean);
-}
-function pasteSelection() {
-  if (!clipboard || clipboard.length === 0) return;
-  pushUndoState();
-  const insertAt = currentPage;
-  clipboard.forEach((p, i) => {
-    pages.splice(insertAt + i, 0, { ...p, num: 0 });
-  });
-  renumberPages();
-  renderThumbnails();
-  renderCurrentPage();
-  updateStatusBar();
-}
-
-// ============================================
-// OTHER PAGE OPERATIONS
-// ============================================
-function extractPages() {
-  if (pages.length === 0) return;
-  const range = prompt('Enter page range to extract (e.g. 1-3,5):', '1-' + pages.length);
-  if (!range) return;
-  let extracted = [];
+  showLoading('Running OCR on page ' + state.currentPage + '…');
   try {
-    range.split(',').forEach(part => {
-      if (part.includes('-')) {
-        const [a, b] = part.split('-').map(Number);
-        for (let i = a; i <= b; i++) if (pages[i - 1]) extracted.push(i);
-      } else {
-        const n = Number(part);
-        if (pages[n - 1]) extracted.push(n);
+    const pdfPage = await state.pdfDoc.getPage(page.pdfPageNumber);
+    const scale = 2.0;
+    const vp = pdfPage.getViewport({ scale });
+    const c = document.createElement('canvas');
+    c.width = vp.width; c.height = vp.height;
+    await pdfPage.render({ canvasContext: c.getContext('2d'), viewport: vp }).promise;
+
+    const result = await Tesseract.recognize(c, 'eng', {
+      logger: m => {
+        if (m.status === 'recognizing text') showLoading('OCR: ' + Math.round(m.progress * 100) + '%');
       }
     });
-    if (extracted.length === 0) throw new Error('No valid pages');
-    exportPDF();
-  } catch (err) {
-    alert('Invalid range format. Use e.g. 1-3,5');
+    const text = (result.data.text || '').trim();
+
+    const o = createObject('text', 20, 20, page.width - 40, Math.min(page.height - 40, 40 + text.split('\n').length * 16), {
+      text: text || '(no text detected)',
+      fontSize: 12,
+      fontFamily: 'Helvetica, Arial, sans-serif',
+      fontWeight: 'normal',
+      fontStyle: 'normal',
+      textDecoration: 'none',
+      color: '#1e293b',
+      textAlign: 'left',
+      lineHeight: 1.3,
+      letterSpacing: 0,
+      opacity: 0.95,
+      source: 'ocr',
+      _masked: false
+    });
+    page.objects.push(o);
+    page.reconStatus = 'done';
+    page.reconstructed = true;
+    state.selectedObjectId = o.id;
+    pushHistory();
+    hideLoading();
+    renderCurrentPage();
+    renderProps();
+    toast('OCR complete. Text placed as an editable overlay.', 3500);
+  } catch (e) {
+    hideLoading();
+    console.error(e);
+    toast('OCR failed: ' + e.message, 3500);
   }
 }
-function splitPDF() {
-  if (pages.length < 2) return;
-  const at = prompt('Split after page number:', '1');
-  const n = parseInt(at);
-  if (!n || n < 1 || n >= pages.length) return;
-  exportPDF();
-}
-function mergePDF() {
-  const input = document.createElement('input');
-  input.type = 'file'; input.accept = '.pdf'; input.multiple = true;
-  input.onchange = (e) => {
-    const files = Array.from(e.target.files);
-    if (files.length === 0) return;
-    alert(`Merge ${files.length} PDF(s) — full merge requires PDF-lib or backend.`);
-  };
-  input.click();
-}
-function addImageAsPage() { alert('Add image as page — coming soon'); }
-function insertLink() { alert('Insert link — coming soon'); }
-function insertFormField(type) { alert('Form field: ' + type + ' — coming soon'); }
-function insertWatermark() { alert('Watermark — coming soon'); }
 
-// ============================================
-// EXPORT / SAVE
-// ============================================
-function exportPDF() {
-  if (!pdfData) return alert('No PDF loaded');
-  const blob = new Blob([pdfData], { type: 'application/pdf' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = document.getElementById('exportFileName').value || 'document-edited.pdf';
-  a.click();
-  URL.revokeObjectURL(url);
+function loadScript(src) {
+  return new Promise((res, rej) => {
+    const s = document.createElement('script');
+    s.src = src; s.onload = res; s.onerror = rej;
+    document.head.appendChild(s);
+  });
 }
-function downloadPDF() { exportPDF(); }
-function compressPDF() { alert('Compress — coming soon'); }
-function flattenAnnotations() { alert('Flatten — coming soon'); }
-function saveProject() { alert('Save project — coming soon'); }
-function saveProjectAs() { alert('Save project as — coming soon'); }
-
-function closeDocument() {
-  pdfDoc = null; pdfData = null; pages = []; selectedPages.clear();
-  undoStack = []; redoStack = [];
-  document.getElementById('singlePageWrapper').classList.add('hidden');
-  document.getElementById('emptyState').classList.remove('hidden');
-  document.getElementById('emptyThumbnails').classList.remove('hidden');
-  document.getElementById('thumbnailList').innerHTML = '';
-  document.getElementById('propsEmpty').classList.remove('hidden');
-  document.getElementById('pageProps').classList.add('hidden');
-  document.getElementById('selectedPagesProps').classList.add('hidden');
-  setDocTitle('Untitled PDF');
-  updateStatusBar();
-  updateUndoRedoButtons();
-  if (window.innerWidth <= 768) closeMobileSheets();
+function showLoading(msg) {
+  let o = document.getElementById('loadingOverlay');
+  if (!o) {
+    o = document.createElement('div');
+    o.id = 'loadingOverlay';
+    o.innerHTML = '<div class="spinner"></div><div id="loadingMsg"></div>';
+    document.body.appendChild(o);
+  }
+  document.getElementById('loadingMsg').textContent = msg || 'Working…';
+  o.style.display = 'flex';
+}
+function hideLoading() {
+  const o = document.getElementById('loadingOverlay');
+  if (o) o.style.display = 'none';
 }
 
-function createBlankPDF() {
-  document.getElementById('emptyState').classList.add('hidden');
-  document.getElementById('singlePageWrapper').classList.remove('hidden');
-  document.getElementById('emptyThumbnails').classList.add('hidden');
-  pages = [{ num: 1, pdfPage: null, rotation: 0, blank: true, pageNumberOverlay: false }];
-  pdfDoc = null; pdfData = null;
-  currentPage = 1;
-  undoStack = []; redoStack = [];
-  renderThumbnails();
-  renderCurrentPage();
-  setDocTitle('Untitled PDF');
-  document.getElementById('propsEmpty').classList.add('hidden');
-  document.getElementById('pageProps').classList.remove('hidden');
-  updateStatusBar();
-  setTool('select');
-  updateUndoRedoButtons();
-  if (window.innerWidth <= 768) closeMobileSheets();
+// ============================================================
+// SECTION: EXPORT (vector bake via pdf-lib)
+// ============================================================
+async function exportPDF() {
+  if (typeof PDFLib === 'undefined') { toast('PDF export library not loaded.'); return; }
+  if (!state.pages.length) { toast('Nothing to export'); return; }
+
+  showLoading('Building PDF with your edits…');
+  try {
+    const { PDFDocument, rgb, StandardFonts } = PDFLib;
+    let outDoc;
+
+    if (state.pdfBytes) {
+      outDoc = await PDFDocument.load(state.pdfBytes, { ignoreEncryption: true });
+      const total = outDoc.getPageCount();
+      for (let i = total - 1; i >= 0; i--) outDoc.removePage(i);
+    } else {
+      outDoc = await PDFDocument.create();
+    }
+
+    const font = await outDoc.embedFont(StandardFonts.Helvetica);
+    const fontBold = await outDoc.embedFont(StandardFonts.HelveticaBold);
+    const fontItalic = await outDoc.embedFont(StandardFonts.HelveticaOblique);
+    const fontBoldItalic = await outDoc.embedFont(StandardFonts.HelveticaBoldOblique);
+
+    const imgCache = new Map();
+
+    for (let i = 0; i < state.pages.length; i++) {
+      const p = state.pages[i];
+      let newPage;
+
+      if (!p.blank && state.pdfBytes && p.pdfPageNumber) {
+        const src = await PDFDocument.load(state.pdfBytes, { ignoreEncryption: true });
+        const [copied] = await outDoc.copyPages(src, [p.pdfPageNumber - 1]);
+        newPage = outDoc.addPage(copied);
+      } else {
+        newPage = outDoc.addPage([p.width, p.height]);
+      }
+
+      for (const o of p.objects) {
+        // Skip invisible reconstructed text (unrevealed)
+        if (o.source === 'pdf' && o.type === 'text' && !o._masked && !o._revealed) continue;
+
+        try {
+          if (o.type === 'text') {
+            const size = o.fontSize || 14;
+            const color = hexToRgb(o.color || '#1e293b');
+            // Choose font variant
+            let useFont = font;
+            if (o.fontWeight === 'bold' && o.fontStyle === 'italic') useFont = fontBoldItalic;
+            else if (o.fontWeight === 'bold') useFont = fontBold;
+            else if (o.fontStyle === 'italic') useFont = fontItalic;
+
+            const lines = String(o.text || '').split('\n');
+            let y = p.height - o.y - size;
+            for (const line of lines) {
+              newPage.drawText(line, {
+                x: o.x,
+                y: y,
+                size: size,
+                font: useFont,
+                color: rgb(color.r, color.g, color.b),
+                opacity: o.opacity != null ? o.opacity : 1
+              });
+              y -= size * (o.lineHeight || 1.15);
+            }
+          } else if (o.type === 'highlight' || o.type === 'whiteout') {
+            const color = hexToRgb(o.color || '#ffffff');
+            newPage.drawRectangle({
+              x: o.x, y: p.height - o.y - o.h,
+              width: o.w, height: o.h,
+              color: rgb(color.r, color.g, color.b),
+              opacity: o.opacity != null ? o.opacity : 1
+            });
+          } else if (o.type === 'draw') {
+            const color = hexToRgb(o.color || '#ef4444');
+            const pts = o.points || [];
+            for (let k = 1; k < pts.length; k++) {
+              newPage.drawLine({
+                start: { x: pts[k-1].x, y: p.height - pts[k-1].y },
+                end:   { x: pts[k].x,   y: p.height - pts[k].y },
+                thickness: o.strokeWidth || 2,
+                color: rgb(color.r, color.g, color.b),
+                opacity: o.opacity != null ? o.opacity : 1
+              });
+            }
+          } else if (o.type === 'shape') {
+            const color = hexToRgb(o.color || '#2563eb');
+            if (o.shape === 'rect') {
+              newPage.drawRectangle({
+                x: o.x, y: p.height - o.y - o.h,
+                width: o.w, height: o.h,
+                borderColor: rgb(color.r, color.g, color.b),
+                borderWidth: o.strokeWidth || 2,
+                color: o.fill ? rgb(color.r, color.g, color.b) : undefined
+              });
+            } else if (o.shape === 'ellipse') {
+              newPage.drawEllipse({
+                x: o.x + o.w/2, y: p.height - o.y - o.h/2,
+                xScale: o.w/2, yScale: o.h/2,
+                borderColor: rgb(color.r, color.g, color.b),
+                borderWidth: o.strokeWidth || 2,
+                color: o.fill ? rgb(color.r, color.g, color.b) : undefined
+              });
+            } else if (o.shape === 'line' || o.shape === 'arrow') {
+              newPage.drawLine({
+                start: { x: o.x, y: p.height - o.y },
+                end: { x: o.x + o.w, y: p.height - (o.y + o.h) },
+                thickness: o.strokeWidth || 2,
+                color: rgb(color.r, color.g, color.b)
+              });
+            }
+          } else if (o.type === 'image' || o.type === 'sign') {
+            if (o.dataUrl) {
+              let embedded = imgCache.get(o.dataUrl);
+              if (!embedded) {
+                const b64 = o.dataUrl.split(',')[1];
+                const bin = atob(b64);
+                const bytes = new Uint8Array(bin.length);
+                for (let k = 0; k < bin.length; k++) bytes[k] = bin.charCodeAt(k);
+                if (o.dataUrl.startsWith('data:image/png')) embedded = await outDoc.embedPng(bytes);
+                else embedded = await outDoc.embedJpg(bytes);
+                if (embedded) imgCache.set(o.dataUrl, embedded);
+              }
+              if (embedded) {
+                newPage.drawImage(embedded, {
+                  x: o.x, y: p.height - o.y - o.h,
+                  width: o.w, height: o.h,
+                  opacity: o.opacity != null ? o.opacity : 1
+                });
+              }
+            }
+          } else if (o.type === 'form') {
+            const color = hexToRgb('#2563eb');
+            newPage.drawRectangle({
+              x: o.x, y: p.height - o.y - o.h,
+              width: o.w, height: o.h,
+              borderColor: rgb(color.r, color.g, color.b),
+              borderWidth: 1,
+              color: rgb(0.95, 0.97, 1),
+              opacity: 0.6
+            });
+            newPage.drawText('[' + o.formType + ']', {
+              x: o.x + 4, y: p.height - o.y - 14,
+              size: 9, font: font, color: rgb(color.r, color.g, color.b)
+            });
+          }
+        } catch (err) { console.warn('Export object skipped:', err); }
+      }
+    }
+
+    const bytes = await outDoc.save();
+    const blob = new Blob([bytes], { type: 'application/pdf' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = (docTitle.replace(/\.pdf$/i, '') || 'document') + '-edited.pdf';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 5000);
+    hideLoading();
+    toast('PDF exported.', 2500);
+  } catch (e) {
+    hideLoading();
+    console.error(e);
+    toast('Export failed: ' + e.message, 4000);
+  }
 }
 
-// ============================================
-// MISC ACTIONS
-// ============================================
-function setViewMode(mode) {
-  viewMode = mode;
-  document.querySelectorAll('#viewContinuous').forEach(el => el.textContent = '📑 Continuous ✓');
-  if (mode === 'continuous') document.getElementById('viewContinuous').textContent = '📑 Continuous ✓';
-}
-function togglePropsPanel() { document.getElementById('propsPanel').classList.toggle('hidden'); }
-function togglePagesMenu(e) {
-  e.stopPropagation();
-  document.getElementById('pagesAddMenu').classList.toggle('open');
-  document.getElementById('pagesMoreMenu').classList.remove('open');
-}
-function togglePagesMoreMenu(e) {
-  e.stopPropagation();
-  document.getElementById('pagesMoreMenu').classList.toggle('open');
-  document.getElementById('pagesAddMenu').classList.remove('open');
-}
-function deleteSelection() {
-  if (selectedPages.size > 0) deleteSelected();
-}
-function selectAll() { selectAllPages(); }
-function findText() { alert('Find — coming soon'); }
-function replaceText() { alert('Replace — coming soon'); }
-
-// ============================================
-// KEYBOARD
-// ============================================
+// ============================================================
+// SECTION: KEYBOARD
+// ============================================================
 document.addEventListener('keydown', (e) => {
+  const t = e.target.tagName;
+  if (t === 'INPUT' || t === 'TEXTAREA' || t === 'SELECT') return;
+
   if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) { e.preventDefault(); undo(); }
-  if ((e.ctrlKey || e.metaKey) && e.key === 'y') { e.preventDefault(); redo(); }
-  if ((e.ctrlKey || e.metaKey) && e.key === 's') { e.preventDefault(); saveProject(); }
-  if ((e.ctrlKey || e.metaKey) && e.key === 'a') { e.preventDefault(); selectAll(); }
-  if ((e.ctrlKey || e.metaKey) && e.key === 'c') { e.preventDefault(); copySelection(); }
-  if ((e.ctrlKey || e.metaKey) && e.key === 'x') { e.preventDefault(); cutSelection(); }
-  if ((e.ctrlKey || e.metaKey) && e.key === 'v') { e.preventDefault(); pasteSelection(); }
-  if ((e.ctrlKey || e.metaKey) && e.key === '0') { e.preventDefault(); fitPage(); }
+  if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || (e.shiftKey && e.key === 'Z'))) { e.preventDefault(); redo(); }
+  if ((e.ctrlKey || e.metaKey) && e.key === 's') { e.preventDefault(); exportPDF(); }
+  if ((e.ctrlKey || e.metaKey) && e.key === '0') { e.preventDefault(); setZoom(1); }
   if ((e.ctrlKey || e.metaKey) && (e.key === '=' || e.key === '+')) { e.preventDefault(); zoomIn(); }
   if ((e.ctrlKey || e.metaKey) && e.key === '-') { e.preventDefault(); zoomOut(); }
-  if (e.key === 'ArrowLeft' && currentPage > 1) { currentPage--; renderCurrentPage(); renderThumbnails(); updateStatusBar(); }
-  if (e.key === 'ArrowRight' && currentPage < pages.length) { currentPage++; renderCurrentPage(); renderThumbnails(); updateStatusBar(); }
-  if (e.key === 'Delete' && selectedPages.size > 0) { e.preventDefault(); deleteSelected(); }
+  if (e.key === 'Delete' || e.key === 'Backspace') {
+    if (state.selectedObjectId) { e.preventDefault(); deleteSelection(); }
+  }
   if (e.key === 'Escape') {
+    state.selectedObjectId = null;
+    reRenderOverlayOnly();
+    renderProps();
     document.getElementById('zoomDropdown').classList.remove('open');
-    document.querySelectorAll('.sidebar-menu .menu-content').forEach(m => m.classList.remove('open'));
-    closeReorder();
-    if (window.innerWidth <= 768) closeMobileSheets();
+  }
+  if (!e.ctrlKey && !e.metaKey && !e.altKey) {
+    const map = { v:'select', t:'text', i:'image', d:'draw', h:'highlight', w:'whiteout', s:'shape', g:'sign', f:'forms' };
+    if (map[e.key.toLowerCase()]) setTool(map[e.key.toLowerCase()]);
   }
 });
 
-document.getElementById('workspace').addEventListener('wheel', (e) => {
-  if (e.ctrlKey || e.metaKey) {
-    e.preventDefault();
-    if (e.deltaY < 0) zoomIn(); else zoomOut();
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.zoom-controls')) {
+    document.getElementById('zoomDropdown').classList.remove('open');
   }
-}, { passive: false });
-
-window.addEventListener('resize', () => {
-  if (pages.length > 0) renderCurrentPage();
 });
 
-// ============================================
-// MOBILE NAV HANDLER (mobile only)
-// ============================================
-function mobileNav(tab) {
-  // Update active state
-  document.querySelectorAll('.mobile-bottom-nav .nav-item').forEach(n => n.classList.remove('active'));
-  const btn = document.getElementById('mNav' + tab.charAt(0).toUpperCase() + tab.slice(1));
-  if (btn) btn.classList.add('active');
-
-  const backdrop = document.getElementById('mobileBackdrop');
-  const sidebar = document.getElementById('leftSidebar');
-  const props = document.getElementById('propsPanel');
-
-  // Close both first
-  sidebar.classList.remove('mobile-open');
-  props.classList.remove('mobile-open');
-  backdrop.classList.remove('open');
-
-  if (tab === 'home') {
-    // Show empty state if no doc
-    if (pages.length === 0) {
-      document.getElementById('emptyState').classList.remove('hidden');
-      document.getElementById('singlePageWrapper').classList.add('hidden');
-    }
-    // If doc is open, just show workspace
-  } else if (tab === 'pages') {
-    sidebar.classList.add('mobile-open');
-    backdrop.classList.add('open');
-    if (pages.length > 0) renderThumbnails();
-  } else if (tab === 'edit') {
-    const tb = document.querySelector('.floating-toolbar');
-    if (tb) tb.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-  } else if (tab === 'props') {
-    props.classList.add('mobile-open');
-    backdrop.classList.add('open');
-    showPropsForTool(currentTool);
-  } else if (tab === 'more') {
-    props.classList.add('mobile-open');
-    backdrop.classList.add('open');
-    showMoreMenuMobile();
-  }
-}
-
-function closeMobileSheets() {
-  document.getElementById('leftSidebar').classList.remove('mobile-open');
-  document.getElementById('propsPanel').classList.remove('mobile-open');
-  document.getElementById('mobileBackdrop').classList.remove('open');
-  document.querySelectorAll('.mobile-bottom-nav .nav-item').forEach(n => n.classList.remove('active'));
-  document.getElementById('mNavHome').classList.add('active');
-}
-
-function showMoreMenuMobile() {
-  const panel = document.getElementById('propsPanel');
-  ['propsEmpty','pageProps','selectedPagesProps','textProps','imageProps','shapeProps'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.classList.add('hidden');
-  });
-  let more = document.getElementById('mobileMoreMenu');
-  if (!more) {
-    more = document.createElement('div');
-    more.id = 'mobileMoreMenu';
-    more.innerHTML = `
-      <div class="section-title">📁 File</div>
-      <div class="action-grid">
-        <button class="action-btn-sm" onclick="document.getElementById('pdfInput').click()">📂 Open</button>
-        <button class="action-btn-sm" onclick="createBlankPDF()">📄 New</button>
-        <button class="action-btn-sm" onclick="exportPDF()">📤 Export</button>
-        <button class="action-btn-sm" onclick="window.print()">🖨️ Print</button>
-      </div>
-      <div class="section-title" style="margin-top:16px;">✂️ Edit</div>
-      <div class="action-grid">
-        <button class="action-btn-sm" onclick="undo()">↶ Undo</button>
-        <button class="action-btn-sm" onclick="redo()">↷ Redo</button>
-        <button class="action-btn-sm" onclick="selectAllPages()">☑️ Select All</button>
-        <button class="action-btn-sm danger" onclick="closeDocument()">✕ Close</button>
-      </div>
-      <div class="section-title" style="margin-top:16px;">📑 Pages</div>
-      <div class="action-grid">
-        <button class="action-btn-sm" onclick="addBlankPage()">📄 Add</button>
-        <button class="action-btn-sm" onclick="duplicatePage()">📋 Duplicate</button>
-        <button class="action-btn-sm" onclick="openReorder()">🔀 Reorder</button>
-        <button class="action-btn-sm danger" onclick="deletePage()">🗑️ Delete</button>
-      </div>
-      <div class="section-title" style="margin-top:16px;">🔍 View</div>
-      <div class="action-grid">
-        <button class="action-btn-sm" onclick="zoomIn()">🔍 Zoom In</button>
-        <button class="action-btn-sm" onclick="zoomOut()">🔍 Zoom Out</button>
-        <button class="action-btn-sm full" onclick="fitPage()">📄 Fit Page</button>
-      </div>
-    `;
-    panel.appendChild(more);
-  }
-  more.classList.remove('hidden');
-}
-
-// ============================================
-// INIT
-// ============================================
+// ============================================================
+// SECTION: INIT
+// ============================================================
 updateStatusBar();
-updateUndoRedoButtons();
-console.log('✏️ Droplet PDF Editor — responsive build (desktop + mobile)');
+updateHistoryButtons();
+renderProps();
+console.log('✏️ Droplet PDF Editor — Stage 1: text reconstruction + Canva-style text editing.');
 </script>
+
 </body>
 </html>
