@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>HEIC to JPG Converter - Droplet</title>
-  <meta name="description" content="Convert HEIC images to JPG online for free. 100% client-side, your files never leave your browser. Supports batch conversion.">
+  <title>HEIC to JPG Converter Online Free | Droplet</title>
+  <meta name="description" content="Convert HEIC photos to JPG online for free. Convert iPhone HEIC images in your browser with no software installation. Batch convert multiple HEIC files to JPG.">
+  <link rel="canonical" href="https://dropletweb.xyz/heic-to-jpg.html">
 
   <!-- Google AdSense -->
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4006702663328202"
@@ -15,6 +16,9 @@
 
   <!-- heic2any for HEIC to JPG conversion -->
   <script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js"></script>
+
+  <!-- JSZip for batch ZIP download -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 
   <style>
     .dropzone-highlight {
@@ -85,6 +89,77 @@
     .badge-images { background: #dbeafe; color: #1e40af; }
     .badge-converted { background: #d1fae5; color: #065f46; }
     .badge-size { background: #fef3c7; color: #92400e; }
+
+    /* Ad slot wrapper */
+    .ad-slot {
+      max-width: 42rem;
+      margin: 24px auto;
+      min-height: 90px;
+      text-align: center;
+    }
+
+    /* SEO content sections */
+    .seo-content {
+      max-width: 42rem;
+      margin: 2.5rem auto 1rem;
+      color: #334155;
+      line-height: 1.65;
+    }
+    .seo-content h2 {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #0f172a;
+      margin: 2rem 0 0.5rem;
+    }
+    .seo-content p {
+      margin-bottom: 1rem;
+      font-size: 0.95rem;
+    }
+    .faq-section {
+      max-width: 42rem;
+      margin: 2rem auto;
+    }
+    .faq-section h2 {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #0f172a;
+      text-align: center;
+      margin-bottom: 1.25rem;
+    }
+    .faq-section details {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 0.75rem;
+      padding: 0.75rem 1.25rem;
+      margin-bottom: 0.6rem;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .faq-section summary {
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: #0f172a;
+      cursor: pointer;
+      list-style: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .faq-section summary::-webkit-details-marker { display: none; }
+    .faq-section summary::after {
+      content: "➕";
+      font-size: 0.8rem;
+      color: #94a3b8;
+      transition: transform 0.2s;
+    }
+    .faq-section details[open] summary::after {
+      content: "➖";
+    }
+    .faq-section details p {
+      margin-top: 0.6rem;
+      font-size: 0.9rem;
+      color: #475569;
+      line-height: 1.6;
+    }
 
     /* Dark mode overrides */
     html.dark body {
@@ -232,6 +307,13 @@
       border-color: #3b82f6;
     }
 
+    html.dark .seo-content { color: #cbd5e1; }
+    html.dark .seo-content h2 { color: #f1f5f9; }
+    html.dark .faq-section h2 { color: #f1f5f9; }
+    html.dark .faq-section details { background: #1e293b; border-color: #334155; }
+    html.dark .faq-section summary { color: #f1f5f9; }
+    html.dark .faq-section details p { color: #94a3b8; }
+
     /* Theme toggle in header */
     #theme-toggle {
       background: none;
@@ -307,7 +389,7 @@
       </div>
       <h1 class="text-3xl md:text-4xl font-black text-slate-900 tracking-tight">HEIC to JPG Converter</h1>
       <p class="text-slate-500 text-sm md:text-base mt-2 max-w-lg mx-auto">
-        Convert your HEIC images to universal JPG format. <strong>100% client-side</strong> — your files never leave your browser.
+        Convert HEIC photos to JPG directly in your browser. No software installation required. Batch conversion supported.
       </p>
     </div>
 
@@ -320,6 +402,21 @@
           <p class="text-xs text-blue-700 mt-1">HEIC is Apple's modern image format used on iPhones and iPads. It offers better compression than JPG but isn't compatible with all devices and platforms. Converting to JPG ensures universal compatibility.</p>
         </div>
       </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- AD SLOT 1 — Top of page, above the dropzone                  -->
+    <!-- ============================================================ -->
+    <div class="ad-slot">
+      <ins class="adsbygoogle"
+           style="display:block"
+           data-ad-client="ca-pub-4006702663328202"
+           data-ad-slot="XXXXXXXXXX"
+           data-ad-format="auto"
+           data-full-width-responsive="true"></ins>
+      <script>
+        (adsbygoogle = window.adsbygoogle || []).push({});
+      </script>
     </div>
 
     <!-- Conversion Dropzone -->
@@ -447,12 +544,27 @@
       </div>
     </div>
 
+    <!-- ============================================================ -->
+    <!-- AD SLOT 2 — Between result section and info cards            -->
+    <!-- ============================================================ -->
+    <div class="ad-slot">
+      <ins class="adsbygoogle"
+           style="display:block"
+           data-ad-client="ca-pub-4006702663328202"
+           data-ad-slot="XXXXXXXXXX"
+           data-ad-format="auto"
+           data-full-width-responsive="true"></ins>
+      <script>
+        (adsbygoogle = window.adsbygoogle || []).push({});
+      </script>
+    </div>
+
     <!-- Info Section -->
     <div class="max-w-2xl mx-auto mt-12 grid grid-cols-1 md:grid-cols-3 gap-4">
       <div class="bg-white p-4 rounded-xl border border-slate-100 text-center transition-colors duration-200">
         <div class="text-2xl mb-1">🔒</div>
-        <h4 class="font-bold text-sm">100% Private</h4>
-        <p class="text-xs text-slate-500">Your files never leave your browser</p>
+        <h4 class="font-bold text-sm">Private Processing</h4>
+        <p class="text-xs text-slate-500">Images are processed locally in your browser</p>
       </div>
       <div class="bg-white p-4 rounded-xl border border-slate-100 text-center transition-colors duration-200">
         <div class="text-2xl mb-1">📦</div>
@@ -466,39 +578,175 @@
       </div>
     </div>
 
-    <!-- FAQ Section -->
-    <section class="max-w-2xl mx-auto mt-12">
-      <h2 class="text-xl font-black text-slate-900 text-center mb-6">Frequently Asked Questions</h2>
-      <div class="space-y-3">
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">Is my data safe?</h3>
-          <p class="text-slate-600 text-sm mt-1">Yes! All conversions happen locally in your browser. Your HEIC files are never uploaded to any server and are automatically deleted when you close the page.</p>
-        </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">Why convert HEIC to JPG?</h3>
-          <p class="text-slate-600 text-sm mt-1">HEIC files have better compression but are not universally supported. Converting to JPG ensures your images can be viewed on any device, shared easily, and uploaded to any website or platform.</p>
-        </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">Will I lose image quality?</h3>
-          <p class="text-slate-600 text-sm mt-1">JPG is a lossy format, so some quality is lost during conversion. However, using the "Maximum" quality setting preserves as much detail as possible. The "Very High" setting offers a good balance of quality and file size.</p>
-        </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">What output formats are supported?</h3>
-          <p class="text-slate-600 text-sm mt-1">You can convert HEIC to JPG (most compatible), PNG (lossless, larger files), or WebP (modern, better compression).</p>
-        </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">Can I convert multiple files at once?</h3>
-          <p class="text-slate-600 text-sm mt-1">Yes! Drag and drop multiple HEIC files or select multiple files using the file picker. Each image will be converted individually, and you can download them all at once as a ZIP file.</p>
-        </div>
-      </div>
+    <!-- ============================================================ -->
+    <!-- AD SLOT 3 — Between info cards and SEO content               -->
+    <!-- ============================================================ -->
+    <div class="ad-slot">
+      <ins class="adsbygoogle"
+           style="display:block"
+           data-ad-client="ca-pub-4006702663328202"
+           data-ad-slot="XXXXXXXXXX"
+           data-ad-format="auto"
+           data-full-width-responsive="true"></ins>
+      <script>
+        (adsbygoogle = window.adsbygoogle || []).push({});
+      </script>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- SEO CONTENT - HEIC to JPG long-tail keywords                 -->
+    <!-- ============================================================ -->
+    <section class="seo-content">
+      <h2>Convert HEIC to JPG Without Losing Image Quality</h2>
+      <p>
+        Convert HEIC photos to high-quality JPG images while minimizing unnecessary
+        compression. This makes it easier to use iPhone photos with websites,
+        applications and devices that do not support HEIC files.
+      </p>
+
+      <h2>Convert iPhone HEIC Photos to JPG on PC Without Software</h2>
+      <p>
+        You don't need to install a desktop application to convert iPhone HEIC
+        photos. Open Droplet in your browser, select your HEIC images and convert
+        them to JPG.
+      </p>
+
+      <h2>Convert HEIC to JPG on Windows 11</h2>
+      <p>
+        Convert HEIC files to JPG from a Windows 11 PC using your browser. This
+        provides a simple option when you need a JPG version of an iPhone photo
+        for another website or application.
+      </p>
+
+      <h2>Batch Convert Multiple HEIC Files to JPG</h2>
+      <p>
+        Select multiple HEIC photos and convert them to JPG together instead of
+        processing each image individually.
+      </p>
+
+      <h2>Convert Multiple HEIC Files to JPG and Download as ZIP</h2>
+      <p>
+        Batch convert multiple HEIC photos to JPG and download the converted
+        images together as a ZIP file.
+      </p>
+
+      <h2>Private Browser-Based HEIC to JPG Conversion</h2>
+      <p>
+        Droplet processes supported HEIC conversions locally in your browser,
+        helping keep your images on your device instead of uploading them to a
+        conversion server. The only external resource loaded is the open-source
+        <code>heic2any</code> decoding library (from a CDN), which runs entirely
+        inside your browser and does not transmit your images anywhere.
+      </p>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- FAQ SECTION — question-based long-tail keywords               -->
+    <!-- ============================================================ -->
+    <section class="faq-section">
+      <h2>HEIC to JPG Questions</h2>
+
+      <details>
+        <summary>How do I convert iPhone HEIC photos to JPG on PC without software?</summary>
+        <p>
+          Open Droplet's HEIC to JPG converter in your browser, select your iPhone
+          HEIC photos and convert them to JPG. No desktop converter needs to be
+          installed.
+        </p>
+      </details>
+
+      <details>
+        <summary>How do I convert HEIC photos to JPG for a job application?</summary>
+        <p>
+          If an application portal does not accept HEIC images, convert the photo
+          to JPG first and then upload the converted JPG file to the application
+          portal.
+        </p>
+      </details>
+
+      <details>
+        <summary>How do I convert HEIC to JPG for a passport application?</summary>
+        <p>
+          If the application website requires JPG instead of HEIC, convert the
+          photo to JPG and check that the resulting image also meets the portal's
+          dimensions and file-size requirements before uploading it.
+        </p>
+      </details>
+
+      <details>
+        <summary>How do I convert HEIC photos to JPG for Canvas?</summary>
+        <p>
+          Convert the HEIC photo to JPG first, download the converted image and
+          then upload the JPG version with your assignment.
+        </p>
+      </details>
+
+      <details>
+        <summary>Is my data safe?</summary>
+        <p>
+          Yes. Conversion runs entirely in your browser. Your HEIC files are not
+          uploaded to any server. The only external asset is the
+          <code>heic2any</code> library, which is a static JavaScript file loaded
+          from a CDN and executes locally — it does not send your images anywhere.
+        </p>
+      </details>
+
+      <details>
+        <summary>Why convert HEIC to JPG?</summary>
+        <p>
+          HEIC files have better compression but are not universally supported.
+          Converting to JPG ensures your images can be viewed on any device,
+          shared easily, and uploaded to any website or platform.
+        </p>
+      </details>
+
+      <details>
+        <summary>Will I lose image quality?</summary>
+        <p>
+          JPG is a lossy format, so some quality is lost during conversion.
+          However, using the "Maximum" quality setting preserves as much detail
+          as possible. The "Very High" setting offers a good balance of quality
+          and file size.
+        </p>
+      </details>
+
+      <details>
+        <summary>What output formats are supported?</summary>
+        <p>
+          You can convert HEIC to JPG (most compatible), PNG (lossless, larger
+          files), or WebP (modern, better compression).
+        </p>
+      </details>
+
+      <details>
+        <summary>Can I convert multiple files at once?</summary>
+        <p>
+          Yes. Drag and drop multiple HEIC files or select multiple files using
+          the file picker. Each image is converted individually, and you can
+          download them all at once as a ZIP file.
+        </p>
+      </details>
+
+      <details>
+        <summary>Does the converter preserve EXIF data like GPS location or capture date?</summary>
+        <p>
+          No. EXIF metadata (GPS location, camera model, capture timestamp,
+          orientation, exposure settings, etc.) is <strong>not preserved</strong>
+          during HEIC to JPG conversion. The decoded pixels are re-encoded as a
+          fresh JPEG, which strips metadata. If you need to keep EXIF data, use a
+          dedicated EXIF-aware converter.
+        </p>
+      </details>
     </section>
   </main>
 
   <!-- Footer -->
   <footer class="border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-500 mt-auto transition-colors duration-200">
     <div class="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-3">
-      <p class="font-medium">© Droplet. 100% Client-Side Privacy First File Utility.</p>
+      <p class="font-medium">© Droplet. Privacy First File Utility.</p>
       <div class="space-x-4">
+        <a href="/about.html" class="hover:text-blue-600 transition-colors">About</a>
+        <span>•</span>
         <a href="/privacy.html" class="hover:text-blue-600 transition-colors">Privacy Policy</a>
         <span>•</span>
         <a href="/terms.html" class="hover:text-blue-600 transition-colors">Terms of Service</a>
@@ -513,17 +761,17 @@
     // ============================================
     const themeToggle = document.getElementById('theme-toggle');
     const html = document.documentElement;
-    
-    let currentTheme = localStorage.getItem('theme') || 
+
+    let currentTheme = localStorage.getItem('theme') ||
       (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-    
+
     if (currentTheme === 'dark') {
       html.classList.add('dark');
       themeToggle.textContent = '☀️';
     } else {
       themeToggle.textContent = '🌙';
     }
-    
+
     themeToggle.addEventListener('click', () => {
       if (html.classList.contains('dark')) {
         html.classList.remove('dark');
@@ -587,7 +835,7 @@
     });
 
     dropzone.addEventListener('click', (e) => {
-      if (e.target.tagName !== 'BUTTON' && !fileInfo.classList.contains('hidden')) {
+      if (e.target.tagName !== 'BUTTON' && fileInfo.classList.contains('hidden')) {
         fileInput.click();
       }
     });
@@ -604,10 +852,10 @@
 
       for (let i = 0; i < fileList.length; i++) {
         const file = fileList[i];
-        const isHEIC = file.type === 'image/heic' || file.type === 'image/heif' || 
-                       file.name.toLowerCase().endsWith('.heic') || 
+        const isHEIC = file.type === 'image/heic' || file.type === 'image/heif' ||
+                       file.name.toLowerCase().endsWith('.heic') ||
                        file.name.toLowerCase().endsWith('.heif');
-        
+
         if (isHEIC && file.size <= 50 * 1024 * 1024) {
           validFiles.push(file);
           totalSize += file.size;
@@ -733,8 +981,8 @@
           let fileName;
 
           try {
-            const isHEIC = file.type === 'image/heic' || file.type === 'image/heif' || 
-                           file.name.toLowerCase().endsWith('.heic') || 
+            const isHEIC = file.type === 'image/heic' || file.type === 'image/heif' ||
+                           file.name.toLowerCase().endsWith('.heic') ||
                            file.name.toLowerCase().endsWith('.heif');
 
             if (isHEIC) {
@@ -746,10 +994,10 @@
             } else {
               const img = await createImageBitmap(file);
               const canvas = document.createElement('canvas');
-              
+
               let width = img.width;
               let height = img.height;
-              
+
               if (size !== 'original') {
                 const maxSize = parseInt(size);
                 if (width > height) {
@@ -764,19 +1012,25 @@
                   }
                 }
               }
-              
+
               canvas.width = width;
               canvas.height = height;
               const ctx = canvas.getContext('2d');
               ctx.drawImage(img, 0, 0, width, height);
-              
+
               const mimeType = format === 'jpg' ? 'image/jpeg' : format === 'png' ? 'image/png' : 'image/webp';
               blob = await new Promise(resolve => {
                 canvas.toBlob(resolve, mimeType, quality);
               });
             }
 
-            const baseName = file.name.replace(/\.(heic|heif|HEIC|HEIF)$/, '');
+            // ============================================================
+            // OUTPUT FILENAME: dropletweb.jpg / dropletweb.png / dropletweb.webp
+            // For batches, append an index so files don't collide.
+            // ============================================================
+            const baseName = files.length > 1
+              ? `dropletweb_${String(i + 1).padStart(2, '0')}`
+              : 'dropletweb';
             const ext = format === 'jpg' ? 'jpg' : format;
             fileName = `${baseName}.${ext}`;
 
@@ -799,11 +1053,13 @@
                   toType: format === 'jpg' ? 'image/jpeg' : format === 'png' ? 'image/png' : 'image/webp',
                   quality: quality
                 });
-                
-                const baseName = file.name.replace(/\.(heic|heif|HEIC|HEIF)$/, '');
+
+                const baseName = files.length > 1
+                  ? `dropletweb_${String(i + 1).padStart(2, '0')}`
+                  : 'dropletweb';
                 const ext = format === 'jpg' ? 'jpg' : format;
                 fileName = `${baseName}.${ext}`;
-                
+
                 convertedFiles.push({
                   blob: result,
                   name: fileName,
@@ -862,7 +1118,7 @@
     function showResults() {
       const successful = convertedFiles.filter(f => !f.error).length;
       const total = convertedFiles.length;
-      
+
       convertedCountBadge.textContent = `${successful} of ${total} converted`;
       const totalBytes = convertedFiles.reduce((sum, f) => sum + f.size, 0);
       totalSizeBadge.textContent = `${(totalBytes / 1024 / 1024).toFixed(2)} MB`;
@@ -874,7 +1130,7 @@
           link.href = f.url;
           link.download = f.name;
           link.className = 'bg-white border border-slate-200 rounded-lg p-2 text-center hover:border-blue-400 transition-all text-xs truncate';
-          link.textContent = `📷 ${f.name.substring(0, 12)}...`;
+          link.textContent = `📷 ${f.name.substring(0, 16)}${f.name.length > 16 ? '...' : ''}`;
           link.title = f.name;
           downloadLinksContainer.appendChild(link);
         }
@@ -889,54 +1145,62 @@
         return;
       }
 
-      if (convertedFiles.length === 1) {
-        const f = convertedFiles[0];
-        if (!f.error) {
+      const successful = convertedFiles.filter(f => !f.error);
+
+      if (successful.length === 0) {
+        alert('No successfully converted files to download.');
+        return;
+      }
+
+      if (successful.length === 1) {
+        const f = successful[0];
+        const link = document.createElement('a');
+        link.href = f.url;
+        link.download = f.name;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        return;
+      }
+
+      if (typeof JSZip === 'undefined') {
+        alert('ZIP library not loaded. Falling back to individual downloads.');
+        downloadAllIndividual();
+        return;
+      }
+
+      const zip = new JSZip();
+      successful.forEach(f => {
+        zip.file(f.name, f.blob);
+      });
+
+      zip.generateAsync({ type: 'blob' }).then(content => {
+        const url = URL.createObjectURL(content);
+        const link = document.createElement('a');
+        link.download = `dropletweb_converted.zip`;
+        link.href = url;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      }).catch(err => {
+        console.error('ZIP generation failed:', err);
+        alert('ZIP generation failed. Falling back to individual downloads.');
+        downloadAllIndividual();
+      });
+    }
+
+    function downloadAllIndividual() {
+      const successful = convertedFiles.filter(f => !f.error);
+      successful.forEach((f, idx) => {
+        setTimeout(() => {
           const link = document.createElement('a');
           link.href = f.url;
           link.download = f.name;
           document.body.appendChild(link);
           link.click();
           document.body.removeChild(link);
-        }
-        return;
-      }
-
-      if (typeof JSZip !== 'undefined') {
-        const zip = new JSZip();
-        convertedFiles.forEach(f => {
-          if (!f.error) {
-            zip.file(f.name, f.blob);
-          }
-        });
-        zip.generateAsync({ type: 'blob' }).then(content => {
-          const url = URL.createObjectURL(content);
-          const link = document.createElement('a');
-          const baseName = files[0]?.name.replace(/\.(heic|heif|HEIC|HEIF)$/, '') || 'converted';
-          link.download = `${baseName}_converted.zip`;
-          link.href = url;
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-          URL.revokeObjectURL(url);
-        });
-      } else {
-        downloadAllIndividual();
-      }
-    }
-
-    function downloadAllIndividual() {
-      convertedFiles.forEach((f, idx) => {
-        if (!f.error) {
-          setTimeout(() => {
-            const link = document.createElement('a');
-            link.href = f.url;
-            link.download = f.name;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-          }, idx * 300);
-        }
+        }, idx * 300);
       });
     }
 
