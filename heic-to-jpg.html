@@ -90,12 +90,27 @@
     .badge-converted { background: #d1fae5; color: #065f46; }
     .badge-size { background: #fef3c7; color: #92400e; }
 
-    /* Ad slot wrapper */
+    /* ============================================================ */
+    /* Ad container — invisible when no ad is served                 */
+    /* ============================================================ */
     .ad-slot {
       max-width: 42rem;
-      margin: 24px auto;
-      min-height: 90px;
+      margin: 0 auto;
       text-align: center;
+    }
+
+    /* Only give the ad spacing when AdSense actually fills it */
+    .ad-slot:has(ins.adsbygoogle[data-ad-status="filled"]) {
+      margin: 24px auto;
+    }
+
+    /* Don't allow empty/unfilled ads to create giant gaps */
+    ins.adsbygoogle[data-ad-status="unfilled"] {
+      display: none !important;
+      height: 0 !important;
+      min-height: 0 !important;
+      margin: 0 !important;
+      padding: 0 !important;
     }
 
     /* SEO content sections */
@@ -406,7 +421,9 @@
 
     <!-- ============================================================ -->
     <!-- AD SLOT 1 — Top of page, above the dropzone                  -->
+    <!-- Temporarily commented out — no real ad unit IDs yet.          -->
     <!-- ============================================================ -->
+    <!--
     <div class="ad-slot">
       <ins class="adsbygoogle"
            style="display:block"
@@ -418,6 +435,7 @@
         (adsbygoogle = window.adsbygoogle || []).push({});
       </script>
     </div>
+    -->
 
     <!-- Conversion Dropzone -->
     <div id="dropzone" class="bg-white border-2 border-dashed border-slate-300 hover:border-blue-400 transition-all rounded-3xl p-8 md:p-12 text-center shadow-lg max-w-2xl mx-auto cursor-pointer">
@@ -546,7 +564,9 @@
 
     <!-- ============================================================ -->
     <!-- AD SLOT 2 — Between result section and info cards            -->
+    <!-- Temporarily commented out — no real ad unit IDs yet.          -->
     <!-- ============================================================ -->
+    <!--
     <div class="ad-slot">
       <ins class="adsbygoogle"
            style="display:block"
@@ -558,9 +578,10 @@
         (adsbygoogle = window.adsbygoogle || []).push({});
       </script>
     </div>
+    -->
 
     <!-- Info Section -->
-    <div class="max-w-2xl mx-auto mt-12 grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div class="max-w-2xl mx-auto mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
       <div class="bg-white p-4 rounded-xl border border-slate-100 text-center transition-colors duration-200">
         <div class="text-2xl mb-1">🔒</div>
         <h4 class="font-bold text-sm">Private Processing</h4>
@@ -580,7 +601,9 @@
 
     <!-- ============================================================ -->
     <!-- AD SLOT 3 — Between info cards and SEO content               -->
+    <!-- Temporarily commented out — no real ad unit IDs yet.          -->
     <!-- ============================================================ -->
+    <!--
     <div class="ad-slot">
       <ins class="adsbygoogle"
            style="display:block"
@@ -592,6 +615,7 @@
         (adsbygoogle = window.adsbygoogle || []).push({});
       </script>
     </div>
+    -->
 
     <!-- ============================================================ -->
     <!-- SEO CONTENT - HEIC to JPG long-tail keywords                 -->
