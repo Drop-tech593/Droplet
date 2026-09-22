@@ -216,7 +216,9 @@
   }
   #captureFlash.fire { opacity: 0.9; }
 
-  /* Crop editor */
+  /* ============================================================ */
+  /* CROP EDITOR — one shared coordinate system                    */
+  /* ============================================================ */
   #cropStage {
     position: relative;
     flex: 1;
@@ -228,17 +230,29 @@
     touch-action: none;
     min-height: 0;
   }
-  #cropCanvas {
-    max-width: 100%;
-    max-height: 100%;
-    display: block;
+
+  /* Everything related to cropping shares this coordinate system */
+  #cropWorkspace {
+    position: relative;
+    flex: 0 0 auto;
+    touch-action: none;
   }
+
+  #cropCanvas {
+    display: block;
+    max-width: none;
+    max-height: none;
+  }
+
   #cropOverlay {
     position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
+    inset: 0;
+    width: 100%;
+    height: 100%;
     pointer-events: none;
+    z-index: 2;
   }
+
   .corner-handle {
     position: absolute;
     width: 44px;
@@ -264,6 +278,7 @@
     box-shadow: 0 0 0 1px #3b82f6;
   }
   .corner-handle:active { cursor: grabbing; }
+
   #magnifier {
     position: absolute;
     width: 120px;
@@ -271,8 +286,8 @@
     border-radius: 50%;
     border: 3px solid #fff;
     box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-    pointer-events: none;
     overflow: hidden;
+    pointer-events: none;
     z-index: 100;
     display: none;
   }
@@ -745,9 +760,11 @@
   </div>
 
   <div id="cropStage">
-    <canvas id="cropCanvas"></canvas>
-    <canvas id="cropOverlay"></canvas>
-    <div id="magnifier"><canvas></canvas></div>
+    <div id="cropWorkspace">
+      <canvas id="cropCanvas"></canvas>
+      <canvas id="cropOverlay"></canvas>
+      <div id="magnifier"><canvas></canvas></div>
+    </div>
   </div>
 
   <div class="action-bar">
@@ -958,7 +975,6 @@ function loadOpenCV() {
   return new Promise((resolve, reject) => {
     if (App.opencvReady) return resolve();
     if (App.opencvLoading) {
-      // Poll until ready
       const poll = setInterval(() => {
         if (App.opencvReady) { clearInterval(poll); resolve(); }
       }, 100);
@@ -1007,7 +1023,6 @@ function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   const el = document.getElementById(id);
   if (el) el.classList.add('active');
-  // Keep the page count indicator fresh
   refreshPageCountIndicators();
 }
 
@@ -1065,13 +1080,11 @@ function hideCameraMessage() {
 // BOOT
 // ============================================================
 (async function boot() {
-  // Short boot screen — do not wait for OpenCV
   await new Promise(r => setTimeout(r, 300));
 
   if (App.isMobile && navigator.mediaDevices && window.isSecureContext) {
     showScreen('screen-camera');
     startCamera();
-    // Load OpenCV in the background for auto-detect
     loadOpenCV().then(() => {
       console.log('OpenCV ready for auto-detect.');
     }).catch(e => {
@@ -1323,7 +1336,6 @@ async function capturePhoto() {
   }
   btn.disabled = true;
   try {
-    // White flash
     const flash = document.getElementById('captureFlash');
     flash.classList.add('fire');
     setTimeout(() => flash.classList.remove('fire'), 180);
@@ -1344,7 +1356,6 @@ async function capturePhoto() {
 
     showCameraMessage('📸 Photo captured — adjust the corners', 'success', 1800);
 
-    // Small delay so the toast is readable, then transition
     setTimeout(() => {
       hideCameraMessage();
       openCropScreen(bitmap, 'capture');
@@ -1371,7 +1382,7 @@ document.getElementById('galleryInput').addEventListener('change', async (e) => 
 });
 
 // ============================================================
-// CROP SCREEN
+// CROP SCREEN — one workspace shared by canvas, overlay, handles
 // ============================================================
 function openCropScreen(bitmap, context) {
   App.cropContext = context || 'capture';
@@ -1379,18 +1390,26 @@ function openCropScreen(bitmap, context) {
   const canvas = document.getElementById('cropCanvas');
   const overlay = document.getElementById('cropOverlay');
   const stage = document.getElementById('cropStage');
+  const workspace = document.getElementById('cropWorkspace');
 
   const maxW = stage.clientWidth;
   const maxH = stage.clientHeight;
   const scale = Math.min(maxW / bitmap.width, maxH / bitmap.height);
   const cw = Math.round(bitmap.width * scale);
   const ch = Math.round(bitmap.height * scale);
+
+  // The workspace is exactly the size of the displayed image.
+  workspace.style.width = cw + 'px';
+  workspace.style.height = ch + 'px';
+
+  // Image
   canvas.width = cw;
   canvas.height = ch;
   canvas.style.width = cw + 'px';
   canvas.style.height = ch + 'px';
   canvas.getContext('2d').drawImage(bitmap, 0, 0, cw, ch);
 
+  // Overlay fills the workspace
   overlay.width = cw;
   overlay.height = ch;
   overlay.style.width = cw + 'px';
@@ -1475,8 +1494,10 @@ function renderCropOverlay() {
 
 function wireCropHandles() {
   const overlay = document.getElementById('cropOverlay');
-  const stage = document.getElementById('cropStage');
-  stage.querySelectorAll('.corner-handle').forEach(el => el.remove());
+  const workspace = document.getElementById('cropWorkspace');
+
+  // Clear any previous handles
+  workspace.querySelectorAll('.corner-handle').forEach(el => el.remove());
 
   const keys = ['tl', 'tr', 'br', 'bl'];
   for (const key of keys) {
@@ -1486,7 +1507,7 @@ function wireCropHandles() {
     const pt = App.currentCropCorners[key];
     h.style.left = pt.x + 'px';
     h.style.top = pt.y + 'px';
-    stage.appendChild(h);
+    workspace.appendChild(h);
   }
 
   let dragging = null;
@@ -1500,16 +1521,16 @@ function wireCropHandles() {
   function onMove(e) {
     if (!dragging) return;
     e.preventDefault();
-    const canvasRect = overlay.getBoundingClientRect();
+    const rect = overlay.getBoundingClientRect();
     const clientX = (e.touches ? e.touches[0].clientX : e.clientX);
     const clientY = (e.touches ? e.touches[0].clientY : e.clientY);
-    let x = clientX - canvasRect.left;
-    let y = clientY - canvasRect.top;
+    let x = clientX - rect.left;
+    let y = clientY - rect.top;
     x = Math.max(0, Math.min(overlay.width, x));
     y = Math.max(0, Math.min(overlay.height, y));
     App.currentCropCorners[dragging] = { x, y };
     renderCropOverlay();
-    const h = stage.querySelector(`.corner-handle[data-corner="${dragging}"]`);
+    const h = workspace.querySelector(`.corner-handle[data-corner="${dragging}"]`);
     if (h) { h.style.left = x + 'px'; h.style.top = y + 'px'; }
     showMagnifier(clientX, clientY);
   }
@@ -1518,10 +1539,11 @@ function wireCropHandles() {
     hideMagnifier();
   }
 
-  stage.addEventListener('mousedown', onDown);
+  // Bind on the workspace, not the stage
+  workspace.addEventListener('mousedown', onDown);
   window.addEventListener('mousemove', onMove);
   window.addEventListener('mouseup', onUp);
-  stage.addEventListener('touchstart', onDown, { passive: false });
+  workspace.addEventListener('touchstart', onDown, { passive: false });
   window.addEventListener('touchmove', onMove, { passive: false });
   window.addEventListener('touchend', onUp);
 }
@@ -1529,15 +1551,18 @@ function wireCropHandles() {
 function showMagnifier(clientX, clientY) {
   const mag = document.getElementById('magnifier');
   const canvas = document.getElementById('cropCanvas');
+  const workspace = document.getElementById('cropWorkspace');
   const magCanvas = mag.querySelector('canvas');
   const ZOOM = 3;
   const SIZE = 120;
+
   magCanvas.width = SIZE;
   magCanvas.height = SIZE;
   const ctx = magCanvas.getContext('2d');
   const rect = canvas.getBoundingClientRect();
   const cx = clientX - rect.left;
   const cy = clientY - rect.top;
+
   ctx.clearRect(0, 0, SIZE, SIZE);
   ctx.drawImage(
     canvas,
@@ -1545,13 +1570,22 @@ function showMagnifier(clientX, clientY) {
     SIZE / ZOOM, SIZE / ZOOM,
     0, 0, SIZE, SIZE
   );
+
   mag.style.display = 'block';
-  const stageRect = document.getElementById('cropStage').getBoundingClientRect();
-  mag.style.left = (clientX - stageRect.left - SIZE / 2) + 'px';
-  mag.style.top = (clientY - stageRect.top - SIZE - 20) + 'px';
-  if (parseFloat(mag.style.top) < 0) {
-    mag.style.top = (clientY - stageRect.top + 20) + 'px';
+
+  const workspaceRect = workspace.getBoundingClientRect();
+  let left = clientX - workspaceRect.left - SIZE / 2;
+  let top = clientY - workspaceRect.top - SIZE - 20;
+
+  if (top < 0) {
+    top = clientY - workspaceRect.top + 20;
   }
+
+  // Keep magnifier inside workspace horizontally
+  left = Math.max(0, Math.min(workspace.clientWidth - SIZE, left));
+
+  mag.style.left = left + 'px';
+  mag.style.top = top + 'px';
 }
 function hideMagnifier() {
   document.getElementById('magnifier').style.display = 'none';
@@ -1626,8 +1660,6 @@ async function confirmCrop() {
   const cornersOnCanvas = App.currentCropCorners;
   if (!bitmap || !cornersOnCanvas) return;
 
-  // If we already warped once during the same capture (cropContext === 'edit'),
-  // and the user re-opened Adjust Corners, we warp again on the warped bitmap.
   const canvas = document.getElementById('cropCanvas');
   const scaleX = bitmap.width / canvas.width;
   const scaleY = bitmap.height / canvas.height;
@@ -1639,7 +1671,6 @@ async function confirmCrop() {
   };
 
   if (App.cropContext === 'capture' && !App.opencvReady) {
-    // Fall back to a simple crop when OpenCV isn't ready
     const cropped = simpleRectCrop(bitmap, cornersOnImage);
     App.currentCaptureBitmap = await createImageBitmap(cropped);
     App.currentCaptureBlob = await new Promise(res => cropped.toBlob(res, 'image/jpeg', 0.95));
@@ -1744,7 +1775,6 @@ function openFilterScreen() {
 function openCropFromFilter() {
   if (!App.currentCaptureBitmap) return;
   App.cropContext = 'edit';
-  // Save current adjustments/filter first
   openCropScreen(App.currentCaptureBitmap, 'edit');
 }
 
@@ -1796,40 +1826,29 @@ async function renderFilterPreview() {
   ctx.putImageData(processed, 0, 0);
 }
 
-// ------------------------------------------------------------
-// Image processing pipeline
-// Adjustments are applied AFTER the filter, so sliders always
-// have visible effect.
-// ------------------------------------------------------------
 function applyFilterToImageData(imgData, filter, adjustments, w, h) {
   const { brightness = 0, contrast = 0, sharpness = 30, whiteness = 40 } = adjustments || {};
   const out = new ImageData(new Uint8ClampedArray(imgData.data), w, h);
 
-  // Step 1 — filter-specific base processing
   if (filter === 'grayscale' || filter === 'bw' || filter === 'document') {
     grayscaleInPlace(out);
   }
 
   if (filter === 'document') {
     illuminationNormalize(out, w, h);
-    // Whiteness lifts near-white to pure white
     applyWhiteness(out, whiteness);
   }
 
   if (filter === 'bw') {
-    // Use a slightly adaptive threshold so shadows do not destroy the page
     illuminationNormalize(out, w, h);
     const blockSize = 25;
-    const C = 10 - (whiteness - 50) / 10; // whiteness slider shifts the threshold
+    const C = 10 - (whiteness - 50) / 10;
     adaptiveThreshold(out, w, h, blockSize, C);
   }
 
-  // Step 2 — user adjustments apply to every filter, always
   applyBrightnessContrast(out, brightness, contrast);
 
-  // Step 3 — sharpening applies to every filter if enabled
   if (sharpness > 0 && filter !== 'bw') {
-    // Adaptive amount by filter: document gets a bit more, photo a bit less
     const amount = (sharpness / 100) *
       (filter === 'document' ? 0.8 : filter === 'photo' ? 0.3 : 0.5);
     unsharpMask(out, w, h, amount);
@@ -1944,7 +1963,6 @@ function adaptiveThreshold(imgData, w, h, blockSize, C) {
 function wireFilterChips() {
   document.querySelectorAll('.filter-chip').forEach(chip => {
     if (chip.classList.contains('crop-chip')) return;
-    // Avoid double-binding
     if (chip.dataset.bound === '1') return;
     chip.dataset.bound = '1';
     chip.addEventListener('click', () => {
