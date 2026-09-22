@@ -6,6 +6,15 @@
 <title>Add Watermark - Droplet</title>
 <meta name="description" content="Add text or image watermarks to PDFs and images in your browser. 100% client-side.">
 
+<!-- Prevent flash of light theme on reload -->
+<script>
+  (function() {
+    if (localStorage.getItem('theme') === 'dark') {
+      document.documentElement.classList.add('dark');
+    }
+  })();
+</script>
+
 <!-- Google AdSense -->
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4006702663328202"
    crossorigin="anonymous"></script>
@@ -15,32 +24,58 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
 
 <style>
+  /* ============================================================ */
+  /* RESET                                                         */
+  /* ============================================================ */
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8fafc; color: #0f172a; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+  }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #f8fafc;
+    color: #0f172a;
+  }
   .hidden { display: none !important; }
   button { font-family: inherit; }
   input, select { font-family: inherit; }
 
   /* ============================================================ */
-  /* LAYOUT                                                        */
+  /* APP GRID — three columns, all independently scrollable        */
   /* ============================================================ */
   .app {
-    display: flex;
-    flex-direction: column;
+    width: 100vw;
     height: 100vh;
+    display: grid;
+    grid-template-rows: 56px minmax(0, 1fr);
+    overflow: hidden;
   }
   .app-header {
-    padding: 10px 16px;
+    padding: 0 16px;
     background: #fff;
     border-bottom: 1px solid #e2e8f0;
     display: flex;
     align-items: center;
     gap: 12px;
-    flex-shrink: 0;
-    min-height: 56px;
+    min-width: 0;
     z-index: 20;
   }
+
+  .editor {
+    display: grid;
+    grid-template-columns: 180px minmax(0, 1fr) 340px;
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  /* ============================================================ */
+  /* HEADER                                                        */
+  /* ============================================================ */
   .app-header .logo-link {
     display: flex;
     align-items: center;
@@ -63,11 +98,12 @@
     font-weight: 700;
     color: #0f172a;
     margin-left: 4px;
+    flex-shrink: 0;
   }
   .file-label {
     font-size: 12px;
     color: #64748b;
-    max-width: 200px;
+    max-width: 180px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -83,6 +119,7 @@
     padding: 8px 12px;
     border-radius: 8px;
     transition: background 0.15s;
+    white-space: nowrap;
   }
   .header-btn:hover { background: #eff6ff; }
   .header-btn:disabled { opacity: 0.35; cursor: not-allowed; }
@@ -91,20 +128,46 @@
   .header-btn.strong:disabled { background: #cbd5e1; }
 
   /* ============================================================ */
+  /* THEME TOGGLE BUTTON                                           */
+  /* ============================================================ */
+  #theme-toggle {
+    background: none;
+    border: none;
+    font-size: 1.3rem;
+    cursor: pointer;
+    padding: 0.3rem 0.5rem;
+    border-radius: 8px;
+    transition: background 0.2s;
+    line-height: 1;
+    color: #475569;
+  }
+  #theme-toggle:hover {
+    background: #f1f5f9;
+  }
+  html.dark #theme-toggle {
+    color: #e2e8f0;
+  }
+  html.dark #theme-toggle:hover {
+    background: #334155;
+  }
+
+  /* ============================================================ */
   /* UPLOAD SCREEN                                                 */
   /* ============================================================ */
-  .upload-wrap {
-    flex: 1;
+  #screen-upload {
+    grid-row: 2;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     padding: 24px;
     text-align: center;
+    overflow-y: auto;
+    min-height: 0;
   }
-  .upload-wrap .big-icon { font-size: 56px; margin-bottom: 8px; }
-  .upload-wrap h1 { font-size: 26px; font-weight: 900; margin: 0 0 6px; }
-  .upload-wrap p { font-size: 14px; color: #64748b; margin: 0 0 24px; }
+  #screen-upload .big-icon { font-size: 56px; margin-bottom: 8px; }
+  #screen-upload h1 { font-size: 26px; font-weight: 900; margin: 0 0 6px; }
+  #screen-upload p { font-size: 14px; color: #64748b; margin: 0 0 24px; }
   .upload-dropzone {
     max-width: 480px;
     width: 100%;
@@ -129,31 +192,13 @@
   }
 
   /* ============================================================ */
-  /* EDITOR                                                        */
+  /* LEFT: PAGE THUMBNAILS                                         */
   /* ============================================================ */
-  .editor {
-    flex: 1;
-    display: grid;
-    grid-template-columns: 160px 1fr 320px;
-    min-height: 0;
-    overflow: hidden;
-  }
-  @media (max-width: 900px) {
-    .editor {
-      grid-template-columns: 1fr;
-      grid-template-rows: 1fr auto;
-    }
-    .sidebar-left { display: none; }
-    .sidebar-right {
-      max-height: 46vh;
-      border-top: 1px solid #e2e8f0;
-    }
-  }
-
-  /* Left: page thumbnails */
   .sidebar-left {
     background: #fff;
     border-right: 1px solid #e2e8f0;
+    min-width: 0;
+    min-height: 0;
     overflow-y: auto;
     padding: 12px 10px;
     display: flex;
@@ -180,6 +225,7 @@
     align-items: center;
     justify-content: center;
     transition: border-color 0.15s;
+    flex-shrink: 0;
   }
   .thumb.active {
     border-color: #3b82f6;
@@ -202,30 +248,31 @@
     border-radius: 6px;
   }
 
-  /* Center: preview */
+  /* ============================================================ */
+  /* CENTER: PREVIEW  (this is the critical fix)                   */
+  /* ============================================================ */
   .preview-area {
-    position: relative;
-    background: #e2e8f0;
-    overflow: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    min-width: 0;
     min-height: 0;
+    overflow: auto;
+    background: #e2e8f0;
+    padding: 32px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
   }
   .preview-page {
     position: relative;
-    box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+    flex: 0 0 auto;
     background: #fff;
-    max-width: 92%;
-    max-height: 92%;
+    box-shadow:
+      0 1px 3px rgba(0,0,0,0.12),
+      0 8px 24px rgba(0,0,0,0.08);
   }
   .preview-page canvas.page-render {
     display: block;
     max-width: 100%;
-    max-height: 100%;
-    width: 100%;
     height: auto;
-    background: #fff;
   }
   .preview-page canvas.wm-overlay {
     position: absolute;
@@ -234,24 +281,19 @@
     height: 100%;
     pointer-events: none;
   }
-  .preview-page .wm-draggable {
-    pointer-events: auto;
-    cursor: grab;
-    position: absolute;
-    touch-action: none;
-  }
-  .preview-page .wm-draggable:active { cursor: grabbing; }
 
-  /* Right: properties */
+  /* ============================================================ */
+  /* RIGHT: PROPERTIES                                             */
+  /* ============================================================ */
   .sidebar-right {
     background: #fff;
     border-left: 1px solid #e2e8f0;
+    min-height: 0;
     overflow-y: auto;
     padding: 14px 16px 24px;
     display: flex;
     flex-direction: column;
     gap: 16px;
-    min-height: 0;
   }
   .panel-section {
     display: flex;
@@ -291,7 +333,6 @@
     box-shadow: 0 1px 3px rgba(0,0,0,0.08);
   }
 
-  /* Presets */
   .preset-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -517,7 +558,6 @@
     padding: 0 6px;
   }
 
-  /* Position grid (single mode) */
   .pos-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -540,7 +580,9 @@
     background: #eff6ff;
   }
 
-  /* Processing overlay */
+  /* ============================================================ */
+  /* PROCESSING / TOAST                                            */
+  /* ============================================================ */
   #processingOverlay {
     position: fixed;
     inset: 0;
@@ -580,7 +622,6 @@
     transition: width 0.3s ease;
   }
 
-  /* Toast */
   .toast {
     position: fixed;
     bottom: 24px;
@@ -603,6 +644,219 @@
   .toast.error { background: #ef4444; }
 
   .hidden-input { display: none; }
+
+  /* ============================================================ */
+  /* MOBILE                                                        */
+  /* ============================================================ */
+  @media (max-width: 900px) {
+    .editor {
+      grid-template-columns: 1fr;
+      grid-template-rows: minmax(0, 1fr) auto;
+    }
+    .sidebar-left { display: none; }
+    .sidebar-right {
+      max-height: 46vh;
+      border-top: 1px solid #e2e8f0;
+      border-left: none;
+    }
+    .preview-area { padding: 16px; }
+  }
+
+  /* ============================================================ */
+  /* DARK MODE OVERRIDES                                           */
+  /* ============================================================ */
+  html.dark body {
+    background: #0f172a;
+    color: #e2e8f0;
+  }
+  html.dark .bg-white {
+    background: #1e293b !important;
+  }
+  html.dark .bg-slate-50 {
+    background: #0f172a !important;
+  }
+  html.dark .bg-slate-100 {
+    background: #334155 !important;
+  }
+  html.dark .text-slate-900 {
+    color: #f1f5f9 !important;
+  }
+  html.dark .text-slate-800 {
+    color: #e2e8f0 !important;
+  }
+  html.dark .text-slate-700 {
+    color: #cbd5e1 !important;
+  }
+  html.dark .text-slate-600,
+  html.dark .text-slate-500 {
+    color: #94a3b8 !important;
+  }
+  html.dark .border-slate-200 {
+    border-color: #334155 !important;
+  }
+  html.dark .border-slate-100 {
+    border-color: #1e293b !important;
+  }
+  html.dark header {
+    background: #1e293b;
+    border-color: #334155;
+  }
+  html.dark header h1 {
+    color: #f1f5f9;
+  }
+  html.dark header nav a {
+    color: #94a3b8;
+  }
+  html.dark header nav a:hover {
+    color: #f1f5f9;
+  }
+  html.dark footer {
+    background: #0f172a !important;
+    border-color: #334155 !important;
+  }
+  html.dark footer a {
+    color: #94a3b8;
+  }
+  html.dark footer a:hover {
+    color: #f1f5f9;
+  }
+  html.dark .bg-blue-50 {
+    background: #1e3a5f !important;
+  }
+  html.dark .bg-blue-500 {
+    background: #2563eb !important;
+  }
+  html.dark .bg-blue-500:hover {
+    background: #3b82f6 !important;
+  }
+  html.dark .bg-blue-600 {
+    background: #2563eb !important;
+  }
+  html.dark .bg-blue-600:hover {
+    background: #3b82f6 !important;
+  }
+  html.dark .text-blue-600 {
+    color: #60a5fa !important;
+  }
+  html.dark .text-blue-700 {
+    color: #60a5fa !important;
+  }
+  html.dark .text-blue-900 {
+    color: #93c5fd !important;
+  }
+  html.dark .border-blue-200 {
+    border-color: #2563eb !important;
+  }
+  html.dark .border-blue-200\/60 {
+    border-color: rgba(59, 130, 246, 0.3) !important;
+  }
+  html.dark .shadow-sm {
+    box-shadow: 0 1px 2px 0 rgba(0,0,0,0.3) !important;
+  }
+  html.dark .shadow-md {
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.4), 0 2px 4px -1px rgba(0,0,0,0.2) !important;
+  }
+  html.dark .shadow-lg {
+    box-shadow: 0 10px 15px -3px rgba(0,0,0,0.4), 0 4px 6px -2px rgba(0,0,0,0.2) !important;
+  }
+  html.dark .shadow-blue-500\/20 {
+    --tw-shadow-color: rgba(59, 130, 246, 0.3) !important;
+  }
+  html.dark .shadow-blue-500\/5 {
+    --tw-shadow-color: rgba(59, 130, 246, 0.1) !important;
+  }
+
+  /* App-specific dark overrides */
+  html.dark .app-header {
+    background: #1e293b;
+    border-color: #334155;
+  }
+  html.dark .app-header .logo-link .logo-text,
+  html.dark .app-header .title { color: #f1f5f9; }
+  html.dark .header-btn { color: #60a5fa; }
+  html.dark .header-btn:hover { background: #334155; }
+  html.dark .header-btn.strong { background: #2563eb; color: #fff; }
+  html.dark .header-btn.strong:hover { background: #3b82f6; }
+  html.dark .header-btn.strong:disabled { background: #334155; color: #64748b; }
+  html.dark .file-label { color: #94a3b8; }
+  html.dark .sidebar-left,
+  html.dark .sidebar-right { background: #1e293b; border-color: #334155; }
+  html.dark .sidebar-left h4,
+  html.dark .panel-section h4 { color: #64748b; }
+  html.dark .thumb { background: #0f172a; }
+  html.dark .thumb.active { border-color: #3b82f6; box-shadow: 0 0 0 2px #1e3a5f; }
+  html.dark .preview-area { background: #0f172a; }
+  html.dark .preview-page { background: #fff; box-shadow: 0 8px 24px rgba(0,0,0,0.5); }
+  html.dark .type-tabs { background: #0f172a; }
+  html.dark .type-tab { color: #94a3b8; }
+  html.dark .type-tab.active { background: #334155; color: #f1f5f9; }
+  html.dark .preset-chip {
+    background: #0f172a;
+    border-color: #334155;
+    color: #cbd5e1;
+  }
+  html.dark .preset-chip:hover {
+    background: #1e3a5f;
+    border-color: #3b82f6;
+    color: #93c5fd;
+  }
+  html.dark .field input[type="text"],
+  html.dark .field select,
+  html.dark .page-select input[type="text"] {
+    background: #0f172a;
+    border-color: #334155;
+    color: #f1f5f9;
+  }
+  html.dark .field label { color: #94a3b8; }
+  html.dark .field input[type="text"]:focus,
+  html.dark .field select:focus { border-color: #3b82f6; }
+  html.dark .page-select input[type="text"]:disabled { background: #1e293b; color: #475569; }
+  html.dark .style-btn,
+  html.dark .layout-btn,
+  html.dark .pos-btn {
+    background: #0f172a;
+    border-color: #334155;
+    color: #cbd5e1;
+  }
+  html.dark .style-btn.active,
+  html.dark .layout-btn.active {
+    background: #2563eb;
+    color: #fff;
+    border-color: #2563eb;
+  }
+  html.dark .pos-btn:hover {
+    background: #1e3a5f;
+    border-color: #3b82f6;
+    color: #93c5fd;
+  }
+  html.dark .divider { background: #334155; }
+  html.dark .image-upload-btn {
+    background: #0f172a;
+    border-color: #334155;
+    color: #cbd5e1;
+  }
+  html.dark .image-upload-btn:hover {
+    background: #1e3a5f;
+    border-color: #3b82f6;
+    color: #93c5fd;
+  }
+  html.dark .image-preview-small {
+    background: #0f172a;
+    border-color: #334155;
+  }
+  html.dark .image-preview-small .info { color: #cbd5e1; }
+  html.dark .upload-dropzone {
+    background: #1e293b;
+    border-color: #334155;
+  }
+  html.dark .upload-dropzone:hover,
+  html.dark .upload-dropzone.dragover {
+    background: #1e3a5f;
+    border-color: #3b82f6;
+  }
+  html.dark #screen-upload h1 { color: #f1f5f9; }
+  html.dark #screen-upload p { color: #94a3b8; }
+  html.dark #screen-upload .sub { color: #64748b; }
 </style>
 </head>
 <body>
@@ -621,10 +875,11 @@
     <button class="header-btn" id="changeFileBtn" onclick="resetToUpload()">Change file</button>
     <button class="header-btn strong" id="exportBtn" onclick="exportResult()">Export</button>
     <button class="header-btn" onclick="backToHome()">← Back</button>
+    <button id="theme-toggle" aria-label="Toggle theme">🌙</button>
   </div>
 
   <!-- UPLOAD SCREEN -->
-  <div id="screen-upload" class="upload-wrap">
+  <div id="screen-upload">
     <div class="big-icon">💧</div>
     <h1>Add Watermark</h1>
     <p>Add a watermark to PDFs and images. 100% in your browser.</p>
@@ -657,7 +912,6 @@
     <!-- RIGHT: properties -->
     <div class="sidebar-right">
 
-      <!-- Watermark type -->
       <div class="panel-section">
         <h4>Watermark type</h4>
         <div class="type-tabs">
@@ -668,7 +922,6 @@
 
       <div class="divider"></div>
 
-      <!-- TEXT CONTROLS -->
       <div id="textControls" class="panel-section">
         <h4>Presets</h4>
         <div class="preset-grid" id="presetGrid"></div>
@@ -699,8 +952,8 @@
           <div class="field">
             <label>Weight</label>
             <div class="style-btns">
-              <button class="style-btn active" id="wmBold" data-attr="bold">B</button>
-              <button class="style-btn" id="wmItalic" data-attr="italic" style="font-style:italic;">I</button>
+              <button class="style-btn active" id="wmBold">B</button>
+              <button class="style-btn" id="wmItalic" style="font-style:italic;">I</button>
             </div>
           </div>
         </div>
@@ -716,7 +969,6 @@
         </div>
       </div>
 
-      <!-- IMAGE CONTROLS -->
       <div id="imageControls" class="panel-section hidden">
         <h4>Logo / Image</h4>
         <input type="file" id="wmImageInput" accept="image/*" class="hidden-input">
@@ -732,7 +984,6 @@
 
       <div class="divider"></div>
 
-      <!-- LAYOUT -->
       <div class="panel-section">
         <h4>Layout</h4>
         <div class="layout-row">
@@ -741,7 +992,6 @@
         </div>
       </div>
 
-      <!-- TRANSFORMS -->
       <div class="panel-section">
         <div class="field">
           <label>Opacity <span class="value" id="valOpacity">35%</span></label>
@@ -761,7 +1011,6 @@
         </div>
       </div>
 
-      <!-- POSITION (single) -->
       <div class="panel-section" id="positionSection">
         <h4>Position</h4>
         <div class="pos-grid">
@@ -780,7 +1029,6 @@
 
       <div class="divider"></div>
 
-      <!-- PAGE RANGE -->
       <div class="panel-section" id="pageRangeSection">
         <h4>Apply to</h4>
         <div class="page-select">
@@ -815,7 +1063,27 @@
 pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
 // ============================================================
-// PRESET DATA — templates are styles, not static images
+// THEME TOGGLE
+// ============================================================
+(function() {
+  const themeToggle = document.getElementById('theme-toggle');
+  const html = document.documentElement;
+  themeToggle.textContent = html.classList.contains('dark') ? '☀️' : '🌙';
+  themeToggle.addEventListener('click', () => {
+    if (html.classList.contains('dark')) {
+      html.classList.remove('dark');
+      themeToggle.textContent = '🌙';
+      localStorage.setItem('theme', 'light');
+    } else {
+      html.classList.add('dark');
+      themeToggle.textContent = '☀️';
+      localStorage.setItem('theme', 'dark');
+    }
+  });
+})();
+
+// ============================================================
+// PRESETS
 // ============================================================
 const PRESETS = [
   { id: 'confidential', label: 'CONFIDENTIAL',  text: 'CONFIDENTIAL',    color: '#ef4444', fontSize: 72, rotation: -45, opacity: 35, scale: 70, bold: true, layout: 'single' },
@@ -834,21 +1102,16 @@ const PRESETS = [
 // STATE
 // ============================================================
 const State = {
-  // Source
-  sourceType: null,          // 'pdf' or 'image'
+  sourceType: null,
   sourceFile: null,
   sourceName: '',
-  // For images:
   imageBitmap: null,
-  // For PDFs:
   pdfDoc: null,
   pdfNumPages: 0,
-  pdfPageCanvases: [],       // rendered canvases, one per page (rasterized for preview)
-  pdfPageSizes: [],          // { width, height } in PDF points
-  pdfOriginalBytes: null,    // original PDF bytes for pdf-lib
-  // View
+  pdfPageCanvases: [],
+  pdfPageSizes: [],
+  pdfOriginalBytes: null,
   currentPageIndex: 0,
-  // Watermark
   watermark: {
     type: 'text',
     text: 'CONFIDENTIAL',
@@ -907,10 +1170,6 @@ function hexToRgb(hex) {
     b: parseInt(h.slice(4, 6), 16)
   };
 }
-function rgbToHex(r, g, b) {
-  const toHex = v => Math.max(0, Math.min(255, Math.round(v))).toString(16).padStart(2, '0');
-  return '#' + toHex(r) + toHex(g) + toHex(b);
-}
 
 // ============================================================
 // UPLOAD
@@ -961,14 +1220,21 @@ async function loadFile(file) {
   if (State.sourceType === 'image') {
     document.getElementById('thumbSidebar').classList.add('hidden');
     document.getElementById('pageRangeSection').classList.add('hidden');
+    document.querySelector('.editor').style.gridTemplateColumns = '0 1fr 340px';
   } else {
     document.getElementById('thumbSidebar').classList.remove('hidden');
     document.getElementById('pageRangeSection').classList.remove('hidden');
+    document.querySelector('.editor').style.gridTemplateColumns = '';
     buildThumbnails();
   }
 
-  await renderCurrentPage();
-  drawWatermarkOverlay();
+  // Let the DOM settle, then fit the page to the viewer width
+  requestAnimationFrame(() => {
+    renderCurrentPage().then(() => {
+      fitPageToViewer();
+      drawWatermarkOverlay();
+    });
+  });
 }
 
 function resetToUpload() {
@@ -1015,7 +1281,8 @@ async function loadPDF(file) {
     const page = await State.pdfDoc.getPage(i);
     const vp1 = page.getViewport({ scale: 1 });
     State.pdfPageSizes.push({ width: vp1.width, height: vp1.height });
-    const scale = 1400 / Math.max(vp1.width, vp1.height);
+    // Render at a resolution proportional to the PDF size, capped at 1600 px long edge
+    const scale = Math.min(2, 1600 / Math.max(vp1.width, vp1.height));
     const vp = page.getViewport({ scale });
     const canvas = document.createElement('canvas');
     canvas.width = Math.round(vp.width);
@@ -1031,7 +1298,7 @@ async function loadPDF(file) {
 }
 
 // ============================================================
-// THUMBNAILS (PDF)
+// THUMBNAILS
 // ============================================================
 function buildThumbnails() {
   const list = document.getElementById('thumbList');
@@ -1053,23 +1320,72 @@ function buildThumbnails() {
       State.currentPageIndex = idx;
       document.querySelectorAll('#thumbList .thumb').forEach(t => t.classList.remove('active'));
       thumb.classList.add('active');
-      renderCurrentPage().then(drawWatermarkOverlay);
-      // When current-page mode is selected, this automatically switches context
+      renderCurrentPage().then(() => {
+        fitPageToViewer();
+        drawWatermarkOverlay();
+      });
     };
     list.appendChild(thumb);
   });
 }
 
 // ============================================================
-// RENDER CURRENT PAGE PREVIEW
+// FIT PAGE TO VIEWER
+// Computes the largest scale that fits the available center width,
+// applies it to the preview canvas, and lets the viewer scroll.
+// ============================================================
+function fitPageToViewer() {
+  const viewer = document.getElementById('previewArea');
+  const canvas = document.getElementById('pageRender');
+  if (!viewer || !canvas || canvas.width === 0) return;
+
+  // Available width = viewer client width minus padding (32 px each side = 64)
+  const available = Math.max(100, viewer.clientWidth - 64);
+  // Fit-to-width only — height is not constrained, the viewer scrolls
+  const naturalW = canvas.width;
+  const naturalH = canvas.height;
+  const scale = available / naturalW;
+  const targetW = Math.round(naturalW * scale);
+  const targetH = Math.round(naturalH * scale);
+
+  // Set the CSS width/height on the preview container so the overlay
+  // canvas and the page canvas match
+  const page = document.getElementById('previewPage');
+  page.style.width = targetW + 'px';
+  page.style.height = targetH + 'px';
+  canvas.style.width = targetW + 'px';
+  canvas.style.height = targetH + 'px';
+
+  const overlay = document.getElementById('wmOverlay');
+  overlay.width = targetW;
+  overlay.height = targetH;
+  overlay.style.width = targetW + 'px';
+  overlay.style.height = targetH + 'px';
+}
+
+// Re-fit on resize
+let resizeTimer = null;
+window.addEventListener('resize', () => {
+  if (resizeTimer) clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(() => {
+    if (State.sourceType) {
+      fitPageToViewer();
+      drawWatermarkOverlay();
+    }
+  }, 120);
+});
+
+// ============================================================
+// RENDER CURRENT PAGE
 // ============================================================
 async function renderCurrentPage() {
-  const previewPage = document.getElementById('previewPage');
   const canvas = document.getElementById('pageRender');
 
   if (State.sourceType === 'image') {
     const bmp = State.imageBitmap;
-    const maxDim = 1400;
+    // Rasterize at full image resolution into an offscreen canvas,
+    // then copy into the visible canvas so fitPageToViewer can scale.
+    const maxDim = 1600;
     const scale = Math.min(1, maxDim / Math.max(bmp.width, bmp.height));
     canvas.width = Math.round(bmp.width * scale);
     canvas.height = Math.round(bmp.height * scale);
@@ -1084,11 +1400,6 @@ async function renderCurrentPage() {
     canvas.height = src.height;
     canvas.getContext('2d').drawImage(src, 0, 0);
   }
-
-  // Overlay canvas matches display size
-  const overlay = document.getElementById('wmOverlay');
-  overlay.width = canvas.width;
-  overlay.height = canvas.height;
 }
 
 // ============================================================
@@ -1156,7 +1467,6 @@ function bindControls() {
   if (controlsBound) return;
   controlsBound = true;
 
-  // Text
   document.getElementById('wmText').addEventListener('input', e => {
     State.watermark.text = e.target.value || ' ';
     drawWatermarkOverlay();
@@ -1180,8 +1490,6 @@ function bindControls() {
     e.target.classList.toggle('active', State.watermark.italic);
     drawWatermarkOverlay();
   });
-
-  // Color
   document.getElementById('wmColor').addEventListener('input', e => {
     State.watermark.color = e.target.value;
     document.getElementById('wmColorHex').value = e.target.value.toUpperCase();
@@ -1195,8 +1503,6 @@ function bindControls() {
       drawWatermarkOverlay();
     }
   });
-
-  // Opacity / Angle / Scale / Spacing
   document.getElementById('wmOpacity').addEventListener('input', e => {
     State.watermark.opacity = parseInt(e.target.value, 10);
     document.getElementById('valOpacity').textContent = e.target.value + '%';
@@ -1217,8 +1523,6 @@ function bindControls() {
     document.getElementById('valSpacing').textContent = e.target.value;
     drawWatermarkOverlay();
   });
-
-  // Image
   document.getElementById('wmImageInput').addEventListener('change', async e => {
     const f = e.target.files[0];
     e.target.value = '';
@@ -1247,13 +1551,11 @@ function clearWatermarkImage() {
   document.getElementById('wmImageLoaded').classList.add('hidden');
   drawWatermarkOverlay();
 }
-
 function setWatermarkType(type) {
   State.watermark.type = type;
   syncControlsFromState();
   drawWatermarkOverlay();
 }
-
 function setLayout(mode) {
   State.watermark.layout = mode;
   updateLayoutUI();
@@ -1273,7 +1575,6 @@ function updateLayoutUI() {
     position.style.display = '';
   }
 }
-
 function setPosition(x, y) {
   State.watermark.x = x;
   State.watermark.y = y;
@@ -1281,7 +1582,7 @@ function setPosition(x, y) {
 }
 
 // ============================================================
-// DRAW WATERMARK ON PREVIEW OVERLAY
+// WATERMARK RENDER
 // ============================================================
 function drawWatermarkOverlay() {
   const overlay = document.getElementById('wmOverlay');
@@ -1290,40 +1591,26 @@ function drawWatermarkOverlay() {
   const h = overlay.height;
   ctx.clearRect(0, 0, w, h);
   if (!w || !h) return;
-
   const wm = State.watermark;
-
-  // For tiled preview, we show it on the current page
   if (wm.layout === 'tile') {
-    drawTiled(ctx, w, h, wm, /*forExport*/ false);
+    drawTiled(ctx, w, h, wm);
   } else {
-    drawSingle(ctx, w, h, wm, /*forExport*/ false);
+    drawSingle(ctx, w, h, wm);
   }
 }
 
-// ============================================================
-// WATERMARK DRAWING ENGINE
-// The same functions are used by the preview and the export.
-// The `forExport` flag scales the font size for the export canvas.
-// ============================================================
-
-// Scale factor: preview canvases are usually smaller than the source.
-// We compute the effective font size relative to the canvas's long edge
-// so the watermark looks the same size in preview and in export.
 function computeEffectiveFontSize(wm, canvasW, canvasH) {
   const longEdge = Math.max(canvasW, canvasH);
-  // wm.fontSize is defined as if the page were 1000 px on the long edge
   const reference = 1000;
   return wm.fontSize * (longEdge / reference) * (wm.scale / 100);
 }
-
 function getFontString(wm, fontSize) {
   const weight = wm.bold ? '700' : '400';
   const style = wm.italic ? 'italic' : 'normal';
   return `${style} ${weight} ${fontSize}px ${wm.font}`;
 }
 
-function drawSingle(ctx, canvasW, canvasH, wm, forExport) {
+function drawSingle(ctx, canvasW, canvasH, wm) {
   ctx.save();
   ctx.globalAlpha = wm.opacity / 100;
 
@@ -1338,11 +1625,9 @@ function drawSingle(ctx, canvasW, canvasH, wm, forExport) {
 
     const cx = canvasW * wm.x;
     const cy = canvasH * wm.y;
-
     ctx.translate(cx, cy);
     ctx.rotate(wm.rotation * Math.PI / 180);
 
-    // Auto-fit long text so it does not overflow
     let text = wm.text || '';
     let measured = ctx.measureText(text).width;
     const maxWidth = canvasW * 0.9;
@@ -1351,22 +1636,18 @@ function drawSingle(ctx, canvasW, canvasH, wm, forExport) {
       const newSize = fontSize * shrink;
       ctx.font = getFontString(wm, newSize);
     }
-
     ctx.fillText(text, 0, 0);
   }
-
   ctx.restore();
 }
 
-function drawTiled(ctx, canvasW, canvasH, wm, forExport) {
+function drawTiled(ctx, canvasW, canvasH, wm) {
   ctx.save();
   ctx.globalAlpha = wm.opacity / 100;
 
   const spacing = wm.spacing;
-  // We scale the spacing relative to a reference long edge of 1000
   const longEdge = Math.max(canvasW, canvasH);
   const scaledSpacing = spacing * (longEdge / 1000);
-
   const fontSize = computeEffectiveFontSize(wm, canvasW, canvasH);
 
   if (wm.type === 'image' && wm.imageDataUrl) {
@@ -1377,13 +1658,11 @@ function drawTiled(ctx, canvasW, canvasH, wm, forExport) {
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
 
-    // Diagonal offset to create the staggered look
     const diag = Math.ceil(Math.hypot(canvasW, canvasH) / scaledSpacing) + 2;
     for (let iy = -diag; iy <= diag; iy++) {
       for (let ix = -diag; ix <= diag; ix++) {
         const cx = canvasW / 2 + ix * scaledSpacing;
         const cy = canvasH / 2 + iy * scaledSpacing;
-        // Offset alternating rows for the stagger effect
         const offsetX = (iy % 2 === 0) ? 0 : scaledSpacing / 2;
         ctx.save();
         ctx.translate(cx + offsetX, cy);
@@ -1393,34 +1672,29 @@ function drawTiled(ctx, canvasW, canvasH, wm, forExport) {
       }
     }
   }
-
   ctx.restore();
 }
 
 function drawImageWatermark(ctx, canvasW, canvasH, wm) {
-  if (!wm.imageDataUrl || !wm._imageEl) {
-    // Load synchronously via cached Image element
-    if (!wm._imageEl && wm.imageDataUrl) {
+  if (!wm._imageEl) {
+    if (wm.imageDataUrl) {
       const img = new Image();
-      img.src = wm.imageDataUrl;
       img.onload = () => {
         wm._imageEl = img;
         drawWatermarkOverlay();
       };
-      return;
+      img.src = wm.imageDataUrl;
     }
     return;
   }
   const img = wm._imageEl;
   const longEdge = Math.max(canvasW, canvasH);
-  const baseSize = longEdge * 0.4; // 40% of the page
+  const baseSize = longEdge * 0.4;
   const scale = (wm.scale / 100);
   const targetW = baseSize * scale * (img.width / Math.max(img.width, img.height));
   const targetH = baseSize * scale * (img.height / Math.max(img.width, img.height));
-
   const cx = canvasW * wm.x;
   const cy = canvasH * wm.y;
-
   ctx.save();
   ctx.translate(cx, cy);
   ctx.rotate(wm.rotation * Math.PI / 180);
@@ -1429,24 +1703,23 @@ function drawImageWatermark(ctx, canvasW, canvasH, wm) {
 }
 
 function drawTiledImage(ctx, canvasW, canvasH, wm, scaledSpacing) {
-  const img = wm._imageEl;
-  if (!img) {
-    if (!wm._imageEl) {
+  if (!wm._imageEl) {
+    if (wm.imageDataUrl) {
       const im = new Image();
-      im.src = wm.imageDataUrl;
       im.onload = () => {
         wm._imageEl = im;
         drawWatermarkOverlay();
       };
+      im.src = wm.imageDataUrl;
     }
     return;
   }
+  const img = wm._imageEl;
   const longEdge = Math.max(canvasW, canvasH);
   const baseSize = longEdge * 0.15;
   const scale = (wm.scale / 100);
   const targetW = baseSize * scale * (img.width / Math.max(img.width, img.height));
   const targetH = baseSize * scale * (img.height / Math.max(img.width, img.height));
-
   const diag = Math.ceil(Math.hypot(canvasW, canvasH) / scaledSpacing) + 2;
   for (let iy = -diag; iy <= diag; iy++) {
     for (let ix = -diag; ix <= diag; ix++) {
@@ -1463,7 +1736,7 @@ function drawTiledImage(ctx, canvasW, canvasH, wm, scaledSpacing) {
 }
 
 // ============================================================
-// DRAG WATERMARK IN PREVIEW (SINGLE MODE ONLY)
+// DRAG WATERMARK (single mode)
 // ============================================================
 (function wireDrag() {
   const overlay = document.getElementById('wmOverlay');
@@ -1513,7 +1786,6 @@ function onPageModeChange() {
 function onPageRangeChange() {
   State.watermark.pageRange = document.getElementById('pageRangeInput').value;
 }
-
 function parseRange(str, max) {
   const result = new Set();
   str.split(',').forEach(part => {
@@ -1533,7 +1805,6 @@ function parseRange(str, max) {
   });
   return result;
 }
-
 function shouldApplyToPage(pageIdx1Based) {
   const wm = State.watermark;
   if (State.sourceType === 'image') return true;
@@ -1550,14 +1821,10 @@ function shouldApplyToPage(pageIdx1Based) {
 // EXPORT
 // ============================================================
 async function exportResult() {
-  if (State.sourceType === 'pdf') {
-    await exportPDF();
-  } else if (State.sourceType === 'image') {
-    await exportImage();
-  }
+  if (State.sourceType === 'pdf') await exportPDF();
+  else if (State.sourceType === 'image') await exportImage();
 }
 
-// ----- IMAGE EXPORT -----
 async function exportImage() {
   showProcessing('Exporting image…', 'Drawing watermark');
   try {
@@ -1568,36 +1835,26 @@ async function exportImage() {
     const ctx = canvas.getContext('2d');
     ctx.drawImage(bmp, 0, 0);
 
-    // Draw the watermark at full resolution
     const wm = State.watermark;
-    if (wm.type === 'image' && wm.imageDataUrl) {
-      // Ensure the image element is loaded
-      if (!wm._imageEl) {
-        await new Promise((res, rej) => {
-          const img = new Image();
-          img.onload = () => { wm._imageEl = img; res(); };
-          img.onerror = rej;
-          img.src = wm.imageDataUrl;
-        });
-      }
+    if (wm.type === 'image' && wm.imageDataUrl && !wm._imageEl) {
+      await new Promise((res, rej) => {
+        const img = new Image();
+        img.onload = () => { wm._imageEl = img; res(); };
+        img.onerror = rej;
+        img.src = wm.imageDataUrl;
+      });
     }
-    if (wm.layout === 'tile') {
-      drawTiled(ctx, canvas.width, canvas.height, wm, true);
-    } else {
-      drawSingle(ctx, canvas.width, canvas.height, wm, true);
-    }
+    if (wm.layout === 'tile') drawTiled(ctx, canvas.width, canvas.height, wm);
+    else drawSingle(ctx, canvas.width, canvas.height, wm);
 
-    // Determine output format based on source
     const ext = (State.sourceName.split('.').pop() || 'png').toLowerCase();
     const isJpg = ext === 'jpg' || ext === 'jpeg';
     const isWebp = ext === 'webp';
     const mime = isJpg ? 'image/jpeg' : isWebp ? 'image/webp' : 'image/png';
     const q = isJpg || isWebp ? 0.92 : undefined;
     const blob = await new Promise(res => canvas.toBlob(res, mime, q));
-
     const filename = 'dropletweb-image.' + (isJpg ? 'jpg' : isWebp ? 'webp' : 'png');
     triggerDownload(blob, filename);
-
     hideProcessing();
     showToast(`Image exported as ${filename}`, 'success', 3000);
   } catch (e) {
@@ -1607,26 +1864,19 @@ async function exportImage() {
   }
 }
 
-// ----- PDF EXPORT (VECTOR WATERMARK) -----
 async function exportPDF() {
   showProcessing('Exporting PDF…', 'Preparing document');
   try {
     const { PDFDocument, rgb, StandardFonts, degrees } = PDFLib;
-
     const pdfDoc = await PDFDocument.load(State.pdfOriginalBytes, {
       ignoreEncryption: true,
       updateMetadata: false
     });
 
-    // Load font for the watermark
     let font;
-    if (State.watermark.bold) {
-      font = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
-    } else {
-      font = await pdfDoc.embedFont(StandardFonts.Helvetica);
-    }
+    if (State.watermark.bold) font = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+    else font = await pdfDoc.embedFont(StandardFonts.Helvetica);
 
-    // Load image if needed
     let imageRef = null;
     if (State.watermark.type === 'image' && State.watermark.imageDataUrl) {
       const dataUrl = State.watermark.imageDataUrl;
@@ -1646,11 +1896,10 @@ async function exportPDF() {
       setProcessing(`Applying to page ${i + 1} of ${pages.length}`, ((i + 1) / pages.length) * 100);
       const page = pages[i];
       const { width, height } = page.getSize();
-
       if (wm.layout === 'tile') {
-        await drawPdfTiled(page, wm, font, color, imageRef, width, height, degrees);
+        drawPdfTiled(page, wm, font, color, imageRef, width, height, degrees);
       } else {
-        await drawPdfSingle(page, wm, font, color, imageRef, width, height, degrees);
+        drawPdfSingle(page, wm, font, color, imageRef, width, height, degrees);
       }
     }
 
@@ -1658,7 +1907,6 @@ async function exportPDF() {
     const pdfBytes = await pdfDoc.save();
     const blob = new Blob([pdfBytes], { type: 'application/pdf' });
     triggerDownload(blob, 'dropletweb-Watermark.pdf');
-
     hideProcessing();
     showToast('PDF exported as dropletweb-Watermark.pdf', 'success', 3000);
   } catch (e) {
@@ -1668,54 +1916,45 @@ async function exportPDF() {
   }
 }
 
-async function drawPdfSingle(page, wm, font, color, imageRef, width, height, degrees) {
-  const { rgb, degrees: deg, StandardFonts } = PDFLib;
-  // Font size relative to PDF page
-  // We use a reference long edge of 1000 for the font size
+function drawPdfSingle(page, wm, font, color, imageRef, width, height, degrees) {
+  const { deg } = { deg: degrees };
   const reference = 1000;
   const longEdge = Math.max(width, height);
   const fontSize = wm.fontSize * (longEdge / reference) * (wm.scale / 100);
-
   const cx = width * wm.x;
-  const cy = height * (1 - wm.y);   // PDF Y origin is bottom-left
+  const cy = height * (1 - wm.y);
 
   if (wm.type === 'image' && imageRef) {
-    const longEdgePdf = Math.max(width, height);
-    const baseSize = longEdgePdf * 0.4;
+    const baseSize = longEdge * 0.4;
     const scale = (wm.scale / 100);
-    const imgW = imageRef.width;
-    const imgH = imageRef.height;
-    const ar = imgW / imgH;
+    const ar = imageRef.width / imageRef.height;
     let targetW, targetH;
     if (ar > 1) { targetW = baseSize * scale; targetH = targetW / ar; }
     else { targetH = baseSize * scale; targetW = targetH * ar; }
-
     page.drawImage(imageRef, {
       x: cx - targetW / 2,
       y: cy - targetH / 2,
       width: targetW,
       height: targetH,
-      rotate: deg(wm.rotation),
+      rotate: degrees(wm.rotation),
       opacity: wm.opacity / 100
     });
   } else {
     const text = wm.text || '';
     const textWidth = font.widthOfTextAtSize(text, fontSize);
-
     page.drawText(text, {
       x: cx - textWidth / 2,
       y: cy - fontSize * 0.35,
       size: fontSize,
       font: font,
       color: color,
-      rotate: deg(wm.rotation),
+      rotate: degrees(wm.rotation),
       opacity: wm.opacity / 100
     });
   }
 }
 
-async function drawPdfTiled(page, wm, font, color, imageRef, width, height, degrees) {
-  const { rgb, degrees: deg } = PDFLib;
+function drawPdfTiled(page, wm, font, color, imageRef, width, height, degrees) {
   const reference = 1000;
   const longEdge = Math.max(width, height);
   const fontSize = wm.fontSize * (longEdge / reference) * (wm.scale / 100);
@@ -1729,7 +1968,6 @@ async function drawPdfTiled(page, wm, font, color, imageRef, width, height, degr
     let targetW, targetH;
     if (ar > 1) { targetW = baseSize * scale; targetH = targetW / ar; }
     else { targetH = baseSize * scale; targetW = targetH * ar; }
-
     for (let iy = -diag; iy <= diag; iy++) {
       for (let ix = -diag; ix <= diag; ix++) {
         const cx = width / 2 + ix * spacingPdf;
@@ -1740,7 +1978,7 @@ async function drawPdfTiled(page, wm, font, color, imageRef, width, height, degr
           y: cy - targetH / 2,
           width: targetW,
           height: targetH,
-          rotate: deg(wm.rotation),
+          rotate: degrees(wm.rotation),
           opacity: wm.opacity / 100
         });
       }
@@ -1748,7 +1986,6 @@ async function drawPdfTiled(page, wm, font, color, imageRef, width, height, degr
   } else {
     const text = wm.text || '';
     const textWidth = font.widthOfTextAtSize(text, fontSize);
-
     for (let iy = -diag; iy <= diag; iy++) {
       for (let ix = -diag; ix <= diag; ix++) {
         const cx = width / 2 + ix * spacingPdf;
@@ -1760,7 +1997,7 @@ async function drawPdfTiled(page, wm, font, color, imageRef, width, height, degr
           size: fontSize,
           font: font,
           color: color,
-          rotate: deg(wm.rotation),
+          rotate: degrees(wm.rotation),
           opacity: wm.opacity / 100
         });
       }
