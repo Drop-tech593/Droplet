@@ -1,1476 +1,1386 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title id="pageTitle">Edit PDF - Droplet</title>
-  <meta name="description" content="Edit PDF files online for free. 100% client-side, your files never leave your browser.">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Crop PDF - Droplet</title>
+<meta name="description" content="Crop PDF pages and images in your browser. Drag corners, reorder pages, download as PDF or image. 100% client-side.">
 
-  <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
+<!-- Google AdSense -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4006702663328202"
+   crossorigin="anonymous"></script>
 
-  <!-- PDF.js for PDF rendering -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
 
-  <style>
-    * { box-sizing: border-box; }
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+<style>
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; overscroll-behavior: none; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8fafc; color: #0f172a; }
+  .hidden { display: none !important; }
 
-    .scrollbar-thin::-webkit-scrollbar { width: 5px; height: 5px; }
-    .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
-    .scrollbar-thin::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-    .scrollbar-thin::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+  .screen { display: none; min-height: 100vh; flex-direction: column; }
+  .screen.active { display: flex; }
 
-    /* ===== TOP BAR ===== */
-    .top-bar {
-      background: white;
-      border-bottom: 1px solid #e2e8f0;
-      padding: 4px 16px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      flex-wrap: wrap;
-      min-height: 40px;
-    }
-    .top-bar .logo {
-      font-weight: 700;
-      font-size: 15px;
-      color: #0f172a;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      margin-right: 8px;
-      cursor: pointer;
-      text-decoration: none;
-    }
-    .top-bar .logo img { height: 26px; width: auto; border-radius: 6px; }
-    .top-bar .logo:hover { color: #2563eb; }
-    .top-bar .menu-btn {
-      padding: 3px 8px;
-      font-size: 12px;
-      font-weight: 500;
-      color: #475569;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: background 0.15s;
-      background: transparent;
-      border: none;
-      position: relative;
-    }
-    .top-bar .menu-btn:hover { background: #f1f5f9; }
-    .top-bar .menu-btn .dropdown {
-      display: none;
-      position: absolute;
-      top: 100%;
-      left: 0;
-      min-width: 200px;
-      background: white;
-      border-radius: 8px;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.15);
-      border: 1px solid #e2e8f0;
-      padding: 4px 0;
-      z-index: 100;
-    }
-    .top-bar .menu-btn:hover .dropdown { display: block; }
-    .top-bar .menu-btn .dropdown a {
-      display: block;
-      padding: 5px 14px;
-      font-size: 12px;
-      color: #1e293b;
-      text-decoration: none;
-      transition: background 0.15s;
-      cursor: pointer;
-    }
-    .top-bar .menu-btn .dropdown a:hover { background: #f1f5f9; }
-    .top-bar .menu-btn .dropdown .divider {
-      height: 1px;
-      background: #e2e8f0;
-      margin: 4px 8px;
-    }
-    .top-bar .menu-btn .dropdown .shortcut {
-      float: right;
-      color: #94a3b8;
-      font-size: 11px;
-    }
-    .top-bar .doc-title {
-      font-size: 13px;
-      font-weight: 500;
-      color: #1e293b;
-      padding: 4px 10px;
-      border-radius: 4px;
-      cursor: pointer;
-      transition: background 0.15s;
-      max-width: 300px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-    .top-bar .doc-title:hover { background: #f1f5f9; }
-    .top-bar .doc-title .saved { color: #22c55e; font-size: 11px; margin-left: 6px; }
-    .top-bar .tool-badge {
-      font-size: 11px;
-      background: #dbeafe;
-      color: #1e40af;
-      padding: 2px 12px;
-      border-radius: 12px;
-      font-weight: 600;
-    }
-    .top-bar .action-btn {
-      padding: 3px 8px;
-      font-size: 12px;
-      font-weight: 500;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: all 0.15s;
-      border: 1px solid #e2e8f0;
-      background: white;
-      color: #475569;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-    .top-bar .action-btn:hover { background: #f1f5f9; border-color: #cbd5e1; }
-    .top-bar .action-btn.primary {
-      background: #2563eb;
-      color: white;
-      border-color: #2563eb;
-    }
-    .top-bar .action-btn.primary:hover { background: #1d4ed8; border-color: #1d4ed8; }
-    .top-bar .spacer { flex: 1; }
-    .top-bar .zoom-controls {
-      display: flex;
-      align-items: center;
-      gap: 3px;
-      font-size: 12px;
-      color: #475569;
-    }
-    .top-bar .zoom-controls button {
-      width: 24px;
-      height: 24px;
-      border-radius: 6px;
-      border: 1px solid #e2e8f0;
-      background: white;
-      cursor: pointer;
-      font-size: 13px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.15s;
-    }
-    .top-bar .zoom-controls button:hover { background: #f1f5f9; }
+  /* Header */
+  .app-header {
+    padding: 12px 16px;
+    background: #fff;
+    border-bottom: 1px solid #e2e8f0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+    min-height: 58px;
+  }
+  .app-header .logo-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    flex-shrink: 0;
+  }
+  .app-header .logo-link img {
+    height: 32px;
+    width: auto;
+    border-radius: 8px;
+  }
+  .app-header .logo-link .logo-text {
+    font-weight: 900;
+    font-size: 16px;
+    color: #0f172a;
+    letter-spacing: -0.02em;
+  }
+  .app-header .title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #0f172a;
+    margin-left: 4px;
+  }
+  .app-header .header-spacer { flex: 1; }
+  .header-btn {
+    background: none;
+    border: none;
+    color: #3b82f6;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 8px 12px;
+    border-radius: 8px;
+    transition: background 0.15s;
+  }
+  .header-btn:hover { background: #eff6ff; }
+  .header-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+  .header-btn.strong {
+    background: #3b82f6;
+    color: #fff;
+    padding: 8px 14px;
+  }
+  .header-btn.strong:hover { background: #2563eb; }
+  .header-btn.strong:disabled { background: #cbd5e1; }
+  .page-indicator {
+    font-size: 13px;
+    font-weight: 700;
+    color: #fff;
+    background: #0f172a;
+    padding: 4px 12px;
+    border-radius: 999px;
+    flex-shrink: 0;
+  }
 
-    /* ===== TOOLBAR ROW 2 ===== */
-    .toolbar-row {
-      background: white;
-      border-bottom: 1px solid #e2e8f0;
-      padding: 4px 12px;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      flex-wrap: wrap;
-      min-height: 38px;
-      transition: all 0.2s;
-    }
-    .toolbar-row .tool-btn {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      padding: 4px 10px;
-      border-radius: 6px;
-      font-size: 12px;
-      font-weight: 500;
-      color: #475569;
-      border: 2px solid transparent;
-      cursor: pointer;
-      transition: all 0.15s;
-      background: transparent;
-      white-space: nowrap;
-    }
-    .toolbar-row .tool-btn:hover { background: #f1f5f9; color: #1e293b; }
-    .toolbar-row .tool-btn.active { border-color: #2563eb; background: #eff6ff; color: #2563eb; }
-    .toolbar-row .tool-btn .icon { font-size: 14px; }
-    .toolbar-row .tool-divider {
-      width: 1px;
-      height: 22px;
-      background: #e2e8f0;
-      margin: 0 4px;
-    }
-    .toolbar-row .fmt-btn {
-      padding: 3px 8px;
-      border-radius: 4px;
-      border: 1px solid transparent;
-      background: transparent;
-      cursor: pointer;
-      font-size: 13px;
-      color: #475569;
-      transition: all 0.15s;
-      font-weight: 500;
-    }
-    .toolbar-row .fmt-btn:hover { background: #f1f5f9; }
-    .toolbar-row .fmt-btn.active { background: #eff6ff; border-color: #2563eb; color: #2563eb; }
-    .toolbar-row .fmt-btn.bold { font-weight: 700; }
-    .toolbar-row .fmt-btn.italic { font-style: italic; }
-    .toolbar-row .fmt-btn.underline { text-decoration: underline; }
-    .toolbar-row .fmt-btn.strike { text-decoration: line-through; }
-    .toolbar-row .fmt-select {
-      padding: 3px 6px;
-      border: 1px solid #e2e8f0;
-      border-radius: 4px;
-      font-size: 12px;
-      background: white;
-      color: #1e293b;
-      outline: none;
-      cursor: pointer;
-    }
-    .toolbar-row .fmt-select:focus { border-color: #2563eb; }
-    .toolbar-row .color-btn {
-      width: 24px;
-      height: 24px;
-      border-radius: 4px;
-      border: 2px solid #e2e8f0;
-      cursor: pointer;
-      padding: 2px;
-      background: white;
-    }
+  /* Guide banner */
+  .guide-banner {
+    padding: 10px 16px;
+    background: #eff6ff;
+    border-bottom: 1px solid #dbeafe;
+    color: #1e40af;
+    font-size: 13px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+  .guide-banner .guide-icon { font-size: 16px; flex-shrink: 0; }
 
-    /* ===== LEFT SIDEBAR ===== */
-    .left-sidebar {
-      width: 200px;
-      min-width: 200px;
-      background: white;
-      border-right: 1px solid #e2e8f0;
-      padding: 10px;
-      overflow-y: auto;
-      max-height: calc(100vh - 120px);
-      display: flex;
-      flex-direction: column;
-    }
-    .left-sidebar .sidebar-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 8px;
-      padding: 0 2px;
-    }
-    .left-sidebar .sidebar-title {
-      font-size: 10px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: #94a3b8;
-    }
-    .left-sidebar .sidebar-add {
-      width: 22px;
-      height: 22px;
-      border-radius: 6px;
-      border: none;
-      background: transparent;
-      color: #94a3b8;
-      cursor: pointer;
-      font-size: 16px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.15s;
-    }
-    .left-sidebar .sidebar-add:hover { background: #f1f5f9; color: #2563eb; }
-    .page-thumbnail {
-      position: relative;
-      border: 2px solid transparent;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: all 0.2s;
-      background: white;
-      overflow: hidden;
-      margin-bottom: 6px;
-    }
-    .page-thumbnail:hover { border-color: #94a3b8; }
-    .page-thumbnail.active { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12); }
-    .page-thumbnail .thumb-content {
-      height: 70px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 24px;
-      color: #94a3b8;
-      background: #f8fafc;
-    }
-    .page-thumbnail .page-number {
-      position: absolute;
-      bottom: 3px;
-      right: 5px;
-      font-size: 8px;
-      font-weight: 600;
-      color: #fff;
-      background: rgba(0,0,0,0.5);
-      padding: 1px 5px;
-      border-radius: 3px;
-    }
+  /* Crop editor */
+  #cropStage {
+    position: relative;
+    flex: 1;
+    background: #1e293b;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    touch-action: none;
+    min-height: 0;
+  }
+  #cropCanvas {
+    max-width: 100%;
+    max-height: 100%;
+    display: block;
+  }
+  #cropOverlay {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+  }
+  .corner-handle {
+    position: absolute;
+    width: 44px;
+    height: 44px;
+    margin-left: -22px;
+    margin-top: -22px;
+    border-radius: 50%;
+    background: rgba(59, 130, 246, 0.25);
+    border: 3px solid #3b82f6;
+    cursor: grab;
+    touch-action: none;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    z-index: 5;
+  }
+  .corner-handle::after {
+    content: '';
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 10px; height: 10px;
+    margin: -5px 0 0 -5px;
+    background: #fff;
+    border-radius: 50%;
+    box-shadow: 0 0 0 1px #3b82f6;
+  }
+  .corner-handle:active { cursor: grabbing; }
+  #magnifier {
+    position: absolute;
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    border: 3px solid #fff;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 100;
+    display: none;
+  }
+  #magnifier canvas { width: 100%; height: 100%; display: block; }
+  #magnifier::after {
+    content: '';
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 2px; height: 2px;
+    margin: -1px 0 0 -1px;
+    background: #ef4444;
+    border-radius: 50%;
+    box-shadow: 0 0 0 1px #fff;
+  }
 
-    /* ===== WORKSPACE ===== */
-    .workspace {
-      background: #e9edf2;
-      flex: 1;
-      overflow: auto;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 30px;
-      min-height: 500px;
-      position: relative;
-    }
-    .workspace .page-container {
-      background: #ffffff;
-      border-radius: 2px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 8px 24px rgba(0,0,0,0.12);
-      position: relative;
-      transition: transform 0.2s;
-      transform-origin: center center;
-    }
-    .workspace .page-container canvas { display: block; width: 100%; height: auto; }
+  /* Action bar */
+  .action-bar {
+    padding: 12px 16px;
+    background: #fff;
+    border-top: 1px solid #e2e8f0;
+    display: flex;
+    gap: 10px;
+    flex-shrink: 0;
+    flex-wrap: wrap;
+  }
+  .action-bar .btn { flex: 1; min-width: 120px; }
+  .btn {
+    padding: 13px 18px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 14px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-align: center;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-height: 46px;
+  }
+  .btn:active { transform: scale(0.97); }
+  .btn-primary { background: #3b82f6; color: #fff; }
+  .btn-primary:hover { background: #2563eb; }
+  .btn-secondary { background: #f1f5f9; color: #334155; border: 1px solid #e2e8f0; }
+  .btn-secondary:hover { background: #e2e8f0; }
+  .btn-success { background: #10b981; color: #fff; }
+  .btn-success:hover { background: #059669; }
+  .btn-danger { background: #ef4444; color: #fff; }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
-    /* ===== RIGHT PANEL ===== */
-    .props-panel {
-      width: 260px;
-      min-width: 260px;
-      background: white;
-      border-left: 1px solid #e2e8f0;
-      padding: 14px;
-      overflow-y: auto;
-      max-height: calc(100vh - 120px);
-    }
-    .props-panel .panel-empty {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100%;
-      min-height: 200px;
-      color: #94a3b8;
-      text-align: center;
-      padding: 20px;
-    }
-    .props-panel .panel-empty .icon { font-size: 32px; margin-bottom: 8px; }
-    .props-panel .panel-empty p { font-size: 12px; max-width: 180px; }
-    .props-panel .section-title {
-      font-size: 10px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: #94a3b8;
-      margin-bottom: 6px;
-      padding-bottom: 3px;
-      border-bottom: 1px solid #e2e8f0;
-    }
-    .props-panel .prop-group { margin-bottom: 10px; }
-    .props-panel .prop-group label {
-      display: block;
-      font-size: 11px;
-      font-weight: 500;
-      color: #64748b;
-      margin-bottom: 2px;
-    }
-    .props-panel .prop-group input[type="color"] {
-      width: 30px;
-      height: 30px;
-      border: 2px solid #e2e8f0;
-      border-radius: 6px;
-      cursor: pointer;
-      padding: 2px;
-    }
-    .props-panel .prop-group input[type="range"] { width: 100%; accent-color: #2563eb; }
-    .props-panel .prop-group select {
-      width: 100%;
-      padding: 4px 8px;
-      border: 1px solid #e2e8f0;
-      border-radius: 6px;
-      font-size: 12px;
-      background: white;
-      outline: none;
-    }
-    .props-panel .prop-group select:focus { border-color: #2563eb; }
-    .props-panel .prop-group .flex-row { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
-    .props-panel .prop-group .flex-row input[type="number"] {
-      width: 56px;
-      padding: 3px 6px;
-      border: 1px solid #e2e8f0;
-      border-radius: 4px;
-      font-size: 12px;
-    }
-    .props-panel .action-btn-sm {
-      padding: 3px 8px;
-      font-size: 12px;
-      font-weight: 500;
-      border-radius: 6px;
-      border: 1px solid #e2e8f0;
-      background: white;
-      cursor: pointer;
-      transition: all 0.15s;
-    }
-    .props-panel .action-btn-sm:hover { background: #f1f5f9; }
-    .props-panel .action-btn-sm.danger { color: #ef4444; border-color: #ef4444; }
-    .props-panel .action-btn-sm.danger:hover { background: #fef2f2; }
+  /* Page grid */
+  #pageGrid {
+    flex: 1;
+    padding: 16px;
+    overflow-y: auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 12px;
+    align-content: start;
+  }
+  .page-card {
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #fff;
+    border: 2px solid #e2e8f0;
+    cursor: grab;
+    aspect-ratio: 3/4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.15s, border-color 0.15s;
+  }
+  .page-card:active { cursor: grabbing; }
+  .page-card.dragging { opacity: 0.4; }
+  .page-card.drag-over { border-color: #3b82f6; transform: scale(1.03); }
+  .page-card canvas, .page-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+    background: #f8fafc;
+  }
+  .page-card .page-number {
+    position: absolute;
+    top: 6px; left: 6px;
+    background: rgba(15, 23, 42, 0.8);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 8px;
+  }
+  .page-card .page-delete {
+    position: absolute;
+    top: 6px; right: 6px;
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    background: rgba(239, 68, 68, 0.9);
+    color: #fff;
+    font-size: 16px;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+  }
+  .page-card .page-delete:hover { background: #dc2626; }
+  .add-page-card {
+    border: 2px dashed #cbd5e1;
+    background: #f8fafc;
+    color: #64748b;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    aspect-ratio: 3/4;
+    border-radius: 12px;
+    transition: all 0.15s;
+  }
+  .add-page-card:hover { border-color: #3b82f6; color: #3b82f6; background: #eff6ff; }
+  .add-page-card .plus { font-size: 32px; line-height: 1; }
 
-    .props-panel .panel-handle { display: none; }
-    .props-panel .panel-close { display: none; }
+  /* Rotation strip */
+  .rotate-strip {
+    padding: 10px 14px;
+    background: #fff;
+    border-top: 1px solid #e2e8f0;
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    flex-shrink: 0;
+  }
+  .rotate-strip::-webkit-scrollbar { display: none; }
+  .rotate-btn {
+    flex-shrink: 0;
+    padding: 9px 14px;
+    border-radius: 10px;
+    background: #f1f5f9;
+    color: #475569;
+    font-size: 13px;
+    font-weight: 600;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .rotate-btn:hover { background: #e2e8f0; }
 
-    /* ===== STATUS BAR ===== */
-    .status-bar {
-      background: white;
-      border-top: 1px solid #e2e8f0;
-      padding: 3px 16px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      font-size: 11px;
-      color: #94a3b8;
-      min-height: 26px;
-    }
-    .status-bar .status-left { display: flex; gap: 16px; align-items: center; }
-    .status-bar .status-right { display: flex; gap: 8px; align-items: center; }
-    .status-bar .status-right button {
-      background: none;
-      border: none;
-      color: #94a3b8;
-      cursor: pointer;
-      font-size: 11px;
-      padding: 2px 6px;
-      border-radius: 4px;
-      transition: background 0.15s;
-    }
-    .status-bar .status-right button:hover { background: #f1f5f9; }
+  /* Progress overlay */
+  #processingOverlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.85);
+    backdrop-filter: blur(6px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+  }
+  .processing-card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 32px 28px;
+    max-width: 340px;
+    width: calc(100% - 40px);
+    text-align: center;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  }
+  .spinner {
+    width: 44px;
+    height: 44px;
+    border: 4px solid #e2e8f0;
+    border-top-color: #3b82f6;
+    border-radius: 50%;
+    margin: 0 auto 16px;
+    animation: spin 0.9s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .processing-card h4 { font-size: 16px; font-weight: 700; margin: 0 0 8px; color: #0f172a; }
+  .processing-card p { font-size: 13px; color: #64748b; margin: 0 0 16px; min-height: 18px; }
+  .progress-bar {
+    width: 100%;
+    height: 6px;
+    background: #e2e8f0;
+    border-radius: 999px;
+    overflow: hidden;
+  }
+  .progress-bar-inner {
+    height: 100%;
+    background: #3b82f6;
+    width: 0%;
+    transition: width 0.3s ease;
+  }
 
-    /* ===== EMPTY STATE ===== */
-    .empty-state {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100%;
-      min-height: 400px;
-      text-align: center;
-      padding: 40px;
-    }
-    .empty-state .icon { font-size: 56px; margin-bottom: 12px; }
-    .empty-state h3 { font-size: 20px; font-weight: 700; color: #1e293b; margin-bottom: 4px; }
-    .empty-state p { font-size: 14px; color: #94a3b8; max-width: 360px; margin-bottom: 16px; }
-    .empty-state .drop-zone {
-      border: 2px dashed #d1d5db;
-      border-radius: 12px;
-      padding: 40px 60px;
-      margin-top: 8px;
-      transition: all 0.2s;
-      cursor: pointer;
-    }
-    .empty-state .drop-zone:hover { border-color: #2563eb; background: #f8fafc; }
-    .empty-state .drop-zone.dragover { border-color: #2563eb; background: #eff6ff; }
+  /* Upload dropzone */
+  .upload-dropzone {
+    flex: 1;
+    margin: 20px;
+    border: 2px dashed #cbd5e1;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 40px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: #fff;
+    min-height: 300px;
+  }
+  .upload-dropzone:hover, .upload-dropzone.dragover {
+    border-color: #3b82f6;
+    background: #eff6ff;
+  }
+  .upload-dropzone .icon { font-size: 48px; }
+  .upload-dropzone h3 { font-size: 18px; font-weight: 700; margin: 0; }
+  .upload-dropzone p { font-size: 13px; color: #64748b; margin: 0; }
+  .upload-dropzone .formats {
+    font-size: 11px;
+    color: #94a3b8;
+    margin-top: 6px;
+  }
 
-    /* ===== BACK TO HOME ===== */
-    .back-home-btn {
-      position: fixed;
-      bottom: 16px;
-      left: 16px;
-      z-index: 60;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      padding: 6px 14px;
-      background: white;
-      border: 1px solid #e2e8f0;
-      border-radius: 50px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-      font-size: 12px;
-      font-weight: 500;
-      color: #475569;
-      text-decoration: none;
-      transition: all 0.2s;
-    }
-    .back-home-btn:hover { background: #f1f5f9; box-shadow: 0 4px 12px rgba(0,0,0,0.1); transform: translateY(-1px); }
-    .back-home-btn svg { width: 16px; height: 16px; flex-shrink: 0; }
+  /* Home bar */
+  .home-bar {
+    padding: 10px 16px 16px;
+    background: #fff;
+    border-top: 1px solid #e2e8f0;
+    display: flex;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .home-bar a {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 18px;
+    border-radius: 999px;
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    color: #334155;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.15s;
+  }
+  .home-bar a:hover { background: #e2e8f0; }
 
-    /* ===== DARK MODE ===== */
-    html.dark .top-bar,
-    html.dark .toolbar-row,
-    html.dark .left-sidebar,
-    html.dark .props-panel,
-    html.dark .status-bar {
-      background: #1e293b;
-      border-color: #334155;
-    }
-    html.dark .top-bar .logo { color: #f1f5f9; }
-    html.dark .top-bar .menu-btn { color: #94a3b8; }
-    html.dark .top-bar .menu-btn:hover { background: #334155; }
-    html.dark .top-bar .menu-btn .dropdown { background: #1e293b; border-color: #334155; }
-    html.dark .top-bar .menu-btn .dropdown a { color: #e2e8f0; }
-    html.dark .top-bar .menu-btn .dropdown a:hover { background: #334155; }
-    html.dark .top-bar .menu-btn .dropdown .divider { background: #334155; }
-    html.dark .top-bar .menu-btn .dropdown .shortcut { color: #64748b; }
-    html.dark .top-bar .doc-title { color: #f1f5f9; }
-    html.dark .top-bar .doc-title:hover { background: #334155; }
-    html.dark .top-bar .tool-badge { background: #1e3a5f; color: #60a5fa; }
-    html.dark .top-bar .action-btn {
-      background: #0f172a;
-      border-color: #334155;
-      color: #e2e8f0;
-    }
-    html.dark .top-bar .action-btn:hover { background: #334155; }
-    html.dark .top-bar .action-btn.primary { background: #2563eb; border-color: #2563eb; color: white; }
-    html.dark .top-bar .action-btn.primary:hover { background: #1d4ed8; }
-    html.dark .top-bar .zoom-controls button {
-      background: #0f172a;
-      border-color: #334155;
-      color: #e2e8f0;
-    }
-    html.dark .top-bar .zoom-controls button:hover { background: #334155; }
-    html.dark .top-bar .zoom-controls { color: #94a3b8; }
-    html.dark .toolbar-row .tool-btn { color: #94a3b8; }
-    html.dark .toolbar-row .tool-btn:hover { background: #334155; color: #f1f5f9; }
-    html.dark .toolbar-row .tool-btn.active { border-color: #3b82f6; background: #1e3a5f; color: #60a5fa; }
-    html.dark .toolbar-row .tool-divider { background: #334155; }
-    html.dark .toolbar-row .fmt-btn { color: #94a3b8; }
-    html.dark .toolbar-row .fmt-btn:hover { background: #334155; }
-    html.dark .toolbar-row .fmt-btn.active { background: #1e3a5f; border-color: #3b82f6; color: #60a5fa; }
-    html.dark .toolbar-row .fmt-select {
-      background: #0f172a;
-      border-color: #334155;
-      color: #f1f5f9;
-    }
-    html.dark .workspace { background: #111827; }
-    html.dark .workspace .page-container { background: white; }
-    html.dark .props-panel { border-color: #334155; }
-    html.dark .props-panel .section-title { color: #64748b; border-color: #334155; }
-    html.dark .props-panel .prop-group label { color: #94a3b8; }
-    html.dark .props-panel .prop-group select {
-      background: #0f172a;
-      border-color: #334155;
-      color: #f1f5f9;
-    }
-    html.dark .props-panel .prop-group input[type="color"] { border-color: #334155; }
-    html.dark .props-panel .prop-group input[type="number"] {
-      background: #0f172a;
-      border-color: #334155;
-      color: #f1f5f9;
-    }
-    html.dark .props-panel .action-btn-sm {
-      background: #0f172a;
-      border-color: #334155;
-      color: #e2e8f0;
-    }
-    html.dark .props-panel .action-btn-sm:hover { background: #334155; }
-    html.dark .props-panel .action-btn-sm.danger { color: #ef4444; border-color: #ef4444; }
-    html.dark .props-panel .action-btn-sm.danger:hover { background: #1e3a5f; }
-    html.dark .props-panel .panel-empty p { color: #64748b; }
-    html.dark .page-thumbnail { background: #1e293b; }
-    html.dark .page-thumbnail .thumb-content { background: #0f172a; color: #64748b; }
-    html.dark .page-thumbnail.active { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); }
-    html.dark .left-sidebar .sidebar-add:hover { background: #334155; color: #60a5fa; }
-    html.dark .status-bar { color: #64748b; }
-    html.dark .status-bar .status-right button:hover { background: #334155; }
-    html.dark .empty-state h3 { color: #f1f5f9; }
-    html.dark .empty-state p { color: #94a3b8; }
-    html.dark .empty-state .drop-zone { border-color: #334155; }
-    html.dark .empty-state .drop-zone:hover { border-color: #3b82f6; background: #1e293b; }
-    html.dark .back-home-btn {
-      background: #1e293b;
-      border-color: #334155;
-      color: #e2e8f0;
-    }
-    html.dark .back-home-btn:hover { background: #334155; }
+  /* Toast */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: #0f172a;
+    color: #fff;
+    padding: 12px 22px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    z-index: 20000;
+    transition: transform 0.3s ease;
+    max-width: calc(100% - 32px);
+    text-align: center;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+  .toast.success { background: #10b981; }
+  .toast.error { background: #ef4444; }
 
-    #theme-toggle {
-      background: none;
-      border: none;
-      font-size: 1.1rem;
-      cursor: pointer;
-      padding: 3px 6px;
-      border-radius: 6px;
-      transition: background 0.2s;
-      color: #475569;
-    }
-    #theme-toggle:hover { background: #f1f5f9; }
-    html.dark #theme-toggle { color: #e2e8f0; }
-    html.dark #theme-toggle:hover { background: #334155; }
+  /* Ad slot */
+  .ad-slot {
+    max-width: 42rem;
+    margin: 20px auto;
+    min-height: 90px;
+    text-align: center;
+    padding: 0 16px;
+  }
 
-    @media (max-width: 1024px) {
-      .props-panel { width: 220px; min-width: 220px; padding: 10px; }
+  /* Output options panel */
+  .output-panel {
+    padding: 14px 16px;
+    background: #fff;
+    border-bottom: 1px solid #e2e8f0;
+    display: flex;
+    gap: 14px;
+    align-items: center;
+    flex-wrap: wrap;
+    flex-shrink: 0;
+  }
+  .output-panel label {
+    font-size: 12px;
+    font-weight: 700;
+    color: #64748b;
+  }
+  .output-panel select {
+    padding: 7px 10px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 13px;
+    background: #fff;
+    color: #0f172a;
+  }
+
+  @media (min-width: 700px) {
+    .action-bar, .rotate-strip, .filmstrip, .home-bar {
+      padding-left: max(16px, calc((100vw - 640px) / 2));
+      padding-right: max(16px, calc((100vw - 640px) / 2));
     }
-    @media (max-width: 768px) {
-      .props-panel { width: 200px; min-width: 200px; padding: 8px; }
-      .top-bar { padding: 3px 8px; gap: 4px; }
-      .top-bar .menu-btn { padding: 2px 5px; font-size: 11px; }
-      .top-bar .action-btn { padding: 2px 5px; font-size: 11px; }
-      .top-bar .logo { font-size: 13px; }
-      .top-bar .logo img { height: 22px; }
-      .top-bar .doc-title { font-size: 11px; max-width: 120px; }
-      .top-bar .tool-badge { font-size: 9px; padding: 1px 8px; }
-      .toolbar-row { padding: 3px 8px; gap: 2px; }
-      .toolbar-row .tool-btn { padding: 3px 6px; font-size: 11px; }
-      .toolbar-row .tool-btn .label { display: none; }
-      .toolbar-row .fmt-select { font-size: 11px; padding: 2px 4px; max-width: 80px; }
-      .left-sidebar { width: 56px; min-width: 56px; padding: 6px; }
-      .left-sidebar .sidebar-title { display: none; }
-      .left-sidebar .page-thumbnail .thumb-content { height: 44px; font-size: 16px; }
-      .left-sidebar .sidebar-add { font-size: 14px; }
-      .status-bar { font-size: 10px; padding: 2px 8px; }
-      .status-bar .status-left { gap: 8px; }
-      .back-home-btn { bottom: 12px; left: 8px; padding: 5px 10px; font-size: 11px; }
-      .back-home-btn span { display: none; }
-    }
-    @media (max-width: 640px) {
-      .props-panel {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        width: 100%;
-        min-width: unset;
-        max-height: 50vh;
-        border-left: none;
-        border-top: 1px solid #e2e8f0;
-        border-radius: 16px 16px 0 0;
-        padding: 14px;
-        overflow-y: auto;
-        z-index: 50;
-        transform: translateY(100%);
-        transition: transform 0.3s ease;
-      }
-      .props-panel.open { transform: translateY(0); }
-      .props-panel .panel-handle {
-        width: 36px;
-        height: 4px;
-        background: #cbd5e1;
-        border-radius: 4px;
-        margin: 0 auto 10px;
-        display: block !important;
-      }
-      .props-panel .panel-close {
-        float: right;
-        background: none;
-        border: none;
-        font-size: 18px;
-        cursor: pointer;
-        color: #94a3b8;
-        display: block !important;
-      }
-      .props-panel .panel-close:hover { color: #1e293b; }
-      .top-bar .zoom-controls .label { display: none; }
-      .back-home-btn { bottom: 10px; padding: 4px 8px; }
-      .workspace { padding: 16px; }
-    }
-  </style>
+  }
+</style>
 </head>
-<body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen flex flex-col transition-colors duration-200">
+<body>
 
-  <!-- ===== TOP BAR ===== -->
-  <header class="top-bar">
-    <a href="/" class="logo" title="Go to Home">
+<!-- ============================== UPLOAD ============================== -->
+<div id="screen-upload" class="screen active">
+  <div class="app-header">
+    <a href="/" class="logo-link">
       <img src="Gemini_Generated_Image_sdu6v7sdu6v7sdu6.jpg" alt="Droplet">
-      <span>Droplet</span>
+      <span class="logo-text">Droplet</span>
     </a>
-
-    <div class="menu-btn" style="position:relative;">File
-      <div class="dropdown">
-        <a onclick="document.getElementById('pdfInput').click()">📂 Open PDF</a>
-        <a onclick="alert('New Blank PDF')">📄 New Blank PDF</a>
-        <a onclick="alert('Add PDF / Merge')">📎 Add PDF / Merge</a>
-        <div class="divider"></div>
-        <a onclick="alert('Save Project')">💾 Save Project <span class="shortcut">Ctrl+S</span></a>
-        <a onclick="alert('Save Project As...')">📁 Save Project As...</a>
-        <div class="divider"></div>
-        <a onclick="alert('Export PDF')">📤 Export PDF</a>
-        <a onclick="alert('Print')">🖨️ Print <span class="shortcut">Ctrl+P</span></a>
-        <div class="divider"></div>
-        <a onclick="alert('Close Document')">✕ Close Document</a>
-      </div>
-    </div>
-
-    <div class="menu-btn" style="position:relative;">Edit
-      <div class="dropdown">
-        <a onclick="alert('Undo')">↶ Undo <span class="shortcut">Ctrl+Z</span></a>
-        <a onclick="alert('Redo')">↷ Redo <span class="shortcut">Ctrl+Y</span></a>
-        <div class="divider"></div>
-        <a onclick="alert('Cut')">✂️ Cut <span class="shortcut">Ctrl+X</span></a>
-        <a onclick="alert('Copy')">📋 Copy <span class="shortcut">Ctrl+C</span></a>
-        <a onclick="alert('Paste')">📋 Paste <span class="shortcut">Ctrl+V</span></a>
-        <a onclick="alert('Delete')">🗑️ Delete <span class="shortcut">Del</span></a>
-        <a onclick="alert('Select All')">☑️ Select All <span class="shortcut">Ctrl+A</span></a>
-        <div class="divider"></div>
-        <a onclick="alert('Find')">🔍 Find <span class="shortcut">Ctrl+F</span></a>
-        <a onclick="alert('Replace')">🔄 Replace <span class="shortcut">Ctrl+H</span></a>
-      </div>
-    </div>
-
-    <div class="menu-btn" style="position:relative;">Insert
-      <div class="dropdown">
-        <a onclick="alert('Insert Text')">📝 Text</a>
-        <a onclick="alert('Insert Image')">🖼️ Image</a>
-        <a onclick="alert('Insert Table')">📊 Table</a>
-        <a onclick="alert('Insert Link')">🔗 Link</a>
-        <a onclick="alert('Insert Shape')">⬛ Shape</a>
-        <a onclick="alert('Insert Signature')">✍️ Signature</a>
-        <div class="divider"></div>
-        <a onclick="alert('Insert Page Break')">📄 Page Break</a>
-        <a onclick="alert('Insert Header')">📌 Header</a>
-        <a onclick="alert('Insert Footer')">📌 Footer</a>
-        <a onclick="alert('Insert Page Number')">🔢 Page Number</a>
-      </div>
-    </div>
-
-    <div class="menu-btn" style="position:relative;">Pages
-      <div class="dropdown">
-        <a onclick="alert('Add Page')">📄 Add Page</a>
-        <a onclick="alert('Duplicate Page')">📋 Duplicate Page</a>
-        <div class="divider"></div>
-        <a onclick="alert('Rotate Left')">🔄 Rotate Left</a>
-        <a onclick="alert('Rotate Right')">🔄 Rotate Right</a>
-        <a onclick="alert('Delete Page')">🗑️ Delete Page</a>
-        <div class="divider"></div>
-        <a onclick="alert('Reorder Pages')">📋 Reorder Pages</a>
-        <a onclick="alert('Extract Pages')">📤 Extract Pages</a>
-        <a onclick="alert('Split PDF')">✂️ Split PDF</a>
-        <a onclick="alert('Merge PDF')">🔗 Merge PDF</a>
-      </div>
-    </div>
-
-    <div class="menu-btn" style="position:relative;">View
-      <div class="dropdown">
-        <a onclick="alert('Zoom In')">🔍 Zoom In <span class="shortcut">Ctrl++</span></a>
-        <a onclick="alert('Zoom Out')">🔍 Zoom Out <span class="shortcut">Ctrl+-</span></a>
-        <a onclick="alert('Actual Size')">1:1 Actual Size</a>
-        <a onclick="alert('Fit Page')">📄 Fit Page</a>
-        <a onclick="alert('Fit Width')">📄 Fit Width</a>
-        <div class="divider"></div>
-        <a onclick="toggleSidebar('pages')">📑 Toggle Pages</a>
-        <a onclick="toggleSidebar('props')">📋 Toggle Properties</a>
-      </div>
-    </div>
-
-    <span class="doc-title" id="docTitle" onclick="renameDocument()">
-      Untitled PDF <span class="saved">●</span>
-    </span>
-
-    <span class="tool-badge" id="toolBadge">✏️ Edit PDF</span>
-
-    <div class="spacer"></div>
-
-    <button class="action-btn" onclick="alert('Undo')" title="Undo (Ctrl+Z)">↶</button>
-    <button class="action-btn" onclick="alert('Redo')" title="Redo (Ctrl+Y)">↷</button>
-
-    <div class="zoom-controls">
-      <button onclick="alert('Zoom out')">−</button>
-      <span class="label" id="zoomLabel">100%</span>
-      <button onclick="alert('Zoom in')">+</button>
-    </div>
-
-    <button id="theme-toggle" aria-label="Toggle theme">🌙</button>
-    <button class="action-btn primary" onclick="alert('Export PDF')">💾 Export</button>
-  </header>
-
-  <!-- ===== TOOLBAR ROW 2 ===== -->
-  <div class="toolbar-row" id="toolbarRow">
-    <!-- Main Tools -->
-    <button class="tool-btn active" data-tool="select" onclick="setTool('select')">
-      <span class="icon">🖱️</span><span class="label">Select</span>
-    </button>
-    <button class="tool-btn" data-tool="text" onclick="setTool('text')">
-      <span class="icon">T</span><span class="label">Text</span>
-    </button>
-    <button class="tool-btn" data-tool="image" onclick="setTool('image')">
-      <span class="icon">🖼️</span><span class="label">Image</span>
-    </button>
-    <button class="tool-btn" data-tool="draw" onclick="setTool('draw')">
-      <span class="icon">✏️</span><span class="label">Draw</span>
-    </button>
-    <button class="tool-btn" data-tool="highlight" onclick="setTool('highlight')">
-      <span class="icon">🖍️</span><span class="label">Highlight</span>
-    </button>
-    <button class="tool-btn" data-tool="shape" onclick="setTool('shape')">
-      <span class="icon">□</span><span class="label">Shape</span>
-    </button>
-    <button class="tool-btn" data-tool="sign" onclick="setTool('sign')">
-      <span class="icon">✍️</span><span class="label">Sign</span>
-    </button>
-    <button class="tool-btn" data-tool="forms" onclick="setTool('forms')">
-      <span class="icon">☑️</span><span class="label">Forms</span>
-    </button>
-
-    <div class="tool-divider"></div>
-
-    <!-- Contextual Formatting (Text Tool) -->
-    <div id="textFormatting" class="hidden" style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;">
-      <select class="fmt-select" id="fontFamily" style="width:100px;">
-        <option value="Arial">Arial</option>
-        <option value="Times New Roman">Times New Roman</option>
-        <option value="Calibri">Calibri</option>
-        <option value="Helvetica">Helvetica</option>
-        <option value="Georgia">Georgia</option>
-        <option value="Verdana">Verdana</option>
-        <option value="Courier New">Courier New</option>
-      </select>
-
-      <select class="fmt-select" id="fontSize" style="width:56px;">
-        <option value="8">8</option>
-        <option value="9">9</option>
-        <option value="10">10</option>
-        <option value="11">11</option>
-        <option value="12" selected>12</option>
-        <option value="14">14</option>
-        <option value="16">16</option>
-        <option value="18">18</option>
-        <option value="20">20</option>
-        <option value="24">24</option>
-        <option value="28">28</option>
-        <option value="36">36</option>
-        <option value="48">48</option>
-        <option value="72">72</option>
-      </select>
-
-      <div class="tool-divider"></div>
-
-      <button class="fmt-btn bold" onclick="alert('Bold')" title="Bold (Ctrl+B)">B</button>
-      <button class="fmt-btn italic" onclick="alert('Italic')" title="Italic (Ctrl+I)">I</button>
-      <button class="fmt-btn underline" onclick="alert('Underline')" title="Underline (Ctrl+U)">U</button>
-      <button class="fmt-btn strike" onclick="alert('Strikethrough')" title="Strikethrough">S</button>
-
-      <div class="tool-divider"></div>
-
-      <input type="color" class="color-btn" id="textColor" value="#1e293b" title="Text Color">
-      <input type="color" class="color-btn" id="highlightColor" value="#fef08a" title="Highlight Color" style="background:#fef08a;">
-
-      <div class="tool-divider"></div>
-
-      <button class="fmt-btn" onclick="alert('Left align')" title="Left align">≡</button>
-      <button class="fmt-btn" onclick="alert('Center align')" title="Center align">≣</button>
-      <button class="fmt-btn" onclick="alert('Right align')" title="Right align">≡</button>
-      <button class="fmt-btn" onclick="alert('Justify')" title="Justify">☰</button>
-
-      <div class="tool-divider"></div>
-
-      <button class="fmt-btn" onclick="alert('Bullet list')" title="Bullet list">•</button>
-      <button class="fmt-btn" onclick="alert('Numbered list')" title="Numbered list">1.</button>
-
-      <div class="tool-divider"></div>
-
-      <select class="fmt-select" id="lineSpacing" style="width:70px;">
-        <option value="1">1.0</option>
-        <option value="1.15" selected>1.15</option>
-        <option value="1.5">1.5</option>
-        <option value="2">2.0</option>
-      </select>
-    </div>
-
-    <!-- Contextual Formatting (Draw Tool) -->
-    <div id="drawFormatting" class="hidden" style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;">
-      <span style="font-size:11px;color:#94a3b8;margin-right:4px;">Pen</span>
-      <select class="fmt-select" style="width:80px;">
-        <option>Pen</option>
-        <option>Marker</option>
-        <option>Highlighter</option>
-      </select>
-      <input type="color" class="color-btn" value="#1e293b" title="Pen Color">
-      <span style="font-size:11px;color:#94a3b8;margin-left:4px;">Size</span>
-      <select class="fmt-select" style="width:50px;">
-        <option>1</option>
-        <option selected>2</option>
-        <option>3</option>
-        <option>4</option>
-        <option>5</option>
-        <option>8</option>
-        <option>10</option>
-      </select>
-      <button class="fmt-btn" onclick="alert('Eraser')" title="Eraser">🧹</button>
-    </div>
-
-    <!-- Contextual Formatting (Shape Tool) -->
-    <div id="shapeFormatting" class="hidden" style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;">
-      <select class="fmt-select" style="width:100px;">
-        <option>Rectangle</option>
-        <option>Rounded Rectangle</option>
-        <option>Circle</option>
-        <option>Line</option>
-        <option>Arrow</option>
-        <option>Text Box</option>
-      </select>
-      <input type="color" class="color-btn" value="#3b82f6" title="Fill Color">
-      <input type="color" class="color-btn" value="#1e293b" title="Border Color">
-      <span style="font-size:11px;color:#94a3b8;margin-left:4px;">Border</span>
-      <select class="fmt-select" style="width:50px;">
-        <option>0</option>
-        <option selected>1</option>
-        <option>2</option>
-        <option>3</option>
-        <option>4</option>
-        <option>5</option>
-      </select>
-    </div>
-
-    <!-- Contextual Formatting (Highlight Tool) -->
-    <div id="highlightFormatting" class="hidden" style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;">
-      <span style="font-size:11px;color:#94a3b8;margin-right:4px;">Highlight</span>
-      <select class="fmt-select" style="width:100px;">
-        <option>Highlight</option>
-        <option>Underline</option>
-        <option>Strikethrough</option>
-        <option>Squiggly</option>
-      </select>
-      <input type="color" class="color-btn" value="#fef08a" title="Highlight Color" style="background:#fef08a;">
-      <span style="font-size:11px;color:#94a3b8;margin-left:4px;">Opacity</span>
-      <select class="fmt-select" style="width:50px;">
-        <option>50%</option>
-        <option selected>70%</option>
-        <option>100%</option>
-      </select>
-    </div>
+    <span class="title">Crop PDF</span>
+    <div class="header-spacer"></div>
+    <button class="header-btn" onclick="backToHome()">← Back</button>
   </div>
 
-  <!-- ===== MAIN CONTENT ===== -->
-  <div class="flex flex-1 overflow-hidden">
-
-    <!-- ===== LEFT SIDEBAR ===== -->
-    <div class="left-sidebar scrollbar-thin" id="pagesSidebar">
-      <div class="sidebar-header">
-        <span class="sidebar-title">Pages</span>
-        <button class="sidebar-add" onclick="alert('Add page')" title="Add page">+</button>
-      </div>
-      
-      <div id="pageThumbnails" style="flex:1;">
-        <div class="text-center text-slate-400 text-xs py-8" id="emptyThumbnails">
-          <div class="text-2xl mb-2">📄</div>
-          <p>No pages</p>
-          <p class="text-[9px] mt-1">Open a PDF</p>
-        </div>
-        <div id="thumbnailList"></div>
-      </div>
-    </div>
-
-    <!-- ===== CENTER WORKSPACE ===== -->
-    <div class="workspace" id="workspace">
-      <div class="empty-state" id="emptyState">
-        <div class="icon">📄</div>
-        <h3 id="emptyTitle">Edit a PDF</h3>
-        <p id="emptyDescription">Open a PDF to add text, images, signatures, drawings and more.</p>
-        <div class="drop-zone" id="dropZone" onclick="document.getElementById('pdfInput').click()">
-          <div style="font-size:32px;margin-bottom:8px;">📂</div>
-          <p style="font-size:13px;font-weight:500;color:#1e293b;">Drag & drop a PDF here</p>
-          <p style="font-size:12px;color:#94a3b8;">or click to browse</p>
-        </div>
-        <div class="flex flex-wrap gap-3 mt-4 justify-center">
-          <button onclick="document.getElementById('pdfInput').click()" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2.5 rounded-xl text-sm shadow-md shadow-blue-500/20 transition-all active:scale-95">
-            📂 Open PDF
-          </button>
-          <button onclick="alert('Create blank PDF')" class="bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-2.5 rounded-xl text-sm shadow-md shadow-green-500/20 transition-all active:scale-95">
-            📄 Create Blank PDF
-          </button>
-        </div>
-        <p class="text-xs text-slate-400 mt-4">🔒 Processed locally in your browser</p>
-        <input type="file" id="pdfInput" accept=".pdf,application/pdf" class="hidden" multiple>
-      </div>
-
-      <div class="page-container hidden" id="pageContainer">
-        <canvas id="pdfCanvas"></canvas>
-      </div>
-    </div>
-
-    <!-- ===== RIGHT PROPERTIES PANEL ===== -->
-    <div class="props-panel scrollbar-thin" id="propsPanel">
-      <div class="panel-handle"></div>
-      <button class="panel-close" onclick="togglePropsPanel()">✕</button>
-
-      <div id="propsEmpty" class="panel-empty">
-        <div class="icon">📋</div>
-        <p>No selection</p>
-        <p style="font-size:11px;color:#cbd5e1;margin-top:4px;">Open a PDF to see document properties</p>
-      </div>
-
-      <!-- Page Properties -->
-      <div id="pageProps" class="hidden">
-        <div class="section-title">📄 Page</div>
-        <div class="prop-group">
-          <label>Size</label>
-          <select>
-            <option value="a4">A4 (210 × 297 mm)</option>
-            <option value="letter">Letter (8.5 × 11 in)</option>
-            <option value="legal">Legal (8.5 × 14 in)</option>
-            <option value="a3">A3 (297 × 420 mm)</option>
-          </select>
-        </div>
-        <div class="prop-group">
-          <label>Orientation</label>
-          <div class="flex-row" style="gap:4px;">
-            <button class="action-btn-sm" onclick="alert('Portrait')" style="flex:1;text-align:center;">▯ Portrait</button>
-            <button class="action-btn-sm" onclick="alert('Landscape')" style="flex:1;text-align:center;">▭ Landscape</button>
-          </div>
-        </div>
-        <div class="prop-group">
-          <label>Background</label>
-          <div class="flex-row">
-            <input type="color" value="#ffffff">
-            <span style="font-size:12px;color:#94a3b8;">White</span>
-          </div>
-        </div>
-        <div class="prop-group">
-          <label>Page</label>
-          <div class="flex-row">
-            <span style="font-size:12px;color:#94a3b8;">1 of 1</span>
-          </div>
-        </div>
-
-        <div class="section-title" style="margin-top:14px;">📑 Operations</div>
-        <div class="prop-group">
-          <div class="flex-row" style="gap:4px;flex-wrap:wrap;">
-            <button class="action-btn-sm" onclick="alert('Rotate Left')">🔄 Left</button>
-            <button class="action-btn-sm" onclick="alert('Rotate Right')">🔄 Right</button>
-            <button class="action-btn-sm" onclick="alert('Duplicate')">📋 Duplicate</button>
-            <button class="action-btn-sm danger" onclick="alert('Delete')">🗑️ Delete</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Text Properties -->
-      <div id="textProps" class="hidden">
-        <div class="section-title">✏️ Text</div>
-        <div class="prop-group">
-          <label>Font</label>
-          <select>
-            <option>Arial</option>
-            <option>Times New Roman</option>
-            <option>Calibri</option>
-            <option>Helvetica</option>
-            <option>Georgia</option>
-            <option>Verdana</option>
-          </select>
-        </div>
-        <div class="prop-group">
-          <label>Size</label>
-          <div class="flex-row">
-            <input type="range" min="8" max="72" value="12" style="flex:1;">
-            <span style="font-size:12px;color:#94a3b8;min-width:28px;">12</span>
-          </div>
-        </div>
-        <div class="prop-group">
-          <label>Color</label>
-          <div class="flex-row">
-            <input type="color" value="#1e293b">
-            <span style="font-size:12px;color:#94a3b8;">Text</span>
-          </div>
-        </div>
-        <div class="prop-group">
-          <label>Opacity</label>
-          <div class="flex-row">
-            <input type="range" min="10" max="100" value="100" style="flex:1;">
-            <span style="font-size:12px;color:#94a3b8;min-width:28px;">100%</span>
-          </div>
-        </div>
-        <div class="prop-group">
-          <label>Position</label>
-          <div class="flex-row">
-            <span style="font-size:12px;color:#94a3b8;">X: 125</span>
-            <span style="font-size:12px;color:#94a3b8;">Y: 260</span>
-          </div>
-        </div>
-        <div class="prop-group">
-          <label>Size</label>
-          <div class="flex-row">
-            <span style="font-size:12px;color:#94a3b8;">W: 240</span>
-            <span style="font-size:12px;color:#94a3b8;">H: 38</span>
-          </div>
-        </div>
-        <div class="prop-group" style="border-top:1px solid #e2e8f0;padding-top:10px;">
-          <button class="action-btn-sm danger" onclick="alert('Delete text')">🗑️ Delete</button>
-        </div>
-      </div>
-
-      <!-- Image Properties -->
-      <div id="imageProps" class="hidden">
-        <div class="section-title">🖼️ Image</div>
-        <div class="prop-group">
-          <label>Width</label>
-          <div class="flex-row">
-            <input type="number" value="200" min="10" style="width:64px;">
-            <span style="font-size:12px;color:#94a3b8;">px</span>
-            <button class="action-btn-sm" onclick="alert('Lock ratio')" style="padding:2px 6px;">🔗</button>
-          </div>
-        </div>
-        <div class="prop-group">
-          <label>Height</label>
-          <div class="flex-row">
-            <input type="number" value="150" min="10" style="width:64px;">
-            <span style="font-size:12px;color:#94a3b8;">px</span>
-          </div>
-        </div>
-        <div class="prop-group">
-          <label>Rotation</label>
-          <div class="flex-row">
-            <input type="range" min="0" max="360" value="0" style="flex:1;">
-            <span style="font-size:12px;color:#94a3b8;min-width:28px;">0°</span>
-          </div>
-        </div>
-        <div class="prop-group">
-          <label>Opacity</label>
-          <div class="flex-row">
-            <input type="range" min="10" max="100" value="100" style="flex:1;">
-            <span style="font-size:12px;color:#94a3b8;min-width:28px;">100%</span>
-          </div>
-        </div>
-        <div class="prop-group">
-          <label>Arrange</label>
-          <div class="flex-row" style="gap:4px;">
-            <button class="action-btn-sm" onclick="alert('Forward')">⬆ Forward</button>
-            <button class="action-btn-sm" onclick="alert('Backward')">⬇ Backward</button>
-          </div>
-        </div>
-        <div class="prop-group" style="border-top:1px solid #e2e8f0;padding-top:10px;">
-          <button class="action-btn-sm danger" onclick="alert('Delete image')">🗑️ Delete</button>
-        </div>
-      </div>
-
-      <!-- Shape Properties -->
-      <div id="shapeProps" class="hidden">
-        <div class="section-title">⬛ Shape</div>
-        <div class="prop-group">
-          <label>Fill Color</label>
-          <div class="flex-row">
-            <input type="color" value="#3b82f6">
-            <span style="font-size:12px;color:#94a3b8;">Fill</span>
-          </div>
-        </div>
-        <div class="prop-group">
-          <label>Border Color</label>
-          <div class="flex-row">
-            <input type="color" value="#1e293b">
-            <span style="font-size:12px;color:#94a3b8;">Border</span>
-          </div>
-        </div>
-        <div class="prop-group">
-          <label>Border Thickness</label>
-          <div class="flex-row">
-            <input type="range" min="0" max="10" value="2" style="flex:1;">
-            <span style="font-size:12px;color:#94a3b8;min-width:28px;">2px</span>
-          </div>
-        </div>
-        <div class="prop-group">
-          <label>Opacity</label>
-          <div class="flex-row">
-            <input type="range" min="10" max="100" value="100" style="flex:1;">
-            <span style="font-size:12px;color:#94a3b8;min-width:28px;">100%</span>
-          </div>
-        </div>
-        <div class="prop-group" style="border-top:1px solid #e2e8f0;padding-top:10px;">
-          <button class="action-btn-sm danger" onclick="alert('Delete shape')">🗑️ Delete</button>
-        </div>
-      </div>
-    </div>
+  <div class="guide-banner">
+    <span class="guide-icon">📂</span>
+    <span>Upload a PDF or image. Crop each page individually, reorder by dragging, and download.</span>
   </div>
 
-  <!-- ===== STATUS BAR ===== -->
-  <div class="status-bar">
-    <div class="status-left">
-      <span id="statusPage">Page 1 of 1</span>
-      <span id="statusSize">A4 • 210 × 297 mm</span>
-      <span id="statusObjects" style="display:none;">3 objects selected</span>
-    </div>
-    <div class="status-right">
-      <button onclick="alert('Fit Page')">Fit Page</button>
-      <button onclick="alert('Fit Width')">Fit Width</button>
-      <button onclick="alert('Zoom out')">−</button>
-      <span>100%</span>
-      <button onclick="alert('Zoom in')">+</button>
-    </div>
+  <div class="upload-dropzone" id="uploadDropzone">
+    <div class="icon">📁</div>
+    <h3>Drop your file here</h3>
+    <p>or click to browse</p>
+    <div class="formats">PDF · JPG · PNG · WEBP · GIF · BMP · HEIC</div>
+    <input type="file" id="uploadInput" accept="application/pdf,image/*" multiple style="display:none;">
+    <button class="btn btn-primary" style="margin-top:12px;" onclick="document.getElementById('uploadInput').click()">Select File</button>
   </div>
 
-  <!-- ===== BACK TO HOME ===== -->
-  <a href="/" class="back-home-btn" title="Back to Home">
-    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-    </svg>
-    <span>Back to Home</span>
-  </a>
+  <div class="ad-slot">
+    <ins class="adsbygoogle"
+         style="display:block"
+         data-ad-client="ca-pub-4006702663328202"
+         data-ad-slot="XXXXXXXXXX"
+         data-ad-format="auto"
+         data-full-width-responsive="true"></ins>
+    <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+  </div>
 
-  <script>
-    // ============================================
-    // SIMPLE ROUTER - Redirect based on URL
-    // ============================================
-    // This runs when the page loads. If the current URL is a tool page
-    // (like /rotate-pdf), it redirects to /edit-pdf with a query parameter
-    // so the edit page knows which tool to activate.
-    
-    (function() {
-      const path = window.location.pathname;
-      const pageName = path.split('/').pop().replace('.html', '');
-      
-      // Map of tool pages to their display names
-      const toolMap = {
-        'edit-pdf': { tool: 'select', title: 'Edit PDF', icon: '✏️', desc: 'Edit your PDF documents' },
-        'rotate-pdf': { tool: 'select', title: 'Rotate PDF', icon: '🔄', desc: 'Rotate pages in your PDF' },
-        'scan-to-pdf': { tool: 'image', title: 'Scan to PDF', icon: '📷', desc: 'Convert scanned images to PDF' },
-        'merge-pdf': { tool: 'select', title: 'Merge PDF', icon: '🔗', desc: 'Combine multiple PDFs into one' },
-        'split-pdf': { tool: 'select', title: 'Split PDF', icon: '✂️', desc: 'Split PDF into separate files' },
-        'remove-pages': { tool: 'select', title: 'Remove Pages', icon: '🗑️', desc: 'Delete pages from your PDF' },
-        'extract-pages': { tool: 'select', title: 'Extract Pages', icon: '📤', desc: 'Extract pages from your PDF' },
-        'organize-pdf': { tool: 'select', title: 'Organize PDF', icon: '🗂️', desc: 'Rearrange pages in your PDF' },
-        'add-page-numbers': { tool: 'text', title: 'Add Page Numbers', icon: '🔢', desc: 'Add page numbers to your PDF' },
-        'add-watermark': { tool: 'text', title: 'Add Watermark', icon: '💧', desc: 'Add watermark to your PDF' },
-        'crop-pdf': { tool: 'select', title: 'Crop PDF', icon: '✂️', desc: 'Crop pages in your PDF' },
-        'pdf-forms': { tool: 'forms', title: 'PDF Forms', icon: '📋', desc: 'Fill and create PDF forms' },
-        'ai-summarizer': { tool: 'text', title: 'AI Summarizer', icon: '🤖', desc: 'Summarize your PDF content' },
-        'translate-pdf': { tool: 'text', title: 'Translate PDF', icon: '🌍', desc: 'Translate PDF content' },
-        'pdf-to-markdown': { tool: 'text', title: 'PDF to Markdown', icon: '📝', desc: 'Convert PDF to Markdown' }
-      };
-      
-      // If we're on a tool page (not edit-pdf), redirect to edit-pdf with the tool info
-      if (pageName !== 'edit-pdf' && toolMap[pageName]) {
-        const tool = toolMap[pageName];
-        // Store the tool info in sessionStorage so edit-pdf can use it
-        sessionStorage.setItem('droplet_tool', JSON.stringify(tool));
-        // Redirect to edit-pdf
-        window.location.href = '/edit-pdf.html';
-        return;
-      }
-      
-      // If we're already on edit-pdf, check if there's a tool in sessionStorage
-      const storedTool = sessionStorage.getItem('droplet_tool');
-      if (storedTool && pageName === 'edit-pdf') {
-        const tool = JSON.parse(storedTool);
-        // Clear it so it doesn't persist
-        sessionStorage.removeItem('droplet_tool');
-        // Apply the tool
-        applyTool(tool);
-        // Update the badge
-        document.getElementById('toolBadge').textContent = tool.icon + ' ' + tool.title;
-        document.getElementById('emptyTitle').textContent = tool.title;
-        document.getElementById('emptyDescription').textContent = tool.desc;
-        document.getElementById('pageTitle').textContent = tool.title + ' - Droplet';
-        // Set the tool
-        setTool(tool.tool);
-      }
-    })();
+  <div class="home-bar">
+    <a href="/">← Back to Home</a>
+  </div>
+</div>
 
-    function applyTool(tool) {
-      // This function will be called when a tool is loaded from sessionStorage
-      console.log('🔧 Tool loaded:', tool.title);
-    }
+<!-- ============================== CROP ============================== -->
+<div id="screen-crop" class="screen">
+  <div class="app-header">
+    <button class="header-btn" onclick="cancelCrop()">Cancel</button>
+    <span class="title">Crop</span>
+    <div class="header-spacer"></div>
+    <span class="page-indicator" id="cropPageIndicator">1 / 1</span>
+    <button class="header-btn strong" onclick="confirmCrop()">Done</button>
+  </div>
 
-    // ============================================
-    // DARK MODE TOGGLE
-    // ============================================
-    const themeToggle = document.getElementById('theme-toggle');
-    const html = document.documentElement;
-    
-    let currentTheme = localStorage.getItem('theme') || 
-      (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-    
-    if (currentTheme === 'dark') {
-      html.classList.add('dark');
-      themeToggle.textContent = '☀️';
-    } else {
-      themeToggle.textContent = '🌙';
-    }
-    
-    themeToggle.addEventListener('click', () => {
-      if (html.classList.contains('dark')) {
-        html.classList.remove('dark');
-        themeToggle.textContent = '🌙';
-        localStorage.setItem('theme', 'light');
+  <div class="guide-banner">
+    <span class="guide-icon">✋</span>
+    <span>Drag each blue circle to the corner of the area you want to keep. Use the magnifier to line up precisely.</span>
+  </div>
+
+  <div id="cropStage">
+    <canvas id="cropCanvas"></canvas>
+    <canvas id="cropOverlay"></canvas>
+    <div id="magnifier"><canvas></canvas></div>
+  </div>
+
+  <div class="rotate-strip">
+    <button class="rotate-btn" onclick="rotatePage(-90)">↺ Rotate Left</button>
+    <button class="rotate-btn" onclick="rotatePage(90)">↻ Rotate Right</button>
+    <button class="rotate-btn" onclick="resetCrop()">↺ Reset Crop</button>
+    <button class="rotate-btn" onclick="fullPageCrop()">⛶ Full Page</button>
+  </div>
+
+  <div class="action-bar">
+    <button class="btn btn-secondary" onclick="cancelCrop()">Cancel</button>
+    <button class="btn btn-primary" onclick="confirmCrop()">Apply Crop</button>
+  </div>
+
+  <div class="home-bar">
+    <a href="/">← Back to Home</a>
+  </div>
+</div>
+
+<!-- ============================== PAGES ============================== -->
+<div id="screen-pages" class="screen">
+  <div class="app-header">
+    <button class="header-btn" onclick="backToUpload()">← Add More</button>
+    <span class="title">Pages</span>
+    <div class="header-spacer"></div>
+    <span class="page-indicator" id="pagesHeaderCount">0</span>
+    <button class="header-btn strong" id="downloadBtn" onclick="openDownloadMenu()">Download</button>
+  </div>
+
+  <div class="guide-banner">
+    <span class="guide-icon">📄</span>
+    <span>Tap a page to crop or rotate it. Drag to reorder. Tap ✕ to delete.</span>
+  </div>
+
+  <div class="output-panel">
+    <label>Export as</label>
+    <select id="exportFormat">
+      <option value="pdf">PDF (multi-page)</option>
+      <option value="png">PNG images</option>
+      <option value="jpg">JPG images</option>
+      <option value="webp">WEBP images</option>
+    </select>
+    <label>Quality</label>
+    <select id="exportQuality">
+      <option value="small">Small</option>
+      <option value="recommended" selected>Recommended</option>
+      <option value="high">High</option>
+    </select>
+    <div style="font-size:13px; color:#64748b; margin-left:auto;" id="pageCountLabel">0 pages</div>
+  </div>
+
+  <div id="pageGrid"></div>
+
+  <div class="ad-slot">
+    <ins class="adsbygoogle"
+         style="display:block"
+         data-ad-client="ca-pub-4006702663328202"
+         data-ad-slot="XXXXXXXXXX"
+         data-ad-format="auto"
+         data-full-width-responsive="true"></ins>
+    <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+  </div>
+
+  <div class="home-bar">
+    <a href="/">← Back to Home</a>
+  </div>
+</div>
+
+<!-- Hidden file inputs -->
+<input type="file" id="addMoreInput" accept="application/pdf,image/*" multiple style="display:none;">
+
+<!-- Processing overlay -->
+<div id="processingOverlay" class="hidden">
+  <div class="processing-card">
+    <div class="spinner"></div>
+    <h4 id="processingTitle">Processing…</h4>
+    <p id="processingStatus">Please wait</p>
+    <div class="progress-bar"><div class="progress-bar-inner" id="processingBar"></div></div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+'use strict';
+
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+// ============================================================
+// GLOBAL STATE
+// ============================================================
+const App = {
+  pages: [],              // { id, sourceType, sourceName, originalBlob, originalBitmap, rotation, cropCorners (null or {tl,tr,br,bl} in bitmap coords), previewCanvas, previewBlob }
+  editingIndex: -1,
+  dragIndex: -1,
+  // Crop editor state
+  cropBitmap: null,
+  cropCorners: null,       // in canvas coords
+  cropRotation: 0,         // 0/90/180/270 applied before crop
+  cropReturnScreen: 'screen-pages'
+};
+
+// ============================================================
+// TOASTS
+// ============================================================
+function showToast(text, type, duration) {
+  const el = document.getElementById('toast');
+  el.textContent = text;
+  el.className = 'toast' + (type ? ' ' + type : '');
+  el.classList.add('show');
+  clearTimeout(el._timeout);
+  el._timeout = setTimeout(() => el.classList.remove('show'), duration || 2500);
+}
+
+// ============================================================
+// SCREEN NAVIGATION
+// ============================================================
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const el = document.getElementById(id);
+  if (el) el.classList.add('active');
+  refreshCounters();
+}
+
+function refreshCounters() {
+  const n = App.pages.length;
+  const el = document.getElementById('pagesHeaderCount');
+  if (el) el.textContent = String(n);
+  const lbl = document.getElementById('pageCountLabel');
+  if (lbl) lbl.textContent = `${n} page${n === 1 ? '' : 's'}`;
+  const btn = document.getElementById('downloadBtn');
+  if (btn) btn.disabled = n === 0;
+  const crop = document.getElementById('cropPageIndicator');
+  if (crop && App.editingIndex >= 0) {
+    crop.textContent = `${App.editingIndex + 1} / ${App.pages.length}`;
+  }
+}
+
+function showProcessing(title, status) {
+  document.getElementById('processingTitle').textContent = title || 'Processing…';
+  document.getElementById('processingStatus').textContent = status || 'Please wait';
+  document.getElementById('processingBar').style.width = '0%';
+  document.getElementById('processingOverlay').classList.remove('hidden');
+}
+function setProcessing(status, pct) {
+  document.getElementById('processingStatus').textContent = status;
+  if (typeof pct === 'number') {
+    document.getElementById('processingBar').style.width = Math.max(0, Math.min(100, pct)) + '%';
+  }
+}
+function hideProcessing() {
+  document.getElementById('processingOverlay').classList.add('hidden');
+}
+
+function backToHome() { window.location.href = '/'; }
+function backToUpload() {
+  document.getElementById('uploadInput').click();
+}
+
+// ============================================================
+// FILE HANDLING
+// ============================================================
+function wireUploadScreen() {
+  const drop = document.getElementById('uploadDropzone');
+  const input = document.getElementById('uploadInput');
+  drop.ondragover = (e) => { e.preventDefault(); drop.classList.add('dragover'); };
+  drop.ondragleave = () => drop.classList.remove('dragover');
+  drop.ondrop = async (e) => {
+    e.preventDefault();
+    drop.classList.remove('dragover');
+    await importFiles(Array.from(e.dataTransfer.files || []));
+  };
+  input.onchange = async () => {
+    const files = Array.from(input.files || []);
+    input.value = '';
+    await importFiles(files);
+  };
+}
+wireUploadScreen();
+
+document.getElementById('addMoreInput').onchange = async (e) => {
+  const files = Array.from(e.target.files || []);
+  e.target.value = '';
+  if (files.length) await importFiles(files, true);
+};
+
+async function importFiles(files, appendToExisting) {
+  if (!files.length) return;
+  if (!appendToExisting) App.pages = [];
+
+  showProcessing('Loading files…', `Processing ${files.length} file${files.length === 1 ? '' : 's'}`);
+  let processed = 0;
+  for (const file of files) {
+    try {
+      if (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')) {
+        await importPDF(file, processed, files.length);
+      } else if (file.type.startsWith('image/') || isImageExtension(file.name)) {
+        await importImage(file);
       } else {
-        html.classList.add('dark');
-        themeToggle.textContent = '☀️';
-        localStorage.setItem('theme', 'dark');
+        console.warn('Unsupported file type:', file.name, file.type);
+        showToast(`Skipped unsupported file: ${file.name}`, 'error');
       }
+    } catch (e) {
+      console.error('Import failed:', file.name, e);
+      showToast(`Failed to import ${file.name}`, 'error');
+    }
+    processed++;
+    setProcessing(`Imported ${processed} of ${files.length}`, (processed / files.length) * 100);
+  }
+  hideProcessing();
+
+  if (App.pages.length === 0) {
+    showToast('No readable files were found.', 'error');
+    showScreen('screen-upload');
+    return;
+  }
+
+  refreshPageGrid();
+  showScreen('screen-pages');
+  showToast(`Loaded ${App.pages.length} page${App.pages.length === 1 ? '' : 's'}.`, 'success');
+}
+
+function isImageExtension(name) {
+  return /\.(jpg|jpeg|png|webp|gif|bmp|heic|heif)$/i.test(name);
+}
+
+async function importPDF(file, idxInBatch, totalInBatch) {
+  const buf = await file.arrayBuffer();
+  const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+  const total = pdf.numPages;
+  for (let p = 1; p <= total; p++) {
+    setProcessing(`Rendering PDF page ${p} of ${total}…`, ((p - 1) / total) * 100);
+    const page = await pdf.getPage(p);
+    // Render at ~1600 px on the long edge as a work resolution
+    const viewport1 = page.getViewport({ scale: 1 });
+    const longEdge = Math.max(viewport1.width, viewport1.height);
+    const scale = 1600 / longEdge;
+    const viewport = page.getViewport({ scale });
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.round(viewport.width);
+    canvas.height = Math.round(viewport.height);
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    await page.render({ canvasContext: ctx, viewport }).promise;
+
+    const blob = await new Promise(res => canvas.toBlob(res, 'image/jpeg', 0.92));
+    const bitmap = await createImageBitmap(canvas);
+    const previewCanvas = document.createElement('canvas');
+    const scalePreview = 240 / Math.max(bitmap.width, bitmap.height);
+    previewCanvas.width = Math.round(bitmap.width * scalePreview);
+    previewCanvas.height = Math.round(bitmap.height * scalePreview);
+    previewCanvas.getContext('2d').drawImage(bitmap, 0, 0, previewCanvas.width, previewCanvas.height);
+
+    App.pages.push({
+      id: 'page_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8),
+      sourceType: 'pdf',
+      sourceName: file.name,
+      sourcePage: p,
+      originalBlob: blob,
+      originalBitmap: bitmap,
+      rotation: 0,
+      cropCorners: null,
+      previewCanvas,
+      previewBlob: null
+    });
+  }
+}
+
+async function importImage(file) {
+  const bitmap = await createImageBitmap(file);
+  const previewCanvas = document.createElement('canvas');
+  const scale = 240 / Math.max(bitmap.width, bitmap.height);
+  previewCanvas.width = Math.round(bitmap.width * scale);
+  previewCanvas.height = Math.round(bitmap.height * scale);
+  previewCanvas.getContext('2d').drawImage(bitmap, 0, 0, previewCanvas.width, previewCanvas.height);
+  App.pages.push({
+    id: 'page_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8),
+    sourceType: 'image',
+    sourceName: file.name,
+    sourcePage: 1,
+    originalBlob: file,
+    originalBitmap: bitmap,
+    rotation: 0,
+    cropCorners: null,
+    previewCanvas,
+    previewBlob: null
+  });
+}
+
+// ============================================================
+// CROP EDITOR
+// ============================================================
+function openCropForIndex(index) {
+  App.editingIndex = index;
+  const page = App.pages[index];
+  if (!page) return;
+  App.cropBitmap = page.originalBitmap;
+  App.cropRotation = page.rotation || 0;
+  App.cropCorners = null;   // Will be initialized below
+  App.cropReturnScreen = 'screen-pages';
+
+  showScreen('screen-crop');
+  renderCropStage();
+}
+
+function renderCropStage() {
+  const bitmap = App.cropBitmap;
+  if (!bitmap) return;
+
+  const stage = document.getElementById('cropStage');
+  const canvas = document.getElementById('cropCanvas');
+  const overlay = document.getElementById('cropOverlay');
+
+  // Compute the rotated bitmap dimensions first so we know the aspect ratio
+  const rot = ((App.cropRotation % 360) + 360) % 360;
+  const swap = rot === 90 || rot === 270;
+  const rotW = swap ? bitmap.height : bitmap.width;
+  const rotH = swap ? bitmap.width : bitmap.height;
+
+  // Fit into stage
+  const maxW = stage.clientWidth;
+  const maxH = stage.clientHeight;
+  const fit = Math.min(maxW / rotW, maxH / rotH);
+  const cw = Math.round(rotW * fit);
+  const ch = Math.round(rotH * fit);
+
+  canvas.width = cw;
+  canvas.height = ch;
+  canvas.style.width = cw + 'px';
+  canvas.style.height = ch + 'px';
+
+  const ctx = canvas.getContext('2d');
+  ctx.save();
+  ctx.fillStyle = '#0f172a';
+  ctx.fillRect(0, 0, cw, ch);
+  // Rotate around the centre
+  ctx.translate(cw / 2, ch / 2);
+  ctx.rotate(rot * Math.PI / 180);
+  // After rotation, the drawing must be sized for the pre-rotation dimensions
+  const drawW = swap ? ch : cw;
+  const drawH = swap ? cw : ch;
+  ctx.drawImage(bitmap, -drawW / 2, -drawH / 2, drawW, drawH);
+  ctx.restore();
+
+  overlay.width = cw;
+  overlay.height = ch;
+  overlay.style.width = cw + 'px';
+  overlay.style.height = ch + 'px';
+
+  // If the page already had crop corners, they are in *pre-rotation* image space.
+  // For simplicity we reset crop when opening the editor — the crop is stored
+  // as an already-applied bitmap after Done, so reopening gives a fresh crop.
+  if (!App.cropCorners) {
+    const pad = 20;
+    App.cropCorners = {
+      tl: { x: pad, y: pad },
+      tr: { x: cw - pad, y: pad },
+      br: { x: cw - pad, y: ch - pad },
+      bl: { x: pad, y: ch - pad }
+    };
+  }
+
+  renderCropOverlay();
+  wireCropHandles();
+}
+
+function renderCropOverlay() {
+  const overlay = document.getElementById('cropOverlay');
+  const ctx = overlay.getContext('2d');
+  ctx.clearRect(0, 0, overlay.width, overlay.height);
+  const c = App.cropCorners;
+  if (!c) return;
+
+  ctx.save();
+  ctx.fillStyle = 'rgba(15, 23, 42, 0.55)';
+  ctx.beginPath();
+  ctx.rect(0, 0, overlay.width, overlay.height);
+  ctx.moveTo(c.tl.x, c.tl.y);
+  ctx.lineTo(c.tr.x, c.tr.y);
+  ctx.lineTo(c.br.x, c.br.y);
+  ctx.lineTo(c.bl.x, c.bl.y);
+  ctx.closePath();
+  ctx.fill('evenodd');
+  ctx.restore();
+
+  ctx.strokeStyle = '#3b82f6';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(c.tl.x, c.tl.y);
+  ctx.lineTo(c.tr.x, c.tr.y);
+  ctx.lineTo(c.br.x, c.br.y);
+  ctx.lineTo(c.bl.x, c.bl.y);
+  ctx.closePath();
+  ctx.stroke();
+
+  ctx.strokeStyle = 'rgba(59, 130, 246, 0.4)';
+  ctx.lineWidth = 1;
+  for (let i = 1; i <= 2; i++) {
+    const t = i / 3;
+    ctx.beginPath();
+    ctx.moveTo(c.tl.x + (c.tr.x - c.tl.x) * t, c.tl.y + (c.tr.y - c.tl.y) * t);
+    ctx.lineTo(c.bl.x + (c.br.x - c.bl.x) * t, c.bl.y + (c.br.y - c.bl.y) * t);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(c.tl.x + (c.bl.x - c.tl.x) * t, c.tl.y + (c.bl.y - c.tl.y) * t);
+    ctx.lineTo(c.tr.x + (c.br.x - c.tr.x) * t, c.tr.y + (c.br.y - c.tr.y) * t);
+    ctx.stroke();
+  }
+}
+
+function wireCropHandles() {
+  const overlay = document.getElementById('cropOverlay');
+  const stage = document.getElementById('cropStage');
+  stage.querySelectorAll('.corner-handle').forEach(el => el.remove());
+
+  ['tl', 'tr', 'br', 'bl'].forEach(key => {
+    const h = document.createElement('div');
+    h.className = 'corner-handle';
+    h.dataset.corner = key;
+    const pt = App.cropCorners[key];
+    h.style.left = pt.x + 'px';
+    h.style.top = pt.y + 'px';
+    stage.appendChild(h);
+  });
+
+  let dragging = null;
+
+  function onDown(e) {
+    const handle = e.target.closest('.corner-handle');
+    if (!handle) return;
+    dragging = handle.dataset.corner;
+    e.preventDefault();
+  }
+  function onMove(e) {
+    if (!dragging) return;
+    e.preventDefault();
+    const canvasRect = overlay.getBoundingClientRect();
+    const clientX = (e.touches ? e.touches[0].clientX : e.clientX);
+    const clientY = (e.touches ? e.touches[0].clientY : e.clientY);
+    let x = clientX - canvasRect.left;
+    let y = clientY - canvasRect.top;
+    x = Math.max(0, Math.min(overlay.width, x));
+    y = Math.max(0, Math.min(overlay.height, y));
+    App.cropCorners[dragging] = { x, y };
+    renderCropOverlay();
+    const h = stage.querySelector(`.corner-handle[data-corner="${dragging}"]`);
+    if (h) { h.style.left = x + 'px'; h.style.top = y + 'px'; }
+    showMagnifier(clientX, clientY);
+  }
+  function onUp() {
+    dragging = null;
+    hideMagnifier();
+  }
+  stage.addEventListener('mousedown', onDown);
+  window.addEventListener('mousemove', onMove);
+  window.addEventListener('mouseup', onUp);
+  stage.addEventListener('touchstart', onDown, { passive: false });
+  window.addEventListener('touchmove', onMove, { passive: false });
+  window.addEventListener('touchend', onUp);
+}
+
+function showMagnifier(clientX, clientY) {
+  const mag = document.getElementById('magnifier');
+  const canvas = document.getElementById('cropCanvas');
+  const magCanvas = mag.querySelector('canvas');
+  const ZOOM = 3;
+  const SIZE = 120;
+  magCanvas.width = SIZE;
+  magCanvas.height = SIZE;
+  const ctx = magCanvas.getContext('2d');
+  const rect = canvas.getBoundingClientRect();
+  const cx = clientX - rect.left;
+  const cy = clientY - rect.top;
+  ctx.clearRect(0, 0, SIZE, SIZE);
+  ctx.drawImage(
+    canvas,
+    cx - SIZE / (2 * ZOOM), cy - SIZE / (2 * ZOOM),
+    SIZE / ZOOM, SIZE / ZOOM,
+    0, 0, SIZE, SIZE
+  );
+  mag.style.display = 'block';
+  const stageRect = document.getElementById('cropStage').getBoundingClientRect();
+  mag.style.left = (clientX - stageRect.left - SIZE / 2) + 'px';
+  mag.style.top = (clientY - stageRect.top - SIZE - 20) + 'px';
+  if (parseFloat(mag.style.top) < 0) {
+    mag.style.top = (clientY - stageRect.top + 20) + 'px';
+  }
+}
+function hideMagnifier() {
+  document.getElementById('magnifier').style.display = 'none';
+}
+
+function rotatePage(delta) {
+  App.cropRotation = ((App.cropRotation + delta) % 360 + 360) % 360;
+  App.cropCorners = null;
+  renderCropStage();
+  showToast(`Rotated to ${App.cropRotation}°`);
+}
+
+function resetCrop() {
+  App.cropCorners = null;
+  renderCropStage();
+  showToast('Crop reset to full frame.');
+}
+
+function fullPageCrop() {
+  const overlay = document.getElementById('cropOverlay');
+  App.cropCorners = {
+    tl: { x: 0, y: 0 },
+    tr: { x: overlay.width, y: 0 },
+    br: { x: overlay.width, y: overlay.height },
+    bl: { x: 0, y: overlay.height }
+  };
+  renderCropOverlay();
+  wireCropHandles();
+  showToast('Selected full page.');
+}
+
+function cancelCrop() {
+  App.cropBitmap = null;
+  App.cropCorners = null;
+  App.editingIndex = -1;
+  showScreen('screen-pages');
+}
+
+async function confirmCrop() {
+  const page = App.pages[App.editingIndex];
+  if (!page) { cancelCrop(); return; }
+
+  const canvas = document.getElementById('cropCanvas');
+  const cornersOnCanvas = App.cropCorners;
+  if (!cornersOnCanvas) { cancelCrop(); return; }
+
+  // Compute the scale from canvas back to the *rotated* bitmap space,
+  // then map through the rotation to the original bitmap space.
+  const stage = document.getElementById('cropStage');
+  const rot = ((App.cropRotation % 360) + 360) % 360;
+  const swap = rot === 90 || rot === 270;
+  const bitmap = page.originalBitmap;
+  const rotW = swap ? bitmap.height : bitmap.width;
+  const rotH = swap ? bitmap.width : bitmap.height;
+  const scale = canvas.width / rotW;
+
+  // Corner coordinates in rotated-image space (pre-scaling)
+  const rotCorners = {
+    tl: { x: cornersOnCanvas.tl.x / scale, y: cornersOnCanvas.tl.y / scale },
+    tr: { x: cornersOnCanvas.tr.x / scale, y: cornersOnCanvas.tr.y / scale },
+    br: { x: cornersOnCanvas.br.x / scale, y: cornersOnCanvas.br.y / scale },
+    bl: { x: cornersOnCanvas.bl.x / scale, y: cornersOnCanvas.bl.y / scale }
+  };
+
+  // Produce the cropped canvas at full resolution.
+  const outCanvas = await renderCroppedBitmap(bitmap, rotCorners, rot);
+  const outBlob = await new Promise(res => outCanvas.toBlob(res, 'image/jpeg', 0.92));
+  const outBitmap = await createImageBitmap(outCanvas);
+
+  const previewCanvas = document.createElement('canvas');
+  const previewScale = 240 / Math.max(outBitmap.width, outBitmap.height);
+  previewCanvas.width = Math.max(1, Math.round(outBitmap.width * previewScale));
+  previewCanvas.height = Math.max(1, Math.round(outBitmap.height * previewScale));
+  previewCanvas.getContext('2d').drawImage(outBitmap, 0, 0, previewCanvas.width, previewCanvas.height);
+
+  page.originalBitmap = outBitmap;
+  page.originalBlob = outBlob;
+  page.rotation = 0;      // Rotation is now baked into the cropped bitmap
+  page.cropCorners = null;
+  page.previewCanvas = previewCanvas;
+  page.previewBlob = outBlob;
+
+  App.cropBitmap = null;
+  App.cropCorners = null;
+  App.editingIndex = -1;
+
+  refreshPageGrid();
+  showScreen('screen-pages');
+  showToast('Crop applied.', 'success');
+}
+
+async function renderCroppedBitmap(bitmap, rotCorners, rot) {
+  // 1. Draw the rotated bitmap at full resolution
+  const rotCanvas = document.createElement('canvas');
+  const swap = rot === 90 || rot === 270;
+  rotCanvas.width = swap ? bitmap.height : bitmap.width;
+  rotCanvas.height = swap ? bitmap.width : bitmap.height;
+  const rctx = rotCanvas.getContext('2d');
+  rctx.save();
+  rctx.translate(rotCanvas.width / 2, rotCanvas.height / 2);
+  rctx.rotate(rot * Math.PI / 180);
+  const drawW = swap ? rotCanvas.height : rotCanvas.width;
+  const drawH = swap ? rotCanvas.width : rotCanvas.height;
+  rctx.drawImage(bitmap, -drawW / 2, -drawH / 2, drawW, drawH);
+  rctx.restore();
+
+  // 2. Compute the bounding box of the crop in rotated space
+  const xs = [rotCorners.tl.x, rotCorners.tr.x, rotCorners.br.x, rotCorners.bl.x];
+  const ys = [rotCorners.tl.y, rotCorners.tr.y, rotCorners.br.y, rotCorners.bl.y];
+  const minX = Math.max(0, Math.floor(Math.min(...xs)));
+  const minY = Math.max(0, Math.floor(Math.min(...ys)));
+  const maxX = Math.min(rotCanvas.width, Math.ceil(Math.max(...xs)));
+  const maxY = Math.min(rotCanvas.height, Math.ceil(Math.max(...ys)));
+  const outW = Math.max(1, maxX - minX);
+  const outH = Math.max(1, maxY - minY);
+
+  // 3. Do a perspective warp if OpenCV is available; otherwise a plain rect crop
+  // For simplicity, plain rect crop is used. If you want perspective correction
+  // for photos of tilted documents, plug the same OpenCV pipeline used in the
+  // scan tool here. For a general crop tool, rect crop is the right default.
+  const out = document.createElement('canvas');
+  out.width = outW;
+  out.height = outH;
+  out.getContext('2d').drawImage(rotCanvas, minX, minY, outW, outH, 0, 0, outW, outH);
+  return out;
+}
+
+// ============================================================
+// PAGE GRID
+// ============================================================
+function refreshPageGrid() {
+  const grid = document.getElementById('pageGrid');
+  grid.innerHTML = '';
+
+  App.pages.forEach((page, idx) => {
+    const card = document.createElement('div');
+    card.className = 'page-card';
+    card.draggable = true;
+    card.dataset.index = idx;
+
+    const canvas = document.createElement('canvas');
+    canvas.width = 200;
+    canvas.height = 260;
+    const c2 = canvas.getContext('2d');
+    if (page.previewCanvas) c2.drawImage(page.previewCanvas, 0, 0, 200, 260);
+    else if (page.originalBitmap) c2.drawImage(page.originalBitmap, 0, 0, 200, 260);
+    card.appendChild(canvas);
+
+    const num = document.createElement('div');
+    num.className = 'page-number';
+    num.textContent = String(idx + 1);
+    card.appendChild(num);
+
+    const del = document.createElement('button');
+    del.className = 'page-delete';
+    del.textContent = '×';
+    del.onclick = (e) => {
+      e.stopPropagation();
+      App.pages.splice(idx, 1);
+      refreshPageGrid();
+      refreshCounters();
+    };
+    card.appendChild(del);
+
+    card.addEventListener('click', () => {
+      openCropForIndex(idx);
     });
 
-    // ============================================
-    // TOOL SELECTION & CONTEXTUAL TOOLBAR
-    // ============================================
-    let currentTool = 'select';
-
-    function setTool(tool) {
-      currentTool = tool;
-      
-      document.querySelectorAll('.toolbar-row .tool-btn').forEach(btn => {
-        btn.classList.toggle('active', btn.dataset.tool === tool);
-      });
-      
-      document.getElementById('textFormatting').style.display = 'none';
-      document.getElementById('drawFormatting').style.display = 'none';
-      document.getElementById('shapeFormatting').style.display = 'none';
-      document.getElementById('highlightFormatting').style.display = 'none';
-      
-      if (tool === 'text') {
-        document.getElementById('textFormatting').style.display = 'flex';
-      } else if (tool === 'draw') {
-        document.getElementById('drawFormatting').style.display = 'flex';
-      } else if (tool === 'shape') {
-        document.getElementById('shapeFormatting').style.display = 'flex';
-      } else if (tool === 'highlight') {
-        document.getElementById('highlightFormatting').style.display = 'flex';
-      }
-      
-      showPropsForTool(tool);
-      document.getElementById('propsPanel').classList.remove('open');
-    }
-
-    function showPropsForTool(tool) {
-      document.getElementById('propsEmpty').classList.add('hidden');
-      document.getElementById('pageProps').classList.add('hidden');
-      document.getElementById('textProps').classList.add('hidden');
-      document.getElementById('imageProps').classList.add('hidden');
-      document.getElementById('shapeProps').classList.add('hidden');
-
-      const map = {
-        'select': 'pageProps',
-        'text': 'textProps',
-        'image': 'imageProps',
-        'shape': 'shapeProps',
-        'sign': 'pageProps',
-        'draw': 'pageProps',
-        'highlight': 'pageProps',
-        'forms': 'pageProps'
-      };
-      
-      const id = map[tool] || 'pageProps';
-      const hasPdf = !document.getElementById('emptyState').classList.contains('hidden');
-      if (!hasPdf) {
-        document.getElementById('propsEmpty').classList.remove('hidden');
-        return;
-      }
-      document.getElementById(id).classList.remove('hidden');
-    }
-
-    // Set default tool
-    setTool('select');
-
-    function togglePropsPanel() {
-      document.getElementById('propsPanel').classList.toggle('open');
-    }
-
-    function toggleSidebar(type) {
-      if (type === 'pages') {
-        document.getElementById('pagesSidebar').classList.toggle('hidden');
-      } else if (type === 'props') {
-        document.getElementById('propsPanel').classList.toggle('hidden');
-      }
-    }
-
-    function renameDocument() {
-      const newName = prompt('Rename document:', document.getElementById('docTitle').textContent.trim());
-      if (newName) {
-        document.getElementById('docTitle').innerHTML = newName + ' <span class="saved">●</span>';
-      }
-    }
-
-    // ============================================
-    // PDF LOADING
-    // ============================================
-    const dropZone = document.getElementById('dropZone');
-
-    dropZone.addEventListener('dragover', (e) => {
+    card.addEventListener('dragstart', (e) => {
+      App.dragIndex = idx;
+      card.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+    });
+    card.addEventListener('dragend', () => {
+      card.classList.remove('dragging');
+      document.querySelectorAll('.page-card').forEach(c => c.classList.remove('drag-over'));
+    });
+    card.addEventListener('dragover', (e) => { e.preventDefault(); card.classList.add('drag-over'); });
+    card.addEventListener('dragleave', () => card.classList.remove('drag-over'));
+    card.addEventListener('drop', (e) => {
       e.preventDefault();
-      dropZone.classList.add('dragover');
+      card.classList.remove('drag-over');
+      const from = App.dragIndex;
+      const to = idx;
+      if (from === to || from < 0) return;
+      const [moved] = App.pages.splice(from, 1);
+      App.pages.splice(to, 0, moved);
+      refreshPageGrid();
     });
 
-    dropZone.addEventListener('dragleave', () => {
-      dropZone.classList.remove('dragover');
-    });
+    grid.appendChild(card);
+  });
 
-    dropZone.addEventListener('drop', (e) => {
-      e.preventDefault();
-      dropZone.classList.remove('dragover');
-      const files = e.dataTransfer.files;
-      if (files.length > 0 && files[0].type === 'application/pdf') {
-        loadPDF(files[0]);
-      }
-    });
+  const add = document.createElement('div');
+  add.className = 'add-page-card';
+  add.innerHTML = '<div class="plus">+</div><div>Add File</div>';
+  add.onclick = () => document.getElementById('addMoreInput').click();
+  grid.appendChild(add);
 
-    document.getElementById('pdfInput').addEventListener('change', function(e) {
-      if (this.files.length > 0) {
-        loadPDF(this.files[0]);
-      }
-    });
+  refreshCounters();
+}
 
-    function loadPDF(file) {
-      document.getElementById('emptyState').classList.add('hidden');
-      document.getElementById('pageContainer').classList.remove('hidden');
-      document.getElementById('emptyThumbnails').classList.add('hidden');
-      document.getElementById('propsEmpty').classList.add('hidden');
-      document.getElementById('pageProps').classList.remove('hidden');
-      
-      document.getElementById('docTitle').innerHTML = file.name + ' <span class="saved">●</span>';
-      
-      const list = document.getElementById('thumbnailList');
-      list.innerHTML = `
-        <div class="page-thumbnail active mb-2">
-          <div class="thumb-content">📄</div>
-          <div class="page-number">1</div>
-        </div>
-        <div class="page-thumbnail mb-2">
-          <div class="thumb-content">📄</div>
-          <div class="page-number">2</div>
-        </div>
-        <div class="page-thumbnail mb-2">
-          <div class="thumb-content">📄</div>
-          <div class="page-number">3</div>
-        </div>
-      `;
-      
-      document.getElementById('statusPage').textContent = 'Page 1 of 3';
-      document.getElementById('statusSize').textContent = 'A4 • 210 × 297 mm';
-      
-      setTool(currentTool);
-      alert(`📄 PDF loaded: ${file.name}`);
+// ============================================================
+// DOWNLOAD
+// ============================================================
+function openDownloadMenu() {
+  const fmt = document.getElementById('exportFormat').value;
+  if (fmt === 'pdf') {
+    exportAsPDF();
+  } else {
+    exportAsImages(fmt);
+  }
+}
+
+async function exportAsPDF() {
+  if (App.pages.length === 0) return;
+  const quality = document.getElementById('exportQuality').value;
+
+  showProcessing('Creating PDF…', 'Preparing pages');
+  try {
+    const { PDFDocument } = PDFLib;
+    const pdfDoc = await PDFDocument.create();
+    pdfDoc.setProducer('Droplet Crop PDF');
+    pdfDoc.setCreator('Droplet');
+    pdfDoc.setTitle('Droplet Cropped Document');
+
+    for (let i = 0; i < App.pages.length; i++) {
+      const page = App.pages[i];
+      setProcessing(`Rendering page ${i + 1} of ${App.pages.length}`, (i / App.pages.length) * 85 + 10);
+
+      const canvas = await renderPageForExport(page, quality);
+      const blob = await new Promise(res => canvas.toBlob(res, 'image/jpeg', jpegQualityFor(quality)));
+      const bytes = new Uint8Array(await blob.arrayBuffer());
+      const embedded = await pdfDoc.embedJpg(bytes);
+      const pdfPage = pdfDoc.addPage([embedded.width, embedded.height]);
+      pdfPage.drawImage(embedded, { x: 0, y: 0, width: embedded.width, height: embedded.height });
     }
 
-    document.querySelector('.empty-state .bg-blue-600')?.addEventListener('click', () => {
-      document.getElementById('pdfInput').click();
-    });
+    setProcessing('Finalising PDF…', 95);
+    const pdfBytes = await pdfDoc.save();
+    const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+    triggerDownload(blob, 'dropletweb-crop.pdf');
 
-    // ============================================
-    // KEYBOARD SHORTCUTS
-    // ============================================
-    document.addEventListener('keydown', (e) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
-        e.preventDefault();
-        alert('Undo');
-      }
-      if ((e.ctrlKey || e.metaKey) && e.key === 'y') {
-        e.preventDefault();
-        alert('Redo');
-      }
-      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
-        e.preventDefault();
-        alert('Save Project');
-      }
-      if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
-        e.preventDefault();
-        alert('Find');
-      }
-      if ((e.ctrlKey || e.metaKey) && e.key === 'h') {
-        e.preventDefault();
-        alert('Replace');
-      }
-      if ((e.ctrlKey || e.metaKey) && e.key === 'p') {
-        e.preventDefault();
-        alert('Print');
-      }
-      if ((e.ctrlKey || e.metaKey) && e.key === 'b') {
-        e.preventDefault();
-        alert('Bold');
-      }
-      if ((e.ctrlKey || e.metaKey) && e.key === 'i') {
-        e.preventDefault();
-        alert('Italic');
-      }
-      if ((e.ctrlKey || e.metaKey) && e.key === 'u') {
-        e.preventDefault();
-        alert('Underline');
-      }
-      if (e.key === 'Escape') {
-        document.getElementById('propsPanel').classList.remove('open');
-      }
-    });
+    hideProcessing();
+    showToast('PDF downloaded as dropletweb-crop.pdf', 'success', 3000);
+  } catch (e) {
+    console.error('PDF export failed:', e);
+    hideProcessing();
+    showToast('PDF export failed: ' + e.message, 'error', 4000);
+  }
+}
 
-    console.log('📄 Droplet PDF Editor - Simple Router');
-    console.log('🔗 Visiting /rotate-pdf redirects to /edit-pdf with the tool loaded');
-    console.log('💡 All PDF tools share the same editor interface');
-  </script>
+async function exportAsImages(format) {
+  if (App.pages.length === 0) return;
+  const quality = document.getElementById('exportQuality').value;
+  const mime = format === 'png' ? 'image/png'
+             : format === 'webp' ? 'image/webp'
+             : 'image/jpeg';
+  const ext = format === 'png' ? 'png'
+            : format === 'webp' ? 'webp'
+            : 'jpg';
+
+  showProcessing(`Creating ${format.toUpperCase()} images…`, 'Preparing pages');
+  try {
+    for (let i = 0; i < App.pages.length; i++) {
+      const page = App.pages[i];
+      setProcessing(`Rendering page ${i + 1} of ${App.pages.length}`, (i / App.pages.length) * 85 + 10);
+
+      const canvas = await renderPageForExport(page, quality);
+      const q = format === 'png' ? undefined : jpegQualityFor(quality);
+      const blob = await new Promise(res => canvas.toBlob(res, mime, q));
+
+      const filename = App.pages.length === 1
+        ? `dropletweb-image.${ext}`
+        : `dropletweb-image-${i + 1}.${ext}`;
+      triggerDownload(blob, filename);
+
+      // Small delay between downloads so browsers don't block them
+      await new Promise(r => setTimeout(r, 300));
+    }
+
+    hideProcessing();
+    showToast(
+      App.pages.length === 1
+        ? `Image downloaded as dropletweb-image.${ext}`
+        : `${App.pages.length} images downloaded as dropletweb-image-1.${ext}, dropletweb-image-2.${ext}, …`,
+      'success',
+      3500
+    );
+  } catch (e) {
+    console.error('Image export failed:', e);
+    hideProcessing();
+    showToast('Image export failed: ' + e.message, 'error', 4000);
+  }
+}
+
+function triggerDownload(blob, filename) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 5000);
+}
+
+function jpegQualityFor(q) {
+  if (q === 'small') return 0.65;
+  if (q === 'high') return 0.95;
+  return 0.85;
+}
+
+async function renderPageForExport(page, quality) {
+  const bitmap = page.originalBitmap;
+  let targetMax = 2000;
+  if (quality === 'small') targetMax = 1200;
+  if (quality === 'high') targetMax = 3000;
+
+  const scale = Math.min(1, targetMax / Math.max(bitmap.width, bitmap.height));
+  const w = Math.max(1, Math.round(bitmap.width * scale));
+  const h = Math.max(1, Math.round(bitmap.height * scale));
+  const canvas = document.createElement('canvas');
+  canvas.width = w;
+  canvas.height = h;
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, w, h);
+  ctx.drawImage(bitmap, 0, 0, w, h);
+  return canvas;
+}
+
+// ============================================================
+// KEYBOARD SHORTCUTS
+// ============================================================
+document.addEventListener('keydown', (e) => {
+  if (document.getElementById('screen-crop').classList.contains('active')) {
+    if (e.key === 'Escape') cancelCrop();
+    if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) confirmCrop();
+    if (e.key === 'r' || e.key === 'R') rotatePage(90);
+  }
+});
+
+console.log('Crop PDF tool loaded.');
+</script>
 </body>
 </html>
