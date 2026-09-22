@@ -45,7 +45,7 @@
   input, select { font-family: inherit; }
 
   /* ============================================================ */
-  /* APP GRID — three columns, all independently scrollable        */
+  /* APP GRID                                                      */
   /* ============================================================ */
   .app {
     width: 100vw;
@@ -127,9 +127,6 @@
   .header-btn.strong:hover { background: #2563eb; }
   .header-btn.strong:disabled { background: #cbd5e1; }
 
-  /* ============================================================ */
-  /* THEME TOGGLE BUTTON                                           */
-  /* ============================================================ */
   #theme-toggle {
     background: none;
     border: none;
@@ -141,15 +138,9 @@
     line-height: 1;
     color: #475569;
   }
-  #theme-toggle:hover {
-    background: #f1f5f9;
-  }
-  html.dark #theme-toggle {
-    color: #e2e8f0;
-  }
-  html.dark #theme-toggle:hover {
-    background: #334155;
-  }
+  #theme-toggle:hover { background: #f1f5f9; }
+  html.dark #theme-toggle { color: #e2e8f0; }
+  html.dark #theme-toggle:hover { background: #334155; }
 
   /* ============================================================ */
   /* UPLOAD SCREEN                                                 */
@@ -186,10 +177,7 @@
     border-color: #3b82f6;
     background: #eff6ff;
   }
-  .upload-dropzone .sub {
-    font-size: 12px;
-    color: #94a3b8;
-  }
+  .upload-dropzone .sub { font-size: 12px; color: #94a3b8; }
 
   /* ============================================================ */
   /* LEFT: PAGE THUMBNAILS                                         */
@@ -249,7 +237,7 @@
   }
 
   /* ============================================================ */
-  /* CENTER: PREVIEW  (this is the critical fix)                   */
+  /* CENTER: PREVIEW                                               */
   /* ============================================================ */
   .preview-area {
     min-width: 0;
@@ -260,6 +248,10 @@
     display: flex;
     justify-content: center;
     align-items: flex-start;
+  }
+  .preview-area.image-mode {
+    align-items: center;
+    justify-content: center;
   }
   .preview-page {
     position: relative;
@@ -665,112 +657,41 @@
   /* ============================================================ */
   /* DARK MODE OVERRIDES                                           */
   /* ============================================================ */
-  html.dark body {
-    background: #0f172a;
-    color: #e2e8f0;
-  }
-  html.dark .bg-white {
-    background: #1e293b !important;
-  }
-  html.dark .bg-slate-50 {
-    background: #0f172a !important;
-  }
-  html.dark .bg-slate-100 {
-    background: #334155 !important;
-  }
-  html.dark .text-slate-900 {
-    color: #f1f5f9 !important;
-  }
-  html.dark .text-slate-800 {
-    color: #e2e8f0 !important;
-  }
-  html.dark .text-slate-700 {
-    color: #cbd5e1 !important;
-  }
+  html.dark body { background: #0f172a; color: #e2e8f0; }
+  html.dark .bg-white { background: #1e293b !important; }
+  html.dark .bg-slate-50 { background: #0f172a !important; }
+  html.dark .bg-slate-100 { background: #334155 !important; }
+  html.dark .text-slate-900 { color: #f1f5f9 !important; }
+  html.dark .text-slate-800 { color: #e2e8f0 !important; }
+  html.dark .text-slate-700 { color: #cbd5e1 !important; }
   html.dark .text-slate-600,
-  html.dark .text-slate-500 {
-    color: #94a3b8 !important;
-  }
-  html.dark .border-slate-200 {
-    border-color: #334155 !important;
-  }
-  html.dark .border-slate-100 {
-    border-color: #1e293b !important;
-  }
-  html.dark header {
-    background: #1e293b;
-    border-color: #334155;
-  }
-  html.dark header h1 {
-    color: #f1f5f9;
-  }
-  html.dark header nav a {
-    color: #94a3b8;
-  }
-  html.dark header nav a:hover {
-    color: #f1f5f9;
-  }
-  html.dark footer {
-    background: #0f172a !important;
-    border-color: #334155 !important;
-  }
-  html.dark footer a {
-    color: #94a3b8;
-  }
-  html.dark footer a:hover {
-    color: #f1f5f9;
-  }
-  html.dark .bg-blue-50 {
-    background: #1e3a5f !important;
-  }
-  html.dark .bg-blue-500 {
-    background: #2563eb !important;
-  }
-  html.dark .bg-blue-500:hover {
-    background: #3b82f6 !important;
-  }
-  html.dark .bg-blue-600 {
-    background: #2563eb !important;
-  }
-  html.dark .bg-blue-600:hover {
-    background: #3b82f6 !important;
-  }
-  html.dark .text-blue-600 {
-    color: #60a5fa !important;
-  }
-  html.dark .text-blue-700 {
-    color: #60a5fa !important;
-  }
-  html.dark .text-blue-900 {
-    color: #93c5fd !important;
-  }
-  html.dark .border-blue-200 {
-    border-color: #2563eb !important;
-  }
-  html.dark .border-blue-200\/60 {
-    border-color: rgba(59, 130, 246, 0.3) !important;
-  }
-  html.dark .shadow-sm {
-    box-shadow: 0 1px 2px 0 rgba(0,0,0,0.3) !important;
-  }
-  html.dark .shadow-md {
-    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.4), 0 2px 4px -1px rgba(0,0,0,0.2) !important;
-  }
-  html.dark .shadow-lg {
-    box-shadow: 0 10px 15px -3px rgba(0,0,0,0.4), 0 4px 6px -2px rgba(0,0,0,0.2) !important;
-  }
-  html.dark .shadow-blue-500\/20 {
-    --tw-shadow-color: rgba(59, 130, 246, 0.3) !important;
-  }
-  html.dark .shadow-blue-500\/5 {
-    --tw-shadow-color: rgba(59, 130, 246, 0.1) !important;
-  }
+  html.dark .text-slate-500 { color: #94a3b8 !important; }
+  html.dark .border-slate-200 { border-color: #334155 !important; }
+  html.dark .border-slate-100 { border-color: #1e293b !important; }
+  html.dark header { background: #1e293b; border-color: #334155; }
+  html.dark header h1 { color: #f1f5f9; }
+  html.dark header nav a { color: #94a3b8; }
+  html.dark header nav a:hover { color: #f1f5f9; }
+  html.dark footer { background: #0f172a !important; border-color: #334155 !important; }
+  html.dark footer a { color: #94a3b8; }
+  html.dark footer a:hover { color: #f1f5f9; }
+  html.dark .bg-blue-50 { background: #1e3a5f !important; }
+  html.dark .bg-blue-500 { background: #2563eb !important; }
+  html.dark .bg-blue-500:hover { background: #3b82f6 !important; }
+  html.dark .bg-blue-600 { background: #2563eb !important; }
+  html.dark .bg-blue-600:hover { background: #3b82f6 !important; }
+  html.dark .text-blue-600 { color: #60a5fa !important; }
+  html.dark .text-blue-700 { color: #60a5fa !important; }
+  html.dark .text-blue-900 { color: #93c5fd !important; }
+  html.dark .border-blue-200 { border-color: #2563eb !important; }
+  html.dark .border-blue-200\/60 { border-color: rgba(59, 130, 246, 0.3) !important; }
+  html.dark .shadow-sm { box-shadow: 0 1px 2px 0 rgba(0,0,0,0.3) !important; }
+  html.dark .shadow-md { box-shadow: 0 4px 6px -1px rgba(0,0,0,0.4), 0 2px 4px -1px rgba(0,0,0,0.2) !important; }
+  html.dark .shadow-lg { box-shadow: 0 10px 15px -3px rgba(0,0,0,0.4), 0 4px 6px -2px rgba(0,0,0,0.2) !important; }
+  html.dark .shadow-blue-500\/20 { --tw-shadow-color: rgba(59, 130, 246, 0.3) !important; }
+  html.dark .shadow-blue-500\/5 { --tw-shadow-color: rgba(59, 130, 246, 0.1) !important; }
 
-  /* App-specific dark overrides */
-  html.dark .app-header {
-    background: #1e293b;
-    border-color: #334155;
-  }
+  html.dark .app-header { background: #1e293b; border-color: #334155; }
   html.dark .app-header .logo-link .logo-text,
   html.dark .app-header .title { color: #f1f5f9; }
   html.dark .header-btn { color: #60a5fa; }
@@ -863,7 +784,6 @@
 
 <div class="app">
 
-  <!-- HEADER -->
   <div class="app-header">
     <a href="/" class="logo-link">
       <img src="Gemini_Generated_Image_sdu6v7sdu6v7sdu6.jpg" alt="Droplet">
@@ -878,7 +798,6 @@
     <button id="theme-toggle" aria-label="Toggle theme">🌙</button>
   </div>
 
-  <!-- UPLOAD SCREEN -->
   <div id="screen-upload">
     <div class="big-icon">💧</div>
     <h1>Add Watermark</h1>
@@ -892,16 +811,13 @@
     </div>
   </div>
 
-  <!-- EDITOR SCREEN -->
   <div id="screen-editor" class="editor hidden">
 
-    <!-- LEFT: page thumbnails -->
     <div class="sidebar-left" id="thumbSidebar">
       <h4>Pages</h4>
       <div id="thumbList" style="display:flex; flex-direction:column; gap:8px;"></div>
     </div>
 
-    <!-- CENTER: preview -->
     <div class="preview-area" id="previewArea">
       <div class="preview-page" id="previewPage">
         <canvas class="page-render" id="pageRender"></canvas>
@@ -909,7 +825,6 @@
       </div>
     </div>
 
-    <!-- RIGHT: properties -->
     <div class="sidebar-right">
 
       <div class="panel-section">
@@ -1044,7 +959,6 @@
   </div>
 </div>
 
-<!-- Processing overlay -->
 <div id="processingOverlay" class="hidden">
   <div class="processing-card">
     <div class="spinner"></div>
@@ -1054,7 +968,6 @@
   </div>
 </div>
 
-<!-- Toast -->
 <div class="toast" id="toast"></div>
 
 <script>
@@ -1220,15 +1133,16 @@ async function loadFile(file) {
   if (State.sourceType === 'image') {
     document.getElementById('thumbSidebar').classList.add('hidden');
     document.getElementById('pageRangeSection').classList.add('hidden');
-    document.querySelector('.editor').style.gridTemplateColumns = '0 1fr 340px';
+    document.querySelector('.editor').style.gridTemplateColumns = '0 minmax(0, 1fr) 340px';
+    document.getElementById('previewArea').classList.add('image-mode');
   } else {
     document.getElementById('thumbSidebar').classList.remove('hidden');
     document.getElementById('pageRangeSection').classList.remove('hidden');
     document.querySelector('.editor').style.gridTemplateColumns = '';
+    document.getElementById('previewArea').classList.remove('image-mode');
     buildThumbnails();
   }
 
-  // Let the DOM settle, then fit the page to the viewer width
   requestAnimationFrame(() => {
     renderCurrentPage().then(() => {
       fitPageToViewer();
@@ -1281,7 +1195,6 @@ async function loadPDF(file) {
     const page = await State.pdfDoc.getPage(i);
     const vp1 = page.getViewport({ scale: 1 });
     State.pdfPageSizes.push({ width: vp1.width, height: vp1.height });
-    // Render at a resolution proportional to the PDF size, capped at 1600 px long edge
     const scale = Math.min(2, 1600 / Math.max(vp1.width, vp1.height));
     const vp = page.getViewport({ scale });
     const canvas = document.createElement('canvas');
@@ -1331,32 +1244,55 @@ function buildThumbnails() {
 
 // ============================================================
 // FIT PAGE TO VIEWER
-// Computes the largest scale that fits the available center width,
-// applies it to the preview canvas, and lets the viewer scroll.
+// Two modes:
+//   PDF   → fit-to-width (scroll vertically if the page is tall)
+//   Image → fit-inside (never upscale beyond natural size)
 // ============================================================
 function fitPageToViewer() {
   const viewer = document.getElementById('previewArea');
   const canvas = document.getElementById('pageRender');
-  if (!viewer || !canvas || canvas.width === 0) return;
+  const page = document.getElementById('previewPage');
+  const overlay = document.getElementById('wmOverlay');
 
-  // Available width = viewer client width minus padding (32 px each side = 64)
-  const available = Math.max(100, viewer.clientWidth - 64);
-  // Fit-to-width only — height is not constrained, the viewer scrolls
+  if (!viewer || !canvas || canvas.width === 0 || canvas.height === 0) return;
+
+  const paddingX = 64;
+  const paddingY = 64;
+
+  const availableW = Math.max(100, viewer.clientWidth - paddingX);
+  const availableH = Math.max(100, viewer.clientHeight - paddingY);
+
   const naturalW = canvas.width;
   const naturalH = canvas.height;
-  const scale = available / naturalW;
-  const targetW = Math.round(naturalW * scale);
-  const targetH = Math.round(naturalH * scale);
 
-  // Set the CSS width/height on the preview container so the overlay
-  // canvas and the page canvas match
-  const page = document.getElementById('previewPage');
+  let scale;
+
+  if (State.sourceType === 'image') {
+    // Fit the ENTIRE image inside the available viewer.
+    // Never enlarge beyond its natural preview size.
+    scale = Math.min(
+      availableW / naturalW,
+      availableH / naturalH,
+      1
+    );
+  } else {
+    // PDF: fit to width.
+    // Also don't unnecessarily upscale very small PDF canvases.
+    scale = Math.min(
+      availableW / naturalW,
+      1
+    );
+  }
+
+  const targetW = Math.max(1, Math.round(naturalW * scale));
+  const targetH = Math.max(1, Math.round(naturalH * scale));
+
   page.style.width = targetW + 'px';
   page.style.height = targetH + 'px';
+
   canvas.style.width = targetW + 'px';
   canvas.style.height = targetH + 'px';
 
-  const overlay = document.getElementById('wmOverlay');
   overlay.width = targetW;
   overlay.height = targetH;
   overlay.style.width = targetW + 'px';
@@ -1383,8 +1319,6 @@ async function renderCurrentPage() {
 
   if (State.sourceType === 'image') {
     const bmp = State.imageBitmap;
-    // Rasterize at full image resolution into an offscreen canvas,
-    // then copy into the visible canvas so fitPageToViewer can scale.
     const maxDim = 1600;
     const scale = Math.min(1, maxDim / Math.max(bmp.width, bmp.height));
     canvas.width = Math.round(bmp.width * scale);
@@ -1917,7 +1851,6 @@ async function exportPDF() {
 }
 
 function drawPdfSingle(page, wm, font, color, imageRef, width, height, degrees) {
-  const { deg } = { deg: degrees };
   const reference = 1000;
   const longEdge = Math.max(width, height);
   const fontSize = wm.fontSize * (longEdge / reference) * (wm.scale / 100);
