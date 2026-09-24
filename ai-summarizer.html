@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>AI Summarizer - Droplet</title>
-<meta name="description" content="Summarize long text, articles, and documents instantly in your browser. 100% client-side AI-powered summarization.">
+<meta name="description" content="Summarize long text, articles, and documents instantly in your browser. Advanced client-side AI-powered summarization.">
 <meta name="theme-color" content="#ffffff">
 
 <!-- Prevent flash of dark theme on reload -->
@@ -35,10 +35,11 @@
     overflow-x: hidden;
   }
   body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
     background: #f8fafc;
     color: #0f172a;
     -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
   }
   .hidden { display: none !important; }
 
@@ -57,7 +58,9 @@
   /* ============================================================ */
   .app-header {
     padding: 0 16px;
-    background: #fff;
+    background: rgba(255,255,255,0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     border-bottom: 1px solid #e2e8f0;
     display: flex;
     align-items: center;
@@ -143,19 +146,27 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 64px;
-    height: 64px;
-    background: #eff6ff;
-    border-radius: 20px;
-    font-size: 32px;
-    margin-bottom: 12px;
+    width: 68px;
+    height: 68px;
+    background: linear-gradient(135deg, #dbeafe, #eff6ff);
+    border-radius: 22px;
+    font-size: 34px;
+    margin-bottom: 14px;
+    box-shadow: 0 8px 24px rgba(59,130,246,0.12);
   }
   .hero h1 {
-    font-size: 30px;
+    font-size: 32px;
     font-weight: 900;
     margin: 0 0 8px;
-    letter-spacing: -0.03em;
+    letter-spacing: -0.035em;
     color: #0f172a;
+    line-height: 1.15;
+  }
+  .hero h1 .grad {
+    background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
   }
   .hero p {
     font-size: 15px;
@@ -171,7 +182,7 @@
   /* LIMITATIONS PANEL                                             */
   /* ============================================================ */
   .limits {
-    background: #fffbeb;
+    background: linear-gradient(135deg, #fffbeb, #fef3c7);
     border: 1px solid #fde68a;
     border-radius: 16px;
     padding: 18px 20px;
@@ -227,7 +238,7 @@
   .limits.collapsed ul { display: none; }
 
   /* ============================================================ */
-  /* INPUT CARD                                                    */
+  /* CARDS                                                         */
   /* ============================================================ */
   .card {
     background: #fff;
@@ -235,7 +246,11 @@
     border-radius: 18px;
     padding: 20px;
     margin-bottom: 18px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.02);
+    transition: box-shadow 0.2s;
+  }
+  .card:focus-within {
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 8px 24px rgba(59,130,246,0.08);
   }
   .card-label {
     display: flex;
@@ -250,6 +265,9 @@
     letter-spacing: 0.05em;
     color: #64748b;
     margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
   }
   .char-count {
     font-size: 12px;
@@ -262,22 +280,23 @@
 
   textarea {
     width: 100%;
-    min-height: 200px;
+    min-height: 220px;
     padding: 14px 16px;
     border: 1px solid #e2e8f0;
     border-radius: 12px;
     font-size: 15px;
-    line-height: 1.6;
+    line-height: 1.65;
     font-family: inherit;
     color: #0f172a;
     background: #f8fafc;
     resize: vertical;
     outline: none;
-    transition: border-color 0.15s, background 0.15s;
+    transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
   }
   textarea:focus {
     border-color: #3b82f6;
     background: #fff;
+    box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
   }
   textarea::placeholder { color: #94a3b8; }
 
@@ -314,9 +333,14 @@
     outline: none;
     cursor: pointer;
     min-height: 42px;
-    transition: border-color 0.15s;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 34px;
   }
-  .opt-group select:focus { border-color: #3b82f6; }
+  .opt-group select:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
 
   /* ============================================================ */
   /* ACTION BUTTONS                                                */
@@ -345,11 +369,15 @@
     font-family: inherit;
   }
   .btn-primary {
-    background: #3b82f6;
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
     color: #fff;
-    box-shadow: 0 4px 12px rgba(59,130,246,0.25);
+    box-shadow: 0 4px 14px rgba(59,130,246,0.3);
   }
-  .btn-primary:hover:not(:disabled) { background: #2563eb; box-shadow: 0 6px 16px rgba(59,130,246,0.35); }
+  .btn-primary:hover:not(:disabled) {
+    box-shadow: 0 6px 20px rgba(59,130,246,0.4);
+    transform: translateY(-1px);
+  }
+  .btn-primary:active:not(:disabled) { transform: translateY(0); }
   .btn-primary:disabled { background: #cbd5e1; box-shadow: none; cursor: not-allowed; }
   .btn-secondary {
     background: #f1f5f9;
@@ -368,7 +396,7 @@
     border: 1px solid #e2e8f0;
     border-radius: 18px;
     padding: 20px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.02);
   }
   .output-head {
     display: flex;
@@ -385,6 +413,9 @@
     letter-spacing: 0.05em;
     color: #64748b;
     margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
   }
   .output-actions {
     display: flex;
@@ -399,18 +430,49 @@
     font-weight: 700;
     color: #475569;
     cursor: pointer;
-    transition: background 0.15s;
+    transition: all 0.15s;
     display: inline-flex;
     align-items: center;
     gap: 5px;
     min-height: 36px;
   }
-  .icon-btn:hover { background: #e2e8f0; }
+  .icon-btn:hover:not(:disabled) { background: #e2e8f0; }
+  .icon-btn:disabled { opacity: 0.4; cursor: not-allowed; }
   .icon-btn.copied { background: #10b981; color: #fff; }
+
+  /* Key points badge */
+  .key-points {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 16px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid #f1f5f9;
+  }
+  .kp-label {
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #94a3b8;
+    width: 100%;
+    margin-bottom: 2px;
+  }
+  .kp-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 5px 10px;
+    background: #eff6ff;
+    color: #1d4ed8;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+    border: 1px solid #dbeafe;
+  }
 
   .summary-text {
     font-size: 15.5px;
-    line-height: 1.75;
+    line-height: 1.8;
     color: #1e293b;
     white-space: pre-wrap;
     word-wrap: break-word;
@@ -418,7 +480,7 @@
   .summary-text p { margin: 0 0 12px; }
   .summary-text p:last-child { margin-bottom: 0; }
   .summary-text ul, .summary-text ol { padding-left: 22px; margin: 0 0 12px; }
-  .summary-text li { margin-bottom: 6px; }
+  .summary-text li { margin-bottom: 8px; padding-left: 4px; }
   .summary-text strong { color: #0f172a; }
 
   /* Stats */
@@ -434,6 +496,7 @@
     display: flex;
     flex-direction: column;
     gap: 2px;
+    min-width: 80px;
   }
   .stat .num {
     font-size: 18px;
@@ -468,20 +531,21 @@
   /* ============================================================ */
   .empty-state {
     text-align: center;
-    padding: 32px 16px;
+    padding: 40px 16px;
     color: #94a3b8;
   }
-  .empty-state .icon { font-size: 40px; margin-bottom: 10px; opacity: 0.6; }
-  .empty-state p { font-size: 14px; margin: 0; }
+  .empty-state .icon { font-size: 44px; margin-bottom: 12px; opacity: 0.5; }
+  .empty-state p { font-size: 14px; margin: 0 0 6px; }
+  .empty-state .hint { font-size: 12px; color: #cbd5e1; }
 
   /* ============================================================ */
   /* HOW IT WORKS                                                  */
   /* ============================================================ */
   .how {
     margin-top: 32px;
-    padding: 20px;
+    padding: 22px;
     background: #f8fafc;
-    border-radius: 16px;
+    border-radius: 18px;
     border: 1px solid #f1f5f9;
   }
   .how h3 {
@@ -490,12 +554,15 @@
     text-transform: uppercase;
     letter-spacing: 0.05em;
     color: #64748b;
-    margin: 0 0 14px;
+    margin: 0 0 16px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
   }
   .how-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 14px;
+    gap: 16px;
   }
   .how-item {
     display: flex;
@@ -504,10 +571,10 @@
   }
   .how-item .n {
     flex-shrink: 0;
-    width: 26px;
-    height: 26px;
-    border-radius: 8px;
-    background: #dbeafe;
+    width: 28px;
+    height: 28px;
+    border-radius: 9px;
+    background: linear-gradient(135deg, #dbeafe, #bfdbfe);
     color: #2563eb;
     font-size: 13px;
     font-weight: 800;
@@ -517,7 +584,7 @@
   }
   .how-item .txt {
     font-size: 13px;
-    line-height: 1.55;
+    line-height: 1.6;
     color: #475569;
   }
   .how-item .txt strong { color: #1e293b; }
@@ -535,7 +602,7 @@
   footer p {
     font-size: 12px;
     color: #94a3b8;
-    margin: 0 0 8px;
+    margin: 0 0 10px;
   }
   footer .links {
     display: flex;
@@ -568,7 +635,7 @@
     font-weight: 600;
     box-shadow: 0 10px 30px rgba(0,0,0,0.3);
     z-index: 20000;
-    transition: transform 0.3s ease;
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
     max-width: calc(100% - 32px);
     text-align: center;
   }
@@ -581,11 +648,11 @@
   /* ============================================================ */
   @media (max-width: 640px) {
     .main { padding: 20px 12px 48px; }
-    .hero h1 { font-size: 24px; }
+    .hero h1 { font-size: 25px; }
     .hero p { font-size: 14px; }
-    .hero .icon { width: 56px; height: 56px; font-size: 28px; }
+    .hero .icon { width: 58px; height: 58px; font-size: 30px; border-radius: 18px; }
     .card, .output-card { padding: 16px; border-radius: 14px; }
-    textarea { min-height: 170px; font-size: 16px; }
+    textarea { min-height: 180px; font-size: 16px; }
     .btn { font-size: 14px; padding: 13px 16px; min-height: 48px; }
     .limits { padding: 16px; }
     .limits li { font-size: 13px; }
@@ -593,13 +660,17 @@
     .logo-text { font-size: 15px; }
     .logo-link img { height: 28px; }
     .summary-text { font-size: 15px; }
+    .how { padding: 18px; }
   }
 
   /* ============================================================ */
   /* DARK MODE                                                     */
   /* ============================================================ */
   html.dark body { background: #0f172a; color: #e2e8f0; }
-  html.dark .app-header { background: #1e293b; border-color: #334155; }
+  html.dark .app-header {
+    background: rgba(30,41,59,0.85);
+    border-color: #334155;
+  }
   html.dark .logo-text { color: #f1f5f9; }
   html.dark .header-link { color: #94a3b8; }
   html.dark .header-link:hover { background: #334155; color: #f1f5f9; }
@@ -607,9 +678,12 @@
   html.dark .header-link.strong:hover { background: #3b82f6; }
   html.dark .hero h1 { color: #f1f5f9; }
   html.dark .hero p { color: #94a3b8; }
-  html.dark .hero .icon { background: #1e3a5f; }
+  html.dark .hero .icon {
+    background: linear-gradient(135deg, #1e3a5f, #1e293b);
+    box-shadow: 0 8px 24px rgba(59,130,246,0.15);
+  }
   html.dark .limits {
-    background: #422006;
+    background: linear-gradient(135deg, #422006, #451a03);
     border-color: #78350f;
   }
   html.dark .limits-head h2 { color: #fcd34d; }
@@ -636,19 +710,30 @@
     background: #0f172a;
     border-color: #334155;
     color: #f1f5f9;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
   }
   html.dark .btn-secondary { background: #334155; color: #e2e8f0; }
   html.dark .btn-secondary:hover:not(:disabled) { background: #475569; }
   html.dark .icon-btn { background: #334155; color: #cbd5e1; }
-  html.dark .icon-btn:hover { background: #475569; }
+  html.dark .icon-btn:hover:not(:disabled) { background: #475569; }
   html.dark .icon-btn.copied { background: #10b981; color: #fff; }
+  html.dark .key-points { border-color: #334155; }
+  html.dark .kp-label { color: #64748b; }
+  html.dark .kp-chip {
+    background: #1e3a5f;
+    color: #93c5fd;
+    border-color: #2563eb;
+  }
   html.dark .summary-text { color: #e2e8f0; }
   html.dark .summary-text strong { color: #f1f5f9; }
   html.dark .stats { border-color: #334155; }
   html.dark .stat .lbl { color: #64748b; }
   html.dark .how { background: #1e293b; border-color: #334155; }
   html.dark .how h3 { color: #94a3b8; }
-  html.dark .how-item .n { background: #1e3a5f; color: #60a5fa; }
+  html.dark .how-item .n {
+    background: linear-gradient(135deg, #1e3a5f, #1e40af);
+    color: #93c5fd;
+  }
   html.dark .how-item .txt { color: #cbd5e1; }
   html.dark .how-item .txt strong { color: #f1f5f9; }
   html.dark footer { background: #1e293b; border-color: #334155; }
@@ -656,6 +741,7 @@
   html.dark footer a { color: #94a3b8; }
   html.dark footer a:hover { color: #60a5fa; }
   html.dark .empty-state { color: #64748b; }
+  html.dark .empty-state .hint { color: #475569; }
 </style>
 </head>
 <body>
@@ -679,7 +765,7 @@
     <!-- Hero -->
     <div class="hero">
       <div class="icon">✨</div>
-      <h1>AI Summarizer</h1>
+      <h1>AI <span class="grad">Summarizer</span></h1>
       <p>Turn long articles, documents, and text into concise, easy-to-read summaries — right in your browser.</p>
     </div>
 
@@ -705,7 +791,7 @@
     <!-- Input Card -->
     <div class="card">
       <div class="card-label">
-        <h3>Your text</h3>
+        <h3>📝 Your text</h3>
         <span class="char-count" id="charCount">0 characters</span>
       </div>
       <textarea id="inputText" placeholder="Paste your article, document, or any long text here…" spellcheck="false"></textarea>
@@ -740,7 +826,7 @@
     <!-- Output Card -->
     <div class="output-card" id="outputCard">
       <div class="output-head">
-        <h3>Summary</h3>
+        <h3>✨ Summary</h3>
         <div class="output-actions">
           <button class="icon-btn" id="copyBtn" onclick="copySummary()" disabled>
             📋 Copy
@@ -752,11 +838,16 @@
       </div>
 
       <div id="outputEmpty" class="empty-state">
-        <div class="icon">📝</div>
+        <div class="icon">📄</div>
         <p>Your summary will appear here.</p>
+        <p class="hint">Paste text above and click Summarize.</p>
       </div>
 
       <div id="outputContent" class="hidden">
+        <div class="key-points hidden" id="keyPointsBox">
+          <span class="kp-label">🔑 Key topics</span>
+          <div id="keyPointsList" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
+        </div>
         <div class="summary-text" id="summaryText"></div>
         <div class="stats">
           <div class="stat">
@@ -781,7 +872,7 @@
 
     <!-- How it works -->
     <div class="how">
-      <h3>How it works</h3>
+      <h3>⚙️ How it works</h3>
       <div class="how-grid">
         <div class="how-item">
           <div class="n">1</div>
@@ -789,7 +880,7 @@
         </div>
         <div class="how-item">
           <div class="n">2</div>
-          <div class="txt"><strong>Score</strong> — each sentence is ranked by word importance and position.</div>
+          <div class="txt"><strong>Score</strong> — each sentence is ranked using TF-IDF, position, and length signals.</div>
         </div>
         <div class="how-item">
           <div class="n">3</div>
@@ -797,7 +888,7 @@
         </div>
         <div class="how-item">
           <div class="n">4</div>
-          <div class="txt"><strong>Format</strong> — results are returned as a paragraph or bullet list.</div>
+          <div class="txt"><strong>Polish</strong> — transitions are smoothed and key topics extracted.</div>
         </div>
       </div>
     </div>
@@ -811,7 +902,6 @@
       <a href="/about.html">About</a>
       <a href="/privacy.html">Privacy</a>
       <a href="/terms.html">Terms</a>
-      <a href="/contact.html">Contact</a>
     </div>
   </footer>
 
@@ -884,29 +974,26 @@ function updateCharCount() {
 }
 
 // ============================================================
-// STOP WORDS (English)
+// STOP WORDS
 // ============================================================
 const STOP_WORDS = new Set([
-  'a','an','and','are','as','at','be','but','by','for','from','has','have','he','her','his','i','in','is','it','its','of','on','or','that','the','to','was','were','will','with','you','your','they','we','our','this','these','those','them','their','there','here','when','where','which','who','whom','what','why','how','all','any','both','each','few','more','most','other','some','such','no','nor','not','only','own','same','so','than','too','very','can','just','should','now','also','into','over','after','before','between','under','above','below','up','down','out','off','again','further','then','once','because','while','during','through','about','against','am','been','being','do','does','did','doing','would','could','should','may','might','must','shall','it\'s','i\'m','don\'t','doesn\'t','didn\'t','won\'t','wouldn\'t','can\'t','couldn\'t','shouldn\'t','isn\'t','aren\'t','wasn\'t','weren\'t','hasn\'t','haven\'t','hadn\'t','let\'s','that\'s','there\'s','here\'s','what\'s','who\'s','where\'s','when\'s','why\'s','how\'s'
+  'a','an','and','are','as','at','be','but','by','for','from','has','have','he','her','his','i','in','is','it','its','of','on','or','that','the','to','was','were','will','with','you','your','they','we','our','this','these','those','them','their','there','here','when','where','which','who','whom','what','why','how','all','any','both','each','few','more','most','other','some','such','no','nor','not','only','own','same','so','than','too','very','can','just','should','now','also','into','over','after','before','between','under','above','below','up','down','out','off','again','further','then','once','because','while','during','through','about','against','am','been','being','do','does','did','doing','would','could','should','may','might','must','shall','it\'s','i\'m','don\'t','doesn\'t','didn\'t','won\'t','wouldn\'t','can\'t','couldn\'t','shouldn\'t','isn\'t','aren\'t','wasn\'t','weren\'t','hasn\'t','haven\'t','hadn\'t','let\'s','that\'s','there\'s','here\'s','what\'s','who\'s','where\'s','when\'s','why\'s','how\'s','said','says','say','one','two','three','first','second','third','many','much','like','just','even','still','yet','get','got','make','made','use','used','using','way','well','back','even','because'
 ]);
 
 // ============================================================
 // SENTENCE SPLITTING
 // ============================================================
 function splitSentences(text) {
-  // Normalize whitespace
   const cleaned = text.replace(/\s+/g, ' ').trim();
   if (!cleaned) return [];
 
-  // Split on sentence-ending punctuation, keeping the punctuation
-  // Handles: . ! ? followed by space + capital, or end of string
+  // Split on sentence-ending punctuation
   const raw = cleaned.match(/[^.!?]+[.!?]+(?=\s|$)/g) || [cleaned];
 
   const sentences = [];
   for (let s of raw) {
     s = s.trim();
     if (!s) continue;
-    // Skip fragments that are too short to be meaningful
     const wordCount = s.split(/\s+/).length;
     if (wordCount < 3) continue;
     sentences.push(s);
@@ -915,7 +1002,7 @@ function splitSentences(text) {
 }
 
 // ============================================================
-// TOKENIZATION & WORD SCORING
+// TOKENIZATION
 // ============================================================
 function tokenize(text) {
   return text.toLowerCase()
@@ -924,69 +1011,99 @@ function tokenize(text) {
     .filter(w => w.length > 0);
 }
 
-function computeWordFrequencies(sentences) {
-  const freq = {};
-  for (const sentence of sentences) {
-    const words = tokenize(sentence);
-    for (const w of words) {
-      if (STOP_WORDS.has(w)) continue;
-      if (w.length < 3) continue;
-      freq[w] = (freq[w] || 0) + 1;
-    }
-  }
-  return freq;
-}
-
-// Normalize frequencies to 0..1
-function normalizeFrequencies(freq) {
-  const max = Math.max(...Object.values(freq), 1);
-  const normalized = {};
-  for (const [word, count] of Object.entries(freq)) {
-    normalized[word] = count / max;
-  }
-  return normalized;
+function stemSimple(word) {
+  // Very light stemming: strip common English suffixes
+  if (word.length <= 4) return word;
+  if (word.endsWith('ies') && word.length > 5) return word.slice(0, -3) + 'y';
+  if (word.endsWith('sses')) return word.slice(0, -2);
+  if (word.endsWith('ing') && word.length > 5) return word.slice(0, -3);
+  if (word.endsWith('ed') && word.length > 4) return word.slice(0, -2);
+  if (word.endsWith('ly') && word.length > 4) return word.slice(0, -2);
+  if (word.endsWith('s') && !word.endsWith('ss') && word.length > 3) return word.slice(0, -1);
+  return word;
 }
 
 // ============================================================
-// SENTENCE SCORING
+// TF-IDF
 // ============================================================
-function scoreSentences(sentences, normalizedFreq) {
+function computeTFIDF(sentences) {
   const n = sentences.length;
+  const docFreq = {};
+  const termFreqPerDoc = [];
+
+  // Build term frequencies per sentence
+  for (const sentence of sentences) {
+    const words = tokenize(sentence)
+      .filter(w => !STOP_WORDS.has(w) && w.length >= 3)
+      .map(stemSimple);
+    const tf = {};
+    for (const w of words) tf[w] = (tf[w] || 0) + 1;
+    termFreqPerDoc.push(tf);
+    const unique = new Set(words);
+    for (const w of unique) docFreq[w] = (docFreq[w] || 0) + 1;
+  }
+
+  // Compute IDF
+  const idf = {};
+  for (const [term, df] of Object.entries(docFreq)) {
+    idf[term] = Math.log((n + 1) / (df + 1)) + 1;
+  }
+
+  return { termFreqPerDoc, idf, docFreq, n };
+}
+
+// ============================================================
+// SENTENCE SCORING (Advanced)
+// ============================================================
+function scoreSentences(sentences, tfidf, originalText) {
+  const { termFreqPerDoc, idf, n } = tfidf;
   const scored = [];
+
+  // Compute average sentence length for length factor
+  const avgLen = sentences.reduce((sum, s) => sum + s.split(/\s+/).length, 0) / n;
 
   for (let i = 0; i < n; i++) {
     const sentence = sentences[i];
-    const words = tokenize(sentence).filter(w => !STOP_WORDS.has(w) && w.length >= 3);
+    const tf = termFreqPerDoc[i];
+    const words = Object.keys(tf);
 
     if (words.length === 0) {
       scored.push({ index: i, sentence, score: 0 });
       continue;
     }
 
-    // Base score = average frequency of meaningful words
-    let wordScore = 0;
+    // TF-IDF score
+    let tfidfScore = 0;
+    let maxTf = Math.max(...Object.values(tf), 1);
     for (const w of words) {
-      wordScore += normalizedFreq[w] || 0;
+      const tfNorm = tf[w] / maxTf;
+      tfidfScore += tfNorm * (idf[w] || 1);
     }
-    wordScore = wordScore / words.length;
+    tfidfScore = tfidfScore / words.length;
 
-    // Position bonus: first and last sentences often carry key info
-    let positionBonus = 0;
-    if (i === 0) positionBonus = 0.15;
-    else if (i === 1) positionBonus = 0.08;
-    else if (i === n - 1) positionBonus = 0.10;
-    else if (i === n - 2) positionBonus = 0.05;
+    // Position score
+    let positionScore = 0;
+    if (i === 0) positionScore = 1.0;
+    else if (i === 1) positionScore = 0.7;
+    else if (i === 2) positionScore = 0.4;
+    else if (i === n - 1) positionScore = 0.8;
+    else if (i === n - 2) positionScore = 0.5;
+    else {
+      // Bell curve for middle positions (slight boost for early-middle)
+      const rel = i / (n - 1);
+      positionScore = 0.2 + 0.3 * Math.exp(-Math.pow((rel - 0.3) / 0.4, 2));
+    }
 
-    // Length penalty: very short or very long sentences are less useful
-    const wordCount = words.length;
+    // Length factor
+    const len = sentence.split(/\s+/).length;
     let lengthFactor = 1;
-    if (wordCount < 6) lengthFactor = 0.6;
-    else if (wordCount < 10) lengthFactor = 0.85;
-    else if (wordCount > 45) lengthFactor = 0.7;
-    else if (wordCount > 30) lengthFactor = 0.9;
+    if (len < 6) lengthFactor = 0.5;
+    else if (len < 10) lengthFactor = 0.8;
+    else if (len > 50) lengthFactor = 0.6;
+    else if (len > 35) lengthFactor = 0.85;
+    else if (Math.abs(len - avgLen) < 5) lengthFactor = 1.1; // boost near-average length
 
-    // Capitalized-word bonus (proper nouns often carry topic info)
-    let properNounBonus = 0;
+    // Proper noun bonus
     const originalWords = sentence.split(/\s+/);
     let properCount = 0;
     for (let j = 1; j < originalWords.length; j++) {
@@ -995,13 +1112,81 @@ function scoreSentences(sentences, normalizedFreq) {
         properCount++;
       }
     }
-    properNounBonus = Math.min(properCount / 5, 0.1);
+    const properBonus = Math.min(properCount / 4, 0.15);
 
-    const finalScore = (wordScore * lengthFactor) + positionBonus + properNounBonus;
+    // Numeric data bonus (sentences with numbers often contain facts)
+    const hasNumbers = /\d/.test(sentence);
+    const numberBonus = hasNumbers ? 0.08 : 0;
+
+    // Combine
+    const finalScore = (tfidfScore * 0.5) + (positionScore * 0.25) + (lengthFactor * 0.15) + properBonus + numberBonus;
+
     scored.push({ index: i, sentence, score: finalScore });
   }
 
   return scored;
+}
+
+// ============================================================
+// KEY PHRASE EXTRACTION
+// ============================================================
+function extractKeyPhrases(sentences, topN) {
+  const wordFreq = {};
+  const phraseFreq = {};
+
+  for (const sentence of sentences) {
+    const words = tokenize(sentence).filter(w => !STOP_WORDS.has(w) && w.length >= 3);
+    const stemmed = words.map(stemSimple);
+
+    // Single words
+    for (const w of stemmed) wordFreq[w] = (wordFreq[w] || 0) + 1;
+
+    // Bigrams
+    for (let i = 0; i < stemmed.length - 1; i++) {
+      const bigram = stemmed[i] + ' ' + stemmed[i + 1];
+      phraseFreq[bigram] = (phraseFreq[bigram] || 0) + 1;
+    }
+
+    // Trigrams
+    for (let i = 0; i < stemmed.length - 2; i++) {
+      const trigram = stemmed[i] + ' ' + stemmed[i + 1] + ' ' + stemmed[i + 2];
+      phraseFreq[trigram] = (phraseFreq[trigram] || 0) + 1;
+    }
+  }
+
+  // Combine scores: prefer multi-word phrases that appear multiple times
+  const candidates = [];
+  for (const [phrase, count] of Object.entries(phraseFreq)) {
+    if (count < 2) continue;
+    const wordCount = phrase.split(' ').length;
+    const score = count * wordCount * 1.5;
+    candidates.push({ phrase, score });
+  }
+  // Also add high-frequency single words
+  for (const [word, count] of Object.entries(wordFreq)) {
+    if (count < 3) continue;
+    candidates.push({ phrase: word, score: count * 1.0 });
+  }
+
+  // Remove overlapping phrases (keep longer ones)
+  candidates.sort((a, b) => b.score - a.score);
+  const selected = [];
+  const usedWords = new Set();
+
+  for (const cand of candidates) {
+    const words = cand.phrase.split(' ');
+    let overlap = false;
+    for (const w of words) {
+      if (usedWords.has(w)) { overlap = true; break; }
+    }
+    if (overlap) continue;
+    selected.push(cand.phrase);
+    for (const w of words) usedWords.add(w);
+    if (selected.length >= topN) break;
+  }
+
+  // Capitalize nicely
+  return selected.map(p => p.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '));
 }
 
 // ============================================================
@@ -1020,18 +1205,17 @@ function buildSummary(text, lengthOpt, formatOpt) {
   const sentences = splitSentences(text);
   if (sentences.length === 0) return null;
   if (sentences.length <= 2) {
-    // Too short to summarize meaningfully — return as-is
     return {
       sentences: sentences,
       originalWordCount: countWords(text),
       keptCount: sentences.length,
-      totalCount: sentences.length
+      totalCount: sentences.length,
+      keyPhrases: extractKeyPhrases(sentences, 4)
     };
   }
 
-  const freq = computeWordFrequencies(sentences);
-  const normalizedFreq = normalizeFrequencies(freq);
-  const scored = scoreSentences(sentences, normalizedFreq);
+  const tfidf = computeTFIDF(sentences);
+  const scored = scoreSentences(sentences, tfidf, text);
 
   const ratio = getTargetRatio(lengthOpt);
   let targetCount = Math.max(2, Math.round(sentences.length * ratio));
@@ -1044,16 +1228,82 @@ function buildSummary(text, lengthOpt, formatOpt) {
   // Restore original order
   selected.sort((a, b) => a.index - b.index);
 
+  // Extract key phrases
+  const keyPhrases = extractKeyPhrases(sentences, 5);
+
   return {
     sentences: selected.map(s => s.sentence),
     originalWordCount: countWords(text),
     keptCount: selected.length,
-    totalCount: sentences.length
+    totalCount: sentences.length,
+    keyPhrases: keyPhrases
   };
 }
 
 function countWords(text) {
   return text.trim().split(/\s+/).filter(w => w.length > 0).length;
+}
+
+// ============================================================
+// SMOOTH TRANSITIONS (make output feel more AI-like)
+// ============================================================
+const TRANSITION_MAP = {
+  'addition': ['Additionally, ', 'Furthermore, ', 'Moreover, ', 'In addition, '],
+  'contrast': ['However, ', 'Nevertheless, ', 'On the other hand, ', 'Conversely, '],
+  'cause': ['Consequently, ', 'As a result, ', 'Therefore, ', 'Thus, '],
+  'example': ['For example, ', 'For instance, ', 'Specifically, '],
+  'emphasis': ['Importantly, ', 'Notably, ', 'In particular, '],
+  'conclusion': ['In conclusion, ', 'Overall, ', 'Ultimately, ', 'In summary, ']
+};
+
+function detectRelationship(prev, curr) {
+  const prevLower = prev.toLowerCase();
+  const currLower = curr.toLowerCase();
+
+  // Contrast indicators
+  if (/\b(but|however|although|though|yet|despite|nevertheless)\b/.test(currLower)) return 'contrast';
+  // Cause indicators
+  if (/\b(therefore|thus|consequently|result|because|since|due to)\b/.test(currLower)) return 'cause';
+  // Example indicators
+  if (/\b(for example|for instance|such as|specifically|including)\b/.test(currLower)) return 'example';
+  // Emphasis
+  if (/\b(importantly|notably|significantly|particularly|especially)\b/.test(currLower)) return 'emphasis';
+  // Default to addition
+  return 'addition';
+}
+
+function smoothTransitions(sentences, formatOpt) {
+  if (formatOpt === 'bullets') return sentences; // bullets don't need transitions
+  if (sentences.length <= 1) return sentences;
+
+  const result = [sentences[0]];
+  const usedTransitions = new Set();
+
+  for (let i = 1; i < sentences.length; i++) {
+    const prev = sentences[i - 1];
+    const curr = sentences[i];
+    const rel = detectRelationship(prev, curr);
+    const options = TRANSITION_MAP[rel] || TRANSITION_MAP['addition'];
+
+    // Pick a transition that hasn't been used yet, or fall back
+    let transition = options.find(t => !usedTransitions.has(t));
+    if (!transition) transition = options[Math.floor(Math.random() * options.length)];
+    usedTransitions.add(transition);
+
+    // Only add transition if the sentence doesn't already start with a connector
+    const startsWithConnector = /^(however|therefore|thus|additionally|furthermore|moreover|consequently|nevertheless|in addition|for example|for instance|on the other hand|as a result|in conclusion|overall|ultimately|notably|importantly|specifically)/i.test(curr);
+
+    if (!startsWithConnector && i < sentences.length - 1) {
+      // Lowercase the first letter of the sentence after the transition
+      const cleaned = curr.charAt(0).toLowerCase() + curr.slice(1);
+      result.push(transition + cleaned);
+    } else {
+      result.push(curr);
+    }
+  }
+
+  // Ensure last sentence gets a conclusion-style transition if appropriate
+  return result;
 }
 
 // ============================================================
@@ -1063,23 +1313,41 @@ function renderSummary(result, formatOpt) {
   const container = document.getElementById('summaryText');
   container.innerHTML = '';
 
+  // Render key phrases
+  const kpBox = document.getElementById('keyPointsBox');
+  const kpList = document.getElementById('keyPointsList');
+  kpList.innerHTML = '';
+  if (result.keyPhrases && result.keyPhrases.length > 0) {
+    kpBox.classList.remove('hidden');
+    for (const phrase of result.keyPhrases) {
+      const chip = document.createElement('span');
+      chip.className = 'kp-chip';
+      chip.textContent = phrase;
+      kpList.appendChild(chip);
+    }
+  } else {
+    kpBox.classList.add('hidden');
+  }
+
+  // Apply transitions
+  const smoothed = smoothTransitions(result.sentences, formatOpt);
+
   if (formatOpt === 'bullets') {
     const ul = document.createElement('ul');
-    for (const s of result.sentences) {
+    for (const s of smoothed) {
       const li = document.createElement('li');
       li.textContent = s;
       ul.appendChild(li);
     }
     container.appendChild(ul);
   } else {
-    // Paragraph: combine into a single flowing block
     const p = document.createElement('p');
-    p.textContent = result.sentences.join(' ');
+    p.textContent = smoothed.join(' ');
     container.appendChild(p);
   }
 
   // Stats
-  const summaryText = result.sentences.join(' ');
+  const summaryText = smoothed.join(' ');
   const summaryWords = countWords(summaryText);
   const reduction = result.originalWordCount > 0
     ? Math.round((1 - summaryWords / result.originalWordCount) * 100)
@@ -1122,9 +1390,8 @@ function summarize() {
   const btn = document.getElementById('summarizeBtn');
   const btnText = document.getElementById('summarizeBtnText');
   btn.disabled = true;
-  btnText.innerHTML = '<span class="spinner"></span> Summarizing…';
+  btnText.innerHTML = '<span class="spinner"></span> Analyzing…';
 
-  // Small delay so the UI updates before the synchronous work
   setTimeout(() => {
     try {
       const lengthOpt = document.getElementById('lengthOpt').value;
@@ -1148,7 +1415,7 @@ function summarize() {
       btn.disabled = false;
       btnText.textContent = '✨ Summarize';
     }
-  }, 50);
+  }, 60);
 }
 
 // ============================================================
@@ -1158,6 +1425,8 @@ function clearAll() {
   inputText.value = '';
   updateCharCount();
   document.getElementById('summaryText').innerHTML = '';
+  document.getElementById('keyPointsBox').classList.add('hidden');
+  document.getElementById('keyPointsList').innerHTML = '';
   document.getElementById('outputEmpty').classList.remove('hidden');
   document.getElementById('outputContent').classList.add('hidden');
   document.getElementById('copyBtn').disabled = true;
@@ -1215,7 +1484,15 @@ function downloadSummary() {
   const text = el.innerText || el.textContent;
   if (!text.trim()) return;
 
-  const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+  // Also include key phrases at top
+  const kpList = document.getElementById('keyPointsList');
+  let header = '';
+  if (kpList && kpList.children.length > 0) {
+    const phrases = Array.from(kpList.children).map(c => c.textContent).join(', ');
+    header = 'Key topics: ' + phrases + '\n\n---\n\n';
+  }
+
+  const blob = new Blob([header + text], { type: 'text/plain;charset=utf-8' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
@@ -1231,7 +1508,6 @@ function downloadSummary() {
 // KEYBOARD SHORTCUTS
 // ============================================================
 inputText.addEventListener('keydown', (e) => {
-  // Ctrl/Cmd + Enter to summarize
   if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
     e.preventDefault();
     summarize();
@@ -1242,7 +1518,7 @@ inputText.addEventListener('keydown', (e) => {
 // INIT
 // ============================================================
 updateCharCount();
-console.log('AI Summarizer loaded.');
+console.log('AI Summarizer loaded — advanced extractive engine.');
 </script>
 
 </body>
