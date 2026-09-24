@@ -170,31 +170,65 @@
     z-index: 2;
   }
 
-  .corner-handle {
+  /* ============================================================ */
+  /* Crop rectangle — the move-inside area                         */
+  /* ============================================================ */
+  #cropBox {
     position: absolute;
-    width: 44px;
-    height: 44px;
-    margin-left: -22px;
-    margin-top: -22px;
-    border-radius: 50%;
-    background: rgba(59, 130, 246, 0.25);
     border: 3px solid #3b82f6;
-    cursor: grab;
+    box-sizing: border-box;
+    cursor: move;
+    pointer-events: auto;
     touch-action: none;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-    z-index: 5;
+    z-index: 4;
+    background: transparent;
   }
-  .corner-handle::after {
+  #cropBox::before {
+    /* invisible interior hit area — makes "drag inside" feel natural */
     content: '';
     position: absolute;
-    top: 50%; left: 50%;
-    width: 10px; height: 10px;
-    margin: -5px 0 0 -5px;
-    background: #fff;
-    border-radius: 50%;
-    box-shadow: 0 0 0 1px #3b82f6;
+    inset: -20px;
+    pointer-events: auto;
   }
-  .corner-handle:active { cursor: grabbing; }
+  #cropBox.dragging {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.35);
+  }
+
+  /* ============================================================ */
+  /* 8 corner + edge handles                                       */
+  /* ============================================================ */
+  .crop-handle {
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    background: #fff;
+    border: 3px solid #3b82f6;
+    border-radius: 50%;
+    box-sizing: border-box;
+    cursor: grab;
+    touch-action: none;
+    z-index: 6;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+    transition: background 0.1s, transform 0.1s;
+  }
+  .crop-handle:hover {
+    background: #dbeafe;
+  }
+  .crop-handle:active {
+    cursor: grabbing;
+    transform: scale(1.1);
+    background: #bfdbfe;
+  }
+  /* Position each handle so its center sits on the coordinate */
+  .crop-handle[data-pos="tl"] { cursor: nwse-resize; }
+  .crop-handle[data-pos="tc"] { cursor: ns-resize; }
+  .crop-handle[data-pos="tr"] { cursor: nesw-resize; }
+  .crop-handle[data-pos="ml"] { cursor: ew-resize; }
+  .crop-handle[data-pos="mr"] { cursor: ew-resize; }
+  .crop-handle[data-pos="bl"] { cursor: nesw-resize; }
+  .crop-handle[data-pos="bc"] { cursor: ns-resize; }
+  .crop-handle[data-pos="br"] { cursor: nwse-resize; }
 
   #magnifier {
     position: absolute;
@@ -671,6 +705,13 @@
   html.dark .page-indicator { background: #3b82f6; }
 
   html.dark #magnifier { border-color: #f1f5f9; }
+
+  html.dark .crop-handle {
+    background: #f1f5f9;
+    border-color: #3b82f6;
+  }
+  html.dark .crop-handle:hover { background: #dbeafe; }
+  html.dark .crop-handle:active { background: #bfdbfe; }
 </style>
 </head>
 <body>
@@ -729,13 +770,15 @@
 
   <div class="guide-banner">
     <span class="guide-icon">✋</span>
-    <span>Drag each blue circle to the corner of the area you want to keep. Use the magnifier to line up precisely.</span>
+    <span>Drag the round handles to adjust edges. Drag inside the box to move the whole crop. Use the magnifier to line up precisely.</span>
   </div>
 
   <div id="cropStage">
     <div id="cropWorkspace">
       <canvas id="cropCanvas"></canvas>
       <canvas id="cropOverlay"></canvas>
+      <!-- The crop rectangle and its 8 handles live here -->
+      <div id="cropBox"></div>
       <div id="magnifier"><canvas></canvas></div>
     </div>
   </div>
@@ -858,7 +901,7 @@ const App = {
   editingIndex: -1,
   dragIndex: -1,
   cropBitmap: null,
-  cropCorners: null,
+  cropRect: null,          // { x, y, w, h } in canvas/workspace coords
   cropRotation: 0,
   cropReturnScreen: 'screen-pages'
 };
@@ -1051,7 +1094,7 @@ async function importImage(file) {
 }
 
 // ============================================================
-// CROP EDITOR — one workspace shared by canvas, overlay, handles
+// CROP EDITOR
 // ============================================================
 function openCropForIndex(index) {
   App.editingIndex = index;
@@ -1059,7 +1102,7 @@ function openCropForIndex(index) {
   if (!page) return;
   App.cropBitmap = page.originalBitmap;
   App.cropRotation = page.rotation || 0;
-  App.cropCorners = null;
+  App.cropRect = null;
   App.cropReturnScreen = 'screen-pages';
 
   showScreen('screen-crop');
@@ -1087,13 +1130,12 @@ function refreshCropThumbs() {
     div.appendChild(num);
 
     div.onclick = () => {
-      // Save any pending crop before switching
       App.editingIndex = idx;
       const p = App.pages[idx];
       if (!p) return;
       App.cropBitmap = p.originalBitmap;
       App.cropRotation = p.rotation || 0;
-      App.cropCorners = null;
+      App.cropRect = null;
       renderCropStage();
       refreshCropThumbs();
     };
@@ -1111,24 +1153,20 @@ function renderCropStage() {
   const overlay = document.getElementById('cropOverlay');
   const workspace = document.getElementById('cropWorkspace');
 
-  // Compute the rotated bitmap dimensions first so we know the aspect ratio
   const rot = ((App.cropRotation % 360) + 360) % 360;
   const swap = rot === 90 || rot === 270;
   const rotW = swap ? bitmap.height : bitmap.width;
   const rotH = swap ? bitmap.width : bitmap.height;
 
-  // Fit into stage
   const maxW = stage.clientWidth;
   const maxH = stage.clientHeight;
   const fit = Math.min(maxW / rotW, maxH / rotH);
   const cw = Math.round(rotW * fit);
   const ch = Math.round(rotH * fit);
 
-  // The workspace is exactly the size of the displayed image.
   workspace.style.width = cw + 'px';
   workspace.style.height = ch + 'px';
 
-  // Image
   canvas.width = cw;
   canvas.height = ch;
   canvas.style.width = cw + 'px';
@@ -1145,123 +1183,250 @@ function renderCropStage() {
   ctx.drawImage(bitmap, -drawW / 2, -drawH / 2, drawW, drawH);
   ctx.restore();
 
-  // Overlay fills the workspace
   overlay.width = cw;
   overlay.height = ch;
   overlay.style.width = cw + 'px';
   overlay.style.height = ch + 'px';
 
-  // Reset crop to the full frame on open
-  if (!App.cropCorners) {
-    const pad = 20;
-    App.cropCorners = {
-      tl: { x: pad, y: pad },
-      tr: { x: cw - pad, y: pad },
-      br: { x: cw - pad, y: ch - pad },
-      bl: { x: pad, y: ch - pad }
+  // Reset crop rect to inset rectangle on open
+  if (!App.cropRect) {
+    const pad = Math.max(20, Math.round(Math.min(cw, ch) * 0.06));
+    App.cropRect = {
+      x: pad,
+      y: pad,
+      w: cw - pad * 2,
+      h: ch - pad * 2
     };
   }
 
+  // Clamp crop rect in case the workspace shrank after rotation
+  clampCropRect();
+
   renderCropOverlay();
-  wireCropHandles();
+  renderCropBox();
+  wireCropInteractions();
+}
+
+// Keep the crop rectangle inside the workspace bounds
+function clampCropRect() {
+  const workspace = document.getElementById('cropWorkspace');
+  const W = workspace.clientWidth;
+  const H = workspace.clientHeight;
+  const r = App.cropRect;
+  if (!r) return;
+  const minSize = 40;
+
+  r.w = Math.max(minSize, Math.min(W, r.w));
+  r.h = Math.max(minSize, Math.min(H, r.h));
+  r.x = Math.max(0, Math.min(W - r.w, r.x));
+  r.y = Math.max(0, Math.min(H - r.h, r.y));
 }
 
 function renderCropOverlay() {
   const overlay = document.getElementById('cropOverlay');
   const ctx = overlay.getContext('2d');
   ctx.clearRect(0, 0, overlay.width, overlay.height);
-  const c = App.cropCorners;
-  if (!c) return;
 
+  const r = App.cropRect;
+  if (!r) return;
+
+  // Darken the area outside the crop rectangle
   ctx.save();
   ctx.fillStyle = 'rgba(15, 23, 42, 0.55)';
   ctx.beginPath();
   ctx.rect(0, 0, overlay.width, overlay.height);
-  ctx.moveTo(c.tl.x, c.tl.y);
-  ctx.lineTo(c.tr.x, c.tr.y);
-  ctx.lineTo(c.br.x, c.br.y);
-  ctx.lineTo(c.bl.x, c.bl.y);
-  ctx.closePath();
+  ctx.rect(r.x, r.y, r.w, r.h);
   ctx.fill('evenodd');
   ctx.restore();
 
-  ctx.strokeStyle = '#3b82f6';
-  ctx.lineWidth = 3;
-  ctx.beginPath();
-  ctx.moveTo(c.tl.x, c.tl.y);
-  ctx.lineTo(c.tr.x, c.tr.y);
-  ctx.lineTo(c.br.x, c.br.y);
-  ctx.lineTo(c.bl.x, c.bl.y);
-  ctx.closePath();
-  ctx.stroke();
-
+  // Rule-of-thirds grid inside the crop rectangle
   ctx.strokeStyle = 'rgba(59, 130, 246, 0.4)';
   ctx.lineWidth = 1;
   for (let i = 1; i <= 2; i++) {
     const t = i / 3;
     ctx.beginPath();
-    ctx.moveTo(c.tl.x + (c.tr.x - c.tl.x) * t, c.tl.y + (c.tr.y - c.tl.y) * t);
-    ctx.lineTo(c.bl.x + (c.br.x - c.bl.x) * t, c.bl.y + (c.br.y - c.bl.y) * t);
+    ctx.moveTo(r.x + r.w * t, r.y);
+    ctx.lineTo(r.x + r.w * t, r.y + r.h);
     ctx.stroke();
     ctx.beginPath();
-    ctx.moveTo(c.tl.x + (c.bl.x - c.tl.x) * t, c.tl.y + (c.bl.y - c.tl.y) * t);
-    ctx.lineTo(c.tr.x + (c.br.x - c.tr.x) * t, c.tr.y + (c.br.y - c.tr.y) * t);
+    ctx.moveTo(r.x, r.y + r.h * t);
+    ctx.lineTo(r.x + r.w, r.y + r.h * t);
     ctx.stroke();
   }
 }
 
-function wireCropHandles() {
-  const overlay = document.getElementById('cropOverlay');
-  const workspace = document.getElementById('cropWorkspace');
+function renderCropBox() {
+  const box = document.getElementById('cropBox');
+  const r = App.cropRect;
+  if (!r) return;
+  box.style.left = r.x + 'px';
+  box.style.top = r.y + 'px';
+  box.style.width = r.w + 'px';
+  box.style.height = r.h + 'px';
 
-  workspace.querySelectorAll('.corner-handle').forEach(el => el.remove());
+  // Rebuild handles
+  box.querySelectorAll('.crop-handle').forEach(el => el.remove());
 
-  ['tl', 'tr', 'br', 'bl'].forEach(key => {
-    const h = document.createElement('div');
-    h.className = 'corner-handle';
-    h.dataset.corner = key;
-    const pt = App.cropCorners[key];
-    h.style.left = pt.x + 'px';
-    h.style.top = pt.y + 'px';
-    workspace.appendChild(h);
+  const handles = [
+    // positions: [px within box, py within box]
+    { pos: 'tl', px: 0, py: 0 },
+    { pos: 'tc', px: 0.5, py: 0 },
+    { pos: 'tr', px: 1, py: 0 },
+    { pos: 'ml', px: 0, py: 0.5 },
+    { pos: 'mr', px: 1, py: 0.5 },
+    { pos: 'bl', px: 0, py: 1 },
+    { pos: 'bc', px: 0.5, py: 1 },
+    { pos: 'br', px: 1, py: 1 }
+  ];
+
+  handles.forEach(h => {
+    const el = document.createElement('div');
+    el.className = 'crop-handle';
+    el.dataset.pos = h.pos;
+    // Position via CSS: translate so the center sits on the coordinate
+    el.style.left = (h.px * 100) + '%';
+    el.style.top = (h.py * 100) + '%';
+    el.style.transform = 'translate(-50%, -50%)';
+    box.appendChild(el);
   });
+}
 
-  let dragging = null;
+function wireCropInteractions() {
+  const workspace = document.getElementById('cropWorkspace');
+  const box = document.getElementById('cropBox');
 
-  function onDown(e) {
-    const handle = e.target.closest('.corner-handle');
-    if (!handle) return;
-    dragging = handle.dataset.corner;
-    e.preventDefault();
+  // Rebuild listeners each render to avoid duplicates
+  // We store handlers on the element so we can replace them cleanly.
+  if (workspace._cropHandlers) {
+    workspace._cropHandlers.forEach(({ el, type, fn }) => {
+      el.removeEventListener(type, fn);
+    });
   }
-  function onMove(e) {
-    if (!dragging) return;
+  const handlers = [];
+
+  let drag = null;
+
+  function onPointerDown(e) {
+    const target = e.target;
+    // Ignore clicks that started outside the crop box entirely
+    if (!box.contains(target) && target !== box) return;
+
+    const handle = target.closest('.crop-handle');
+    if (handle) {
+      drag = {
+        type: 'handle',
+        pos: handle.dataset.pos,
+        startX: pointerX(e),
+        startY: pointerY(e),
+        rect: { ...App.cropRect }
+      };
+    } else {
+      drag = {
+        type: 'move',
+        startX: pointerX(e),
+        startY: pointerY(e),
+        rect: { ...App.cropRect }
+      };
+      box.classList.add('dragging');
+    }
     e.preventDefault();
-    const rect = overlay.getBoundingClientRect();
-    const clientX = (e.touches ? e.touches[0].clientX : e.clientX);
-    const clientY = (e.touches ? e.touches[0].clientY : e.clientY);
-    let x = clientX - rect.left;
-    let y = clientY - rect.top;
-    x = Math.max(0, Math.min(overlay.width, x));
-    y = Math.max(0, Math.min(overlay.height, y));
-    App.cropCorners[dragging] = { x, y };
+    e.stopPropagation();
+  }
+
+  function onPointerMove(e) {
+    if (!drag) return;
+    e.preventDefault();
+
+    const dx = pointerX(e) - drag.startX;
+    const dy = pointerY(e) - drag.startY;
+    const W = workspace.clientWidth;
+    const H = workspace.clientHeight;
+    const minSize = 40;
+    const r0 = drag.rect;
+    let r = { ...App.cropRect };
+
+    if (drag.type === 'move') {
+      r.x = Math.max(0, Math.min(W - r0.w, r0.x + dx));
+      r.y = Math.max(0, Math.min(H - r0.h, r0.y + dy));
+    } else {
+      // Handle drag: adjust the appropriate edges
+      const pos = drag.pos;
+
+      // Work on a copy that we mutate, starting from the original rect
+      r = { ...r0 };
+
+      // Left edge (tl, ml, bl)
+      if (pos === 'tl' || pos === 'ml' || pos === 'bl') {
+        const newX = Math.max(0, Math.min(r0.x + r0.w - minSize, r0.x + dx));
+        r.w = r0.w + (r0.x - newX);
+        r.x = newX;
+      }
+      // Right edge (tr, mr, br)
+      if (pos === 'tr' || pos === 'mr' || pos === 'br') {
+        const newW = Math.max(minSize, Math.min(W - r0.x, r0.w + dx));
+        r.w = newW;
+      }
+      // Top edge (tl, tc, tr)
+      if (pos === 'tl' || pos === 'tc' || pos === 'tr') {
+        const newY = Math.max(0, Math.min(r0.y + r0.h - minSize, r0.y + dy));
+        r.h = r0.h + (r0.y - newY);
+        r.y = newY;
+      }
+      // Bottom edge (bl, bc, br)
+      if (pos === 'bl' || pos === 'bc' || pos === 'br') {
+        const newH = Math.max(minSize, Math.min(H - r0.y, r0.h + dy));
+        r.h = newH;
+      }
+    }
+
+    App.cropRect = r;
+    clampCropRect();
     renderCropOverlay();
-    const h = workspace.querySelector(`.corner-handle[data-corner="${dragging}"]`);
-    if (h) { h.style.left = x + 'px'; h.style.top = y + 'px'; }
-    showMagnifier(clientX, clientY);
+    renderCropBox();
+
+    // Magnifier at the pointer
+    const cx = pointerX(e);
+    const cy = pointerY(e);
+    const rect = workspace.getBoundingClientRect();
+    showMagnifier(cx + rect.left, cy + rect.top);
   }
-  function onUp() {
-    dragging = null;
+
+  function onPointerUp() {
+    if (!drag) return;
+    drag = null;
+    box.classList.remove('dragging');
     hideMagnifier();
   }
 
-  // Bind to workspace, not stage
-  workspace.addEventListener('mousedown', onDown);
-  window.addEventListener('mousemove', onMove);
-  window.addEventListener('mouseup', onUp);
-  workspace.addEventListener('touchstart', onDown, { passive: false });
-  window.addEventListener('touchmove', onMove, { passive: false });
-  window.addEventListener('touchend', onUp);
+  function pointerX(e) {
+    const rect = workspace.getBoundingClientRect();
+    const clientX = (e.touches ? e.touches[0].clientX : e.clientX);
+    return clientX - rect.left;
+  }
+  function pointerY(e) {
+    const rect = workspace.getBoundingClientRect();
+    const clientY = (e.touches ? e.touches[0].clientY : e.clientY);
+    return clientY - rect.top;
+  }
+
+  // Attach listeners
+  workspace.addEventListener('mousedown', onPointerDown);
+  window.addEventListener('mousemove', onPointerMove);
+  window.addEventListener('mouseup', onPointerUp);
+  workspace.addEventListener('touchstart', onPointerDown, { passive: false });
+  window.addEventListener('touchmove', onPointerMove, { passive: false });
+  window.addEventListener('touchend', onPointerUp);
+
+  handlers.push(
+    { el: workspace, type: 'mousedown', fn: onPointerDown },
+    { el: window, type: 'mousemove', fn: onPointerMove },
+    { el: window, type: 'mouseup', fn: onPointerUp },
+    { el: workspace, type: 'touchstart', fn: onPointerDown },
+    { el: window, type: 'touchmove', fn: onPointerMove },
+    { el: window, type: 'touchend', fn: onPointerUp }
+  );
+
+  workspace._cropHandlers = handlers;
 }
 
 function showMagnifier(clientX, clientY) {
@@ -1297,7 +1462,6 @@ function showMagnifier(clientX, clientY) {
     top = clientY - workspaceRect.top + 20;
   }
 
-  // Keep magnifier inside workspace horizontally
   left = Math.max(0, Math.min(workspace.clientWidth - SIZE, left));
 
   mag.style.left = left + 'px';
@@ -1309,33 +1473,34 @@ function hideMagnifier() {
 
 function rotatePage(delta) {
   App.cropRotation = ((App.cropRotation + delta) % 360 + 360) % 360;
-  App.cropCorners = null;
+  App.cropRect = null;
   renderCropStage();
   showToast(`Rotated to ${App.cropRotation}°`);
 }
 
 function resetCrop() {
-  App.cropCorners = null;
+  App.cropRect = null;
   renderCropStage();
   showToast('Crop reset to full frame.');
 }
 
 function fullPageCrop() {
-  const overlay = document.getElementById('cropOverlay');
-  App.cropCorners = {
-    tl: { x: 0, y: 0 },
-    tr: { x: overlay.width, y: 0 },
-    br: { x: overlay.width, y: overlay.height },
-    bl: { x: 0, y: overlay.height }
+  const workspace = document.getElementById('cropWorkspace');
+  App.cropRect = {
+    x: 0,
+    y: 0,
+    w: workspace.clientWidth,
+    h: workspace.clientHeight
   };
   renderCropOverlay();
-  wireCropHandles();
+  renderCropBox();
+  wireCropInteractions();
   showToast('Selected full page.');
 }
 
 function cancelCrop() {
   App.cropBitmap = null;
-  App.cropCorners = null;
+  App.cropRect = null;
   App.editingIndex = -1;
   showScreen('screen-pages');
 }
@@ -1345,8 +1510,8 @@ async function confirmCrop() {
   if (!page) { cancelCrop(); return; }
 
   const canvas = document.getElementById('cropCanvas');
-  const cornersOnCanvas = App.cropCorners;
-  if (!cornersOnCanvas) { cancelCrop(); return; }
+  const rectOnCanvas = App.cropRect;
+  if (!rectOnCanvas) { cancelCrop(); return; }
 
   const rot = ((App.cropRotation % 360) + 360) % 360;
   const swap = rot === 90 || rot === 270;
@@ -1355,14 +1520,14 @@ async function confirmCrop() {
   const rotH = swap ? bitmap.width : bitmap.height;
   const scale = canvas.width / rotW;
 
-  const rotCorners = {
-    tl: { x: cornersOnCanvas.tl.x / scale, y: cornersOnCanvas.tl.y / scale },
-    tr: { x: cornersOnCanvas.tr.x / scale, y: cornersOnCanvas.tr.y / scale },
-    br: { x: cornersOnCanvas.br.x / scale, y: cornersOnCanvas.br.y / scale },
-    bl: { x: cornersOnCanvas.bl.x / scale, y: cornersOnCanvas.bl.y / scale }
+  const rectOnRotatedImage = {
+    x: rectOnCanvas.x / scale,
+    y: rectOnCanvas.y / scale,
+    w: rectOnCanvas.w / scale,
+    h: rectOnCanvas.h / scale
   };
 
-  const outCanvas = await renderCroppedBitmap(bitmap, rotCorners, rot);
+  const outCanvas = await renderCroppedBitmap(bitmap, rectOnRotatedImage, rot);
   const outBlob = await new Promise(res => outCanvas.toBlob(res, 'image/jpeg', 0.92));
   const outBitmap = await createImageBitmap(outCanvas);
 
@@ -1380,7 +1545,7 @@ async function confirmCrop() {
   page.previewBlob = outBlob;
 
   App.cropBitmap = null;
-  App.cropCorners = null;
+  App.cropRect = null;
   App.editingIndex = -1;
 
   refreshPageGrid();
@@ -1388,8 +1553,7 @@ async function confirmCrop() {
   showToast('Crop applied.', 'success');
 }
 
-async function renderCroppedBitmap(bitmap, rotCorners, rot) {
-  // 1. Draw the rotated bitmap at full resolution
+async function renderCroppedBitmap(bitmap, rect, rot) {
   const rotCanvas = document.createElement('canvas');
   const swap = rot === 90 || rot === 270;
   rotCanvas.width = swap ? bitmap.height : bitmap.width;
@@ -1403,13 +1567,10 @@ async function renderCroppedBitmap(bitmap, rotCorners, rot) {
   rctx.drawImage(bitmap, -drawW / 2, -drawH / 2, drawW, drawH);
   rctx.restore();
 
-  // 2. Compute the bounding box of the crop in rotated space
-  const xs = [rotCorners.tl.x, rotCorners.tr.x, rotCorners.br.x, rotCorners.bl.x];
-  const ys = [rotCorners.tl.y, rotCorners.tr.y, rotCorners.br.y, rotCorners.bl.y];
-  const minX = Math.max(0, Math.floor(Math.min(...xs)));
-  const minY = Math.max(0, Math.floor(Math.min(...ys)));
-  const maxX = Math.min(rotCanvas.width, Math.ceil(Math.max(...xs)));
-  const maxY = Math.min(rotCanvas.height, Math.ceil(Math.max(...ys)));
+  const minX = Math.max(0, Math.floor(rect.x));
+  const minY = Math.max(0, Math.floor(rect.y));
+  const maxX = Math.min(rotCanvas.width, Math.ceil(rect.x + rect.w));
+  const maxY = Math.min(rotCanvas.height, Math.ceil(rect.y + rect.h));
   const outW = Math.max(1, maxX - minX);
   const outH = Math.max(1, maxY - minY);
 
@@ -1632,7 +1793,7 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
-console.log('Crop PDF tool loaded.');
+console.log('Crop PDF tool loaded (8-handle + move-inside).');
 </script>
 </body>
 </html>
