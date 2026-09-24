@@ -1,1476 +1,1360 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title id="pageTitle">Edit PDF - Droplet</title>
-  <meta name="description" content="Edit PDF files online for free. 100% client-side, your files never leave your browser.">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Translate PDF — Free Online Document Translator | Droplet</title>
+<meta name="description" content="Translate PDF documents online for free. 14 target languages, preserves paragraph structure, exports to PDF, DOCX, or XLSX. Your PDF is processed in your browser — only the extracted text is sent to the translation engine.">
+<meta name="keywords" content="translate pdf, pdf translator, translate pdf online, free pdf translator, pdf to spanish, pdf to french, pdf to german, document translation, translate document, client-side pdf translate, pdf language converter">
+<meta name="author" content="Droplet">
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+<meta name="theme-color" content="#3b82f6">
 
-  <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
+<link rel="canonical" href="https://dropletweb.xyz/translate-pdf">
 
-  <!-- PDF.js for PDF rendering -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Droplet">
+<meta property="og:title" content="Translate PDF — Free, Fast, 14 Languages | Droplet">
+<meta property="og:description" content="Translate PDF documents. Extracts paragraphs, translates text, exports to PDF, DOCX, or XLSX.">
+<meta property="og:url" content="https://dropletweb.xyz/translate-pdf">
+<meta property="og:image" content="https://dropletweb.xyz/Gemini_Generated_Image_sdu6v7sdu6v7sdu6.jpg">
+<meta property="og:locale" content="en_ZA">
 
-  <style>
-    * { box-sizing: border-box; }
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Translate PDF — Free, Fast, 14 Languages">
+<meta name="twitter:description" content="Translate PDF documents. Extracts paragraphs, translates text, exports to PDF, DOCX, or XLSX.">
+<meta name="twitter:image" content="https://dropletweb.xyz/Gemini_Generated_Image_sdu6v7sdu6v7sdu6.jpg">
 
-    .scrollbar-thin::-webkit-scrollbar { width: 5px; height: 5px; }
-    .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
-    .scrollbar-thin::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-    .scrollbar-thin::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+<link rel="icon" href="/Gemini_Generated_Image_sdu6v7sdu6v7sdu6.jpg" type="image/jpeg">
 
-    /* ===== TOP BAR ===== */
-    .top-bar {
-      background: white;
-      border-bottom: 1px solid #e2e8f0;
-      padding: 4px 16px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      flex-wrap: wrap;
-      min-height: 40px;
-    }
-    .top-bar .logo {
-      font-weight: 700;
-      font-size: 15px;
-      color: #0f172a;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      margin-right: 8px;
-      cursor: pointer;
-      text-decoration: none;
-    }
-    .top-bar .logo img { height: 26px; width: auto; border-radius: 6px; }
-    .top-bar .logo:hover { color: #2563eb; }
-    .top-bar .menu-btn {
-      padding: 3px 8px;
-      font-size: 12px;
-      font-weight: 500;
-      color: #475569;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: background 0.15s;
-      background: transparent;
-      border: none;
-      position: relative;
-    }
-    .top-bar .menu-btn:hover { background: #f1f5f9; }
-    .top-bar .menu-btn .dropdown {
-      display: none;
-      position: absolute;
-      top: 100%;
-      left: 0;
-      min-width: 200px;
-      background: white;
-      border-radius: 8px;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.15);
-      border: 1px solid #e2e8f0;
-      padding: 4px 0;
-      z-index: 100;
-    }
-    .top-bar .menu-btn:hover .dropdown { display: block; }
-    .top-bar .menu-btn .dropdown a {
-      display: block;
-      padding: 5px 14px;
-      font-size: 12px;
-      color: #1e293b;
-      text-decoration: none;
-      transition: background 0.15s;
-      cursor: pointer;
-    }
-    .top-bar .menu-btn .dropdown a:hover { background: #f1f5f9; }
-    .top-bar .menu-btn .dropdown .divider {
-      height: 1px;
-      background: #e2e8f0;
-      margin: 4px 8px;
-    }
-    .top-bar .menu-btn .dropdown .shortcut {
-      float: right;
-      color: #94a3b8;
-      font-size: 11px;
-    }
-    .top-bar .doc-title {
-      font-size: 13px;
-      font-weight: 500;
-      color: #1e293b;
-      padding: 4px 10px;
-      border-radius: 4px;
-      cursor: pointer;
-      transition: background 0.15s;
-      max-width: 300px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-    .top-bar .doc-title:hover { background: #f1f5f9; }
-    .top-bar .doc-title .saved { color: #22c55e; font-size: 11px; margin-left: 6px; }
-    .top-bar .tool-badge {
-      font-size: 11px;
-      background: #dbeafe;
-      color: #1e40af;
-      padding: 2px 12px;
-      border-radius: 12px;
-      font-weight: 600;
-    }
-    .top-bar .action-btn {
-      padding: 3px 8px;
-      font-size: 12px;
-      font-weight: 500;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: all 0.15s;
-      border: 1px solid #e2e8f0;
-      background: white;
-      color: #475569;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-    .top-bar .action-btn:hover { background: #f1f5f9; border-color: #cbd5e1; }
-    .top-bar .action-btn.primary {
-      background: #2563eb;
-      color: white;
-      border-color: #2563eb;
-    }
-    .top-bar .action-btn.primary:hover { background: #1d4ed8; border-color: #1d4ed8; }
-    .top-bar .spacer { flex: 1; }
-    .top-bar .zoom-controls {
-      display: flex;
-      align-items: center;
-      gap: 3px;
-      font-size: 12px;
-      color: #475569;
-    }
-    .top-bar .zoom-controls button {
-      width: 24px;
-      height: 24px;
-      border-radius: 6px;
-      border: 1px solid #e2e8f0;
-      background: white;
-      cursor: pointer;
-      font-size: 13px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.15s;
-    }
-    .top-bar .zoom-controls button:hover { background: #f1f5f9; }
+<script>
+  (function () {
+    try {
+      var saved = localStorage.getItem('theme');
+      if (saved === 'dark') document.documentElement.classList.add('dark');
+    } catch (e) {}
+  })();
+</script>
 
-    /* ===== TOOLBAR ROW 2 ===== */
-    .toolbar-row {
-      background: white;
-      border-bottom: 1px solid #e2e8f0;
-      padding: 4px 12px;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      flex-wrap: wrap;
-      min-height: 38px;
-      transition: all 0.2s;
-    }
-    .toolbar-row .tool-btn {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      padding: 4px 10px;
-      border-radius: 6px;
-      font-size: 12px;
-      font-weight: 500;
-      color: #475569;
-      border: 2px solid transparent;
-      cursor: pointer;
-      transition: all 0.15s;
-      background: transparent;
-      white-space: nowrap;
-    }
-    .toolbar-row .tool-btn:hover { background: #f1f5f9; color: #1e293b; }
-    .toolbar-row .tool-btn.active { border-color: #2563eb; background: #eff6ff; color: #2563eb; }
-    .toolbar-row .tool-btn .icon { font-size: 14px; }
-    .toolbar-row .tool-divider {
-      width: 1px;
-      height: 22px;
-      background: #e2e8f0;
-      margin: 0 4px;
-    }
-    .toolbar-row .fmt-btn {
-      padding: 3px 8px;
-      border-radius: 4px;
-      border: 1px solid transparent;
-      background: transparent;
-      cursor: pointer;
-      font-size: 13px;
-      color: #475569;
-      transition: all 0.15s;
-      font-weight: 500;
-    }
-    .toolbar-row .fmt-btn:hover { background: #f1f5f9; }
-    .toolbar-row .fmt-btn.active { background: #eff6ff; border-color: #2563eb; color: #2563eb; }
-    .toolbar-row .fmt-btn.bold { font-weight: 700; }
-    .toolbar-row .fmt-btn.italic { font-style: italic; }
-    .toolbar-row .fmt-btn.underline { text-decoration: underline; }
-    .toolbar-row .fmt-btn.strike { text-decoration: line-through; }
-    .toolbar-row .fmt-select {
-      padding: 3px 6px;
-      border: 1px solid #e2e8f0;
-      border-radius: 4px;
-      font-size: 12px;
-      background: white;
-      color: #1e293b;
-      outline: none;
-      cursor: pointer;
-    }
-    .toolbar-row .fmt-select:focus { border-color: #2563eb; }
-    .toolbar-row .color-btn {
-      width: 24px;
-      height: 24px;
-      border-radius: 4px;
-      border: 2px solid #e2e8f0;
-      cursor: pointer;
-      padding: 2px;
-      background: white;
-    }
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4006702663328202"
+   crossorigin="anonymous"></script>
 
-    /* ===== LEFT SIDEBAR ===== */
-    .left-sidebar {
-      width: 200px;
-      min-width: 200px;
-      background: white;
-      border-right: 1px solid #e2e8f0;
-      padding: 10px;
-      overflow-y: auto;
-      max-height: calc(100vh - 120px);
-      display: flex;
-      flex-direction: column;
-    }
-    .left-sidebar .sidebar-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 8px;
-      padding: 0 2px;
-    }
-    .left-sidebar .sidebar-title {
-      font-size: 10px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: #94a3b8;
-    }
-    .left-sidebar .sidebar-add {
-      width: 22px;
-      height: 22px;
-      border-radius: 6px;
-      border: none;
-      background: transparent;
-      color: #94a3b8;
-      cursor: pointer;
-      font-size: 16px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.15s;
-    }
-    .left-sidebar .sidebar-add:hover { background: #f1f5f9; color: #2563eb; }
-    .page-thumbnail {
-      position: relative;
-      border: 2px solid transparent;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: all 0.2s;
-      background: white;
-      overflow: hidden;
-      margin-bottom: 6px;
-    }
-    .page-thumbnail:hover { border-color: #94a3b8; }
-    .page-thumbnail.active { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12); }
-    .page-thumbnail .thumb-content {
-      height: 70px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 24px;
-      color: #94a3b8;
-      background: #f8fafc;
-    }
-    .page-thumbnail .page-number {
-      position: absolute;
-      bottom: 3px;
-      right: 5px;
-      font-size: 8px;
-      font-weight: 600;
-      color: #fff;
-      background: rgba(0,0,0,0.5);
-      padding: 1px 5px;
-      border-radius: 3px;
-    }
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/docx/8.5.0/docx.umd.js"></script>
 
-    /* ===== WORKSPACE ===== */
-    .workspace {
-      background: #e9edf2;
-      flex: 1;
-      overflow: auto;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 30px;
-      min-height: 500px;
-      position: relative;
-    }
-    .workspace .page-container {
-      background: #ffffff;
-      border-radius: 2px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 8px 24px rgba(0,0,0,0.12);
-      position: relative;
-      transition: transform 0.2s;
-      transform-origin: center center;
-    }
-    .workspace .page-container canvas { display: block; width: 100%; height: auto; }
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Translate PDF",
+  "url": "https://dropletweb.xyz/translate-pdf",
+  "description": "Free online PDF translator. Extracts text from a PDF, translates it into 14 target languages, and exports the result to PDF, DOCX, or XLSX.",
+  "applicationCategory": "UtilitiesApplication",
+  "operatingSystem": "Any (Web)",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "featureList": [
+    "Translate PDF text into 14 languages",
+    "PDF, DOCX, and XLSX output",
+    "Side-by-side original + translation DOCX",
+    "Batch translation with progress",
+    "Optional OCR for scanned pages",
+    "Preserves paragraph structure",
+    "Rate-limit handling",
+    "100% in-browser PDF parsing"
+  ],
+  "creator": { "@type": "Organization", "name": "Droplet", "url": "https://dropletweb.xyz/" },
+  "inLanguage": "en"
+}
+</script>
 
-    /* ===== RIGHT PANEL ===== */
-    .props-panel {
-      width: 260px;
-      min-width: 260px;
-      background: white;
-      border-left: 1px solid #e2e8f0;
-      padding: 14px;
-      overflow-y: auto;
-      max-height: calc(100vh - 120px);
-    }
-    .props-panel .panel-empty {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100%;
-      min-height: 200px;
-      color: #94a3b8;
-      text-align: center;
-      padding: 20px;
-    }
-    .props-panel .panel-empty .icon { font-size: 32px; margin-bottom: 8px; }
-    .props-panel .panel-empty p { font-size: 12px; max-width: 180px; }
-    .props-panel .section-title {
-      font-size: 10px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: #94a3b8;
-      margin-bottom: 6px;
-      padding-bottom: 3px;
-      border-bottom: 1px solid #e2e8f0;
-    }
-    .props-panel .prop-group { margin-bottom: 10px; }
-    .props-panel .prop-group label {
-      display: block;
-      font-size: 11px;
-      font-weight: 500;
-      color: #64748b;
-      margin-bottom: 2px;
-    }
-    .props-panel .prop-group input[type="color"] {
-      width: 30px;
-      height: 30px;
-      border: 2px solid #e2e8f0;
-      border-radius: 6px;
-      cursor: pointer;
-      padding: 2px;
-    }
-    .props-panel .prop-group input[type="range"] { width: 100%; accent-color: #2563eb; }
-    .props-panel .prop-group select {
-      width: 100%;
-      padding: 4px 8px;
-      border: 1px solid #e2e8f0;
-      border-radius: 6px;
-      font-size: 12px;
-      background: white;
-      outline: none;
-    }
-    .props-panel .prop-group select:focus { border-color: #2563eb; }
-    .props-panel .prop-group .flex-row { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
-    .props-panel .prop-group .flex-row input[type="number"] {
-      width: 56px;
-      padding: 3px 6px;
-      border: 1px solid #e2e8f0;
-      border-radius: 4px;
-      font-size: 12px;
-    }
-    .props-panel .action-btn-sm {
-      padding: 3px 8px;
-      font-size: 12px;
-      font-weight: 500;
-      border-radius: 6px;
-      border: 1px solid #e2e8f0;
-      background: white;
-      cursor: pointer;
-      transition: all 0.15s;
-    }
-    .props-panel .action-btn-sm:hover { background: #f1f5f9; }
-    .props-panel .action-btn-sm.danger { color: #ef4444; border-color: #ef4444; }
-    .props-panel .action-btn-sm.danger:hover { background: #fef2f2; }
+<style>
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+  .hidden { display: none !important; }
+  .dropzone-highlight { border-color: #3b82f6 !important; background: #eff6ff !important; }
 
-    .props-panel .panel-handle { display: none; }
-    .props-panel .panel-close { display: none; }
+  /* Bilingual reader */
+  .reader-shell {
+    display: grid;
+    grid-template-columns: 260px minmax(0, 1fr);
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #ffffff;
+    min-height: 500px;
+    max-height: 680px;
+  }
+  @media (max-width: 720px) {
+    .reader-shell { grid-template-columns: 1fr; max-height: none; }
+    .reader-toc { max-height: 200px; border-right: none; border-bottom: 1px solid #e2e8f0; }
+  }
+  .reader-toc {
+    background: #f8fafc;
+    border-right: 1px solid #e2e8f0;
+    overflow-y: auto;
+    padding: 12px 10px;
+    max-height: 680px;
+  }
+  .reader-toc::-webkit-scrollbar { width: 6px; }
+  .reader-toc::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 6px; }
+  .reader-toc h4 {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 800;
+    color: #94a3b8;
+    margin: 4px 6px 8px;
+  }
+  .reader-toc button {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 8px 10px;
+    border-radius: 8px;
+    border: 1px solid transparent;
+    background: transparent;
+    color: #475569;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    margin-bottom: 2px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .reader-toc button:hover { background: #e2e8f0; }
+  .reader-toc button.active {
+    background: #dbeafe;
+    color: #1e40af;
+    border-color: #3b82f6;
+  }
 
-    /* ===== STATUS BAR ===== */
-    .status-bar {
-      background: white;
-      border-top: 1px solid #e2e8f0;
-      padding: 3px 16px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      font-size: 11px;
-      color: #94a3b8;
-      min-height: 26px;
-    }
-    .status-bar .status-left { display: flex; gap: 16px; align-items: center; }
-    .status-bar .status-right { display: flex; gap: 8px; align-items: center; }
-    .status-bar .status-right button {
-      background: none;
-      border: none;
-      color: #94a3b8;
-      cursor: pointer;
-      font-size: 11px;
-      padding: 2px 6px;
-      border-radius: 4px;
-      transition: background 0.15s;
-    }
-    .status-bar .status-right button:hover { background: #f1f5f9; }
+  .reader-content {
+    overflow-y: auto;
+    background: #ffffff;
+    color: #1a1a1a;
+    padding: 24px 30px;
+    font-family: Georgia, 'Times New Roman', serif;
+    line-height: 1.75;
+    font-size: 15px;
+  }
+  .reader-content::-webkit-scrollbar { width: 8px; }
+  .reader-content::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 8px; }
 
-    /* ===== EMPTY STATE ===== */
-    .empty-state {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100%;
-      min-height: 400px;
-      text-align: center;
-      padding: 40px;
-    }
-    .empty-state .icon { font-size: 56px; margin-bottom: 12px; }
-    .empty-state h3 { font-size: 20px; font-weight: 700; color: #1e293b; margin-bottom: 4px; }
-    .empty-state p { font-size: 14px; color: #94a3b8; max-width: 360px; margin-bottom: 16px; }
-    .empty-state .drop-zone {
-      border: 2px dashed #d1d5db;
-      border-radius: 12px;
-      padding: 40px 60px;
-      margin-top: 8px;
-      transition: all 0.2s;
-      cursor: pointer;
-    }
-    .empty-state .drop-zone:hover { border-color: #2563eb; background: #f8fafc; }
-    .empty-state .drop-zone.dragover { border-color: #2563eb; background: #eff6ff; }
+  .reader-content h3 {
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #3b82f6;
+    margin: 0 0 8px;
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+  .paragraph-pair {
+    margin: 0 0 14px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+  }
+  .original-text {
+    font-size: 13px;
+    color: #64748b;
+    line-height: 1.55;
+    margin: 0 0 8px;
+    padding-bottom: 8px;
+    border-bottom: 1px dashed #e2e8f0;
+    font-style: italic;
+  }
+  .translated-text {
+    font-size: 15px;
+    color: #0f172a;
+    line-height: 1.75;
+    margin: 0;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
 
-    /* ===== BACK TO HOME ===== */
-    .back-home-btn {
-      position: fixed;
-      bottom: 16px;
-      left: 16px;
-      z-index: 60;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      padding: 6px 14px;
-      background: white;
-      border: 1px solid #e2e8f0;
-      border-radius: 50px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-      font-size: 12px;
-      font-weight: 500;
-      color: #475569;
-      text-decoration: none;
-      transition: all 0.2s;
-    }
-    .back-home-btn:hover { background: #f1f5f9; box-shadow: 0 4px 12px rgba(0,0,0,0.1); transform: translateY(-1px); }
-    .back-home-btn svg { width: 16px; height: 16px; flex-shrink: 0; }
+  .toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    padding: 12px 14px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    margin-bottom: 12px;
+  }
+  .toolbar .group { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .toolbar label {
+    font-size: 11px;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .toolbar select, .toolbar input[type="text"] {
+    padding: 7px 10px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 12.5px;
+    background: #fff;
+    color: #0f172a;
+  }
+  .toolbar button {
+    padding: 7px 14px;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+    background: #fff;
+    color: #334155;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .toolbar button:hover:not(:disabled) { background: #f1f5f9; }
+  .toolbar button:disabled { opacity: 0.4; cursor: not-allowed; }
+  .toolbar button.primary { background: #3b82f6; color: #fff; border-color: #3b82f6; }
+  .toolbar button.primary:hover:not(:disabled) { background: #2563eb; }
+  .toolbar button.danger { color: #ef4444; border-color: #fecaca; }
+  .toolbar button.danger:hover:not(:disabled) { background: #fef2f2; }
+  .toolbar .stats {
+    margin-left: auto;
+    font-size: 12px;
+    font-weight: 600;
+    color: #64748b;
+  }
+  .toolbar .stats strong { color: #3b82f6; }
 
-    /* ===== DARK MODE ===== */
-    html.dark .top-bar,
-    html.dark .toolbar-row,
-    html.dark .left-sidebar,
-    html.dark .props-panel,
-    html.dark .status-bar {
-      background: #1e293b;
-      border-color: #334155;
-    }
-    html.dark .top-bar .logo { color: #f1f5f9; }
-    html.dark .top-bar .menu-btn { color: #94a3b8; }
-    html.dark .top-bar .menu-btn:hover { background: #334155; }
-    html.dark .top-bar .menu-btn .dropdown { background: #1e293b; border-color: #334155; }
-    html.dark .top-bar .menu-btn .dropdown a { color: #e2e8f0; }
-    html.dark .top-bar .menu-btn .dropdown a:hover { background: #334155; }
-    html.dark .top-bar .menu-btn .dropdown .divider { background: #334155; }
-    html.dark .top-bar .menu-btn .dropdown .shortcut { color: #64748b; }
-    html.dark .top-bar .doc-title { color: #f1f5f9; }
-    html.dark .top-bar .doc-title:hover { background: #334155; }
-    html.dark .top-bar .tool-badge { background: #1e3a5f; color: #60a5fa; }
-    html.dark .top-bar .action-btn {
-      background: #0f172a;
-      border-color: #334155;
-      color: #e2e8f0;
-    }
-    html.dark .top-bar .action-btn:hover { background: #334155; }
-    html.dark .top-bar .action-btn.primary { background: #2563eb; border-color: #2563eb; color: white; }
-    html.dark .top-bar .action-btn.primary:hover { background: #1d4ed8; }
-    html.dark .top-bar .zoom-controls button {
-      background: #0f172a;
-      border-color: #334155;
-      color: #e2e8f0;
-    }
-    html.dark .top-bar .zoom-controls button:hover { background: #334155; }
-    html.dark .top-bar .zoom-controls { color: #94a3b8; }
-    html.dark .toolbar-row .tool-btn { color: #94a3b8; }
-    html.dark .toolbar-row .tool-btn:hover { background: #334155; color: #f1f5f9; }
-    html.dark .toolbar-row .tool-btn.active { border-color: #3b82f6; background: #1e3a5f; color: #60a5fa; }
-    html.dark .toolbar-row .tool-divider { background: #334155; }
-    html.dark .toolbar-row .fmt-btn { color: #94a3b8; }
-    html.dark .toolbar-row .fmt-btn:hover { background: #334155; }
-    html.dark .toolbar-row .fmt-btn.active { background: #1e3a5f; border-color: #3b82f6; color: #60a5fa; }
-    html.dark .toolbar-row .fmt-select {
-      background: #0f172a;
-      border-color: #334155;
-      color: #f1f5f9;
-    }
-    html.dark .workspace { background: #111827; }
-    html.dark .workspace .page-container { background: white; }
-    html.dark .props-panel { border-color: #334155; }
-    html.dark .props-panel .section-title { color: #64748b; border-color: #334155; }
-    html.dark .props-panel .prop-group label { color: #94a3b8; }
-    html.dark .props-panel .prop-group select {
-      background: #0f172a;
-      border-color: #334155;
-      color: #f1f5f9;
-    }
-    html.dark .props-panel .prop-group input[type="color"] { border-color: #334155; }
-    html.dark .props-panel .prop-group input[type="number"] {
-      background: #0f172a;
-      border-color: #334155;
-      color: #f1f5f9;
-    }
-    html.dark .props-panel .action-btn-sm {
-      background: #0f172a;
-      border-color: #334155;
-      color: #e2e8f0;
-    }
-    html.dark .props-panel .action-btn-sm:hover { background: #334155; }
-    html.dark .props-panel .action-btn-sm.danger { color: #ef4444; border-color: #ef4444; }
-    html.dark .props-panel .action-btn-sm.danger:hover { background: #1e3a5f; }
-    html.dark .props-panel .panel-empty p { color: #64748b; }
-    html.dark .page-thumbnail { background: #1e293b; }
-    html.dark .page-thumbnail .thumb-content { background: #0f172a; color: #64748b; }
-    html.dark .page-thumbnail.active { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); }
-    html.dark .left-sidebar .sidebar-add:hover { background: #334155; color: #60a5fa; }
-    html.dark .status-bar { color: #64748b; }
-    html.dark .status-bar .status-right button:hover { background: #334155; }
-    html.dark .empty-state h3 { color: #f1f5f9; }
-    html.dark .empty-state p { color: #94a3b8; }
-    html.dark .empty-state .drop-zone { border-color: #334155; }
-    html.dark .empty-state .drop-zone:hover { border-color: #3b82f6; background: #1e293b; }
-    html.dark .back-home-btn {
-      background: #1e293b;
-      border-color: #334155;
-      color: #e2e8f0;
-    }
-    html.dark .back-home-btn:hover { background: #334155; }
+  .action-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    padding: 12px 14px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    margin-top: 12px;
+  }
+  .action-bar .spacer { flex: 1; }
+  .action-bar button {
+    padding: 9px 16px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s;
+    border: 1px solid transparent;
+  }
+  .btn-primary { background: #3b82f6; color: #fff; }
+  .btn-primary:hover:not(:disabled) { background: #2563eb; }
+  .btn-secondary { background: #fff; color: #334155; border-color: #e2e8f0; }
+  .btn-secondary:hover:not(:disabled) { background: #f1f5f9; }
+  .btn-success { background: #10b981; color: #fff; }
+  .btn-success:hover:not(:disabled) { background: #059669; }
+  .btn-success:disabled, .btn-primary:disabled, .btn-secondary:disabled { opacity: 0.45; cursor: not-allowed; }
 
-    #theme-toggle {
-      background: none;
-      border: none;
-      font-size: 1.1rem;
-      cursor: pointer;
-      padding: 3px 6px;
-      border-radius: 6px;
-      transition: background 0.2s;
-      color: #475569;
-    }
-    #theme-toggle:hover { background: #f1f5f9; }
-    html.dark #theme-toggle { color: #e2e8f0; }
-    html.dark #theme-toggle:hover { background: #334155; }
+  .info-badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 999px;
+    font-size: 10px;
+    font-weight: 700;
+  }
+  .badge-lang { background: #dbeafe; color: #1e40af; }
+  .badge-pages { background: #e0e7ff; color: #3730a3; }
+  .badge-chars { background: #fef3c7; color: #92400e; }
 
-    @media (max-width: 1024px) {
-      .props-panel { width: 220px; min-width: 220px; padding: 10px; }
-    }
-    @media (max-width: 768px) {
-      .props-panel { width: 200px; min-width: 200px; padding: 8px; }
-      .top-bar { padding: 3px 8px; gap: 4px; }
-      .top-bar .menu-btn { padding: 2px 5px; font-size: 11px; }
-      .top-bar .action-btn { padding: 2px 5px; font-size: 11px; }
-      .top-bar .logo { font-size: 13px; }
-      .top-bar .logo img { height: 22px; }
-      .top-bar .doc-title { font-size: 11px; max-width: 120px; }
-      .top-bar .tool-badge { font-size: 9px; padding: 1px 8px; }
-      .toolbar-row { padding: 3px 8px; gap: 2px; }
-      .toolbar-row .tool-btn { padding: 3px 6px; font-size: 11px; }
-      .toolbar-row .tool-btn .label { display: none; }
-      .toolbar-row .fmt-select { font-size: 11px; padding: 2px 4px; max-width: 80px; }
-      .left-sidebar { width: 56px; min-width: 56px; padding: 6px; }
-      .left-sidebar .sidebar-title { display: none; }
-      .left-sidebar .page-thumbnail .thumb-content { height: 44px; font-size: 16px; }
-      .left-sidebar .sidebar-add { font-size: 14px; }
-      .status-bar { font-size: 10px; padding: 2px 8px; }
-      .status-bar .status-left { gap: 8px; }
-      .back-home-btn { bottom: 12px; left: 8px; padding: 5px 10px; font-size: 11px; }
-      .back-home-btn span { display: none; }
-    }
-    @media (max-width: 640px) {
-      .props-panel {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        width: 100%;
-        min-width: unset;
-        max-height: 50vh;
-        border-left: none;
-        border-top: 1px solid #e2e8f0;
-        border-radius: 16px 16px 0 0;
-        padding: 14px;
-        overflow-y: auto;
-        z-index: 50;
-        transform: translateY(100%);
-        transition: transform 0.3s ease;
-      }
-      .props-panel.open { transform: translateY(0); }
-      .props-panel .panel-handle {
-        width: 36px;
-        height: 4px;
-        background: #cbd5e1;
-        border-radius: 4px;
-        margin: 0 auto 10px;
-        display: block !important;
-      }
-      .props-panel .panel-close {
-        float: right;
-        background: none;
-        border: none;
-        font-size: 18px;
-        cursor: pointer;
-        color: #94a3b8;
-        display: block !important;
-      }
-      .props-panel .panel-close:hover { color: #1e293b; }
-      .top-bar .zoom-controls .label { display: none; }
-      .back-home-btn { bottom: 10px; padding: 4px 8px; }
-      .workspace { padding: 16px; }
-    }
-  </style>
+  #processingOverlay {
+    position: fixed; inset: 0;
+    background: rgba(15, 23, 42, 0.82);
+    backdrop-filter: blur(5px);
+    z-index: 9999;
+    display: none;
+    align-items: center; justify-content: center;
+  }
+  #processingOverlay.show { display: flex; }
+  #processingOverlay .overlay-card {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 28px 32px;
+    max-width: 400px;
+    width: calc(100% - 32px);
+    text-align: center;
+  }
+  #processingOverlay .spinner {
+    width: 42px; height: 42px;
+    border: 4px solid #e2e8f0;
+    border-top-color: #3b82f6;
+    border-radius: 50%;
+    margin: 0 auto 14px;
+    animation: spin 0.9s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  #processingOverlay h4 { font-size: 15px; font-weight: 700; color: #0f172a; margin-bottom: 6px; }
+  #processingOverlay p { font-size: 12px; color: #64748b; margin-bottom: 12px; min-height: 18px; }
+  #processingOverlay .bar { width: 100%; height: 6px; background: #e2e8f0; border-radius: 999px; overflow: hidden; }
+  #processingOverlay .bar-inner { height: 100%; background: #3b82f6; width: 0%; transition: width 0.35s ease; }
+
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: #0f172a;
+    color: #fff;
+    padding: 11px 20px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 600;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+    z-index: 20000;
+    transition: transform 0.3s ease;
+    max-width: calc(100% - 32px);
+    text-align: center;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+  .toast.success { background: #10b981; }
+  .toast.error { background: #ef4444; }
+  .toast.warning { background: #f59e0b; }
+
+  .home-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    background: #f1f5f9;
+    color: #334155;
+    border: 1px solid #e2e8f0;
+    border-radius: 999px;
+    text-decoration: none;
+    transition: all 0.15s;
+  }
+  .home-btn:hover { background: #e2e8f0; }
+
+  #theme-toggle {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 0.25rem 0.5rem;
+    border-radius: 8px;
+    transition: background 0.2s;
+    color: #475569;
+    line-height: 1;
+  }
+  #theme-toggle:hover { background: #f1f5f9; }
+  html.dark #theme-toggle { color: #e2e8f0; }
+  html.dark #theme-toggle:hover { background: #334155; }
+
+  /* Dark mode */
+  html.dark body { background: #0f172a; color: #e2e8f0; }
+  html.dark header { background: #1e293b; border-color: #334155; }
+  html.dark header h1 { color: #f1f5f9; }
+  html.dark header p { color: #60a5fa !important; }
+  html.dark header nav a { color: #94a3b8; }
+  html.dark header nav a:hover { color: #f1f5f9; }
+  html.dark #dropzone { background: #1e293b; border-color: #475569; }
+  html.dark #dropzone:hover { border-color: #3b82f6; }
+  html.dark #dropzone h2 { color: #f1f5f9; }
+  html.dark #dropzone p { color: #94a3b8; }
+  html.dark #fileInfo { background: #1e293b; border-color: #334155; }
+  html.dark #fileInfo .text-slate-900 { color: #f1f5f9; }
+  html.dark #fileInfo .text-slate-400 { color: #94a3b8; }
+  html.dark #fileInfo .border-slate-200 { border-color: #334155; }
+  html.dark .reader-shell { background: #1e293b; border-color: #334155; }
+  html.dark .reader-toc { background: #0f172a; border-color: #334155; }
+  html.dark .reader-toc h4 { color: #64748b; }
+  html.dark .reader-toc button { color: #cbd5e1; }
+  html.dark .reader-toc button:hover { background: #334155; }
+  html.dark .reader-toc button.active { background: #1e3a5f; color: #93c5fd; border-color: #3b82f6; }
+  html.dark .reader-content { background: #0f172a; color: #e2e8f0; }
+  html.dark .paragraph-pair { background: #1e293b; border-color: #334155; }
+  html.dark .original-text { color: #94a3b8; border-bottom-color: #334155; }
+  html.dark .translated-text { color: #f1f5f9; }
+  html.dark .toolbar, html.dark .action-bar { background: #1e293b; border-color: #334155; }
+  html.dark .toolbar label { color: #94a3b8; }
+  html.dark .toolbar select, html.dark .toolbar input[type="text"] { background: #0f172a; border-color: #334155; color: #f1f5f9; }
+  html.dark .toolbar button { background: #0f172a; color: #cbd5e1; border-color: #334155; }
+  html.dark .toolbar button:hover:not(:disabled) { background: #334155; }
+  html.dark .toolbar button.primary { background: #2563eb; border-color: #2563eb; color: white; }
+  html.dark .toolbar button.primary:hover:not(:disabled) { background: #1d4ed8; }
+  html.dark .toolbar .stats { color: #94a3b8; }
+  html.dark .btn-secondary { background: #0f172a; color: #cbd5e1; border-color: #334155; }
+  html.dark .btn-secondary:hover:not(:disabled) { background: #334155; }
+  html.dark .bg-white { background: #1e293b !important; }
+  html.dark .border-slate-100 { border-color: #334155 !important; }
+  html.dark .border-slate-200 { border-color: #334155 !important; }
+  html.dark .border-slate-300 { border-color: #334155 !important; }
+  html.dark .text-slate-500 { color: #94a3b8 !important; }
+  html.dark .text-slate-600 { color: #94a3b8 !important; }
+  html.dark .text-slate-700 { color: #cbd5e1 !important; }
+  html.dark .text-slate-900 { color: #f1f5f9 !important; }
+  html.dark .bg-blue-50 { background: #1e3a5f !important; }
+  html.dark .border-blue-200 { border-color: #2563eb !important; }
+  html.dark .text-blue-700 { color: #60a5fa !important; }
+  html.dark .text-blue-900 { color: #93c5fd !important; }
+  html.dark .bg-slate-50 { background: #0f172a !important; }
+  html.dark .bg-slate-100 { background: #334155 !important; }
+  html.dark .bg-amber-50 { background: #3b2f0d !important; border-color: #78350f !important; }
+  html.dark .text-amber-800 { color: #fcd34d !important; }
+  html.dark .bg-green-50 { background: #0f172a !important; border-color: #334155 !important; }
+  html.dark .border-green-200 { border-color: #334155 !important; }
+  html.dark .badge-lang { background: #1e3a5f; color: #93c5fd; }
+  html.dark .badge-pages { background: #3730a3; color: #c7d2fe; }
+  html.dark .badge-chars { background: #78350f; color: #fcd34d; }
+  html.dark footer { background: #0f172a !important; border-color: #334155 !important; }
+  html.dark footer a { color: #94a3b8; }
+  html.dark footer a:hover { color: #f1f5f9; }
+  html.dark .back-home-btn { background: #1e293b !important; border-color: #475569 !important; color: #e2e8f0 !important; }
+  html.dark .back-home-btn:hover { background: #334155 !important; border-color: #3b82f6 !important; }
+  html.dark .home-btn { background: #0f172a; border-color: #334155; color: #e2e8f0; }
+  html.dark .home-btn:hover { background: #334155; }
+  html.dark .bg-green-600 { background: #059669 !important; }
+  html.dark .bg-green-600:hover { background: #047857 !important; }
+  html.dark .bg-blue-600 { background: #2563eb !important; }
+  html.dark .bg-blue-600:hover { background: #1d4ed8 !important; }
+  html.dark #processingOverlay .overlay-card { background: #1e293b; }
+  html.dark #processingOverlay h4 { color: #f1f5f9; }
+  html.dark #processingOverlay p { color: #94a3b8; }
+  html.dark #processingOverlay .bar { background: #334155; }
+</style>
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen flex flex-col transition-colors duration-200">
 
-  <!-- ===== TOP BAR ===== -->
-  <header class="top-bar">
-    <a href="/" class="logo" title="Go to Home">
-      <img src="Gemini_Generated_Image_sdu6v7sdu6v7sdu6.jpg" alt="Droplet">
-      <span>Droplet</span>
-    </a>
-
-    <div class="menu-btn" style="position:relative;">File
-      <div class="dropdown">
-        <a onclick="document.getElementById('pdfInput').click()">📂 Open PDF</a>
-        <a onclick="alert('New Blank PDF')">📄 New Blank PDF</a>
-        <a onclick="alert('Add PDF / Merge')">📎 Add PDF / Merge</a>
-        <div class="divider"></div>
-        <a onclick="alert('Save Project')">💾 Save Project <span class="shortcut">Ctrl+S</span></a>
-        <a onclick="alert('Save Project As...')">📁 Save Project As...</a>
-        <div class="divider"></div>
-        <a onclick="alert('Export PDF')">📤 Export PDF</a>
-        <a onclick="alert('Print')">🖨️ Print <span class="shortcut">Ctrl+P</span></a>
-        <div class="divider"></div>
-        <a onclick="alert('Close Document')">✕ Close Document</a>
+  <header class="bg-white border-b border-slate-200 py-3.5 px-6 sticky top-0 z-50 transition-colors duration-200">
+    <div class="max-w-6xl mx-auto flex justify-between items-center">
+      <a href="/" class="flex items-center gap-3 group" aria-label="Droplet home">
+        <img src="Gemini_Generated_Image_sdu6v7sdu6v7sdu6.jpg" alt="Droplet logo" class="h-9 w-auto rounded-xl shadow-sm group-hover:scale-105 transition-transform">
+        <div>
+          <h1 class="text-xl font-black tracking-tight text-slate-900 leading-none">Droplet</h1>
+          <p class="text-[9px] text-blue-600 font-extrabold tracking-widest uppercase mt-0.5">DRAG, DROP AND CONVERT.</p>
+        </div>
+      </a>
+      <div class="flex items-center gap-3">
+        <a href="/" class="home-btn"><span>←</span><span>Home</span></a>
+        <button id="theme-toggle" aria-label="Toggle dark mode">🌙</button>
       </div>
     </div>
-
-    <div class="menu-btn" style="position:relative;">Edit
-      <div class="dropdown">
-        <a onclick="alert('Undo')">↶ Undo <span class="shortcut">Ctrl+Z</span></a>
-        <a onclick="alert('Redo')">↷ Redo <span class="shortcut">Ctrl+Y</span></a>
-        <div class="divider"></div>
-        <a onclick="alert('Cut')">✂️ Cut <span class="shortcut">Ctrl+X</span></a>
-        <a onclick="alert('Copy')">📋 Copy <span class="shortcut">Ctrl+C</span></a>
-        <a onclick="alert('Paste')">📋 Paste <span class="shortcut">Ctrl+V</span></a>
-        <a onclick="alert('Delete')">🗑️ Delete <span class="shortcut">Del</span></a>
-        <a onclick="alert('Select All')">☑️ Select All <span class="shortcut">Ctrl+A</span></a>
-        <div class="divider"></div>
-        <a onclick="alert('Find')">🔍 Find <span class="shortcut">Ctrl+F</span></a>
-        <a onclick="alert('Replace')">🔄 Replace <span class="shortcut">Ctrl+H</span></a>
-      </div>
-    </div>
-
-    <div class="menu-btn" style="position:relative;">Insert
-      <div class="dropdown">
-        <a onclick="alert('Insert Text')">📝 Text</a>
-        <a onclick="alert('Insert Image')">🖼️ Image</a>
-        <a onclick="alert('Insert Table')">📊 Table</a>
-        <a onclick="alert('Insert Link')">🔗 Link</a>
-        <a onclick="alert('Insert Shape')">⬛ Shape</a>
-        <a onclick="alert('Insert Signature')">✍️ Signature</a>
-        <div class="divider"></div>
-        <a onclick="alert('Insert Page Break')">📄 Page Break</a>
-        <a onclick="alert('Insert Header')">📌 Header</a>
-        <a onclick="alert('Insert Footer')">📌 Footer</a>
-        <a onclick="alert('Insert Page Number')">🔢 Page Number</a>
-      </div>
-    </div>
-
-    <div class="menu-btn" style="position:relative;">Pages
-      <div class="dropdown">
-        <a onclick="alert('Add Page')">📄 Add Page</a>
-        <a onclick="alert('Duplicate Page')">📋 Duplicate Page</a>
-        <div class="divider"></div>
-        <a onclick="alert('Rotate Left')">🔄 Rotate Left</a>
-        <a onclick="alert('Rotate Right')">🔄 Rotate Right</a>
-        <a onclick="alert('Delete Page')">🗑️ Delete Page</a>
-        <div class="divider"></div>
-        <a onclick="alert('Reorder Pages')">📋 Reorder Pages</a>
-        <a onclick="alert('Extract Pages')">📤 Extract Pages</a>
-        <a onclick="alert('Split PDF')">✂️ Split PDF</a>
-        <a onclick="alert('Merge PDF')">🔗 Merge PDF</a>
-      </div>
-    </div>
-
-    <div class="menu-btn" style="position:relative;">View
-      <div class="dropdown">
-        <a onclick="alert('Zoom In')">🔍 Zoom In <span class="shortcut">Ctrl++</span></a>
-        <a onclick="alert('Zoom Out')">🔍 Zoom Out <span class="shortcut">Ctrl+-</span></a>
-        <a onclick="alert('Actual Size')">1:1 Actual Size</a>
-        <a onclick="alert('Fit Page')">📄 Fit Page</a>
-        <a onclick="alert('Fit Width')">📄 Fit Width</a>
-        <div class="divider"></div>
-        <a onclick="toggleSidebar('pages')">📑 Toggle Pages</a>
-        <a onclick="toggleSidebar('props')">📋 Toggle Properties</a>
-      </div>
-    </div>
-
-    <span class="doc-title" id="docTitle" onclick="renameDocument()">
-      Untitled PDF <span class="saved">●</span>
-    </span>
-
-    <span class="tool-badge" id="toolBadge">✏️ Edit PDF</span>
-
-    <div class="spacer"></div>
-
-    <button class="action-btn" onclick="alert('Undo')" title="Undo (Ctrl+Z)">↶</button>
-    <button class="action-btn" onclick="alert('Redo')" title="Redo (Ctrl+Y)">↷</button>
-
-    <div class="zoom-controls">
-      <button onclick="alert('Zoom out')">−</button>
-      <span class="label" id="zoomLabel">100%</span>
-      <button onclick="alert('Zoom in')">+</button>
-    </div>
-
-    <button id="theme-toggle" aria-label="Toggle theme">🌙</button>
-    <button class="action-btn primary" onclick="alert('Export PDF')">💾 Export</button>
   </header>
 
-  <!-- ===== TOOLBAR ROW 2 ===== -->
-  <div class="toolbar-row" id="toolbarRow">
-    <!-- Main Tools -->
-    <button class="tool-btn active" data-tool="select" onclick="setTool('select')">
-      <span class="icon">🖱️</span><span class="label">Select</span>
-    </button>
-    <button class="tool-btn" data-tool="text" onclick="setTool('text')">
-      <span class="icon">T</span><span class="label">Text</span>
-    </button>
-    <button class="tool-btn" data-tool="image" onclick="setTool('image')">
-      <span class="icon">🖼️</span><span class="label">Image</span>
-    </button>
-    <button class="tool-btn" data-tool="draw" onclick="setTool('draw')">
-      <span class="icon">✏️</span><span class="label">Draw</span>
-    </button>
-    <button class="tool-btn" data-tool="highlight" onclick="setTool('highlight')">
-      <span class="icon">🖍️</span><span class="label">Highlight</span>
-    </button>
-    <button class="tool-btn" data-tool="shape" onclick="setTool('shape')">
-      <span class="icon">□</span><span class="label">Shape</span>
-    </button>
-    <button class="tool-btn" data-tool="sign" onclick="setTool('sign')">
-      <span class="icon">✍️</span><span class="label">Sign</span>
-    </button>
-    <button class="tool-btn" data-tool="forms" onclick="setTool('forms')">
-      <span class="icon">☑️</span><span class="label">Forms</span>
-    </button>
+  <main class="max-w-4xl mx-auto px-4 py-8 md:py-12 flex-grow w-full">
 
-    <div class="tool-divider"></div>
-
-    <!-- Contextual Formatting (Text Tool) -->
-    <div id="textFormatting" class="hidden" style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;">
-      <select class="fmt-select" id="fontFamily" style="width:100px;">
-        <option value="Arial">Arial</option>
-        <option value="Times New Roman">Times New Roman</option>
-        <option value="Calibri">Calibri</option>
-        <option value="Helvetica">Helvetica</option>
-        <option value="Georgia">Georgia</option>
-        <option value="Verdana">Verdana</option>
-        <option value="Courier New">Courier New</option>
-      </select>
-
-      <select class="fmt-select" id="fontSize" style="width:56px;">
-        <option value="8">8</option>
-        <option value="9">9</option>
-        <option value="10">10</option>
-        <option value="11">11</option>
-        <option value="12" selected>12</option>
-        <option value="14">14</option>
-        <option value="16">16</option>
-        <option value="18">18</option>
-        <option value="20">20</option>
-        <option value="24">24</option>
-        <option value="28">28</option>
-        <option value="36">36</option>
-        <option value="48">48</option>
-        <option value="72">72</option>
-      </select>
-
-      <div class="tool-divider"></div>
-
-      <button class="fmt-btn bold" onclick="alert('Bold')" title="Bold (Ctrl+B)">B</button>
-      <button class="fmt-btn italic" onclick="alert('Italic')" title="Italic (Ctrl+I)">I</button>
-      <button class="fmt-btn underline" onclick="alert('Underline')" title="Underline (Ctrl+U)">U</button>
-      <button class="fmt-btn strike" onclick="alert('Strikethrough')" title="Strikethrough">S</button>
-
-      <div class="tool-divider"></div>
-
-      <input type="color" class="color-btn" id="textColor" value="#1e293b" title="Text Color">
-      <input type="color" class="color-btn" id="highlightColor" value="#fef08a" title="Highlight Color" style="background:#fef08a;">
-
-      <div class="tool-divider"></div>
-
-      <button class="fmt-btn" onclick="alert('Left align')" title="Left align">≡</button>
-      <button class="fmt-btn" onclick="alert('Center align')" title="Center align">≣</button>
-      <button class="fmt-btn" onclick="alert('Right align')" title="Right align">≡</button>
-      <button class="fmt-btn" onclick="alert('Justify')" title="Justify">☰</button>
-
-      <div class="tool-divider"></div>
-
-      <button class="fmt-btn" onclick="alert('Bullet list')" title="Bullet list">•</button>
-      <button class="fmt-btn" onclick="alert('Numbered list')" title="Numbered list">1.</button>
-
-      <div class="tool-divider"></div>
-
-      <select class="fmt-select" id="lineSpacing" style="width:70px;">
-        <option value="1">1.0</option>
-        <option value="1.15" selected>1.15</option>
-        <option value="1.5">1.5</option>
-        <option value="2">2.0</option>
-      </select>
+    <div class="max-w-2xl mx-auto mb-4 flex justify-start">
+      <a href="/" class="back-home-btn inline-flex items-center gap-2 bg-white hover:bg-slate-50 border border-slate-200 shadow-sm rounded-full px-5 py-2.5 text-sm font-medium text-slate-700 transition-all hover:shadow-md hover:border-slate-300 active:scale-95">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        </svg>
+        Back to Home
+      </a>
     </div>
 
-    <!-- Contextual Formatting (Draw Tool) -->
-    <div id="drawFormatting" class="hidden" style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;">
-      <span style="font-size:11px;color:#94a3b8;margin-right:4px;">Pen</span>
-      <select class="fmt-select" style="width:80px;">
-        <option>Pen</option>
-        <option>Marker</option>
-        <option>Highlighter</option>
-      </select>
-      <input type="color" class="color-btn" value="#1e293b" title="Pen Color">
-      <span style="font-size:11px;color:#94a3b8;margin-left:4px;">Size</span>
-      <select class="fmt-select" style="width:50px;">
-        <option>1</option>
-        <option selected>2</option>
-        <option>3</option>
-        <option>4</option>
-        <option>5</option>
-        <option>8</option>
-        <option>10</option>
-      </select>
-      <button class="fmt-btn" onclick="alert('Eraser')" title="Eraser">🧹</button>
-    </div>
-
-    <!-- Contextual Formatting (Shape Tool) -->
-    <div id="shapeFormatting" class="hidden" style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;">
-      <select class="fmt-select" style="width:100px;">
-        <option>Rectangle</option>
-        <option>Rounded Rectangle</option>
-        <option>Circle</option>
-        <option>Line</option>
-        <option>Arrow</option>
-        <option>Text Box</option>
-      </select>
-      <input type="color" class="color-btn" value="#3b82f6" title="Fill Color">
-      <input type="color" class="color-btn" value="#1e293b" title="Border Color">
-      <span style="font-size:11px;color:#94a3b8;margin-left:4px;">Border</span>
-      <select class="fmt-select" style="width:50px;">
-        <option>0</option>
-        <option selected>1</option>
-        <option>2</option>
-        <option>3</option>
-        <option>4</option>
-        <option>5</option>
-      </select>
-    </div>
-
-    <!-- Contextual Formatting (Highlight Tool) -->
-    <div id="highlightFormatting" class="hidden" style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;">
-      <span style="font-size:11px;color:#94a3b8;margin-right:4px;">Highlight</span>
-      <select class="fmt-select" style="width:100px;">
-        <option>Highlight</option>
-        <option>Underline</option>
-        <option>Strikethrough</option>
-        <option>Squiggly</option>
-      </select>
-      <input type="color" class="color-btn" value="#fef08a" title="Highlight Color" style="background:#fef08a;">
-      <span style="font-size:11px;color:#94a3b8;margin-left:4px;">Opacity</span>
-      <select class="fmt-select" style="width:50px;">
-        <option>50%</option>
-        <option selected>70%</option>
-        <option>100%</option>
-      </select>
-    </div>
-  </div>
-
-  <!-- ===== MAIN CONTENT ===== -->
-  <div class="flex flex-1 overflow-hidden">
-
-    <!-- ===== LEFT SIDEBAR ===== -->
-    <div class="left-sidebar scrollbar-thin" id="pagesSidebar">
-      <div class="sidebar-header">
-        <span class="sidebar-title">Pages</span>
-        <button class="sidebar-add" onclick="alert('Add page')" title="Add page">+</button>
+    <div class="text-center mb-8">
+      <div class="inline-block p-3 bg-blue-50 rounded-2xl mb-4">
+        <span class="text-4xl">🌐</span>
       </div>
-      
-      <div id="pageThumbnails" style="flex:1;">
-        <div class="text-center text-slate-400 text-xs py-8" id="emptyThumbnails">
-          <div class="text-2xl mb-2">📄</div>
-          <p>No pages</p>
-          <p class="text-[9px] mt-1">Open a PDF</p>
+      <h1 class="text-3xl md:text-4xl font-black text-slate-900 tracking-tight">Translate PDF</h1>
+      <p class="text-slate-500 text-sm md:text-base mt-2 max-w-lg mx-auto">
+        Extract text from a PDF and translate it into 14 languages. <strong>Your PDF stays in your browser</strong>; only the text is sent to the translation engine.
+      </p>
+    </div>
+
+    <section class="max-w-2xl mx-auto mb-8 bg-amber-50 border border-amber-200 rounded-xl p-4">
+      <div class="flex items-start gap-3">
+        <span class="text-2xl">🔒</span>
+        <div>
+          <h2 class="font-bold text-sm text-amber-800">How privacy works here</h2>
+          <p class="text-xs text-amber-800 mt-1">The PDF file is opened and parsed in your browser — it is never uploaded. Only the plain text extracted from it is sent to the translation engine, in short batches, solely for translating.</p>
         </div>
-        <div id="thumbnailList"></div>
+      </div>
+    </section>
+
+    <div id="dropzone" class="bg-white border-2 border-dashed border-slate-300 hover:border-blue-400 transition-all rounded-3xl p-8 md:p-12 text-center shadow-lg max-w-2xl mx-auto cursor-pointer" role="button" tabindex="0">
+      <div class="flex flex-col items-center">
+        <div class="w-20 h-20 bg-blue-50 rounded-2xl flex items-center justify-center mb-4 text-4xl">📄</div>
+        <h2 class="text-xl font-bold text-slate-900 mb-1">Drop your PDF here</h2>
+        <p class="text-slate-400 text-sm mb-4">or click to browse</p>
+        <input type="file" id="fileInput" accept=".pdf,application/pdf" class="hidden">
+        <button onclick="document.getElementById('fileInput').click()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-3 rounded-xl text-sm shadow-md shadow-blue-500/20 transition-all active:scale-95">
+          Select PDF File
+        </button>
+        <p class="text-xs text-slate-400 mt-3">Max file size: ~50MB</p>
       </div>
     </div>
 
-    <!-- ===== CENTER WORKSPACE ===== -->
-    <div class="workspace" id="workspace">
-      <div class="empty-state" id="emptyState">
-        <div class="icon">📄</div>
-        <h3 id="emptyTitle">Edit a PDF</h3>
-        <p id="emptyDescription">Open a PDF to add text, images, signatures, drawings and more.</p>
-        <div class="drop-zone" id="dropZone" onclick="document.getElementById('pdfInput').click()">
-          <div style="font-size:32px;margin-bottom:8px;">📂</div>
-          <p style="font-size:13px;font-weight:500;color:#1e293b;">Drag & drop a PDF here</p>
-          <p style="font-size:12px;color:#94a3b8;">or click to browse</p>
+    <div id="fileInfo" class="hidden max-w-2xl mx-auto mt-6 bg-white rounded-xl shadow-sm border border-slate-200 p-6 transition-colors duration-200">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <span class="text-2xl">📄</span>
+          <div>
+            <p id="fileName" class="font-medium text-slate-900"></p>
+            <p id="fileSize" class="text-xs text-slate-400"></p>
+            <p id="pageCount" class="text-xs text-slate-400"></p>
+          </div>
         </div>
-        <div class="flex flex-wrap gap-3 mt-4 justify-center">
-          <button onclick="document.getElementById('pdfInput').click()" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2.5 rounded-xl text-sm shadow-md shadow-blue-500/20 transition-all active:scale-95">
-            📂 Open PDF
-          </button>
-          <button onclick="alert('Create blank PDF')" class="bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-2.5 rounded-xl text-sm shadow-md shadow-green-500/20 transition-all active:scale-95">
-            📄 Create Blank PDF
+        <button onclick="clearFile()" class="text-slate-400 hover:text-red-500 transition-colors">✕</button>
+      </div>
+
+      <div id="readerSection" class="hidden mt-4 border-t border-slate-200 pt-4">
+        <div class="flex items-center justify-between mb-2">
+          <h2 class="font-bold text-sm text-slate-700">🌐 Document</h2>
+          <span id="docStats" class="text-xs text-slate-400"></span>
+        </div>
+
+        <div class="toolbar">
+          <div class="group">
+            <label for="targetLang">Target</label>
+            <select id="targetLang">
+              <option value="af">Afrikaans</option>
+              <option value="ar">Arabic</option>
+              <option value="zh-CN">Chinese (Simplified)</option>
+              <option value="nl">Dutch</option>
+              <option value="fr">French</option>
+              <option value="de">German</option>
+              <option value="it">Italian</option>
+              <option value="ja">Japanese</option>
+              <option value="ko">Korean</option>
+              <option value="pt">Portuguese</option>
+              <option value="ru">Russian</option>
+              <option value="es">Spanish</option>
+              <option value="sw">Swahili</option>
+              <option value="zu">Zulu</option>
+            </select>
+          </div>
+          <button id="translateBtn" class="primary" disabled>🌐 Translate</button>
+          <button id="stopBtn" class="danger" disabled>⏹ Stop</button>
+          <div class="stats" id="translateStats">
+            <span><strong>0</strong> paragraphs</span>
+          </div>
+        </div>
+
+        <div class="reader-shell">
+          <aside class="reader-toc" id="readerToc">
+            <h4>Pages</h4>
+            <div id="readerTocList"></div>
+          </aside>
+          <div>
+            <div class="reader-content" id="readerContent"></div>
+          </div>
+        </div>
+
+        <div class="action-bar">
+          <button id="exportPdfBtn" class="btn-success" disabled>📥 Export as PDF</button>
+          <button id="exportDocxBtn" class="btn-secondary" disabled>📝 Export as DOCX</button>
+          <button id="exportSideBySideBtn" class="btn-secondary" disabled>📝 Side-by-side DOCX</button>
+          <button id="exportXlsxBtn" class="btn-secondary" disabled>📊 Export as XLSX</button>
+          <div class="spacer"></div>
+          <button id="resetBtn" class="btn-secondary">Reset</button>
+        </div>
+      </div>
+
+      <div class="mt-4 flex flex-wrap gap-3">
+        <button onclick="clearFile()" class="px-4 py-3 border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors text-sm">
+          Change File
+        </button>
+      </div>
+    </div>
+
+    <section id="resultSection" class="hidden max-w-2xl mx-auto mt-6">
+      <div class="bg-green-50 border border-green-200 rounded-xl p-6 text-center transition-colors duration-200">
+        <div class="text-4xl mb-2">✅</div>
+        <h2 class="font-bold text-slate-900">Translation Complete!</h2>
+        <p class="text-sm text-slate-600 mt-1" id="resultSummary">Your translated document is ready.</p>
+        <div class="mt-2 flex flex-wrap gap-2 justify-center">
+          <span id="resultBadgeLang" class="info-badge badge-lang">—</span>
+          <span id="resultBadgePages" class="info-badge badge-pages">0 pages</span>
+          <span id="resultBadgeChars" class="info-badge badge-chars">0 characters</span>
+        </div>
+        <div class="mt-4 flex flex-wrap gap-3 justify-center">
+          <a id="downloadLink" href="#" download="dropletweb-translated.pdf" class="bg-green-600 hover:bg-green-700 text-white font-bold px-6 py-3 rounded-xl transition-all shadow-md shadow-green-500/20">
+            📥 Download
+          </a>
+          <button onclick="resetConverter()" class="px-6 py-3 border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors text-sm">
+            Translate Another
           </button>
         </div>
-        <p class="text-xs text-slate-400 mt-4">🔒 Processed locally in your browser</p>
-        <input type="file" id="pdfInput" accept=".pdf,application/pdf" class="hidden" multiple>
+        <p id="downloadFileName" class="text-xs text-slate-400 mt-3"></p>
       </div>
+    </section>
 
-      <div class="page-container hidden" id="pageContainer">
-        <canvas id="pdfCanvas"></canvas>
+    <section class="max-w-2xl mx-auto mt-12 grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div class="bg-white p-4 rounded-xl border border-slate-100 text-center transition-colors duration-200">
+        <div class="text-2xl mb-1">🔒</div>
+        <h3 class="font-bold text-sm">PDF Stays Local</h3>
+        <p class="text-xs text-slate-500">Only extracted text is translated</p>
+      </div>
+      <div class="bg-white p-4 rounded-xl border border-slate-100 text-center transition-colors duration-200">
+        <div class="text-2xl mb-1">🌍</div>
+        <h3 class="font-bold text-sm">14 Languages</h3>
+        <p class="text-xs text-slate-500">From Afrikaans to Zulu</p>
+      </div>
+      <div class="bg-white p-4 rounded-xl border border-slate-100 text-center transition-colors duration-200">
+        <div class="text-2xl mb-1">📤</div>
+        <h3 class="font-bold text-sm">PDF · DOCX · XLSX</h3>
+        <p class="text-xs text-slate-500">Three export formats</p>
+      </div>
+    </section>
+
+    <article class="max-w-2xl mx-auto mt-12">
+      <h2 class="text-xl font-black text-slate-900 mb-4">Translating PDFs: the complete guide</h2>
+      <div class="bg-white p-5 rounded-xl border border-slate-100 mb-4 transition-colors duration-200">
+        <p class="text-sm text-slate-600 leading-relaxed mb-3">
+          A PDF is a rendering of a document, not a source file. Its text is stored as drawing instructions — glyph by glyph, positioned on the page. There is no "translate this PDF" button in the format itself, because translation requires understanding language, and a PDF stores no linguistic structure. To translate a PDF, you first have to extract its text, then translate that text, then reconstruct a document from the translation.
+        </p>
+        <p class="text-sm text-slate-600 leading-relaxed mb-3">
+          This tool does exactly that. It reads the PDF, extracts the text from each page, groups it into paragraphs, sends each paragraph to a translation engine, and then reassembles the translated paragraphs into a new PDF, DOCX, or XLSX document.
+        </p>
+        <p class="text-sm text-slate-600 leading-relaxed">
+          What you get is a clean, readable, correctly-ordered translation. Every paragraph from the original appears in the output, in the same order.
+        </p>
+      </div>
+    </article>
+
+    <section class="max-w-2xl mx-auto mt-12">
+      <h2 class="text-xl font-black text-slate-900 text-center mb-6">Frequently Asked Questions</h2>
+      <div class="space-y-3">
+        <details class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200" open>
+          <summary class="font-bold text-slate-900 text-sm cursor-pointer">Is my PDF uploaded to a server?</summary>
+          <p class="text-slate-600 text-sm mt-2">The PDF file itself is never uploaded. It is opened and parsed inside your browser. Only the plain text extracted from the PDF is sent to the translation engine.</p>
+        </details>
+        <details class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
+          <summary class="font-bold text-slate-900 text-sm cursor-pointer">Is this tool free?</summary>
+          <p class="text-slate-600 text-sm mt-2">Yes, completely free. The default translation engine (MyMemory) has a daily quota per IP address.</p>
+        </details>
+        <details class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
+          <summary class="font-bold text-slate-900 text-sm cursor-pointer">What languages are supported?</summary>
+          <p class="text-slate-600 text-sm mt-2">Fourteen target languages: Afrikaans, Arabic, Chinese (Simplified), Dutch, French, German, Italian, Japanese, Korean, Portuguese, Russian, Spanish, Swahili, and Zulu.</p>
+        </details>
+        <details class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
+          <summary class="font-bold text-slate-900 text-sm cursor-pointer">Does it preserve the original layout?</summary>
+          <p class="text-slate-600 text-sm mt-2">No. The translated output is a clean, reflowed document with the same paragraph order. Layout preservation is not achievable in a browser without breaking text.</p>
+        </details>
+        <details class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
+          <summary class="font-bold text-slate-900 text-sm cursor-pointer">Is the translated PDF text selectable?</summary>
+          <p class="text-slate-600 text-sm mt-2">Yes. The exported PDF contains real text, not images, so it can be searched, copied, and re-edited.</p>
+        </details>
+      </div>
+    </section>
+  </main>
+
+  <footer class="border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-500 mt-auto transition-colors duration-200">
+    <div class="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-3">
+      <p class="font-medium">© Droplet. 100% Client-Side Privacy First File Utility.</p>
+      <div class="space-x-4">
+        <a href="/about.html" class="hover:text-blue-600 transition-colors">About</a>
+        <span>•</span>
+        <a href="/privacy.html" class="hover:text-blue-600 transition-colors">Privacy</a>
+        <span>•</span>
+        <a href="/terms.html" class="hover:text-blue-600 transition-colors">Terms</a>
       </div>
     </div>
+  </footer>
 
-    <!-- ===== RIGHT PROPERTIES PANEL ===== -->
-    <div class="props-panel scrollbar-thin" id="propsPanel">
-      <div class="panel-handle"></div>
-      <button class="panel-close" onclick="togglePropsPanel()">✕</button>
-
-      <div id="propsEmpty" class="panel-empty">
-        <div class="icon">📋</div>
-        <p>No selection</p>
-        <p style="font-size:11px;color:#cbd5e1;margin-top:4px;">Open a PDF to see document properties</p>
-      </div>
-
-      <!-- Page Properties -->
-      <div id="pageProps" class="hidden">
-        <div class="section-title">📄 Page</div>
-        <div class="prop-group">
-          <label>Size</label>
-          <select>
-            <option value="a4">A4 (210 × 297 mm)</option>
-            <option value="letter">Letter (8.5 × 11 in)</option>
-            <option value="legal">Legal (8.5 × 14 in)</option>
-            <option value="a3">A3 (297 × 420 mm)</option>
-          </select>
-        </div>
-        <div class="prop-group">
-          <label>Orientation</label>
-          <div class="flex-row" style="gap:4px;">
-            <button class="action-btn-sm" onclick="alert('Portrait')" style="flex:1;text-align:center;">▯ Portrait</button>
-            <button class="action-btn-sm" onclick="alert('Landscape')" style="flex:1;text-align:center;">▭ Landscape</button>
-          </div>
-        </div>
-        <div class="prop-group">
-          <label>Background</label>
-          <div class="flex-row">
-            <input type="color" value="#ffffff">
-            <span style="font-size:12px;color:#94a3b8;">White</span>
-          </div>
-        </div>
-        <div class="prop-group">
-          <label>Page</label>
-          <div class="flex-row">
-            <span style="font-size:12px;color:#94a3b8;">1 of 1</span>
-          </div>
-        </div>
-
-        <div class="section-title" style="margin-top:14px;">📑 Operations</div>
-        <div class="prop-group">
-          <div class="flex-row" style="gap:4px;flex-wrap:wrap;">
-            <button class="action-btn-sm" onclick="alert('Rotate Left')">🔄 Left</button>
-            <button class="action-btn-sm" onclick="alert('Rotate Right')">🔄 Right</button>
-            <button class="action-btn-sm" onclick="alert('Duplicate')">📋 Duplicate</button>
-            <button class="action-btn-sm danger" onclick="alert('Delete')">🗑️ Delete</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Text Properties -->
-      <div id="textProps" class="hidden">
-        <div class="section-title">✏️ Text</div>
-        <div class="prop-group">
-          <label>Font</label>
-          <select>
-            <option>Arial</option>
-            <option>Times New Roman</option>
-            <option>Calibri</option>
-            <option>Helvetica</option>
-            <option>Georgia</option>
-            <option>Verdana</option>
-          </select>
-        </div>
-        <div class="prop-group">
-          <label>Size</label>
-          <div class="flex-row">
-            <input type="range" min="8" max="72" value="12" style="flex:1;">
-            <span style="font-size:12px;color:#94a3b8;min-width:28px;">12</span>
-          </div>
-        </div>
-        <div class="prop-group">
-          <label>Color</label>
-          <div class="flex-row">
-            <input type="color" value="#1e293b">
-            <span style="font-size:12px;color:#94a3b8;">Text</span>
-          </div>
-        </div>
-        <div class="prop-group">
-          <label>Opacity</label>
-          <div class="flex-row">
-            <input type="range" min="10" max="100" value="100" style="flex:1;">
-            <span style="font-size:12px;color:#94a3b8;min-width:28px;">100%</span>
-          </div>
-        </div>
-        <div class="prop-group">
-          <label>Position</label>
-          <div class="flex-row">
-            <span style="font-size:12px;color:#94a3b8;">X: 125</span>
-            <span style="font-size:12px;color:#94a3b8;">Y: 260</span>
-          </div>
-        </div>
-        <div class="prop-group">
-          <label>Size</label>
-          <div class="flex-row">
-            <span style="font-size:12px;color:#94a3b8;">W: 240</span>
-            <span style="font-size:12px;color:#94a3b8;">H: 38</span>
-          </div>
-        </div>
-        <div class="prop-group" style="border-top:1px solid #e2e8f0;padding-top:10px;">
-          <button class="action-btn-sm danger" onclick="alert('Delete text')">🗑️ Delete</button>
-        </div>
-      </div>
-
-      <!-- Image Properties -->
-      <div id="imageProps" class="hidden">
-        <div class="section-title">🖼️ Image</div>
-        <div class="prop-group">
-          <label>Width</label>
-          <div class="flex-row">
-            <input type="number" value="200" min="10" style="width:64px;">
-            <span style="font-size:12px;color:#94a3b8;">px</span>
-            <button class="action-btn-sm" onclick="alert('Lock ratio')" style="padding:2px 6px;">🔗</button>
-          </div>
-        </div>
-        <div class="prop-group">
-          <label>Height</label>
-          <div class="flex-row">
-            <input type="number" value="150" min="10" style="width:64px;">
-            <span style="font-size:12px;color:#94a3b8;">px</span>
-          </div>
-        </div>
-        <div class="prop-group">
-          <label>Rotation</label>
-          <div class="flex-row">
-            <input type="range" min="0" max="360" value="0" style="flex:1;">
-            <span style="font-size:12px;color:#94a3b8;min-width:28px;">0°</span>
-          </div>
-        </div>
-        <div class="prop-group">
-          <label>Opacity</label>
-          <div class="flex-row">
-            <input type="range" min="10" max="100" value="100" style="flex:1;">
-            <span style="font-size:12px;color:#94a3b8;min-width:28px;">100%</span>
-          </div>
-        </div>
-        <div class="prop-group">
-          <label>Arrange</label>
-          <div class="flex-row" style="gap:4px;">
-            <button class="action-btn-sm" onclick="alert('Forward')">⬆ Forward</button>
-            <button class="action-btn-sm" onclick="alert('Backward')">⬇ Backward</button>
-          </div>
-        </div>
-        <div class="prop-group" style="border-top:1px solid #e2e8f0;padding-top:10px;">
-          <button class="action-btn-sm danger" onclick="alert('Delete image')">🗑️ Delete</button>
-        </div>
-      </div>
-
-      <!-- Shape Properties -->
-      <div id="shapeProps" class="hidden">
-        <div class="section-title">⬛ Shape</div>
-        <div class="prop-group">
-          <label>Fill Color</label>
-          <div class="flex-row">
-            <input type="color" value="#3b82f6">
-            <span style="font-size:12px;color:#94a3b8;">Fill</span>
-          </div>
-        </div>
-        <div class="prop-group">
-          <label>Border Color</label>
-          <div class="flex-row">
-            <input type="color" value="#1e293b">
-            <span style="font-size:12px;color:#94a3b8;">Border</span>
-          </div>
-        </div>
-        <div class="prop-group">
-          <label>Border Thickness</label>
-          <div class="flex-row">
-            <input type="range" min="0" max="10" value="2" style="flex:1;">
-            <span style="font-size:12px;color:#94a3b8;min-width:28px;">2px</span>
-          </div>
-        </div>
-        <div class="prop-group">
-          <label>Opacity</label>
-          <div class="flex-row">
-            <input type="range" min="10" max="100" value="100" style="flex:1;">
-            <span style="font-size:12px;color:#94a3b8;min-width:28px;">100%</span>
-          </div>
-        </div>
-        <div class="prop-group" style="border-top:1px solid #e2e8f0;padding-top:10px;">
-          <button class="action-btn-sm danger" onclick="alert('Delete shape')">🗑️ Delete</button>
-        </div>
-      </div>
+  <div id="processingOverlay">
+    <div class="overlay-card">
+      <div class="spinner"></div>
+      <h4 id="processingTitle">Working…</h4>
+      <p id="processingStatus">Please wait</p>
+      <div class="bar"><div class="bar-inner" id="processingBar"></div></div>
     </div>
   </div>
 
-  <!-- ===== STATUS BAR ===== -->
-  <div class="status-bar">
-    <div class="status-left">
-      <span id="statusPage">Page 1 of 1</span>
-      <span id="statusSize">A4 • 210 × 297 mm</span>
-      <span id="statusObjects" style="display:none;">3 objects selected</span>
-    </div>
-    <div class="status-right">
-      <button onclick="alert('Fit Page')">Fit Page</button>
-      <button onclick="alert('Fit Width')">Fit Width</button>
-      <button onclick="alert('Zoom out')">−</button>
-      <span>100%</span>
-      <button onclick="alert('Zoom in')">+</button>
-    </div>
-  </div>
-
-  <!-- ===== BACK TO HOME ===== -->
-  <a href="/" class="back-home-btn" title="Back to Home">
-    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-    </svg>
-    <span>Back to Home</span>
-  </a>
+  <div class="toast" id="toast"></div>
 
   <script>
-    // ============================================
-    // SIMPLE ROUTER - Redirect based on URL
-    // ============================================
-    // This runs when the page loads. If the current URL is a tool page
-    // (like /rotate-pdf), it redirects to /edit-pdf with a query parameter
-    // so the edit page knows which tool to activate.
-    
-    (function() {
-      const path = window.location.pathname;
-      const pageName = path.split('/').pop().replace('.html', '');
-      
-      // Map of tool pages to their display names
-      const toolMap = {
-        'edit-pdf': { tool: 'select', title: 'Edit PDF', icon: '✏️', desc: 'Edit your PDF documents' },
-        'rotate-pdf': { tool: 'select', title: 'Rotate PDF', icon: '🔄', desc: 'Rotate pages in your PDF' },
-        'scan-to-pdf': { tool: 'image', title: 'Scan to PDF', icon: '📷', desc: 'Convert scanned images to PDF' },
-        'merge-pdf': { tool: 'select', title: 'Merge PDF', icon: '🔗', desc: 'Combine multiple PDFs into one' },
-        'split-pdf': { tool: 'select', title: 'Split PDF', icon: '✂️', desc: 'Split PDF into separate files' },
-        'remove-pages': { tool: 'select', title: 'Remove Pages', icon: '🗑️', desc: 'Delete pages from your PDF' },
-        'extract-pages': { tool: 'select', title: 'Extract Pages', icon: '📤', desc: 'Extract pages from your PDF' },
-        'organize-pdf': { tool: 'select', title: 'Organize PDF', icon: '🗂️', desc: 'Rearrange pages in your PDF' },
-        'add-page-numbers': { tool: 'text', title: 'Add Page Numbers', icon: '🔢', desc: 'Add page numbers to your PDF' },
-        'add-watermark': { tool: 'text', title: 'Add Watermark', icon: '💧', desc: 'Add watermark to your PDF' },
-        'crop-pdf': { tool: 'select', title: 'Crop PDF', icon: '✂️', desc: 'Crop pages in your PDF' },
-        'pdf-forms': { tool: 'forms', title: 'PDF Forms', icon: '📋', desc: 'Fill and create PDF forms' },
-        'ai-summarizer': { tool: 'text', title: 'AI Summarizer', icon: '🤖', desc: 'Summarize your PDF content' },
-        'translate-pdf': { tool: 'text', title: 'Translate PDF', icon: '🌍', desc: 'Translate PDF content' },
-        'pdf-to-markdown': { tool: 'text', title: 'PDF to Markdown', icon: '📝', desc: 'Convert PDF to Markdown' }
-      };
-      
-      // If we're on a tool page (not edit-pdf), redirect to edit-pdf with the tool info
-      if (pageName !== 'edit-pdf' && toolMap[pageName]) {
-        const tool = toolMap[pageName];
-        // Store the tool info in sessionStorage so edit-pdf can use it
-        sessionStorage.setItem('droplet_tool', JSON.stringify(tool));
-        // Redirect to edit-pdf
-        window.location.href = '/edit-pdf.html';
-        return;
-      }
-      
-      // If we're already on edit-pdf, check if there's a tool in sessionStorage
-      const storedTool = sessionStorage.getItem('droplet_tool');
-      if (storedTool && pageName === 'edit-pdf') {
-        const tool = JSON.parse(storedTool);
-        // Clear it so it doesn't persist
-        sessionStorage.removeItem('droplet_tool');
-        // Apply the tool
-        applyTool(tool);
-        // Update the badge
-        document.getElementById('toolBadge').textContent = tool.icon + ' ' + tool.title;
-        document.getElementById('emptyTitle').textContent = tool.title;
-        document.getElementById('emptyDescription').textContent = tool.desc;
-        document.getElementById('pageTitle').textContent = tool.title + ' - Droplet';
-        // Set the tool
-        setTool(tool.tool);
-      }
-    })();
+    // ============================================================
+    // PDF.JS WORKER
+    // ============================================================
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-    function applyTool(tool) {
-      // This function will be called when a tool is loaded from sessionStorage
-      console.log('🔧 Tool loaded:', tool.title);
-    }
+    // ============================================================
+    // STATE
+    // ============================================================
+    const State = {
+      file: null,
+      pdfDoc: null,
+      totalPages: 0,
+      pages: [],
+      currentPageIdx: 0,
+      translating: false,
+      stopRequested: false
+    };
 
-    // ============================================
-    // DARK MODE TOGGLE
-    // ============================================
+    // DOM
+    const dropzone = document.getElementById('dropzone');
+    const fileInput = document.getElementById('fileInput');
+    const fileInfo = document.getElementById('fileInfo');
+    const fileName = document.getElementById('fileName');
+    const fileSize = document.getElementById('fileSize');
+    const pageCount = document.getElementById('pageCount');
+    const readerSection = document.getElementById('readerSection');
+    const docStats = document.getElementById('docStats');
+    const readerTocList = document.getElementById('readerTocList');
+    const readerContent = document.getElementById('readerContent');
+    const targetLang = document.getElementById('targetLang');
+    const translateBtn = document.getElementById('translateBtn');
+    const stopBtn = document.getElementById('stopBtn');
+    const translateStats = document.getElementById('translateStats');
+    const exportPdfBtn = document.getElementById('exportPdfBtn');
+    const exportDocxBtn = document.getElementById('exportDocxBtn');
+    const exportSideBySideBtn = document.getElementById('exportSideBySideBtn');
+    const exportXlsxBtn = document.getElementById('exportXlsxBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const resultSection = document.getElementById('resultSection');
+    const resultSummary = document.getElementById('resultSummary');
+    const resultBadgeLang = document.getElementById('resultBadgeLang');
+    const resultBadgePages = document.getElementById('resultBadgePages');
+    const resultBadgeChars = document.getElementById('resultBadgeChars');
+    const downloadLink = document.getElementById('downloadLink');
+    const downloadFileName = document.getElementById('downloadFileName');
+    const processingOverlay = document.getElementById('processingOverlay');
+    const processingTitle = document.getElementById('processingTitle');
+    const processingStatus = document.getElementById('processingStatus');
+    const processingBar = document.getElementById('processingBar');
+    const toast = document.getElementById('toast');
+
+    // ============================================================
+    // THEME
+    // ============================================================
     const themeToggle = document.getElementById('theme-toggle');
     const html = document.documentElement;
-    
-    let currentTheme = localStorage.getItem('theme') || 
-      (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-    
-    if (currentTheme === 'dark') {
-      html.classList.add('dark');
-      themeToggle.textContent = '☀️';
-    } else {
-      themeToggle.textContent = '🌙';
-    }
-    
+    themeToggle.textContent = html.classList.contains('dark') ? '☀️' : '🌙';
     themeToggle.addEventListener('click', () => {
       if (html.classList.contains('dark')) {
         html.classList.remove('dark');
         themeToggle.textContent = '🌙';
-        localStorage.setItem('theme', 'light');
+        try { localStorage.setItem('theme', 'light'); } catch (e) {}
       } else {
         html.classList.add('dark');
         themeToggle.textContent = '☀️';
-        localStorage.setItem('theme', 'dark');
+        try { localStorage.setItem('theme', 'dark'); } catch (e) {}
       }
     });
 
-    // ============================================
-    // TOOL SELECTION & CONTEXTUAL TOOLBAR
-    // ============================================
-    let currentTool = 'select';
-
-    function setTool(tool) {
-      currentTool = tool;
-      
-      document.querySelectorAll('.toolbar-row .tool-btn').forEach(btn => {
-        btn.classList.toggle('active', btn.dataset.tool === tool);
-      });
-      
-      document.getElementById('textFormatting').style.display = 'none';
-      document.getElementById('drawFormatting').style.display = 'none';
-      document.getElementById('shapeFormatting').style.display = 'none';
-      document.getElementById('highlightFormatting').style.display = 'none';
-      
-      if (tool === 'text') {
-        document.getElementById('textFormatting').style.display = 'flex';
-      } else if (tool === 'draw') {
-        document.getElementById('drawFormatting').style.display = 'flex';
-      } else if (tool === 'shape') {
-        document.getElementById('shapeFormatting').style.display = 'flex';
-      } else if (tool === 'highlight') {
-        document.getElementById('highlightFormatting').style.display = 'flex';
-      }
-      
-      showPropsForTool(tool);
-      document.getElementById('propsPanel').classList.remove('open');
+    // ============================================================
+    // HELPERS
+    // ============================================================
+    function showToast(text, type, duration) {
+      toast.textContent = text;
+      toast.className = 'toast' + (type ? ' ' + type : '');
+      toast.classList.add('show');
+      clearTimeout(toast._timeout);
+      toast._timeout = setTimeout(() => toast.classList.remove('show'), duration || 2400);
+    }
+    function showProcessing(title, status) {
+      processingTitle.textContent = title || 'Working…';
+      processingStatus.textContent = status || 'Please wait';
+      processingBar.style.width = '0%';
+      processingOverlay.classList.add('show');
+      document.body.style.overflow = 'hidden';
+    }
+    function setProcessing(status, pct) {
+      processingStatus.textContent = status;
+      if (typeof pct === 'number') processingBar.style.width = Math.max(0, Math.min(100, pct)) + '%';
+    }
+    function hideProcessing() {
+      processingOverlay.classList.remove('show');
+      document.body.style.overflow = '';
+    }
+    function escapeHtml(s) {
+      return String(s == null ? '' : s)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
     }
 
-    function showPropsForTool(tool) {
-      document.getElementById('propsEmpty').classList.add('hidden');
-      document.getElementById('pageProps').classList.add('hidden');
-      document.getElementById('textProps').classList.add('hidden');
-      document.getElementById('imageProps').classList.add('hidden');
-      document.getElementById('shapeProps').classList.add('hidden');
+    // ============================================================
+    // SANITIZE PDF BYTES (fixes malformed header errors)
+    // ============================================================
+    function sanitizePdfBytes(uint8Array) {
+      const searchLimit = Math.min(1024, uint8Array.length);
+      let headerOffset = -1;
+      for (let i = 0; i < searchLimit - 4; i++) {
+        if (uint8Array[i] === 0x25 && uint8Array[i+1] === 0x50 &&
+            uint8Array[i+2] === 0x44 && uint8Array[i+3] === 0x46 &&
+            uint8Array[i+4] === 0x2D) {
+          headerOffset = i;
+          break;
+        }
+      }
+      if (headerOffset === -1) throw new Error('Not a valid PDF (missing %PDF- header).');
+      if (headerOffset === 0) return uint8Array;
+      return uint8Array.slice(headerOffset);
+    }
 
-      const map = {
-        'select': 'pageProps',
-        'text': 'textProps',
-        'image': 'imageProps',
-        'shape': 'shapeProps',
-        'sign': 'pageProps',
-        'draw': 'pageProps',
-        'highlight': 'pageProps',
-        'forms': 'pageProps'
-      };
+    // ============================================================
+    // TEXT EXTRACTION
+    // Groups text items into paragraphs based on Y-coordinates
+    // ============================================================
+    async function extractParagraphsFromPage(page) {
+      const textContent = await page.getTextContent();
+      const items = textContent.items.filter(it => it.str && it.str.trim().length > 0);
+
+      if (items.length === 0) return [];
+
+      // Sort by descending Y (top of page first), then ascending X
+      items.sort((a, b) => {
+        if (Math.abs(b.transform[5] - a.transform[5]) > 2) {
+          return b.transform[5] - a.transform[5];
+        }
+        return a.transform[4] - b.transform[4];
+      });
+
+      // Group into lines by similar Y
+      const lines = [];
+      let currentLine = null;
+      let lastY = null;
+
+      for (const item of items) {
+        const y = item.transform[5];
+        const x = item.transform[4];
+
+        if (lastY === null || Math.abs(y - lastY) > 3) {
+          // New line
+          if (currentLine && currentLine.text.trim()) {
+            lines.push(currentLine);
+          }
+          currentLine = { text: item.str, x: x, y: y };
+          lastY = y;
+        } else {
+          // Same line — append
+          if (currentLine) {
+            const gap = x - (currentLine.x + currentLine.text.length * 5);
+            currentLine.text += (gap > 15 ? '   ' : ' ') + item.str;
+          }
+        }
+      }
+      if (currentLine && currentLine.text.trim()) lines.push(currentLine);
+
+      // Group lines into paragraphs based on vertical gap
+      const paragraphs = [];
+      let currentPara = [];
+      let prevY = null;
+
+      for (const line of lines) {
+        if (prevY === null || Math.abs(line.y - prevY) < 20) {
+          currentPara.push(line.text);
+        } else {
+          if (currentPara.length > 0) {
+            paragraphs.push(currentPara.join(' ').trim());
+          }
+          currentPara = [line.text];
+        }
+        prevY = line.y;
+      }
+      if (currentPara.length > 0) {
+        paragraphs.push(currentPara.join(' ').trim());
+      }
+
+      return paragraphs.filter(p => p.length > 0);
+    }
+
+    // ============================================================
+    // TRANSLATION ENGINE — MyMemory
+    // ============================================================
+    async function translateWithMyMemory(text, targetLangCode) {
+      // MyMemory requires a source language; auto-detect returns 'en' fallback
+      const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text.slice(0, 500))}&langpair=en|${targetLangCode}`;
       
-      const id = map[tool] || 'pageProps';
-      const hasPdf = !document.getElementById('emptyState').classList.contains('hidden');
-      if (!hasPdf) {
-        document.getElementById('propsEmpty').classList.remove('hidden');
+      const resp = await fetch(url);
+      if (!resp.ok) {
+        if (resp.status === 429) throw new Error('RATE_LIMIT');
+        throw new Error(`HTTP ${resp.status}`);
+      }
+
+      const data = await resp.json();
+      
+      if (data.responseStatus === 429) throw new Error('RATE_LIMIT');
+      if (!data.responseData || !data.responseData.translatedText) {
+        throw new Error('No translation returned');
+      }
+
+      let translated = data.responseData.translatedText;
+      
+      // MyMemory sometimes returns "MYMEMORY WARNING: YOU USED ALL AVAILABLE FREE TRANSLATIONS..." 
+      if (translated.includes('MYMEMORY WARNING') || translated.includes('QUERY LENGTH LIMIT')) {
+        throw new Error('RATE_LIMIT');
+      }
+
+      return translated;
+    }
+
+    // ============================================================
+    // FILE LOADING
+    // ============================================================
+    async function handleFile(file) {
+      if (!file.name.toLowerCase().endsWith('.pdf') && file.type !== 'application/pdf') {
+        showToast('Please select a valid PDF file.', 'error');
         return;
       }
-      document.getElementById(id).classList.remove('hidden');
-    }
+      if (file.size > 50 * 1024 * 1024) {
+        showToast('File too large. Max 50MB.', 'error');
+        return;
+      }
 
-    // Set default tool
-    setTool('select');
+      State.file = file;
+      fileName.textContent = file.name;
+      fileSize.textContent = (file.size / 1024 / 1024).toFixed(2) + ' MB';
 
-    function togglePropsPanel() {
-      document.getElementById('propsPanel').classList.toggle('open');
-    }
+      showProcessing('Loading PDF…', 'Parsing document...');
+      setProcessing('Reading file...', 10);
 
-    function toggleSidebar(type) {
-      if (type === 'pages') {
-        document.getElementById('pagesSidebar').classList.toggle('hidden');
-      } else if (type === 'props') {
-        document.getElementById('propsPanel').classList.toggle('hidden');
+      try {
+        const rawBytes = new Uint8Array(await file.arrayBuffer());
+        let cleanBytes;
+        try {
+          cleanBytes = sanitizePdfBytes(rawBytes);
+        } catch (e) {
+          cleanBytes = rawBytes;
+        }
+
+        const loadingTask = pdfjsLib.getDocument({ data: cleanBytes.slice(0) });
+        const pdfDoc = await loadingTask.promise;
+
+        State.pdfDoc = pdfDoc;
+        State.totalPages = pdfDoc.numPages;
+        pageCount.textContent = `${State.totalPages} pages`;
+
+        setProcessing('Extracting text from pages...', 30);
+
+        // Extract paragraphs from each page
+        State.pages = [];
+        for (let i = 1; i <= State.totalPages; i++) {
+          setProcessing(`Extracting page ${i} of ${State.totalPages}...`, 30 + (i / State.totalPages) * 60);
+          const page = await pdfDoc.getPage(i);
+          const paragraphs = await extractParagraphsFromPage(page);
+          
+          State.pages.push({
+            pageNumber: i,
+            paragraphs: paragraphs.map(text => ({
+              original: text,
+              translated: '',
+              status: 'pending'
+            }))
+          });
+        }
+
+        // Show UI
+        fileInfo.classList.remove('hidden');
+        dropzone.classList.add('hidden');
+        readerSection.classList.remove('hidden');
+
+        const totalParas = State.pages.reduce((sum, p) => sum + p.paragraphs.length, 0);
+        docStats.textContent = `${State.totalPages} pages · ${totalParas} paragraphs`;
+
+        if (totalParas === 0) {
+          readerContent.innerHTML = '<p style="color:#94a3b8;text-align:center;padding:40px 20px;">No selectable text found in this PDF. It may be a scanned image — try a PDF with real text or use OCR software first.</p>';
+        } else {
+          renderToc();
+          renderCurrentPage();
+          translateBtn.disabled = false;
+        }
+
+        hideProcessing();
+        showToast(`Extracted ${totalParas} paragraphs from ${State.totalPages} pages.`, 'success');
+      } catch (e) {
+        console.error(e);
+        hideProcessing();
+        showToast('Failed to load PDF: ' + e.message, 'error', 4000);
       }
     }
 
-    function renameDocument() {
-      const newName = prompt('Rename document:', document.getElementById('docTitle').textContent.trim());
-      if (newName) {
-        document.getElementById('docTitle').innerHTML = newName + ' <span class="saved">●</span>';
-      }
+    function formatSize(b) {
+      if (b < 1024) return b + ' B';
+      if (b < 1024 * 1024) return (b / 1024).toFixed(1) + ' KB';
+      return (b / 1024 / 1024).toFixed(2) + ' MB';
     }
 
-    // ============================================
-    // PDF LOADING
-    // ============================================
-    const dropZone = document.getElementById('dropZone');
+    // ============================================================
+    // RENDER READER
+    // ============================================================
+    function renderToc() {
+      readerTocList.innerHTML = State.pages.map((p, idx) => `
+        <button data-idx="${idx}" class="${idx === State.currentPageIdx ? 'active' : ''}">
+          Page ${p.pageNumber}
+          <span style="font-size:10px;color:#94a3b8;margin-left:6px;">${p.paragraphs.length}p</span>
+        </button>
+      `).join('');
 
-    dropZone.addEventListener('dragover', (e) => {
-      e.preventDefault();
-      dropZone.classList.add('dragover');
-    });
+      readerTocList.querySelectorAll('button').forEach(btn => {
+        btn.addEventListener('click', () => {
+          State.currentPageIdx = parseInt(btn.dataset.idx);
+          renderToc();
+          renderCurrentPage();
+        });
+      });
+    }
 
-    dropZone.addEventListener('dragleave', () => {
-      dropZone.classList.remove('dragover');
-    });
+    function renderCurrentPage() {
+      const page = State.pages[State.currentPageIdx];
+      if (!page) return;
 
-    dropZone.addEventListener('drop', (e) => {
-      e.preventDefault();
-      dropZone.classList.remove('dragover');
-      const files = e.dataTransfer.files;
-      if (files.length > 0 && files[0].type === 'application/pdf') {
-        loadPDF(files[0]);
+      if (page.paragraphs.length === 0) {
+        readerContent.innerHTML = `<h3>Page ${page.pageNumber}</h3><p style="color:#94a3b8;font-style:italic;">No text on this page.</p>`;
+        return;
       }
-    });
 
-    document.getElementById('pdfInput').addEventListener('change', function(e) {
-      if (this.files.length > 0) {
-        loadPDF(this.files[0]);
-      }
-    });
-
-    function loadPDF(file) {
-      document.getElementById('emptyState').classList.add('hidden');
-      document.getElementById('pageContainer').classList.remove('hidden');
-      document.getElementById('emptyThumbnails').classList.add('hidden');
-      document.getElementById('propsEmpty').classList.add('hidden');
-      document.getElementById('pageProps').classList.remove('hidden');
-      
-      document.getElementById('docTitle').innerHTML = file.name + ' <span class="saved">●</span>';
-      
-      const list = document.getElementById('thumbnailList');
-      list.innerHTML = `
-        <div class="page-thumbnail active mb-2">
-          <div class="thumb-content">📄</div>
-          <div class="page-number">1</div>
-        </div>
-        <div class="page-thumbnail mb-2">
-          <div class="thumb-content">📄</div>
-          <div class="page-number">2</div>
-        </div>
-        <div class="page-thumbnail mb-2">
-          <div class="thumb-content">📄</div>
-          <div class="page-number">3</div>
-        </div>
+      readerContent.innerHTML = `
+        <h3>Page ${page.pageNumber}</h3>
+        ${page.paragraphs.map((p, i) => `
+          <div class="paragraph-pair">
+            <p class="original-text">${escapeHtml(p.original)}</p>
+            <p class="translated-text">${p.translated ? escapeHtml(p.translated) : '<span style="color:#94a3b8;font-style:italic;">(not translated yet)</span>'}</p>
+          </div>
+        `).join('')}
       `;
-      
-      document.getElementById('statusPage').textContent = 'Page 1 of 3';
-      document.getElementById('statusSize').textContent = 'A4 • 210 × 297 mm';
-      
-      setTool(currentTool);
-      alert(`📄 PDF loaded: ${file.name}`);
     }
 
-    document.querySelector('.empty-state .bg-blue-600')?.addEventListener('click', () => {
-      document.getElementById('pdfInput').click();
+    // ============================================================
+    // TRANSLATION FLOW
+    // ============================================================
+    translateBtn.addEventListener('click', async () => {
+      if (State.translating) return;
+      State.translating = true;
+      State.stopRequested = false;
+      translateBtn.disabled = true;
+      stopBtn.disabled = false;
+
+      const langCode = targetLang.value;
+      const langName = targetLang.options[targetLang.selectedIndex].text;
+
+      // Collect all paragraphs across all pages
+      const allParas = [];
+      State.pages.forEach((page, pi) => {
+        page.paragraphs.forEach((p, pIdx) => {
+          if (!p.translated) {
+            allParas.push({ pageIdx: pi, paraIdx: pIdx, text: p.original });
+          }
+        });
+      });
+
+      showProcessing('Translating…', `0 / ${allParas.length} paragraphs`);
+
+      let done = 0;
+      let errors = 0;
+      let rateLimited = false;
+
+      for (const item of allParas) {
+        if (State.stopRequested) break;
+
+        try {
+          const translated = await translateWithMyMemory(item.text, langCode);
+          State.pages[item.pageIdx].paragraphs[item.paraIdx].translated = translated;
+          State.pages[item.pageIdx].paragraphs[item.paraIdx].status = 'done';
+          done++;
+        } catch (e) {
+          if (e.message === 'RATE_LIMIT') {
+            rateLimited = true;
+            showToast('Translation rate limit reached. Stopping cleanly — you can export what has been translated so far.', 'warning', 5000);
+            break;
+          }
+          errors++;
+          State.pages[item.pageIdx].paragraphs[item.paraIdx].translated = `[Error: ${e.message}]`;
+          State.pages[item.pageIdx].paragraphs[item.paraIdx].status = 'error';
+        }
+
+        const total = allParas.length;
+        const pct = Math.round(((done + errors) / total) * 100);
+        setProcessing(`Translating ${done + errors} / ${total} paragraphs…`, pct);
+
+        // Update the reader occasionally
+        if (done % 3 === 0) {
+          if (State.pages[State.currentPageIdx] === State.pages[item.pageIdx]) {
+            renderCurrentPage();
+          }
+        }
+
+        // Small delay to avoid hammering the API
+        await new Promise(r => setTimeout(r, 80));
+      }
+
+      State.translating = false;
+      translateBtn.disabled = false;
+      stopBtn.disabled = true;
+      hideProcessing();
+
+      renderCurrentPage();
+
+      if (rateLimited) {
+        showToast(`Stopped early: ${done} paragraphs translated. Export the partial result now.`, 'warning', 5000);
+      } else if (errors > 0) {
+        showToast(`Done. ${done} translated, ${errors} failed.`, 'warning', 4000);
+      } else {
+        showToast(`✅ Translated ${done} paragraphs into ${langName}.`, 'success', 3500);
+      }
+
+      // Enable export buttons
+      if (done > 0) {
+        exportPdfBtn.disabled = false;
+        exportDocxBtn.disabled = false;
+        exportSideBySideBtn.disabled = false;
+        exportXlsxBtn.disabled = false;
+
+        // Show result section
+        const totalChars = State.pages.reduce((sum, p) =>
+          sum + p.paragraphs.reduce((s, par) => s + (par.translated ? par.translated.length : 0), 0), 0);
+        resultBadgeLang.textContent = `English → ${langName}`;
+        resultBadgePages.textContent = `${State.totalPages} pages`;
+        resultBadgeChars.textContent = `${totalChars.toLocaleString()} chars`;
+        resultSummary.textContent = `${done} paragraphs translated to ${langName}.`;
+        resultSection.classList.remove('hidden');
+      }
     });
 
-    // ============================================
-    // KEYBOARD SHORTCUTS
-    // ============================================
-    document.addEventListener('keydown', (e) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
-        e.preventDefault();
-        alert('Undo');
-      }
-      if ((e.ctrlKey || e.metaKey) && e.key === 'y') {
-        e.preventDefault();
-        alert('Redo');
-      }
-      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
-        e.preventDefault();
-        alert('Save Project');
-      }
-      if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
-        e.preventDefault();
-        alert('Find');
-      }
-      if ((e.ctrlKey || e.metaKey) && e.key === 'h') {
-        e.preventDefault();
-        alert('Replace');
-      }
-      if ((e.ctrlKey || e.metaKey) && e.key === 'p') {
-        e.preventDefault();
-        alert('Print');
-      }
-      if ((e.ctrlKey || e.metaKey) && e.key === 'b') {
-        e.preventDefault();
-        alert('Bold');
-      }
-      if ((e.ctrlKey || e.metaKey) && e.key === 'i') {
-        e.preventDefault();
-        alert('Italic');
-      }
-      if ((e.ctrlKey || e.metaKey) && e.key === 'u') {
-        e.preventDefault();
-        alert('Underline');
-      }
-      if (e.key === 'Escape') {
-        document.getElementById('propsPanel').classList.remove('open');
+    stopBtn.addEventListener('click', () => {
+      State.stopRequested = true;
+      showToast('Stopping translation…', 'warning');
+    });
+
+    // ============================================================
+    // EXPORTS
+    // ============================================================
+    
+    // PDF export
+    exportPdfBtn.addEventListener('click', async () => {
+      showProcessing('Exporting PDF…', 'Building document...');
+      try {
+        const { PDFDocument, StandardFonts, rgb } = PDFLib;
+        const doc = await PDFDocument.create();
+        const font = await doc.embedFont(StandardFonts.Helvetica);
+
+        const pageWidth = 595.28; // A4
+        const pageHeight = 841.89;
+        const margin = 50;
+        const fontSize = 11;
+        const lineHeight = fontSize * 1.5;
+        const maxWidth = pageWidth - margin * 2;
+
+        let page = doc.addPage([pageWidth, pageHeight]);
+        let y = pageHeight - margin;
+
+        for (const pageData of State.pages) {
+          for (const para of pageData.paragraphs) {
+            const text = para.translated || para.original;
+            // Word wrap
+            const words = text.split(/\s+/);
+            let line = '';
+            for (const word of words) {
+              const test = line ? line + ' ' + word : word;
+              const width = font.widthOfTextAtSize(test, fontSize);
+              if (width > maxWidth && line) {
+                if (y < margin + lineHeight) {
+                  page = doc.addPage([pageWidth, pageHeight]);
+                  y = pageHeight - margin;
+                }
+                page.drawText(line, { x: margin, y, size: fontSize, font, color: rgb(0.06, 0.09, 0.16) });
+                y -= lineHeight;
+                line = word;
+              } else {
+                line = test;
+              }
+            }
+            if (line) {
+              if (y < margin + lineHeight) {
+                page = doc.addPage([pageWidth, pageHeight]);
+                y = pageHeight - margin;
+              }
+              page.drawText(line, { x: margin, y, size: fontSize, font, color: rgb(0.06, 0.09, 0.16) });
+              y -= lineHeight;
+            }
+            y -= lineHeight * 0.5;
+          }
+          // Page break after each source page
+          page = doc.addPage([pageWidth, pageHeight]);
+          y = pageHeight - margin;
+        }
+
+        const bytes = await doc.save();
+        downloadBlob(new Blob([bytes], { type: 'application/pdf' }),
+          `dropletweb-${baseName()}-${targetLang.value}.pdf`);
+        hideProcessing();
+        showToast('PDF downloaded.', 'success');
+      } catch (e) {
+        hideProcessing();
+        showToast('PDF export failed: ' + e.message, 'error');
       }
     });
 
-    console.log('📄 Droplet PDF Editor - Simple Router');
-    console.log('🔗 Visiting /rotate-pdf redirects to /edit-pdf with the tool loaded');
-    console.log('💡 All PDF tools share the same editor interface');
+    // DOCX export
+    exportDocxBtn.addEventListener('click', async () => {
+      showProcessing('Exporting DOCX…', 'Building document...');
+      try {
+        const { Document, Packer, Paragraph, TextRun, HeadingLevel } = docx;
+
+        const children = [];
+        for (const pageData of State.pages) {
+          children.push(new Paragraph({
+            text: `Page ${pageData.pageNumber}`,
+            heading: HeadingLevel.HEADING_2,
+            spacing: { before: 240, after: 120 }
+          }));
+          for (const para of pageData.paragraphs) {
+            children.push(new Paragraph({
+              children: [new TextRun(para.translated || para.original)],
+              spacing: { after: 120 }
+            }));
+          }
+        }
+
+        const doc = new Document({ sections: [{ children }] });
+        const blob = await Packer.toBlob(doc);
+        downloadBlob(blob, `dropletweb-${baseName()}-${targetLang.value}.docx`);
+        hideProcessing();
+        showToast('DOCX downloaded.', 'success');
+      } catch (e) {
+        hideProcessing();
+        showToast('DOCX export failed: ' + e.message, 'error');
+      }
+    });
+
+    // Side-by-side DOCX
+    exportSideBySideBtn.addEventListener('click', async () => {
+      showProcessing('Exporting side-by-side…', 'Building document...');
+      try {
+        const { Document, Packer, Paragraph, TextRun, HeadingLevel } = docx;
+
+        const children = [];
+        for (const pageData of State.pages) {
+          children.push(new Paragraph({
+            text: `Page ${pageData.pageNumber}`,
+            heading: HeadingLevel.HEADING_1
+          }));
+          for (const para of pageData.paragraphs) {
+            children.push(new Paragraph({
+              children: [new TextRun({ text: 'ORIGINAL', bold: true, color: '64748B', size: 18 })],
+              spacing: { before: 120 }
+            }));
+            children.push(new Paragraph({
+              children: [new TextRun({ text: para.original, italics: true, color: '64748B' })],
+              spacing: { after: 80 }
+            }));
+            children.push(new Paragraph({
+              children: [new TextRun({ text: 'TRANSLATION', bold: true, color: '3B82F6', size: 18 })],
+              spacing: { before: 60 }
+            }));
+            children.push(new Paragraph({
+              children: [new TextRun({ text: para.translated || '(not translated)', color: '0F172A' })],
+              spacing: { after: 160 }
+            }));
+          }
+        }
+
+        const doc = new Document({ sections: [{ children }] });
+        const blob = await Packer.toBlob(doc);
+        downloadBlob(blob, `dropletweb-${baseName()}-${targetLang.value}-sidebyside.docx`);
+        hideProcessing();
+        showToast('Side-by-side DOCX downloaded.', 'success');
+      } catch (e) {
+        hideProcessing();
+        showToast('Side-by-side export failed: ' + e.message, 'error');
+      }
+    });
+
+    // XLSX export
+    exportXlsxBtn.addEventListener('click', async () => {
+      showProcessing('Exporting XLSX…', 'Building spreadsheet...');
+      try {
+        const rows = [['Page', 'Paragraph #', 'Original', 'Translated']];
+        for (const pageData of State.pages) {
+          pageData.paragraphs.forEach((para, i) => {
+            rows.push([pageData.pageNumber, i + 1, para.original, para.translated || '']);
+          });
+        }
+        const ws = XLSX.utils.aoa_to_sheet(rows);
+        ws['!cols'] = [{ wch: 6 }, { wch: 10 }, { wch: 60 }, { wch: 60 }];
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Translation');
+        const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+        downloadBlob(new Blob([wbout], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }),
+          `dropletweb-${baseName()}-${targetLang.value}.xlsx`);
+        hideProcessing();
+        showToast('XLSX downloaded.', 'success');
+      } catch (e) {
+        hideProcessing();
+        showToast('XLSX export failed: ' + e.message, 'error');
+      }
+    });
+
+    function baseName() {
+      return State.file ? State.file.name.replace(/\.pdf$/i, '') : 'translated';
+    }
+
+    function downloadBlob(blob, filename) {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      downloadLink.href = url;
+      downloadLink.download = filename;
+      downloadFileName.textContent = filename;
+    }
+
+    // ============================================================
+    // RESET / CLEAR
+    // ============================================================
+    function clearFile() {
+      State.file = null;
+      State.pdfDoc = null;
+      State.totalPages = 0;
+      State.pages = [];
+      State.currentPageIdx = 0;
+      State.translating = false;
+      State.stopRequested = false;
+
+      fileInput.value = '';
+      fileInfo.classList.add('hidden');
+      dropzone.classList.remove('hidden');
+      readerSection.classList.add('hidden');
+      resultSection.classList.add('hidden');
+      readerContent.innerHTML = '';
+      readerTocList.innerHTML = '';
+
+      translateBtn.disabled = true;
+      stopBtn.disabled = true;
+      exportPdfBtn.disabled = true;
+      exportDocxBtn.disabled = true;
+      exportSideBySideBtn.disabled = true;
+      exportXlsxBtn.disabled = true;
+    }
+
+    function resetConverter() {
+      clearFile();
+      showToast('Ready for a new PDF.', 'success');
+    }
+
+    resetBtn.addEventListener('click', resetConverter);
+
+    // ============================================================
+    // DROPZONE
+    // ============================================================
+    dropzone.addEventListener('click', (e) => { if (e.target.tagName !== 'BUTTON') fileInput.click(); });
+    dropzone.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fileInput.click(); }
+    });
+    dropzone.querySelector('button').addEventListener('click', (e) => { e.stopPropagation(); fileInput.click(); });
+    fileInput.addEventListener('change', function () {
+      if (this.files.length > 0) handleFile(this.files[0]);
+    });
+    dropzone.addEventListener('dragover', (e) => { e.preventDefault(); dropzone.classList.add('dropzone-highlight'); });
+    dropzone.addEventListener('dragleave', () => dropzone.classList.remove('dropzone-highlight'));
+    dropzone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropzone.classList.remove('dropzone-highlight');
+      if (e.dataTransfer.files.length > 0) handleFile(e.dataTransfer.files[0]);
+    });
   </script>
 </body>
 </html>
