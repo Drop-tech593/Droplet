@@ -2,9 +2,10 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
 <title>Add Watermark - Droplet</title>
 <meta name="description" content="Add text or image watermarks to PDFs and images in your browser. 100% client-side.">
+<meta name="theme-color" content="#ffffff">
 
 <!-- Prevent flash of light theme on reload -->
 <script>
@@ -39,6 +40,7 @@
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     background: #f8fafc;
     color: #0f172a;
+    overscroll-behavior: none;
   }
   .hidden { display: none !important; }
   button { font-family: inherit; }
@@ -50,19 +52,22 @@
   .app {
     width: 100vw;
     height: 100vh;
+    height: 100dvh;
     display: grid;
     grid-template-rows: 56px minmax(0, 1fr);
     overflow: hidden;
   }
   .app-header {
-    padding: 0 16px;
+    padding: 0 12px;
     background: #fff;
     border-bottom: 1px solid #e2e8f0;
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 8px;
     min-width: 0;
     z-index: 20;
+    padding-top: env(safe-area-inset-top, 0);
+    height: 56px;
   }
 
   /* ============================================================ */
@@ -94,31 +99,32 @@
   .app-header .logo-link {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
     text-decoration: none;
     flex-shrink: 0;
   }
   .app-header .logo-link img {
-    height: 30px;
+    height: 28px;
     width: auto;
     border-radius: 8px;
   }
   .app-header .logo-link .logo-text {
     font-weight: 900;
-    font-size: 15px;
+    font-size: 14px;
     color: #0f172a;
   }
   .app-header .title {
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 700;
     color: #0f172a;
-    margin-left: 4px;
+    margin-left: 2px;
     flex-shrink: 0;
+    white-space: nowrap;
   }
   .file-label {
-    font-size: 12px;
+    font-size: 11px;
     color: #64748b;
-    max-width: 180px;
+    max-width: 120px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -128,30 +134,38 @@
     background: none;
     border: none;
     color: #3b82f6;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 600;
     cursor: pointer;
-    padding: 8px 12px;
+    padding: 8px 10px;
     border-radius: 8px;
     transition: background 0.15s;
     white-space: nowrap;
+    min-height: 40px;
+    display: inline-flex;
+    align-items: center;
   }
   .header-btn:hover { background: #eff6ff; }
   .header-btn:disabled { opacity: 0.35; cursor: not-allowed; }
-  .header-btn.strong { background: #3b82f6; color: #fff; padding: 8px 14px; }
+  .header-btn.strong { background: #3b82f6; color: #fff; padding: 8px 12px; }
   .header-btn.strong:hover { background: #2563eb; }
   .header-btn.strong:disabled { background: #cbd5e1; }
 
   #theme-toggle {
     background: none;
     border: none;
-    font-size: 1.3rem;
+    font-size: 1.2rem;
     cursor: pointer;
     padding: 0.3rem 0.5rem;
     border-radius: 8px;
     transition: background 0.2s;
     line-height: 1;
     color: #475569;
+    min-width: 40px;
+    min-height: 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
   }
   #theme-toggle:hover { background: #f1f5f9; }
   html.dark #theme-toggle { color: #e2e8f0; }
@@ -166,21 +180,21 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 24px;
+    padding: 24px 16px;
     text-align: center;
     overflow-y: auto;
     min-height: 0;
   }
-  #screen-upload .big-icon { font-size: 56px; margin-bottom: 8px; }
-  #screen-upload h1 { font-size: 26px; font-weight: 900; margin: 0 0 6px; }
-  #screen-upload p { font-size: 14px; color: #64748b; margin: 0 0 24px; }
+  #screen-upload .big-icon { font-size: 48px; margin-bottom: 8px; }
+  #screen-upload h1 { font-size: 22px; font-weight: 900; margin: 0 0 6px; }
+  #screen-upload p { font-size: 13px; color: #64748b; margin: 0 0 20px; }
   .upload-dropzone {
     max-width: 480px;
     width: 100%;
     border: 2px dashed #cbd5e1;
     border-radius: 20px;
     background: #fff;
-    padding: 40px 24px;
+    padding: 32px 20px;
     cursor: pointer;
     transition: all 0.2s;
     display: flex;
@@ -192,7 +206,7 @@
     border-color: #3b82f6;
     background: #eff6ff;
   }
-  .upload-dropzone .sub { font-size: 12px; color: #94a3b8; }
+  .upload-dropzone .sub { font-size: 11px; color: #94a3b8; }
 
   /* ============================================================ */
   /* LEFT: PAGE THUMBNAILS                                         */
@@ -207,6 +221,7 @@
     display: flex;
     flex-direction: column;
     gap: 10px;
+    -webkit-overflow-scrolling: touch;
   }
   .sidebar-left h4 {
     font-size: 11px;
@@ -265,6 +280,7 @@
     display: flex;
     justify-content: center;
     align-items: flex-start;
+    -webkit-overflow-scrolling: touch;
   }
   .preview-area.image-mode {
     align-items: flex-start;
@@ -306,6 +322,7 @@
     display: flex;
     flex-direction: column;
     gap: 16px;
+    -webkit-overflow-scrolling: touch;
   }
   .panel-section {
     display: flex;
@@ -329,7 +346,7 @@
   }
   .type-tab {
     flex: 1;
-    padding: 8px 10px;
+    padding: 10px 10px;
     border-radius: 8px;
     border: none;
     background: transparent;
@@ -338,6 +355,7 @@
     color: #64748b;
     cursor: pointer;
     transition: all 0.15s;
+    min-height: 40px;
   }
   .type-tab.active {
     background: #fff;
@@ -361,6 +379,7 @@
     cursor: pointer;
     transition: all 0.15s;
     text-align: center;
+    min-height: 40px;
   }
   .preset-chip:hover {
     border-color: #3b82f6;
@@ -387,20 +406,21 @@
   }
   .field input[type="text"],
   .field select {
-    padding: 9px 12px;
+    padding: 10px 12px;
     border: 1px solid #e2e8f0;
     border-radius: 8px;
-    font-size: 13px;
+    font-size: 14px;
     background: #fff;
     color: #0f172a;
     outline: none;
     transition: border-color 0.15s;
+    min-height: 44px;
   }
   .field input[type="text"]:focus,
   .field select:focus { border-color: #3b82f6; }
   .field input[type="range"] {
     accent-color: #3b82f6;
-    height: 22px;
+    height: 28px;
   }
 
   .row2 {
@@ -415,8 +435,8 @@
     align-items: center;
   }
   .color-swatch {
-    width: 36px;
-    height: 36px;
+    width: 44px;
+    height: 44px;
     border-radius: 8px;
     border: 1px solid #e2e8f0;
     cursor: pointer;
@@ -436,12 +456,13 @@
   }
   .color-hex {
     flex: 1;
-    padding: 8px 10px;
+    padding: 10px 10px;
     border: 1px solid #e2e8f0;
     border-radius: 8px;
-    font-size: 12px;
+    font-size: 13px;
     font-family: 'SF Mono', Menlo, Consolas, monospace;
     text-transform: uppercase;
+    min-height: 44px;
   }
 
   .style-btns {
@@ -449,12 +470,12 @@
     gap: 6px;
   }
   .style-btn {
-    width: 34px;
-    height: 34px;
+    width: 44px;
+    height: 44px;
     border-radius: 8px;
     border: 1px solid #e2e8f0;
     background: #fff;
-    font-size: 14px;
+    font-size: 15px;
     font-weight: 700;
     cursor: pointer;
     transition: all 0.15s;
@@ -471,15 +492,16 @@
   }
   .layout-btn {
     flex: 1;
-    padding: 9px 12px;
+    padding: 10px 12px;
     border-radius: 8px;
     border: 1px solid #e2e8f0;
     background: #fff;
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 700;
     color: #64748b;
     cursor: pointer;
     transition: all 0.15s;
+    min-height: 44px;
   }
   .layout-btn.active {
     background: #3b82f6;
@@ -496,16 +518,18 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    font-size: 13px;
+    font-size: 14px;
     cursor: pointer;
+    min-height: 40px;
   }
-  .page-select input[type="radio"] { accent-color: #3b82f6; }
+  .page-select input[type="radio"] { accent-color: #3b82f6; width: 18px; height: 18px; }
   .page-select input[type="text"] {
-    padding: 7px 10px;
+    padding: 10px 12px;
     border: 1px solid #e2e8f0;
     border-radius: 8px;
-    font-size: 12px;
+    font-size: 14px;
     width: 100%;
+    min-height: 44px;
   }
   .page-select input[type="text"]:disabled {
     background: #f8fafc;
@@ -519,16 +543,20 @@
   }
 
   .image-upload-btn {
-    padding: 10px 12px;
+    padding: 12px 12px;
     border: 1px dashed #cbd5e1;
     border-radius: 10px;
     background: #f8fafc;
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 600;
     color: #475569;
     cursor: pointer;
     text-align: center;
     transition: all 0.15s;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
   .image-upload-btn:hover {
     border-color: #3b82f6;
@@ -545,8 +573,8 @@
     background: #f8fafc;
   }
   .image-preview-small img {
-    width: 42px;
-    height: 42px;
+    width: 48px;
+    height: 48px;
     object-fit: contain;
     border-radius: 6px;
     background: #fff;
@@ -566,30 +594,43 @@
     color: #ef4444;
     font-weight: 700;
     cursor: pointer;
-    font-size: 16px;
-    padding: 0 6px;
+    font-size: 20px;
+    padding: 0 8px;
+    min-width: 40px;
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .pos-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 6px;
+    gap: 8px;
   }
   .pos-btn {
-    padding: 10px 4px;
+    padding: 12px 4px;
     border-radius: 8px;
     border: 1px solid #e2e8f0;
     background: #fff;
-    font-size: 10px;
+    font-size: 11px;
     font-weight: 700;
     color: #64748b;
     cursor: pointer;
     transition: all 0.15s;
+    min-height: 44px;
   }
   .pos-btn:hover {
     border-color: #3b82f6;
     color: #1d4ed8;
     background: #eff6ff;
+  }
+
+  /* ============================================================ */
+  /* MOBILE TOGGLE BAR (PDF only)                                  */
+  /* ============================================================ */
+  .mobile-toggle-bar {
+    display: none;
   }
 
   /* ============================================================ */
@@ -600,17 +641,19 @@
     inset: 0;
     background: rgba(15, 23, 42, 0.85);
     backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
     display: flex;
     align-items: center;
     justify-content: center;
     z-index: 10000;
+    padding: 20px;
   }
   .processing-card {
     background: #fff;
     border-radius: 16px;
-    padding: 32px 28px;
+    padding: 28px 24px;
     max-width: 340px;
-    width: calc(100% - 40px);
+    width: 100%;
     text-align: center;
     box-shadow: 0 20px 60px rgba(0,0,0,0.5);
   }
@@ -636,9 +679,9 @@
 
   .toast {
     position: fixed;
-    bottom: 24px;
+    bottom: calc(24px + env(safe-area-inset-bottom, 0px));
     left: 50%;
-    transform: translateX(-50%) translateY(100px);
+    transform: translateX(-50%) translateY(120px);
     background: #0f172a;
     color: #fff;
     padding: 12px 22px;
@@ -658,7 +701,7 @@
   .hidden-input { display: none; }
 
   /* ============================================================ */
-  /* MOBILE                                                        */
+  /* TABLET (≤ 900px)                                              */
   /* ============================================================ */
   @media (max-width: 900px) {
     .editor {
@@ -678,6 +721,230 @@
       max-width: none;
     }
     .preview-area { padding: 16px; }
+  }
+
+  /* ============================================================ */
+  /* PHONE (≤ 640px) — OPTIMIZED FOR MOBILE USE                    */
+  /* ============================================================ */
+  @media (max-width: 640px) {
+
+    /* --- Header: compact, wrap file name --- */
+    .app-header {
+      padding: 0 8px;
+      gap: 6px;
+      height: 52px;
+    }
+    .app {
+      grid-template-rows: 52px minmax(0, 1fr);
+    }
+    .app-header .logo-link img { height: 24px; }
+    .app-header .logo-link .logo-text { font-size: 13px; }
+    .app-header .title {
+      font-size: 12px;
+      max-width: 70px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .file-label {
+      font-size: 10px;
+      max-width: 70px;
+    }
+    .header-btn {
+      padding: 8px 8px;
+      font-size: 11px;
+      min-height: 38px;
+    }
+    .header-btn.strong { padding: 8px 10px; }
+    #theme-toggle {
+      min-width: 36px;
+      min-height: 38px;
+      font-size: 1.1rem;
+    }
+
+    /* --- Editor: preview on top, panel below, with toggle --- */
+    .editor {
+      grid-template-columns: 1fr;
+      grid-template-rows: minmax(0, 1fr) auto;
+    }
+    .editor.image-source {
+      grid-template-columns: 1fr;
+      grid-template-rows: minmax(0, 1fr) auto;
+    }
+
+    /* Hide PDF thumbnails on phone (space is too valuable) */
+    .sidebar-left {
+      display: none;
+    }
+
+    /* Preview takes full width, less padding */
+    .preview-area {
+      padding: 10px;
+    }
+
+    /* Right sidebar becomes a bottom sheet-style panel */
+    .sidebar-right {
+      max-height: 50vh;
+      max-height: 50dvh;
+      border-top: 1px solid #e2e8f0;
+      border-left: none;
+      width: 100%;
+      max-width: none;
+      padding: 12px 12px calc(20px + env(safe-area-inset-bottom, 0px));
+      border-radius: 16px 16px 0 0;
+      box-shadow: 0 -6px 20px rgba(0,0,0,0.08);
+      gap: 12px;
+    }
+
+    /* Smaller section gaps on phone */
+    .panel-section {
+      gap: 8px;
+    }
+
+    /* Type tabs — bigger touch target */
+    .type-tab {
+      padding: 11px 8px;
+      font-size: 13px;
+      min-height: 44px;
+    }
+
+    /* Preset grid — 2 columns fits nicely */
+    .preset-grid {
+      gap: 6px;
+    }
+    .preset-chip {
+      padding: 10px 6px;
+      font-size: 10.5px;
+      min-height: 42px;
+    }
+
+    /* Fields — larger touch targets */
+    .field input[type="text"],
+    .field select {
+      padding: 11px 12px;
+      font-size: 15px;
+      min-height: 46px;
+    }
+    .field input[type="range"] {
+      height: 32px;
+    }
+    .field label {
+      font-size: 12px;
+    }
+
+    /* Sliders: easier to grab */
+    input[type="range"] {
+      height: 32px;
+    }
+
+    /* Style buttons bigger */
+    .style-btn {
+      width: 48px;
+      height: 46px;
+      font-size: 16px;
+    }
+
+    /* Layout buttons */
+    .layout-btn {
+      padding: 12px 10px;
+      font-size: 13px;
+      min-height: 46px;
+    }
+
+    /* Position grid — bigger, 3 columns still fine */
+    .pos-grid {
+      gap: 6px;
+    }
+    .pos-btn {
+      padding: 14px 4px;
+      font-size: 11px;
+      min-height: 46px;
+    }
+
+    /* Page select radio rows */
+    .page-select label {
+      font-size: 15px;
+      min-height: 44px;
+    }
+    .page-select input[type="radio"] {
+      width: 20px;
+      height: 20px;
+    }
+    .page-select input[type="text"] {
+      padding: 11px 12px;
+      font-size: 15px;
+      min-height: 46px;
+    }
+
+    /* Color row */
+    .color-swatch {
+      width: 48px;
+      height: 46px;
+    }
+    .color-hex {
+      padding: 11px 10px;
+      font-size: 14px;
+      min-height: 46px;
+    }
+
+    /* Image upload btn */
+    .image-upload-btn {
+      padding: 14px 12px;
+      font-size: 14px;
+      min-height: 48px;
+    }
+
+    /* Dividers */
+    .divider {
+      margin: 4px 0;
+    }
+
+    /* Upload screen */
+    #screen-upload {
+      padding: 20px 14px;
+    }
+    #screen-upload .big-icon { font-size: 44px; }
+    #screen-upload h1 { font-size: 20px; }
+    #screen-upload p { font-size: 13px; }
+    .upload-dropzone {
+      padding: 28px 16px;
+      border-radius: 16px;
+    }
+
+    /* Toast */
+    .toast {
+      font-size: 13px;
+      padding: 12px 18px;
+    }
+
+    /* Processing card */
+    .processing-card {
+      padding: 24px 20px;
+    }
+  }
+
+  /* ============================================================ */
+  /* VERY SMALL PHONES (≤ 380px)                                   */
+  /* ============================================================ */
+  @media (max-width: 380px) {
+    .app-header .logo-link .logo-text { display: none; }
+    .app-header .title { font-size: 11px; }
+    .header-btn { padding: 7px 6px; font-size: 10.5px; }
+    .preset-chip { font-size: 10px; padding: 9px 4px; }
+    .pos-btn { font-size: 10px; }
+  }
+
+  /* ============================================================ */
+  /* LANDSCAPE PHONE — give preview more height                    */
+  /* ============================================================ */
+  @media (max-width: 900px) and (orientation: landscape) and (max-height: 500px) {
+    .sidebar-right {
+      max-height: 60vh;
+      max-height: 60dvh;
+    }
+    .preview-area {
+      padding: 8px;
+    }
   }
 
   /* ============================================================ */
@@ -815,10 +1082,10 @@
       <img src="Gemini_Generated_Image_sdu6v7sdu6v7sdu6.jpg" alt="Droplet">
       <span class="logo-text">Droplet</span>
     </a>
-    <span class="title" id="headerTitle">Add Watermark</span>
+    <span class="title" id="headerTitle">Watermark</span>
     <span class="file-label hidden" id="headerFile"></span>
     <div class="header-spacer"></div>
-    <button class="header-btn" id="changeFileBtn" onclick="resetToUpload()">Change file</button>
+    <button class="header-btn" id="changeFileBtn" onclick="resetToUpload()">Change</button>
     <button class="header-btn strong" id="exportBtn" onclick="exportResult()">Export</button>
     <button class="header-btn" onclick="backToHome()">← Back</button>
     <button id="theme-toggle" aria-label="Toggle theme">🌙</button>
@@ -1276,9 +1543,6 @@ function buildThumbnails() {
 
 // ============================================================
 // FIT PAGE TO VIEWER
-// Two modes:
-//   PDF   → fit-to-width (scroll vertically if the page is tall)
-//   Image → fit-inside (never upscale beyond natural size)
 // ============================================================
 function fitPageToViewer() {
   const viewer = document.getElementById('previewArea');
@@ -1288,8 +1552,9 @@ function fitPageToViewer() {
 
   if (!viewer || !canvas || canvas.width === 0 || canvas.height === 0) return;
 
-  const paddingX = 64;
-  const paddingY = 64;
+  const isMobile = window.innerWidth <= 640;
+  const paddingX = isMobile ? 20 : 64;
+  const paddingY = isMobile ? 20 : 64;
 
   const availableW = Math.max(100, viewer.clientWidth - paddingX);
   const availableH = Math.max(100, viewer.clientHeight - paddingY);
@@ -1300,16 +1565,12 @@ function fitPageToViewer() {
   let scale;
 
   if (State.sourceType === 'image') {
-    // Fit the ENTIRE image inside the available viewer.
-    // Never enlarge beyond its natural preview size.
     scale = Math.min(
       availableW / naturalW,
       availableH / naturalH,
       1
     );
   } else {
-    // PDF: fit to width.
-    // Also don't unnecessarily upscale very small PDF canvases.
     scale = Math.min(
       availableW / naturalW,
       1
@@ -1331,17 +1592,19 @@ function fitPageToViewer() {
   overlay.style.height = targetH + 'px';
 }
 
-// Re-fit on resize
+// Re-fit on resize + orientation change
 let resizeTimer = null;
-window.addEventListener('resize', () => {
+function handleViewportChange() {
   if (resizeTimer) clearTimeout(resizeTimer);
   resizeTimer = setTimeout(() => {
     if (State.sourceType) {
       fitPageToViewer();
       drawWatermarkOverlay();
     }
-  }, 120);
-});
+  }, 150);
+}
+window.addEventListener('resize', handleViewportChange);
+window.addEventListener('orientationchange', handleViewportChange);
 
 // ============================================================
 // RENDER CURRENT PAGE
@@ -1702,7 +1965,7 @@ function drawTiledImage(ctx, canvasW, canvasH, wm, scaledSpacing) {
 }
 
 // ============================================================
-// DRAG WATERMARK (single mode)
+// DRAG WATERMARK (single mode) — touch & mouse
 // ============================================================
 (function wireDrag() {
   const overlay = document.getElementById('wmOverlay');
