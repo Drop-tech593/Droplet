@@ -804,10 +804,10 @@
               canvas.toBlob(resolve, mimeType, quality);
             });
 
-            // Generate filename
+            // Generate filename with dropletweb prefix
             const baseName = file.name.replace(/\.(avif|AVIF)$/, '');
             const ext = format === 'png' ? 'png' : format === 'jpg' ? 'jpg' : 'webp';
-            const fileName = `${baseName}.${ext}`;
+            const fileName = `dropletweb-${baseName}.${ext}`;
 
             // Store converted file
             convertedFiles.push({
@@ -868,7 +868,7 @@
               
               const baseName = file.name.replace(/\.(avif|AVIF)$/, '');
               const ext = format === 'png' ? 'png' : format === 'jpg' ? 'jpg' : 'webp';
-              const fileName = `${baseName}.${ext}`;
+              const fileName = `dropletweb-${baseName}.${ext}`;
               
               convertedFiles.push({
                 blob: blob,
@@ -885,7 +885,7 @@
               const textBlob = new Blob([errorMsg], { type: 'text/plain' });
               convertedFiles.push({
                 blob: textBlob,
-                name: `${file.name}_error.txt`,
+                name: `dropletweb-${file.name}_error.txt`,
                 originalName: file.name,
                 size: textBlob.size,
                 url: URL.createObjectURL(textBlob),
@@ -973,8 +973,7 @@
         zip.generateAsync({ type: 'blob' }).then(content => {
           const url = URL.createObjectURL(content);
           const link = document.createElement('a');
-          const baseName = files[0]?.name.replace(/\.(avif|AVIF)$/, '') || 'converted';
-          link.download = `${baseName}_converted.zip`;
+          link.download = 'dropletweb-converted-images.zip';
           link.href = url;
           document.body.appendChild(link);
           link.click();
