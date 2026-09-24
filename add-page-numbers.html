@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Add Page Numbers to PDF - Droplet</title>
   <meta name="description" content="Add page numbers to your PDF online for free. Choose position, format, font size, and color. 100% client-side, your files never leave your browser.">
 
@@ -15,6 +15,8 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 
   <style>
+    * { -webkit-tap-highlight-color: transparent; }
+
     .dropzone-highlight {
       border-color: #3b82f6 !important;
       background: #eff6ff !important;
@@ -22,50 +24,62 @@
     .progress-bar { transition: width 0.3s ease; }
     .hidden { display: none !important; }
 
-    /* Range slider styling */
+    /* Range sliders — larger thumbs on mobile */
     input[type="range"] {
       -webkit-appearance: none;
       appearance: none;
-      height: 6px;
-      border-radius: 3px;
+      height: 8px;
+      border-radius: 4px;
       background: #e2e8f0;
       outline: none;
+      cursor: pointer;
+      touch-action: manipulation;
     }
     input[type="range"]::-webkit-slider-thumb {
       -webkit-appearance: none;
       appearance: none;
-      width: 20px;
-      height: 20px;
+      width: 26px;
+      height: 26px;
       border-radius: 50%;
       background: #3b82f6;
       cursor: pointer;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.25);
       transition: transform 0.15s;
+      border: 3px solid white;
     }
     input[type="range"]::-webkit-slider-thumb:hover {
       transform: scale(1.15);
     }
     input[type="range"]::-moz-range-thumb {
-      width: 20px;
-      height: 20px;
+      width: 26px;
+      height: 26px;
       border-radius: 50%;
       background: #3b82f6;
       cursor: pointer;
-      border: none;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+      border: 3px solid white;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.25);
     }
-    html.dark input[type="range"] {
-      background: #334155;
+    @media (max-width: 640px) {
+      input[type="range"] { height: 10px; }
+      input[type="range"]::-webkit-slider-thumb {
+        width: 32px;
+        height: 32px;
+      }
+      input[type="range"]::-moz-range-thumb {
+        width: 32px;
+        height: 32px;
+      }
     }
+    html.dark input[type="range"] { background: #334155; }
 
-    /* Position grid buttons */
+    /* Position grid buttons — larger tap targets */
     .position-btn {
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       gap: 4px;
-      padding: 10px 6px;
+      padding: 12px 6px;
       border: 2px solid #e2e8f0;
       border-radius: 10px;
       background: white;
@@ -75,6 +89,8 @@
       font-weight: 600;
       color: #64748b;
       user-select: none;
+      min-height: 60px;
+      touch-action: manipulation;
     }
     .position-btn:hover {
       border-color: #93c5fd;
@@ -84,6 +100,10 @@
       border-color: #3b82f6;
       background: #dbeafe;
       color: #1e40af;
+    }
+    .position-btn .icon {
+      font-size: 18px;
+      line-height: 1;
     }
     html.dark .position-btn {
       background: #0f172a;
@@ -99,19 +119,29 @@
       border-color: #3b82f6;
       color: #93c5fd;
     }
+    @media (max-width: 640px) {
+      .position-btn {
+        padding: 10px 4px;
+        font-size: 9px;
+        min-height: 56px;
+      }
+      .position-btn .icon { font-size: 16px; }
+    }
 
-    /* Format buttons */
+    /* Format buttons — bigger tap targets */
     .format-btn {
-      padding: 8px 12px;
+      padding: 10px 14px;
       border: 2px solid #e2e8f0;
-      border-radius: 8px;
+      border-radius: 10px;
       background: white;
       cursor: pointer;
       transition: all 0.2s;
-      font-size: 12px;
+      font-size: 13px;
       font-weight: 600;
       color: #475569;
       user-select: none;
+      min-height: 44px;
+      touch-action: manipulation;
     }
     .format-btn:hover {
       border-color: #93c5fd;
@@ -136,8 +166,16 @@
       border-color: #3b82f6;
       color: #93c5fd;
     }
+    @media (max-width: 640px) {
+      .format-btn {
+        padding: 10px 10px;
+        font-size: 12px;
+        flex: 1;
+        min-width: 0;
+      }
+    }
 
-    /* Preview container */
+    /* Preview container — responsive */
     .preview-wrapper {
       position: relative;
       display: inline-block;
@@ -145,6 +183,7 @@
       border-radius: 8px;
       overflow: hidden;
       background: white;
+      max-width: 100%;
     }
     .preview-wrapper img {
       display: block;
@@ -158,6 +197,41 @@
       pointer-events: none;
       white-space: nowrap;
       transition: all 0.2s;
+    }
+
+    /* Sticky apply button on mobile */
+    @media (max-width: 1024px) {
+      .mobile-sticky-bar {
+        position: sticky;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: white;
+        border-top: 1px solid #e2e8f0;
+        padding: 12px 16px;
+        margin: 0 -16px -16px;
+        z-index: 30;
+        box-shadow: 0 -4px 20px rgba(0,0,0,0.08);
+      }
+      html.dark .mobile-sticky-bar {
+        background: #1e293b;
+        border-color: #334155;
+      }
+    }
+
+    /* Section spacing on mobile */
+    .setting-group {
+      padding-bottom: 16px;
+      border-bottom: 1px solid #f1f5f9;
+      margin-bottom: 16px;
+    }
+    .setting-group:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+    html.dark .setting-group {
+      border-bottom-color: #1e293b;
     }
 
     /* Dark mode */
@@ -181,6 +255,7 @@
     html.dark .text-slate-500 { color: #94a3b8 !important; }
     html.dark .border-slate-200 { border-color: #334155 !important; }
     html.dark .border-slate-100 { border-color: #1e293b !important; }
+    html.dark .border-slate-300 { border-color: #475569 !important; }
     html.dark footer { background: #0f172a !important; border-color: #334155 !important; }
     html.dark footer a { color: #94a3b8; }
     html.dark footer a:hover { color: #f1f5f9; }
@@ -198,13 +273,14 @@
     html.dark .shadow-blue-500\/5 { --tw-shadow-color: rgba(59, 130, 246, 0.1) !important; }
     html.dark select,
     html.dark input[type="number"],
-    html.dark input[type="color"] {
+    html.dark input[type="color"],
+    html.dark input[type="text"] {
       background: #0f172a !important;
       border-color: #334155 !important;
       color: #f1f5f9 !important;
     }
 
-    /* Theme toggle button */
+    /* Theme toggle */
     #theme-toggle {
       background: none;
       border: none;
@@ -224,7 +300,7 @@
 <body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col antialiased transition-colors duration-200">
 
   <!-- Navigation -->
-  <header class="bg-white border-b border-slate-200 py-3.5 px-6 sticky top-0 z-40 transition-colors duration-200">
+  <header class="bg-white border-b border-slate-200 py-3.5 px-4 md:px-6 sticky top-0 z-40 transition-colors duration-200">
     <div class="max-w-6xl mx-auto flex justify-between items-center">
       <a href="/" class="flex items-center gap-3 group">
         <img src="Gemini_Generated_Image_sdu6v7sdu6v7sdu6.jpg" alt="Droplet Logo" class="h-9 w-auto rounded-xl shadow-sm group-hover:scale-105 transition-transform">
@@ -243,11 +319,11 @@
   </header>
 
   <!-- Main -->
-  <main class="max-w-6xl mx-auto px-4 py-8 md:py-12 flex-grow w-full">
+  <main class="max-w-6xl mx-auto px-4 py-6 md:py-12 flex-grow w-full">
     
     <!-- Back Button -->
     <div class="max-w-2xl mx-auto mb-4 flex justify-start">
-      <a href="/" class="inline-flex items-center gap-2 bg-white hover:bg-slate-50 border border-slate-200 shadow-sm rounded-full px-5 py-2.5 text-sm font-medium text-slate-700 transition-all hover:shadow-md hover:border-slate-300 active:scale-95">
+      <a href="/" class="inline-flex items-center gap-2 bg-white hover:bg-slate-50 border border-slate-200 shadow-sm rounded-full px-4 py-2.5 text-sm font-medium text-slate-700 transition-all hover:shadow-md hover:border-slate-300 active:scale-95">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
         </svg>
@@ -256,62 +332,65 @@
     </div>
 
     <!-- Page Header -->
-    <div class="text-center mb-8">
-      <div class="inline-block p-3 bg-blue-50 rounded-2xl mb-4">
-        <span class="text-4xl">🔢</span>
+    <div class="text-center mb-6 md:mb-8">
+      <div class="inline-block p-3 bg-blue-50 rounded-2xl mb-3 md:mb-4">
+        <span class="text-3xl md:text-4xl">🔢</span>
       </div>
-      <h1 class="text-3xl md:text-4xl font-black text-slate-900 tracking-tight">Add Page Numbers to PDF</h1>
-      <p class="text-slate-500 text-sm md:text-base mt-2 max-w-lg mx-auto">
-        Add page numbers to your PDF with custom position, format, size, and color. <strong>100% client-side</strong> — your files never leave your browser.
+      <h1 class="text-2xl md:text-4xl font-black text-slate-900 tracking-tight">Add Page Numbers to PDF</h1>
+      <p class="text-slate-500 text-sm md:text-base mt-2 max-w-lg mx-auto px-2">
+        Add page numbers with custom position, format, size, and color. <strong>100% client-side</strong>.
       </p>
     </div>
 
     <!-- Dropzone -->
-    <div id="dropzone" class="bg-white border-2 border-dashed border-slate-300 hover:border-blue-400 transition-all rounded-3xl p-8 md:p-12 text-center shadow-lg max-w-2xl mx-auto cursor-pointer mb-8">
+    <div id="dropzone" class="bg-white border-2 border-dashed border-slate-300 hover:border-blue-400 transition-all rounded-3xl p-6 md:p-12 text-center shadow-lg max-w-2xl mx-auto cursor-pointer mb-6 md:mb-8">
       <div class="flex flex-col items-center">
-        <div class="w-20 h-20 bg-blue-50 rounded-2xl flex items-center justify-center mb-4 text-4xl">
+        <div class="w-16 h-16 md:w-20 md:h-20 bg-blue-50 rounded-2xl flex items-center justify-center mb-4 text-3xl md:text-4xl">
           📄
         </div>
-        <h3 class="text-xl font-bold text-slate-900 mb-1">Drop your PDF file here</h3>
+        <h3 class="text-lg md:text-xl font-bold text-slate-900 mb-1">Drop your PDF file here</h3>
         <p class="text-slate-400 text-sm mb-4">or click to browse</p>
         <input type="file" id="fileInput" accept=".pdf,application/pdf" class="hidden">
         <button type="button" id="selectBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-3 rounded-xl text-sm shadow-md shadow-blue-500/20 transition-all active:scale-95">
           Select PDF File
         </button>
-        <p class="text-xs text-slate-400 mt-3">Max file size: ~100MB (browser-dependent)</p>
+        <p class="text-xs text-slate-400 mt-3">Max file size: ~100MB</p>
       </div>
     </div>
 
     <!-- Workspace -->
     <div id="workspace" class="hidden">
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-8">
         
-        <!-- Left: Preview -->
-        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 md:p-6">
-          <div class="flex items-center justify-between mb-4">
-            <h2 class="font-black text-lg text-slate-900">Preview</h2>
+        <!-- PREVIEW PANEL (top on mobile) -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 md:p-6">
+          <div class="flex items-center justify-between mb-3">
+            <h2 class="font-black text-base md:text-lg text-slate-900">Preview</h2>
             <span id="pageInfo" class="text-xs text-slate-500"></span>
           </div>
-          <div class="flex justify-center items-start bg-slate-100 rounded-xl p-4 min-h-[400px]">
+          <div class="flex justify-center items-center bg-slate-100 rounded-xl p-3 md:p-4 min-h-[280px] md:min-h-[400px]">
             <div id="previewWrapper" class="preview-wrapper">
               <img id="previewImage" src="" alt="PDF Preview">
               <div id="previewNumber" class="preview-number"></div>
             </div>
           </div>
+          <p class="text-[11px] text-slate-500 text-center mt-3">
+            Live preview of page 1 — updates as you change settings
+          </p>
         </div>
 
-        <!-- Right: Settings -->
-        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 md:p-6">
-          <h2 class="font-black text-lg text-slate-900 mb-5">Settings</h2>
+        <!-- SETTINGS PANEL -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 md:p-6">
+          <h2 class="font-black text-base md:text-lg text-slate-900 mb-4">Settings</h2>
           
           <!-- File Info -->
-          <div class="flex items-center gap-3 p-3 bg-slate-50 rounded-xl mb-5">
-            <span class="text-2xl">📄</span>
+          <div class="flex items-center gap-3 p-3 bg-slate-50 rounded-xl mb-4">
+            <span class="text-2xl flex-shrink-0">📄</span>
             <div class="flex-1 min-w-0">
               <p id="fileName" class="font-bold text-sm text-slate-900 truncate"></p>
               <p id="fileMeta" class="text-xs text-slate-500"></p>
             </div>
-            <button id="clearFileBtn" class="text-slate-400 hover:text-red-500 transition-colors p-1">
+            <button id="clearFileBtn" class="text-slate-400 hover:text-red-500 transition-colors p-2 flex-shrink-0 -mr-1">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
               </svg>
@@ -319,94 +398,96 @@
           </div>
 
           <!-- Position -->
-          <div class="mb-5">
+          <div class="setting-group">
             <label class="block text-xs font-bold text-slate-700 mb-2 uppercase tracking-wide">Position</label>
             <div class="grid grid-cols-3 gap-2">
               <button type="button" class="position-btn" data-position="top-left">
-                <span style="font-size:16px;">↖</span>
-                Top Left
+                <span class="icon">↖</span>
+                Top L
               </button>
               <button type="button" class="position-btn" data-position="top-center">
-                <span style="font-size:16px;">↑</span>
-                Top Center
+                <span class="icon">↑</span>
+                Top C
               </button>
               <button type="button" class="position-btn" data-position="top-right">
-                <span style="font-size:16px;">↗</span>
-                Top Right
+                <span class="icon">↗</span>
+                Top R
               </button>
               <button type="button" class="position-btn" data-position="bottom-left">
-                <span style="font-size:16px;">↙</span>
-                Bottom Left
+                <span class="icon">↙</span>
+                Bot L
               </button>
               <button type="button" class="position-btn active" data-position="bottom-center">
-                <span style="font-size:16px;">↓</span>
-                Bottom Center
+                <span class="icon">↓</span>
+                Bot C
               </button>
               <button type="button" class="position-btn" data-position="bottom-right">
-                <span style="font-size:16px;">↘</span>
-                Bottom Right
+                <span class="icon">↘</span>
+                Bot R
               </button>
             </div>
           </div>
 
           <!-- Format -->
-          <div class="mb-5">
+          <div class="setting-group">
             <label class="block text-xs font-bold text-slate-700 mb-2 uppercase tracking-wide">Format</label>
-            <div class="flex flex-wrap gap-2">
+            <div class="grid grid-cols-3 md:flex md:flex-wrap gap-2">
               <button type="button" class="format-btn active" data-format="1">1</button>
               <button type="button" class="format-btn" data-format="Page 1">Page 1</button>
               <button type="button" class="format-btn" data-format="1 / N">1 / N</button>
               <button type="button" class="format-btn" data-format="- 1 -">- 1 -</button>
-              <button type="button" class="format-btn" data-format="Page 1 of N">Page 1 of N</button>
+              <button type="button" class="format-btn" data-format="Page 1 of N">1 of N</button>
             </div>
           </div>
 
-          <!-- Font Size + Color Row -->
-          <div class="grid grid-cols-2 gap-4 mb-5">
-            <div>
-              <label class="block text-xs font-bold text-slate-700 mb-2 uppercase tracking-wide">
-                Font Size <span id="fontSizeLabel" class="text-blue-600">12</span>
-              </label>
-              <input type="range" id="fontSize" min="8" max="24" value="12" class="w-full">
-            </div>
-            <div>
-              <label class="block text-xs font-bold text-slate-700 mb-2 uppercase tracking-wide">Color</label>
-              <div class="flex items-center gap-2">
-                <input type="color" id="fontColor" value="#1a1a1a" class="w-12 h-10 rounded-lg border border-slate-200 cursor-pointer">
-                <span id="colorLabel" class="text-xs text-slate-500 font-mono">#1a1a1a</span>
+          <!-- Font Size + Color -->
+          <div class="setting-group">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-3 uppercase tracking-wide">
+                  Font Size <span id="fontSizeLabel" class="text-blue-600">12</span>pt
+                </label>
+                <input type="range" id="fontSize" min="8" max="24" value="12" class="w-full">
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-3 uppercase tracking-wide">Color</label>
+                <div class="flex items-center gap-3">
+                  <input type="color" id="fontColor" value="#1a1a1a" class="w-14 h-11 rounded-lg border border-slate-200 cursor-pointer">
+                  <span id="colorLabel" class="text-xs text-slate-500 font-mono">#1a1a1a</span>
+                </div>
               </div>
             </div>
           </div>
 
           <!-- Margin -->
-          <div class="mb-5">
-            <label class="block text-xs font-bold text-slate-700 mb-2 uppercase tracking-wide">
-              Margin from edge <span id="marginLabel" class="text-blue-600">30</span>px
+          <div class="setting-group">
+            <label class="block text-xs font-bold text-slate-700 mb-3 uppercase tracking-wide">
+              Margin from edge <span id="marginLabel" class="text-blue-600">30</span>pt
             </label>
             <input type="range" id="margin" min="10" max="80" value="30" class="w-full">
           </div>
 
           <!-- Start Number -->
-          <div class="mb-5">
+          <div class="setting-group">
             <label class="block text-xs font-bold text-slate-700 mb-2 uppercase tracking-wide">Start numbering at</label>
-            <input type="number" id="startNumber" value="1" min="1" class="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20">
+            <input type="number" id="startNumber" value="1" min="1" class="w-full px-3 py-3 border border-slate-200 rounded-lg text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20">
           </div>
 
-          <!-- Options -->
-          <div class="mb-5 space-y-2">
-            <label class="flex items-center gap-3 cursor-pointer">
-              <input type="checkbox" id="skipFirst" class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500">
+          <!-- Skip First -->
+          <div class="setting-group">
+            <label class="flex items-center gap-3 cursor-pointer p-1">
+              <input type="checkbox" id="skipFirst" class="w-5 h-5 text-blue-600 rounded focus:ring-blue-500">
               <span class="text-sm text-slate-700">Skip first page (no number on cover)</span>
             </label>
           </div>
 
-          <!-- Actions -->
-          <div class="pt-4 border-t border-slate-200">
+          <!-- Apply Button (Sticky on mobile) -->
+          <div class="mobile-sticky-bar md:!static md:!p-0 md:!m-0 md:!shadow-none md:!border-0 md:!bg-transparent">
             <button id="applyBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl transition-all shadow-md shadow-blue-500/20 active:scale-95">
               🔢 Add Page Numbers & Download
             </button>
             
-            <div id="progressContainer" class="hidden mt-4">
+            <div id="progressContainer" class="hidden mt-3">
               <div class="flex justify-between text-xs text-slate-500 mb-1">
                 <span id="statusText">Processing...</span>
                 <span id="progressText">0%</span>
@@ -421,7 +502,7 @@
     </div>
 
     <!-- Info Section -->
-    <div class="max-w-4xl mx-auto mt-12 grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div class="max-w-4xl mx-auto mt-8 md:mt-12 grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
       <div class="bg-white p-4 rounded-xl border border-slate-100 text-center">
         <div class="text-2xl mb-1">🔒</div>
         <h4 class="font-bold text-sm text-slate-900">100% Private</h4>
@@ -440,22 +521,22 @@
     </div>
 
     <!-- FAQ -->
-    <section class="max-w-2xl mx-auto mt-12">
+    <section class="max-w-2xl mx-auto mt-8 md:mt-12">
       <h2 class="text-xl font-black text-slate-900 text-center mb-6">Frequently Asked Questions</h2>
       <div class="space-y-3">
-        <div class="bg-white p-5 rounded-xl border border-slate-100">
+        <div class="bg-white p-4 md:p-5 rounded-xl border border-slate-100">
           <h3 class="font-bold text-slate-900 text-sm">Is my file safe?</h3>
           <p class="text-slate-600 text-sm mt-1">Yes! Everything happens locally in your browser. Your PDF is never uploaded to any server.</p>
         </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100">
+        <div class="bg-white p-4 md:p-5 rounded-xl border border-slate-100">
           <h3 class="font-bold text-slate-900 text-sm">Can I choose where numbers appear?</h3>
           <p class="text-slate-600 text-sm mt-1">Yes. You can place numbers at any of 6 positions: Top Left, Top Center, Top Right, Bottom Left, Bottom Center, or Bottom Right.</p>
         </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100">
+        <div class="bg-white p-4 md:p-5 rounded-xl border border-slate-100">
           <h3 class="font-bold text-slate-900 text-sm">Will the quality of my PDF change?</h3>
           <p class="text-slate-600 text-sm mt-1">No. The original text, images, and vector graphics stay exactly the same — we only add text on top.</p>
         </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100">
+        <div class="bg-white p-4 md:p-5 rounded-xl border border-slate-100">
           <h3 class="font-bold text-slate-900 text-sm">Can I skip the first page?</h3>
           <p class="text-slate-600 text-sm mt-1">Yes. Enable "Skip first page" to leave the cover page without a number — perfect for books and reports.</p>
         </div>
@@ -510,8 +591,8 @@
     // ============================================
     const state = {
       file: null,
-      pdfDoc: null,        // pdf-lib document
-      pdfJsDoc: null,      // pdf.js document (for preview)
+      pdfDoc: null,
+      pdfJsDoc: null,
       totalPages: 0,
       position: 'bottom-center',
       format: '1',
@@ -595,7 +676,6 @@
           cleanBytes = rawBytes;
         }
 
-        // Load with pdf-lib
         const pdfDoc = await PDFLib.PDFDocument.load(cleanBytes, {
           ignoreEncryption: true,
           updateMetadata: false
@@ -605,7 +685,6 @@
         progressText.textContent = '50%';
         statusText.textContent = 'Loading preview...';
 
-        // Load with pdf.js for preview
         const loadingTask = pdfjsLib.getDocument({ data: cleanBytes.slice(0) });
         const pdfJsDoc = await loadingTask.promise;
 
@@ -618,7 +697,6 @@
         fileMeta.textContent = `${state.totalPages} page${state.totalPages > 1 ? 's' : ''} • ${formatSize(file.size)}`;
         pageInfo.textContent = `Page 1 of ${state.totalPages}`;
 
-        // Render first page preview
         const firstPage = await pdfJsDoc.getPage(1);
         const viewport = firstPage.getViewport({ scale: 1.2 });
         const canvas = document.createElement('canvas');
@@ -633,15 +711,11 @@
         state.firstPageDimensions = { width: canvas.width, height: canvas.height };
 
         previewImage.src = state.firstPageImage;
-        previewImage.style.width = '400px';
-        previewImage.style.height = 'auto';
 
-        // Show workspace
         dropzone.classList.add('hidden');
         workspace.classList.remove('hidden');
         progressContainer.classList.add('hidden');
 
-        // Update preview
         updatePreview();
       } catch (e) {
         console.error('Error loading PDF:', e);
@@ -666,7 +740,6 @@
       workspace.classList.add('hidden');
       dropzone.classList.remove('hidden');
       progressContainer.classList.add('hidden');
-      resultSection?.classList?.add('hidden');
     }
 
     // ============================================
@@ -686,43 +759,38 @@
     function updatePreview() {
       if (!state.firstPageImage) return;
 
-      // Scale factor: the preview is scaled to 400px wide
-      const previewWidth = 400;
+      // Get actual container width (responsive)
+      const container = previewImage.parentElement.parentElement;
+      const availableWidth = Math.min(container.clientWidth - 32, 400);
+      const previewWidth = availableWidth;
+      
       const scale = previewWidth / state.firstPageDimensions.width;
       const previewHeight = state.firstPageDimensions.height * scale;
 
       previewImage.style.width = previewWidth + 'px';
       previewImage.style.height = previewHeight + 'px';
 
-      // If skip first page is on, don't show the number on page 1
       if (state.skipFirst) {
         previewNumber.style.display = 'none';
         return;
       }
       previewNumber.style.display = 'block';
 
-      // Format the number text
       const text = formatNumber(state.startNumber, state.totalPages);
       previewNumber.textContent = text;
 
-      // Scale font size and margin proportionally
-      const scaledFontSize = state.fontSize * scale * 1.33; // 1.33 ≈ px to pt
+      const scaledFontSize = state.fontSize * scale * 1.33;
       const scaledMargin = state.margin * scale;
 
       previewNumber.style.fontSize = scaledFontSize + 'px';
       previewNumber.style.color = state.color;
 
-      // Position the number
-      const wrapperWidth = previewWidth;
-      const wrapperHeight = previewHeight;
-
-      // Reset positioning
       previewNumber.style.top = 'auto';
       previewNumber.style.bottom = 'auto';
       previewNumber.style.left = 'auto';
       previewNumber.style.right = 'auto';
+      previewNumber.style.transform = 'none';
 
-      // Horizontal position
       if (state.position.includes('left')) {
         previewNumber.style.left = scaledMargin + 'px';
         previewNumber.style.textAlign = 'left';
@@ -735,18 +803,19 @@
         previewNumber.style.textAlign = 'center';
       }
 
-      // Vertical position
       if (state.position.startsWith('top')) {
         previewNumber.style.top = scaledMargin + 'px';
       } else {
         previewNumber.style.bottom = scaledMargin + 'px';
       }
-
-      // Reset transform for non-center positions
-      if (!state.position.includes('center')) {
-        previewNumber.style.transform = 'none';
-      }
     }
+
+    // Recalculate preview on window resize (for mobile orientation changes)
+    let resizeTimeout;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(updatePreview, 150);
+    });
 
     // ============================================
     // EVENT LISTENERS
@@ -776,7 +845,6 @@
     });
     clearFileBtn.addEventListener('click', clearFile);
 
-    // Position buttons
     document.querySelectorAll('.position-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         document.querySelectorAll('.position-btn').forEach(b => b.classList.remove('active'));
@@ -786,7 +854,6 @@
       });
     });
 
-    // Format buttons
     document.querySelectorAll('.format-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         document.querySelectorAll('.format-btn').forEach(b => b.classList.remove('active'));
@@ -796,34 +863,29 @@
       });
     });
 
-    // Font size
     fontSizeInput.addEventListener('input', (e) => {
       state.fontSize = parseInt(e.target.value);
       fontSizeLabel.textContent = state.fontSize;
       updatePreview();
     });
 
-    // Color
     fontColorInput.addEventListener('input', (e) => {
       state.color = e.target.value;
       colorLabel.textContent = state.color;
       updatePreview();
     });
 
-    // Margin
     marginInput.addEventListener('input', (e) => {
       state.margin = parseInt(e.target.value);
       marginLabel.textContent = state.margin;
       updatePreview();
     });
 
-    // Start number
     startNumberInput.addEventListener('input', (e) => {
       state.startNumber = Math.max(1, parseInt(e.target.value) || 1);
       updatePreview();
     });
 
-    // Skip first
     skipFirstInput.addEventListener('change', (e) => {
       state.skipFirst = e.target.checked;
       updatePreview();
@@ -851,17 +913,14 @@
         const pages = pdfDoc.getPages();
         const totalPages = pages.length;
 
-        // Parse hex color to RGB (0-1 range)
         const hex = state.color.replace('#', '');
         const r = parseInt(hex.substring(0, 2), 16) / 255;
         const g = parseInt(hex.substring(2, 4), 16) / 255;
         const b = parseInt(hex.substring(4, 6), 16) / 255;
 
-        // Embed font (Times Roman is standard)
         const font = await pdfDoc.embedFont(PDFLib.StandardFonts.TimesRoman);
 
         for (let i = 0; i < totalPages; i++) {
-          // Skip first page if requested
           if (state.skipFirst && i === 0) {
             statusText.textContent = `Skipping page 1 (cover)...`;
             continue;
@@ -870,15 +929,12 @@
           const page = pages[i];
           const { width, height } = page.getSize();
 
-          // Calculate page number (respects start number)
           const pageNum = state.skipFirst ? state.startNumber + i - 1 : state.startNumber + i;
           const text = formatNumber(pageNum, totalPages);
 
-          // Measure text width for right/center alignment
           const textWidth = font.widthOfTextAtSize(text, state.fontSize);
           const textHeight = font.heightAtSize(state.fontSize);
 
-          // Calculate X position
           let x;
           if (state.position.includes('left')) {
             x = state.margin;
@@ -888,7 +944,6 @@
             x = (width - textWidth) / 2;
           }
 
-          // Calculate Y position (pdf-lib origin is bottom-left)
           let y;
           if (state.position.startsWith('top')) {
             y = height - state.margin - textHeight;
@@ -913,7 +968,6 @@
         statusText.textContent = 'Saving PDF...';
         const pdfBytes = await pdfDoc.save();
 
-        // Download
         const blob = new Blob([pdfBytes], { type: 'application/pdf' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
