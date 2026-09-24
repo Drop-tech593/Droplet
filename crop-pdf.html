@@ -6,6 +6,21 @@
 <title>Crop PDF - Droplet</title>
 <meta name="description" content="Crop PDF pages and images in your browser. Drag corners, reorder pages, download as PDF or image. 100% client-side.">
 
+<!-- ============================================================ -->
+<!-- FLASH FIX: inline, before <body>, runs before first paint    -->
+<!-- ============================================================ -->
+<script>
+  (function () {
+    try {
+      var saved = localStorage.getItem('theme');
+      var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      var theme = saved || (prefersDark ? 'dark' : 'light');
+      if (theme === 'dark') document.documentElement.classList.add('dark');
+      else document.documentElement.classList.remove('dark');
+    } catch (e) { /* ignore */ }
+  })();
+</script>
+
 <!-- Google AdSense -->
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4006702663328202"
    crossorigin="anonymous"></script>
@@ -89,6 +104,20 @@
     flex-shrink: 0;
   }
 
+  /* Theme toggle */
+  #theme-toggle {
+    background: none;
+    border: none;
+    font-size: 1.3rem;
+    cursor: pointer;
+    padding: 0.3rem 0.5rem;
+    border-radius: 8px;
+    transition: background 0.2s;
+    line-height: 1;
+    color: #475569;
+  }
+  #theme-toggle:hover { background: #f1f5f9; }
+
   /* Guide banner */
   .guide-banner {
     padding: 10px 16px;
@@ -104,7 +133,9 @@
   }
   .guide-banner .guide-icon { font-size: 16px; flex-shrink: 0; }
 
-  /* Crop editor */
+  /* ============================================================ */
+  /* CROP EDITOR — one shared coordinate system                    */
+  /* ============================================================ */
   #cropStage {
     position: relative;
     flex: 1;
@@ -116,17 +147,29 @@
     touch-action: none;
     min-height: 0;
   }
-  #cropCanvas {
-    max-width: 100%;
-    max-height: 100%;
-    display: block;
+
+  /* Everything related to cropping shares this coordinate system */
+  #cropWorkspace {
+    position: relative;
+    flex: 0 0 auto;
+    touch-action: none;
   }
+
+  #cropCanvas {
+    display: block;
+    max-width: none;
+    max-height: none;
+  }
+
   #cropOverlay {
     position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
+    inset: 0;
+    width: 100%;
+    height: 100%;
     pointer-events: none;
+    z-index: 2;
   }
+
   .corner-handle {
     position: absolute;
     width: 44px;
@@ -152,6 +195,7 @@
     box-shadow: 0 0 0 1px #3b82f6;
   }
   .corner-handle:active { cursor: grabbing; }
+
   #magnifier {
     position: absolute;
     width: 120px;
@@ -320,6 +364,54 @@
   }
   .rotate-btn:hover { background: #e2e8f0; }
 
+  /* Thumbnail filmstrip inside crop screen */
+  .crop-thumbs {
+    padding: 10px 14px;
+    background: #fff;
+    border-top: 1px solid #e2e8f0;
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    flex-shrink: 0;
+  }
+  .crop-thumbs::-webkit-scrollbar { display: none; }
+  .crop-thumb {
+    position: relative;
+    flex-shrink: 0;
+    width: 52px;
+    height: 68px;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 2px solid #e2e8f0;
+    background: #f1f5f9;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .crop-thumb.active {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 2px #dbeafe;
+  }
+  .crop-thumb canvas {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+  }
+  .crop-thumb .num {
+    position: absolute;
+    bottom: 2px; right: 2px;
+    background: rgba(15, 23, 42, 0.72);
+    color: #fff;
+    font-size: 9px;
+    font-weight: 700;
+    padding: 1px 5px;
+    border-radius: 6px;
+  }
+
   /* Progress overlay */
   #processingOverlay {
     position: fixed;
@@ -479,11 +571,106 @@
   }
 
   @media (min-width: 700px) {
-    .action-bar, .rotate-strip, .filmstrip, .home-bar {
+    .action-bar, .rotate-strip, .crop-thumbs, .home-bar {
       padding-left: max(16px, calc((100vw - 640px) / 2));
       padding-right: max(16px, calc((100vw - 640px) / 2));
     }
   }
+
+  /* ============================================================ */
+  /* DARK MODE                                                     */
+  /* ============================================================ */
+  html.dark body { background: #0f172a; color: #e2e8f0; }
+
+  html.dark .app-header { background: #1e293b; border-color: #334155; }
+  html.dark .app-header .logo-link .logo-text,
+  html.dark .app-header .title { color: #f1f5f9; }
+  html.dark .header-btn { color: #60a5fa; }
+  html.dark .header-btn:hover { background: #334155; }
+  html.dark .header-btn.strong { background: #2563eb; color: #fff; }
+  html.dark .header-btn.strong:hover { background: #3b82f6; }
+  html.dark .header-btn.strong:disabled { background: #334155; color: #64748b; }
+
+  html.dark #theme-toggle { color: #e2e8f0; }
+  html.dark #theme-toggle:hover { background: #334155; }
+
+  html.dark .guide-banner {
+    background: #1e3a5f;
+    border-color: #2563eb;
+    color: #93c5fd;
+  }
+
+  html.dark .action-bar,
+  html.dark .rotate-strip,
+  html.dark .crop-thumbs,
+  html.dark .output-panel,
+  html.dark .home-bar { background: #1e293b; border-color: #334155; }
+
+  html.dark .btn-secondary {
+    background: #0f172a;
+    color: #cbd5e1;
+    border-color: #334155;
+  }
+  html.dark .btn-secondary:hover { background: #334155; }
+
+  html.dark .rotate-btn {
+    background: #0f172a;
+    color: #cbd5e1;
+  }
+  html.dark .rotate-btn:hover { background: #334155; }
+
+  html.dark .crop-thumb { background: #0f172a; border-color: #334155; }
+  html.dark .crop-thumb.active { border-color: #3b82f6; box-shadow: 0 0 0 2px #1e3a5f; }
+
+  html.dark .page-card { background: #1e293b; border-color: #334155; }
+  html.dark .page-card canvas,
+  html.dark .page-card img { background: #0f172a; }
+
+  html.dark .add-page-card {
+    background: #1e293b;
+    border-color: #334155;
+    color: #94a3b8;
+  }
+  html.dark .add-page-card:hover {
+    background: #1e3a5f;
+    border-color: #3b82f6;
+    color: #93c5fd;
+  }
+
+  html.dark .upload-dropzone {
+    background: #1e293b;
+    border-color: #334155;
+  }
+  html.dark .upload-dropzone:hover,
+  html.dark .upload-dropzone.dragover {
+    background: #1e3a5f;
+    border-color: #3b82f6;
+  }
+  html.dark .upload-dropzone h3 { color: #f1f5f9; }
+  html.dark .upload-dropzone p { color: #94a3b8; }
+
+  html.dark .home-bar a {
+    background: #0f172a;
+    border-color: #334155;
+    color: #cbd5e1;
+  }
+  html.dark .home-bar a:hover { background: #334155; }
+
+  html.dark .output-panel label { color: #94a3b8; }
+  html.dark .output-panel select {
+    background: #0f172a;
+    border-color: #334155;
+    color: #f1f5f9;
+  }
+
+  html.dark .processing-card { background: #1e293b; }
+  html.dark .processing-card h4 { color: #f1f5f9; }
+  html.dark .processing-card p { color: #94a3b8; }
+  html.dark .progress-bar { background: #334155; }
+
+  html.dark .page-indicator { background: #3b82f6; }
+
+  html.dark #magnifier { border-color: #f1f5f9; }
 </style>
 </head>
 <body>
@@ -497,6 +684,7 @@
     </a>
     <span class="title">Crop PDF</span>
     <div class="header-spacer"></div>
+    <button id="theme-toggle" aria-label="Toggle theme">🌙</button>
     <button class="header-btn" onclick="backToHome()">← Back</button>
   </div>
 
@@ -545,9 +733,11 @@
   </div>
 
   <div id="cropStage">
-    <canvas id="cropCanvas"></canvas>
-    <canvas id="cropOverlay"></canvas>
-    <div id="magnifier"><canvas></canvas></div>
+    <div id="cropWorkspace">
+      <canvas id="cropCanvas"></canvas>
+      <canvas id="cropOverlay"></canvas>
+      <div id="magnifier"><canvas></canvas></div>
+    </div>
   </div>
 
   <div class="rotate-strip">
@@ -556,6 +746,9 @@
     <button class="rotate-btn" onclick="resetCrop()">↺ Reset Crop</button>
     <button class="rotate-btn" onclick="fullPageCrop()">⛶ Full Page</button>
   </div>
+
+  <!-- File thumbnails strip — quick access to every loaded page -->
+  <div class="crop-thumbs" id="cropThumbs"></div>
 
   <div class="action-bar">
     <button class="btn btn-secondary" onclick="cancelCrop()">Cancel</button>
@@ -638,16 +831,35 @@
 pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
 // ============================================================
+// THEME TOGGLE
+// ============================================================
+(function () {
+  const html = document.documentElement;
+  const btn = document.getElementById('theme-toggle');
+  function update() { btn.textContent = html.classList.contains('dark') ? '☀️' : '🌙'; }
+  update();
+  btn.addEventListener('click', () => {
+    if (html.classList.contains('dark')) {
+      html.classList.remove('dark');
+      try { localStorage.setItem('theme', 'light'); } catch (e) {}
+    } else {
+      html.classList.add('dark');
+      try { localStorage.setItem('theme', 'dark'); } catch (e) {}
+    }
+    update();
+  });
+})();
+
+// ============================================================
 // GLOBAL STATE
 // ============================================================
 const App = {
-  pages: [],              // { id, sourceType, sourceName, originalBlob, originalBitmap, rotation, cropCorners (null or {tl,tr,br,bl} in bitmap coords), previewCanvas, previewBlob }
+  pages: [],
   editingIndex: -1,
   dragIndex: -1,
-  // Crop editor state
   cropBitmap: null,
-  cropCorners: null,       // in canvas coords
-  cropRotation: 0,         // 0/90/180/270 applied before crop
+  cropCorners: null,
+  cropRotation: 0,
   cropReturnScreen: 'screen-pages'
 };
 
@@ -782,7 +994,6 @@ async function importPDF(file, idxInBatch, totalInBatch) {
   for (let p = 1; p <= total; p++) {
     setProcessing(`Rendering PDF page ${p} of ${total}…`, ((p - 1) / total) * 100);
     const page = await pdf.getPage(p);
-    // Render at ~1600 px on the long edge as a work resolution
     const viewport1 = page.getViewport({ scale: 1 });
     const longEdge = Math.max(viewport1.width, viewport1.height);
     const scale = 1600 / longEdge;
@@ -840,7 +1051,7 @@ async function importImage(file) {
 }
 
 // ============================================================
-// CROP EDITOR
+// CROP EDITOR — one workspace shared by canvas, overlay, handles
 // ============================================================
 function openCropForIndex(index) {
   App.editingIndex = index;
@@ -848,11 +1059,47 @@ function openCropForIndex(index) {
   if (!page) return;
   App.cropBitmap = page.originalBitmap;
   App.cropRotation = page.rotation || 0;
-  App.cropCorners = null;   // Will be initialized below
+  App.cropCorners = null;
   App.cropReturnScreen = 'screen-pages';
 
   showScreen('screen-crop');
   renderCropStage();
+  refreshCropThumbs();
+}
+
+function refreshCropThumbs() {
+  const strip = document.getElementById('cropThumbs');
+  strip.innerHTML = '';
+  App.pages.forEach((page, idx) => {
+    const div = document.createElement('div');
+    div.className = 'crop-thumb' + (idx === App.editingIndex ? ' active' : '');
+    const c = document.createElement('canvas');
+    c.width = 52;
+    c.height = 68;
+    const cx = c.getContext('2d');
+    if (page.previewCanvas) cx.drawImage(page.previewCanvas, 0, 0, 52, 68);
+    else if (page.originalBitmap) cx.drawImage(page.originalBitmap, 0, 0, 52, 68);
+    div.appendChild(c);
+
+    const num = document.createElement('span');
+    num.className = 'num';
+    num.textContent = String(idx + 1);
+    div.appendChild(num);
+
+    div.onclick = () => {
+      // Save any pending crop before switching
+      App.editingIndex = idx;
+      const p = App.pages[idx];
+      if (!p) return;
+      App.cropBitmap = p.originalBitmap;
+      App.cropRotation = p.rotation || 0;
+      App.cropCorners = null;
+      renderCropStage();
+      refreshCropThumbs();
+    };
+
+    strip.appendChild(div);
+  });
 }
 
 function renderCropStage() {
@@ -862,6 +1109,7 @@ function renderCropStage() {
   const stage = document.getElementById('cropStage');
   const canvas = document.getElementById('cropCanvas');
   const overlay = document.getElementById('cropOverlay');
+  const workspace = document.getElementById('cropWorkspace');
 
   // Compute the rotated bitmap dimensions first so we know the aspect ratio
   const rot = ((App.cropRotation % 360) + 360) % 360;
@@ -876,6 +1124,11 @@ function renderCropStage() {
   const cw = Math.round(rotW * fit);
   const ch = Math.round(rotH * fit);
 
+  // The workspace is exactly the size of the displayed image.
+  workspace.style.width = cw + 'px';
+  workspace.style.height = ch + 'px';
+
+  // Image
   canvas.width = cw;
   canvas.height = ch;
   canvas.style.width = cw + 'px';
@@ -885,23 +1138,20 @@ function renderCropStage() {
   ctx.save();
   ctx.fillStyle = '#0f172a';
   ctx.fillRect(0, 0, cw, ch);
-  // Rotate around the centre
   ctx.translate(cw / 2, ch / 2);
   ctx.rotate(rot * Math.PI / 180);
-  // After rotation, the drawing must be sized for the pre-rotation dimensions
   const drawW = swap ? ch : cw;
   const drawH = swap ? cw : ch;
   ctx.drawImage(bitmap, -drawW / 2, -drawH / 2, drawW, drawH);
   ctx.restore();
 
+  // Overlay fills the workspace
   overlay.width = cw;
   overlay.height = ch;
   overlay.style.width = cw + 'px';
   overlay.style.height = ch + 'px';
 
-  // If the page already had crop corners, they are in *pre-rotation* image space.
-  // For simplicity we reset crop when opening the editor — the crop is stored
-  // as an already-applied bitmap after Done, so reopening gives a fresh crop.
+  // Reset crop to the full frame on open
   if (!App.cropCorners) {
     const pad = 20;
     App.cropCorners = {
@@ -962,8 +1212,9 @@ function renderCropOverlay() {
 
 function wireCropHandles() {
   const overlay = document.getElementById('cropOverlay');
-  const stage = document.getElementById('cropStage');
-  stage.querySelectorAll('.corner-handle').forEach(el => el.remove());
+  const workspace = document.getElementById('cropWorkspace');
+
+  workspace.querySelectorAll('.corner-handle').forEach(el => el.remove());
 
   ['tl', 'tr', 'br', 'bl'].forEach(key => {
     const h = document.createElement('div');
@@ -972,7 +1223,7 @@ function wireCropHandles() {
     const pt = App.cropCorners[key];
     h.style.left = pt.x + 'px';
     h.style.top = pt.y + 'px';
-    stage.appendChild(h);
+    workspace.appendChild(h);
   });
 
   let dragging = null;
@@ -986,16 +1237,16 @@ function wireCropHandles() {
   function onMove(e) {
     if (!dragging) return;
     e.preventDefault();
-    const canvasRect = overlay.getBoundingClientRect();
+    const rect = overlay.getBoundingClientRect();
     const clientX = (e.touches ? e.touches[0].clientX : e.clientX);
     const clientY = (e.touches ? e.touches[0].clientY : e.clientY);
-    let x = clientX - canvasRect.left;
-    let y = clientY - canvasRect.top;
+    let x = clientX - rect.left;
+    let y = clientY - rect.top;
     x = Math.max(0, Math.min(overlay.width, x));
     y = Math.max(0, Math.min(overlay.height, y));
     App.cropCorners[dragging] = { x, y };
     renderCropOverlay();
-    const h = stage.querySelector(`.corner-handle[data-corner="${dragging}"]`);
+    const h = workspace.querySelector(`.corner-handle[data-corner="${dragging}"]`);
     if (h) { h.style.left = x + 'px'; h.style.top = y + 'px'; }
     showMagnifier(clientX, clientY);
   }
@@ -1003,10 +1254,12 @@ function wireCropHandles() {
     dragging = null;
     hideMagnifier();
   }
-  stage.addEventListener('mousedown', onDown);
+
+  // Bind to workspace, not stage
+  workspace.addEventListener('mousedown', onDown);
   window.addEventListener('mousemove', onMove);
   window.addEventListener('mouseup', onUp);
-  stage.addEventListener('touchstart', onDown, { passive: false });
+  workspace.addEventListener('touchstart', onDown, { passive: false });
   window.addEventListener('touchmove', onMove, { passive: false });
   window.addEventListener('touchend', onUp);
 }
@@ -1014,15 +1267,18 @@ function wireCropHandles() {
 function showMagnifier(clientX, clientY) {
   const mag = document.getElementById('magnifier');
   const canvas = document.getElementById('cropCanvas');
+  const workspace = document.getElementById('cropWorkspace');
   const magCanvas = mag.querySelector('canvas');
   const ZOOM = 3;
   const SIZE = 120;
+
   magCanvas.width = SIZE;
   magCanvas.height = SIZE;
   const ctx = magCanvas.getContext('2d');
   const rect = canvas.getBoundingClientRect();
   const cx = clientX - rect.left;
   const cy = clientY - rect.top;
+
   ctx.clearRect(0, 0, SIZE, SIZE);
   ctx.drawImage(
     canvas,
@@ -1030,13 +1286,22 @@ function showMagnifier(clientX, clientY) {
     SIZE / ZOOM, SIZE / ZOOM,
     0, 0, SIZE, SIZE
   );
+
   mag.style.display = 'block';
-  const stageRect = document.getElementById('cropStage').getBoundingClientRect();
-  mag.style.left = (clientX - stageRect.left - SIZE / 2) + 'px';
-  mag.style.top = (clientY - stageRect.top - SIZE - 20) + 'px';
-  if (parseFloat(mag.style.top) < 0) {
-    mag.style.top = (clientY - stageRect.top + 20) + 'px';
+
+  const workspaceRect = workspace.getBoundingClientRect();
+  let left = clientX - workspaceRect.left - SIZE / 2;
+  let top = clientY - workspaceRect.top - SIZE - 20;
+
+  if (top < 0) {
+    top = clientY - workspaceRect.top + 20;
   }
+
+  // Keep magnifier inside workspace horizontally
+  left = Math.max(0, Math.min(workspace.clientWidth - SIZE, left));
+
+  mag.style.left = left + 'px';
+  mag.style.top = top + 'px';
 }
 function hideMagnifier() {
   document.getElementById('magnifier').style.display = 'none';
@@ -1083,9 +1348,6 @@ async function confirmCrop() {
   const cornersOnCanvas = App.cropCorners;
   if (!cornersOnCanvas) { cancelCrop(); return; }
 
-  // Compute the scale from canvas back to the *rotated* bitmap space,
-  // then map through the rotation to the original bitmap space.
-  const stage = document.getElementById('cropStage');
   const rot = ((App.cropRotation % 360) + 360) % 360;
   const swap = rot === 90 || rot === 270;
   const bitmap = page.originalBitmap;
@@ -1093,7 +1355,6 @@ async function confirmCrop() {
   const rotH = swap ? bitmap.width : bitmap.height;
   const scale = canvas.width / rotW;
 
-  // Corner coordinates in rotated-image space (pre-scaling)
   const rotCorners = {
     tl: { x: cornersOnCanvas.tl.x / scale, y: cornersOnCanvas.tl.y / scale },
     tr: { x: cornersOnCanvas.tr.x / scale, y: cornersOnCanvas.tr.y / scale },
@@ -1101,7 +1362,6 @@ async function confirmCrop() {
     bl: { x: cornersOnCanvas.bl.x / scale, y: cornersOnCanvas.bl.y / scale }
   };
 
-  // Produce the cropped canvas at full resolution.
   const outCanvas = await renderCroppedBitmap(bitmap, rotCorners, rot);
   const outBlob = await new Promise(res => outCanvas.toBlob(res, 'image/jpeg', 0.92));
   const outBitmap = await createImageBitmap(outCanvas);
@@ -1114,7 +1374,7 @@ async function confirmCrop() {
 
   page.originalBitmap = outBitmap;
   page.originalBlob = outBlob;
-  page.rotation = 0;      // Rotation is now baked into the cropped bitmap
+  page.rotation = 0;
   page.cropCorners = null;
   page.previewCanvas = previewCanvas;
   page.previewBlob = outBlob;
@@ -1153,10 +1413,6 @@ async function renderCroppedBitmap(bitmap, rotCorners, rot) {
   const outW = Math.max(1, maxX - minX);
   const outH = Math.max(1, maxY - minY);
 
-  // 3. Do a perspective warp if OpenCV is available; otherwise a plain rect crop
-  // For simplicity, plain rect crop is used. If you want perspective correction
-  // for photos of tilted documents, plug the same OpenCV pipeline used in the
-  // scan tool here. For a general crop tool, rect crop is the right default.
   const out = document.createElement('canvas');
   out.width = outW;
   out.height = outH;
@@ -1244,11 +1500,8 @@ function refreshPageGrid() {
 // ============================================================
 function openDownloadMenu() {
   const fmt = document.getElementById('exportFormat').value;
-  if (fmt === 'pdf') {
-    exportAsPDF();
-  } else {
-    exportAsImages(fmt);
-  }
+  if (fmt === 'pdf') exportAsPDF();
+  else exportAsImages(fmt);
 }
 
 async function exportAsPDF() {
@@ -1314,7 +1567,6 @@ async function exportAsImages(format) {
         : `dropletweb-image-${i + 1}.${ext}`;
       triggerDownload(blob, filename);
 
-      // Small delay between downloads so browsers don't block them
       await new Promise(r => setTimeout(r, 300));
     }
 
