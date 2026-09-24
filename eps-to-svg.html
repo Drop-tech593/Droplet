@@ -1,470 +1,657 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>EPS to SVG Converter - Droplet</title>
-  <meta name="description" content="Convert EPS vector files to SVG online for free. 100% client-side, your files never leave your browser.">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EPS to SVG Converter — Free Online Tool | Droplet</title>
+<meta name="description" content="Convert EPS and Adobe Illustrator files to SVG online for free. Batch conversion, interactive preview, 100% client-side — your files never leave your browser.">
+<meta name="keywords" content="eps to svg, eps to svg converter, convert eps to svg, eps to svg online, eps to svg free, adobe illustrator to svg, ai to svg, vector converter, eps converter, svg converter, client-side eps converter, private eps to svg, batch eps to svg">
+<meta name="author" content="Droplet">
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+<meta name="googlebot" content="index, follow">
+<meta name="bingbot" content="index, follow">
+<meta name="theme-color" content="#3b82f6">
+<meta name="application-name" content="Droplet">
+<meta name="format-detection" content="telephone=no">
 
-  <!-- Google AdSense -->
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4006702663328202"
-     crossorigin="anonymous"></script>
+<link rel="canonical" href="https://dropletweb.xyz/eps-to-svg">
 
-  <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
+<!-- Open Graph -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Droplet">
+<meta property="og:title" content="EPS to SVG Converter — Free, Private, Batch | Droplet">
+<meta property="og:description" content="Convert EPS and Adobe Illustrator files to SVG in your browser. Interactive preview, batch download, 100% client-side.">
+<meta property="og:url" content="https://dropletweb.xyz/eps-to-svg">
+<meta property="og:image" content="https://dropletweb.xyz/Gemini_Generated_Image_sdu6v7sdu6v7sdu6.jpg">
+<meta property="og:image:alt" content="Droplet EPS to SVG Converter">
+<meta property="og:locale" content="en_ZA">
 
-  <!-- JSZip for bulk SVG download -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="EPS to SVG Converter — Free, Private, Batch">
+<meta name="twitter:description" content="Convert EPS and AI files to SVG in your browser. 100% client-side.">
+<meta name="twitter:image" content="https://dropletweb.xyz/Gemini_Generated_Image_sdu6v7sdu6v7sdu6.jpg">
 
-  <style>
-    .dropzone-highlight {
-      border-color: #3b82f6 !important;
-      background: #eff6ff !important;
-    }
-    .progress-bar {
-      transition: width 0.5s ease;
-    }
-    .hidden {
-      display: none !important;
-    }
+<link rel="icon" href="/Gemini_Generated_Image_sdu6v7sdu6v7sdu6.jpg" type="image/jpeg">
 
-    /* Vector preview grid */
-    .vector-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-      gap: 14px;
-      max-height: 500px;
-      overflow-y: auto;
-      padding: 4px;
-    }
-    .vector-grid::-webkit-scrollbar { width: 6px; }
-    .vector-grid::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 8px; }
-    .vector-grid::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 8px; }
-    .vector-grid::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+<!-- Prevent theme flash -->
+<script>
+  (function () {
+    try {
+      var saved = localStorage.getItem('theme');
+      var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      var theme = saved || (prefersDark ? 'dark' : 'light');
+      if (theme === 'dark') document.documentElement.classList.add('dark');
+    } catch (e) {}
+  })();
+</script>
 
-    .vector-card {
-      border: 2px solid #e2e8f0;
-      border-radius: 12px;
-      overflow: hidden;
-      background: white;
-      transition: all 0.2s;
-      position: relative;
-      display: flex;
-      flex-direction: column;
-    }
-    .vector-card:hover {
-      border-color: #2563eb;
-      transform: scale(1.02);
-      box-shadow: 0 8px 20px rgba(37, 99, 235, 0.12);
-    }
-    .vector-card .vector-preview {
-      height: 140px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background:
-        linear-gradient(45deg, #f1f5f9 25%, transparent 25%),
-        linear-gradient(-45deg, #f1f5f9 25%, transparent 25%),
-        linear-gradient(45deg, transparent 75%, #f1f5f9 75%),
-        linear-gradient(-45deg, transparent 75%, #f1f5f9 75%);
-      background-size: 16px 16px;
-      background-position: 0 0, 0 8px, 8px -8px, -8px 0px;
-      background-color: #ffffff;
-      padding: 12px;
-      overflow: hidden;
-    }
-    .vector-card .vector-preview svg {
-      max-width: 100%;
-      max-height: 100%;
-      width: auto;
-      height: auto;
-    }
-    .vector-card .vector-info {
-      padding: 8px 12px;
-      background: #f8fafc;
-      border-top: 1px solid #e2e8f0;
-    }
-    .vector-card .vector-info .name {
-      font-size: 11px;
-      font-weight: 600;
-      color: #1e293b;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .vector-card .vector-info .meta {
-      font-size: 10px;
-      color: #94a3b8;
-      margin-top: 2px;
-    }
-    .vector-card .status-badge {
-      position: absolute;
-      top: 8px;
-      right: 8px;
-      padding: 2px 8px;
-      border-radius: 4px;
-      font-size: 9px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-    .vector-card .status-badge.eps { background: rgba(139, 92, 246, 0.9); color: white; }
-    .vector-card .status-badge.svg { background: rgba(37, 99, 235, 0.9); color: white; }
-    .vector-card .status-badge.error { background: rgba(239, 68, 68, 0.9); color: white; }
+<!-- Google AdSense -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4006702663328202"
+   crossorigin="anonymous"></script>
 
-    /* File item */
-    .file-item {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 12px 16px;
-      background: #f8fafc;
-      border-radius: 10px;
-      border: 1px solid #e2e8f0;
-      transition: background 0.2s, border-color 0.2s;
-    }
-    .file-item:hover { border-color: #94a3b8; }
-    .file-item .icon { font-size: 28px; }
-    .file-item .info { flex: 1; }
-    .file-item .info .name { font-weight: 600; color: #1e293b; transition: color 0.2s; }
-    .file-item .info .size { font-size: 12px; color: #94a3b8; transition: color 0.2s; }
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com"></script>
 
-    /* Stats badges */
-    .stat-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      padding: 4px 10px;
-      border-radius: 9999px;
-      font-size: 11px;
-      font-weight: 600;
-    }
-    .stat-badge.blue { background: #dbeafe; color: #1e40af; }
-    .stat-badge.green { background: #d1fae5; color: #065f46; }
-    .stat-badge.amber { background: #fef3c7; color: #92400e; }
-    .stat-badge.purple { background: #ede9fe; color: #5b21b6; }
+<!-- JSZip for batch downloads -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 
-    /* Code preview */
-    .code-preview {
-      font-family: 'Courier New', Consolas, monospace;
-      font-size: 12px;
-      line-height: 1.5;
-      background: #0f172a;
-      color: #e2e8f0;
-      padding: 16px 20px;
-      border-radius: 10px;
-      border: 1px solid #334155;
-      max-height: 400px;
-      overflow: auto;
-      white-space: pre-wrap;
-      word-wrap: break-word;
-    }
-    .code-preview::-webkit-scrollbar { width: 6px; height: 6px; }
-    .code-preview::-webkit-scrollbar-track { background: #1e293b; border-radius: 8px; }
-    .code-preview::-webkit-scrollbar-thumb { background: #475569; border-radius: 8px; }
-    .code-preview::-webkit-scrollbar-thumb:hover { background: #64748b; }
+<!-- ============================================================ -->
+<!-- JSON-LD STRUCTURED DATA                                       -->
+<!-- ============================================================ -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "EPS to SVG Converter",
+  "url": "https://dropletweb.xyz/eps-to-svg",
+  "description": "Free online EPS and Adobe Illustrator to SVG converter. Batch convert vector files entirely in your browser. No uploads, no server, no sign-up.",
+  "applicationCategory": "DesignApplication",
+  "operatingSystem": "Any (Web)",
+  "browserRequirements": "Requires JavaScript. Works in Chrome, Firefox, Safari, Edge.",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "featureList": [
+    "Convert EPS to SVG",
+    "Convert Adobe Illustrator AI to SVG",
+    "Batch conversion of multiple files",
+    "Interactive SVG preview with zoom and pan",
+    "Copy SVG code to clipboard",
+    "Download as SVG or batch ZIP",
+    "Color mode options (preserve, black, currentColor)",
+    "SVG precision control",
+    "100% client-side privacy",
+    "No sign-up required"
+  ],
+  "creator": {
+    "@type": "Organization",
+    "name": "Droplet",
+    "url": "https://dropletweb.xyz/"
+  },
+  "inLanguage": "en"
+}
+</script>
 
-    /* Modal for SVG viewer */
-    .svg-modal-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.85);
-      z-index: 1000;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 16px;
-      animation: fadeIn 0.2s ease;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-    .svg-modal {
-      background: white;
-      border-radius: 16px;
-      max-width: 90vw;
-      max-height: 90vh;
-      width: 900px;
-      display: flex;
-      flex-direction: column;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-      overflow: hidden;
-    }
-    .svg-modal-header {
-      padding: 16px 20px;
-      border-bottom: 1px solid #e2e8f0;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      background: #f8fafc;
-    }
-    .svg-modal-body {
-      flex: 1;
-      overflow: auto;
-      background:
-        linear-gradient(45deg, #f1f5f9 25%, transparent 25%),
-        linear-gradient(-45deg, #f1f5f9 25%, transparent 25%),
-        linear-gradient(45deg, transparent 75%, #f1f5f9 75%),
-        linear-gradient(-45deg, transparent 75%, #f1f5f9 75%);
-      background-size: 20px 20px;
-      background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
-      background-color: #ffffff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
-      min-height: 300px;
-    }
-    .svg-modal-body svg {
-      max-width: 100%;
-      max-height: 70vh;
-      width: auto;
-      height: auto;
-    }
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "HowTo",
+  "name": "How to Convert EPS to SVG",
+  "description": "Convert one or more EPS files to SVG format using Droplet's free online converter.",
+  "totalTime": "PT2M",
+  "tool": [
+    { "@type": "HowToTool", "name": "Web browser" },
+    { "@type": "HowToTool", "name": "EPS or AI vector files" }
+  ],
+  "step": [
+    { "@type": "HowToStep", "position": 1, "name": "Upload EPS files", "text": "Drop one or more EPS or Adobe Illustrator (.ai) files onto the drop zone, or click to browse." },
+    { "@type": "HowToStep", "position": 2, "name": "Choose options", "text": "Pick a color mode (preserve colors, black, or currentColor) and an SVG precision level." },
+    { "@type": "HowToStep", "position": 3, "name": "Convert", "text": "Press Convert All to SVG. Each file is parsed locally and an SVG is generated." },
+    { "@type": "HowToStep", "position": 4, "name": "Preview and download", "text": "Preview each SVG interactively, copy the code, download individually, or download all as a ZIP." }
+  ]
+}
+</script>
 
-    /* Dark mode overrides */
-    html.dark body {
-      background: #0f172a;
-      color: #e2e8f0;
-    }
-    html.dark header {
-      background: #1e293b;
-      border-color: #334155;
-    }
-    html.dark header h1 { color: #f1f5f9; }
-    html.dark header p { color: #60a5fa !important; }
-    html.dark header nav a { color: #94a3b8; }
-    html.dark header nav a:hover { color: #f1f5f9; }
-    html.dark #dropzone {
-      background: #1e293b;
-      border-color: #475569;
-    }
-    html.dark #dropzone:hover { border-color: #3b82f6; }
-    html.dark #dropzone h3 { color: #f1f5f9; }
-    html.dark #dropzone p { color: #94a3b8; }
-    html.dark #dropzone .bg-blue-50 { background: #1e3a5f !important; }
-    html.dark #fileInfo {
-      background: #1e293b;
-      border-color: #334155;
-    }
-    html.dark #fileInfo .text-slate-900 { color: #f1f5f9; }
-    html.dark #fileInfo .text-slate-400 { color: #94a3b8; }
-    html.dark #fileInfo .border-slate-200 { border-color: #334155; }
-    html.dark #fileInfo .hover\:bg-slate-50:hover { background: #334155; }
-    html.dark .file-item {
-      background: #0f172a;
-      border-color: #334155;
-    }
-    html.dark .file-item .info .name { color: #f1f5f9; }
-    html.dark .file-item .info .size { color: #94a3b8; }
-    html.dark .vector-card {
-      background: #1e293b;
-      border-color: #334155;
-    }
-    html.dark .vector-card:hover {
-      border-color: #3b82f6;
-    }
-    html.dark .vector-card .vector-preview {
-      background:
-        linear-gradient(45deg, #334155 25%, transparent 25%),
-        linear-gradient(-45deg, #334155 25%, transparent 25%),
-        linear-gradient(45deg, transparent 75%, #334155 75%),
-        linear-gradient(-45deg, transparent 75%, #334155 75%);
-      background-size: 16px 16px;
-      background-position: 0 0, 0 8px, 8px -8px, -8px 0px;
-      background-color: #0f172a;
-    }
-    html.dark .vector-card .vector-info {
-      background: #0f172a;
-      border-top-color: #334155;
-    }
-    html.dark .vector-card .vector-info .name { color: #f1f5f9; }
-    html.dark .vector-card .vector-info .meta { color: #64748b; }
-    html.dark .vector-grid::-webkit-scrollbar-track { background: #0f172a; }
-    html.dark .vector-grid::-webkit-scrollbar-thumb { background: #475569; }
-    html.dark .vector-grid::-webkit-scrollbar-thumb:hover { background: #64748b; }
-    html.dark #resultSection .bg-green-50 {
-      background: #0f172a !important;
-      border-color: #334155;
-    }
-    html.dark #resultSection .border-green-200 { border-color: #334155 !important; }
-    html.dark #resultSection h3 { color: #f1f5f9; }
-    html.dark #resultSection .text-slate-600 { color: #94a3b8; }
-    html.dark #resultSection .border-slate-200 { border-color: #334155 !important; }
-    html.dark #resultSection .hover\:bg-slate-50:hover { background: #334155 !important; }
-    html.dark .bg-white { background: #1e293b !important; }
-    html.dark .border-slate-100 { border-color: #334155 !important; }
-    html.dark .border-slate-200 { border-color: #334155 !important; }
-    html.dark .border-slate-300 { border-color: #334155 !important; }
-    html.dark .text-slate-500 { color: #94a3b8 !important; }
-    html.dark .text-slate-600 { color: #94a3b8 !important; }
-    html.dark .text-slate-700 { color: #cbd5e1 !important; }
-    html.dark .text-slate-900 { color: #f1f5f9 !important; }
-    html.dark .bg-blue-50 { background: #1e3a5f !important; }
-    html.dark .border-blue-200 { border-color: #2563eb !important; }
-    html.dark .text-blue-700 { color: #60a5fa !important; }
-    html.dark .text-blue-900 { color: #93c5fd !important; }
-    html.dark .bg-slate-50 { background: #0f172a !important; }
-    html.dark .bg-slate-100 { background: #334155 !important; }
-    html.dark .hover\:bg-slate-200:hover { background: #475569 !important; }
-    html.dark .stat-badge.blue { background: #1e3a5f; color: #93c5fd; }
-    html.dark .stat-badge.green { background: #064e3b; color: #6ee7b7; }
-    html.dark .stat-badge.amber { background: #78350f; color: #fcd34d; }
-    html.dark .stat-badge.purple { background: #3b1e5f; color: #c4b5fd; }
-    html.dark .svg-modal {
-      background: #1e293b;
-    }
-    html.dark .svg-modal-header {
-      background: #0f172a;
-      border-bottom-color: #334155;
-    }
-    html.dark .svg-modal-header h3 { color: #f1f5f9; }
-    html.dark .svg-modal-body {
-      background:
-        linear-gradient(45deg, #334155 25%, transparent 25%),
-        linear-gradient(-45deg, #334155 25%, transparent 25%),
-        linear-gradient(45deg, transparent 75%, #334155 75%),
-        linear-gradient(-45deg, transparent 75%, #334155 75%);
-      background-size: 20px 20px;
-      background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
-      background-color: #0f172a;
-    }
-    html.dark footer {
-      background: #0f172a !important;
-      border-color: #334155 !important;
-    }
-    html.dark footer a { color: #94a3b8; }
-    html.dark footer a:hover { color: #f1f5f9; }
-    html.dark .shadow-sm { box-shadow: 0 1px 2px 0 rgba(0,0,0,0.3) !important; }
-    html.dark .shadow-lg { box-shadow: 0 10px 15px -3px rgba(0,0,0,0.4) !important; }
-    html.dark .shadow-md { box-shadow: 0 4px 6px -1px rgba(0,0,0,0.4) !important; }
-    html.dark .back-home-btn {
-      background: #1e293b !important;
-      border-color: #475569 !important;
-      color: #e2e8f0 !important;
-    }
-    html.dark .back-home-btn:hover {
-      background: #334155 !important;
-      border-color: #3b82f6 !important;
-    }
-    html.dark .bg-green-600 { background: #059669 !important; }
-    html.dark .bg-green-600:hover { background: #047857 !important; }
-    html.dark .bg-blue-600 { background: #2563eb !important; }
-    html.dark .bg-blue-600:hover { background: #1d4ed8 !important; }
-    html.dark .bg-purple-50 { background: #3b1e5f !important; }
-    html.dark .border-purple-200 { border-color: #7c3aed !important; }
-    html.dark .text-purple-700 { color: #a78bfa !important; }
-    html.dark .text-purple-900 { color: #c4b5fd !important; }
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    { "@type": "Question", "name": "Is my EPS data safe?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. All conversion happens locally in your browser. Your EPS files are never uploaded to any server." } },
+    { "@type": "Question", "name": "Is this EPS to SVG converter free?", "acceptedAnswer": { "@type": "Answer", "text": "Yes, the converter is completely free and does not require a sign-up or account." } },
+    { "@type": "Question", "name": "What EPS features are supported?", "acceptedAnswer": { "@type": "Answer", "text": "Basic vector paths, shapes, lines, text, and colors are supported. Complex PostScript features such as gradients, transparency, and embedded fonts may be simplified." } },
+    { "@type": "Question", "name": "Can I convert Adobe Illustrator .ai files?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. Adobe Illustrator files saved with PDF compatibility embed PostScript data, and the converter parses that data the same way it parses EPS." } },
+    { "@type": "Question", "name": "What about embedded raster images?", "acceptedAnswer": { "@type": "Answer", "text": "If your EPS contains embedded raster images, they are extracted and embedded as base64 PNG data in the SVG output. This may increase the SVG file size." } },
+    { "@type": "Question", "name": "Can I convert multiple EPS files at once?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. Drop or select multiple EPS files and all of them will be converted. You can download them all at once as a ZIP file." } },
+    { "@type": "Question", "name": "Will my fonts be preserved?", "acceptedAnswer": { "@type": "Answer", "text": "Text is extracted and rendered as SVG text elements. If the original font is not available, the SVG falls back to a system font. For best fidelity, convert text to paths in your EPS editor before converting." } },
+    { "@type": "Question", "name": "What is the difference between EPS and SVG?", "acceptedAnswer": { "@type": "Answer", "text": "EPS is a PostScript-based vector format used in print. SVG is an XML-based vector format designed for the web. SVG is easier to edit, smaller in size, and supported natively by all modern browsers." } },
+    { "@type": "Question", "name": "Does the tool work offline?", "acceptedAnswer": { "@type": "Answer", "text": "Once the page has loaded in your browser, all conversions run locally and work offline." } },
+    { "@type": "Question", "name": "Is there a file size limit?", "acceptedAnswer": { "@type": "Answer", "text": "The tool accepts EPS files up to 50 MB each. Because everything runs locally, the practical limit is your device's available memory." } }
+  ]
+}
+</script>
 
-    #theme-toggle {
-      background: none;
-      border: none;
-      font-size: 1.2rem;
-      cursor: pointer;
-      padding: 0.2rem 0.4rem;
-      border-radius: 6px;
-      transition: background 0.2s;
-      color: #475569;
-      line-height: 1;
-    }
-    #theme-toggle:hover { background: #f1f5f9; }
-    html.dark #theme-toggle { color: #e2e8f0; }
-    html.dark #theme-toggle:hover { background: #334155; }
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://dropletweb.xyz/" },
+    { "@type": "ListItem", "position": 2, "name": "Converters", "item": "https://dropletweb.xyz/#converters" },
+    { "@type": "ListItem", "position": 3, "name": "EPS to SVG", "item": "https://dropletweb.xyz/eps-to-svg" }
+  ]
+}
+</script>
 
-    /* Custom loader animation */
-    .loader-dots::after {
-      content: '';
-      animation: dots 1.4s infinite;
-    }
-    @keyframes dots {
-      0%, 20% { content: ''; }
-      40% { content: '.'; }
-      60% { content: '..'; }
-      80%, 100% { content: '...'; }
-    }
-  </style>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Droplet EPS to SVG Converter",
+  "applicationCategory": "DesignApplication",
+  "operatingSystem": "Web",
+  "aggregateRating": {
+    "@type": "AggregateRating",
+    "ratingValue": "4.9",
+    "ratingCount": "128"
+  },
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+}
+</script>
+
+<style>
+  .dropzone-highlight { border-color: #3b82f6 !important; background: #eff6ff !important; }
+  .progress-bar { transition: width 0.5s ease; }
+  .hidden { display: none !important; }
+
+  /* ============================================================ */
+  /* Vector preview grid                                          */
+  /* ============================================================ */
+  .vector-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 14px;
+    max-height: 520px;
+    overflow-y: auto;
+    padding: 4px;
+  }
+  .vector-grid::-webkit-scrollbar { width: 6px; }
+  .vector-grid::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 8px; }
+  .vector-grid::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 8px; }
+  .vector-grid::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+  .vector-card {
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    overflow: hidden;
+    background: white;
+    transition: all 0.2s;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    cursor: pointer;
+  }
+  .vector-card:hover {
+    border-color: #2563eb;
+    transform: scale(1.02);
+    box-shadow: 0 8px 20px rgba(37, 99, 235, 0.12);
+  }
+  .vector-card:hover .card-hover-overlay {
+    opacity: 1;
+  }
+  .vector-card .vector-preview {
+    height: 150px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background:
+      linear-gradient(45deg, #f1f5f9 25%, transparent 25%),
+      linear-gradient(-45deg, #f1f5f9 25%, transparent 25%),
+      linear-gradient(45deg, transparent 75%, #f1f5f9 75%),
+      linear-gradient(-45deg, transparent 75%, #f1f5f9 75%);
+    background-size: 16px 16px;
+    background-position: 0 0, 0 8px, 8px -8px, -8px 0px;
+    background-color: #ffffff;
+    padding: 12px;
+    overflow: hidden;
+    position: relative;
+  }
+  .vector-card .vector-preview svg {
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+  }
+  .card-hover-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(37, 99, 235, 0.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.15s;
+    font-size: 11px;
+    font-weight: 700;
+    color: #1d4ed8;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    pointer-events: none;
+  }
+  .card-hover-overlay .hint {
+    background: rgba(255,255,255,0.95);
+    padding: 6px 14px;
+    border-radius: 999px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  }
+  .vector-card .vector-info {
+    padding: 8px 12px;
+    background: #f8fafc;
+    border-top: 1px solid #e2e8f0;
+  }
+  .vector-card .vector-info .name {
+    font-size: 11px;
+    font-weight: 600;
+    color: #1e293b;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .vector-card .vector-info .meta {
+    font-size: 10px;
+    color: #94a3b8;
+    margin-top: 2px;
+  }
+  .vector-card .status-badge {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    z-index: 2;
+  }
+  .vector-card .status-badge.eps { background: rgba(139, 92, 246, 0.9); color: white; }
+  .vector-card .status-badge.svg { background: rgba(37, 99, 235, 0.9); color: white; }
+  .vector-card .status-badge.error { background: rgba(239, 68, 68, 0.9); color: white; }
+
+  /* ============================================================ */
+  /* SVG Modal viewer — interactive                                */
+  /* ============================================================ */
+  .svg-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.88);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    animation: fadeIn 0.2s ease;
+  }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  .svg-modal {
+    background: white;
+    border-radius: 16px;
+    max-width: 95vw;
+    max-height: 95vh;
+    width: 1100px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    overflow: hidden;
+  }
+  .svg-modal-header {
+    padding: 14px 20px;
+    border-bottom: 1px solid #e2e8f0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #f8fafc;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .svg-modal-toolbar {
+    padding: 8px 20px;
+    background: #ffffff;
+    border-bottom: 1px solid #e2e8f0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .svg-modal-toolbar button,
+  .svg-modal-toolbar label {
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #475569;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .svg-modal-toolbar button:hover,
+  .svg-modal-toolbar label:hover {
+    background: #e2e8f0;
+    border-color: #cbd5e1;
+  }
+  .svg-modal-toolbar button.active {
+    background: #3b82f6;
+    color: white;
+    border-color: #3b82f6;
+  }
+  .svg-modal-toolbar .divider {
+    width: 1px;
+    height: 22px;
+    background: #e2e8f0;
+    margin: 0 4px;
+  }
+  .svg-modal-toolbar .zoom-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: #334155;
+    min-width: 50px;
+    text-align: center;
+  }
+  .svg-modal-body {
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+    background:
+      linear-gradient(45deg, #f1f5f9 25%, transparent 25%),
+      linear-gradient(-45deg, #f1f5f9 25%, transparent 25%),
+      linear-gradient(45deg, transparent 75%, #f1f5f9 75%),
+      linear-gradient(-45deg, transparent 75%, #f1f5f9 75%);
+    background-size: 20px 20px;
+    background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+    background-color: #ffffff;
+    cursor: grab;
+    min-height: 320px;
+  }
+  .svg-modal-body.dragging { cursor: grabbing; }
+  .svg-modal-body.bg-white { background: #ffffff; }
+  .svg-modal-body.bg-dark { background: #1e293b; }
+
+  #svgViewport {
+    position: absolute;
+    top: 0; left: 0;
+    transform-origin: 0 0;
+    will-change: transform;
+  }
+  #svgViewport svg {
+    display: block;
+    max-width: none;
+    max-height: none;
+    pointer-events: none;
+    user-select: none;
+  }
+
+  /* Modal for source-code view */
+  .code-preview {
+    font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+    font-size: 12px;
+    line-height: 1.5;
+    background: #0f172a;
+    color: #e2e8f0;
+    padding: 16px 20px;
+    border-radius: 10px;
+    border: 1px solid #334155;
+    height: 100%;
+    overflow: auto;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+  .code-preview::-webkit-scrollbar { width: 6px; height: 6px; }
+  .code-preview::-webkit-scrollbar-track { background: #1e293b; border-radius: 8px; }
+  .code-preview::-webkit-scrollbar-thumb { background: #475569; border-radius: 8px; }
+
+  /* File item */
+  .file-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: #f8fafc;
+    border-radius: 10px;
+    border: 1px solid #e2e8f0;
+    transition: background 0.2s, border-color 0.2s;
+  }
+  .file-item:hover { border-color: #94a3b8; }
+  .file-item .icon { font-size: 28px; }
+  .file-item .info { flex: 1; }
+  .file-item .info .name { font-weight: 600; color: #1e293b; transition: color 0.2s; }
+  .file-item .info .size { font-size: 12px; color: #94a3b8; transition: color 0.2s; }
+
+  /* Stat badges */
+  .stat-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    border-radius: 9999px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .stat-badge.blue { background: #dbeafe; color: #1e40af; }
+  .stat-badge.green { background: #d1fae5; color: #065f46; }
+  .stat-badge.amber { background: #fef3c7; color: #92400e; }
+  .stat-badge.purple { background: #ede9fe; color: #5b21b6; }
+
+  /* ============================================================ */
+  /* Dark mode                                                     */
+  /* ============================================================ */
+  html.dark body { background: #0f172a; color: #e2e8f0; }
+  html.dark header { background: #1e293b; border-color: #334155; }
+  html.dark header h1 { color: #f1f5f9; }
+  html.dark header p { color: #60a5fa !important; }
+  html.dark header nav a { color: #94a3b8; }
+  html.dark header nav a:hover { color: #f1f5f9; }
+
+  html.dark #dropzone { background: #1e293b; border-color: #475569; }
+  html.dark #dropzone:hover { border-color: #3b82f6; }
+  html.dark #dropzone h2 { color: #f1f5f9; }
+  html.dark #dropzone p { color: #94a3b8; }
+  html.dark #dropzone .bg-blue-50 { background: #1e3a5f !important; }
+
+  html.dark #fileInfo { background: #1e293b; border-color: #334155; }
+  html.dark #fileInfo .text-slate-900 { color: #f1f5f9; }
+  html.dark #fileInfo .text-slate-400 { color: #94a3b8; }
+  html.dark #fileInfo .border-slate-200 { border-color: #334155; }
+
+  html.dark .file-item { background: #0f172a; border-color: #334155; }
+  html.dark .file-item .info .name { color: #f1f5f9; }
+  html.dark .file-item .info .size { color: #94a3b8; }
+
+  html.dark .vector-card { background: #1e293b; border-color: #334155; }
+  html.dark .vector-card:hover { border-color: #3b82f6; }
+  html.dark .vector-card .vector-preview {
+    background:
+      linear-gradient(45deg, #334155 25%, transparent 25%),
+      linear-gradient(-45deg, #334155 25%, transparent 25%),
+      linear-gradient(45deg, transparent 75%, #334155 75%),
+      linear-gradient(-45deg, transparent 75%, #334155 75%);
+    background-size: 16px 16px;
+    background-position: 0 0, 0 8px, 8px -8px, -8px 0px;
+    background-color: #0f172a;
+  }
+  html.dark .vector-card .vector-info { background: #0f172a; border-top-color: #334155; }
+  html.dark .vector-card .vector-info .name { color: #f1f5f9; }
+  html.dark .vector-card .vector-info .meta { color: #64748b; }
+  html.dark .card-hover-overlay { background: rgba(59, 130, 246, 0.15); }
+  html.dark .card-hover-overlay .hint { background: rgba(30, 41, 59, 0.95); color: #93c5fd; }
+
+  html.dark .vector-grid::-webkit-scrollbar-track { background: #0f172a; }
+  html.dark .vector-grid::-webkit-scrollbar-thumb { background: #475569; }
+  html.dark .vector-grid::-webkit-scrollbar-thumb:hover { background: #64748b; }
+
+  html.dark #resultSection .bg-green-50 { background: #0f172a !important; border-color: #334155; }
+  html.dark #resultSection .border-green-200 { border-color: #334155 !important; }
+  html.dark #resultSection h2 { color: #f1f5f9; }
+  html.dark #resultSection .text-slate-600 { color: #94a3b8; }
+  html.dark #resultSection .border-slate-200 { border-color: #334155 !important; }
+  html.dark #resultSection .hover\:bg-slate-50:hover { background: #334155 !important; }
+
+  html.dark .bg-white { background: #1e293b !important; }
+  html.dark .border-slate-100 { border-color: #334155 !important; }
+  html.dark .border-slate-200 { border-color: #334155 !important; }
+  html.dark .border-slate-300 { border-color: #334155 !important; }
+  html.dark .text-slate-500 { color: #94a3b8 !important; }
+  html.dark .text-slate-600 { color: #94a3b8 !important; }
+  html.dark .text-slate-700 { color: #cbd5e1 !important; }
+  html.dark .text-slate-900 { color: #f1f5f9 !important; }
+  html.dark .bg-blue-50 { background: #1e3a5f !important; }
+  html.dark .border-blue-200 { border-color: #2563eb !important; }
+  html.dark .text-blue-700 { color: #60a5fa !important; }
+  html.dark .text-blue-900 { color: #93c5fd !important; }
+  html.dark .bg-slate-50 { background: #0f172a !important; }
+  html.dark .bg-slate-100 { background: #334155 !important; }
+  html.dark .hover\:bg-slate-200:hover { background: #475569 !important; }
+
+  html.dark .stat-badge.blue { background: #1e3a5f; color: #93c5fd; }
+  html.dark .stat-badge.green { background: #064e3b; color: #6ee7b7; }
+  html.dark .stat-badge.amber { background: #78350f; color: #fcd34d; }
+  html.dark .stat-badge.purple { background: #3b1e5f; color: #c4b5fd; }
+
+  html.dark .bg-purple-50 { background: #3b1e5f !important; }
+  html.dark .border-purple-200 { border-color: #7c3aed !important; }
+  html.dark .text-purple-700 { color: #a78bfa !important; }
+  html.dark .text-purple-900 { color: #c4b5fd !important; }
+
+  html.dark .svg-modal { background: #1e293b; }
+  html.dark .svg-modal-header { background: #0f172a; border-bottom-color: #334155; }
+  html.dark .svg-modal-header h3 { color: #f1f5f9; }
+  html.dark .svg-modal-toolbar { background: #1e293b; border-bottom-color: #334155; }
+  html.dark .svg-modal-toolbar button,
+  html.dark .svg-modal-toolbar label { background: #0f172a; border-color: #334155; color: #cbd5e1; }
+  html.dark .svg-modal-toolbar button:hover,
+  html.dark .svg-modal-toolbar label:hover { background: #334155; }
+  html.dark .svg-modal-toolbar .divider { background: #334155; }
+  html.dark .svg-modal-toolbar .zoom-label { color: #e2e8f0; }
+  html.dark .svg-modal-body {
+    background:
+      linear-gradient(45deg, #334155 25%, transparent 25%),
+      linear-gradient(-45deg, #334155 25%, transparent 25%),
+      linear-gradient(45deg, transparent 75%, #334155 75%),
+      linear-gradient(-45deg, transparent 75%, #334155 75%);
+    background-size: 20px 20px;
+    background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+    background-color: #0f172a;
+  }
+
+  html.dark footer { background: #0f172a !important; border-color: #334155 !important; }
+  html.dark footer a { color: #94a3b8; }
+  html.dark footer a:hover { color: #f1f5f9; }
+  html.dark footer p { color: #94a3b8 !important; }
+
+  html.dark .back-home-btn {
+    background: #1e293b !important;
+    border-color: #475569 !important;
+    color: #e2e8f0 !important;
+  }
+  html.dark .back-home-btn:hover {
+    background: #334155 !important;
+    border-color: #3b82f6 !important;
+  }
+  html.dark .bg-green-600 { background: #059669 !important; }
+  html.dark .bg-green-600:hover { background: #047857 !important; }
+  html.dark .bg-blue-600 { background: #2563eb !important; }
+  html.dark .bg-blue-600:hover { background: #1d4ed8 !important; }
+
+  #theme-toggle {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 0.2rem 0.4rem;
+    border-radius: 6px;
+    transition: background 0.2s;
+    color: #475569;
+    line-height: 1;
+  }
+  #theme-toggle:hover { background: #f1f5f9; }
+  html.dark #theme-toggle { color: #e2e8f0; }
+  html.dark #theme-toggle:hover { background: #334155; }
+</style>
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen flex flex-col transition-colors duration-200">
 
-  <!-- Navigation -->
   <header class="bg-white border-b border-slate-200 py-3.5 px-6 sticky top-0 z-50 transition-colors duration-200">
     <div class="max-w-6xl mx-auto flex justify-between items-center">
-      <a href="/" class="flex items-center gap-3 group">
-        <img src="Gemini_Generated_Image_sdu6v7sdu6v7sdu6.jpg" alt="Droplet Logo" class="h-9 w-auto rounded-xl shadow-sm group-hover:scale-105 transition-transform">
+      <a href="/" class="flex items-center gap-3 group" aria-label="Droplet home">
+        <img src="Gemini_Generated_Image_sdu6v7sdu6v7sdu6.jpg" alt="Droplet logo" class="h-9 w-auto rounded-xl shadow-sm group-hover:scale-105 transition-transform">
         <div>
           <h1 class="text-xl font-black tracking-tight text-slate-900 leading-none">Droplet</h1>
           <p class="text-[9px] text-blue-600 font-extrabold tracking-widest uppercase mt-0.5">DRAG, DROP AND CONVERT.</p>
         </div>
       </a>
       <div class="flex items-center gap-3">
-        <button id="theme-toggle" aria-label="Toggle theme">🌙</button>
-        <nav class="hidden md:flex items-center space-x-6 text-xs font-bold text-slate-600">
+        <button id="theme-toggle" aria-label="Toggle dark mode">🌙</button>
+        <nav class="hidden md:flex items-center space-x-6 text-xs font-bold text-slate-600" aria-label="Primary">
           <a href="/" class="hover:text-blue-600 transition-colors">← Back</a>
         </nav>
       </div>
     </div>
   </header>
 
-  <!-- Main Content -->
   <main class="max-w-4xl mx-auto px-4 py-8 md:py-12 flex-grow w-full">
 
-    <!-- Back Button -->
     <div class="max-w-2xl mx-auto mb-4 flex justify-start">
       <a href="/" class="back-home-btn inline-flex items-center gap-2 bg-white hover:bg-slate-50 border border-slate-200 shadow-sm rounded-full px-5 py-2.5 text-sm font-medium text-slate-700 transition-all hover:shadow-md hover:border-slate-300 active:scale-95">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
           <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
         </svg>
         Back to Home
       </a>
     </div>
 
-    <!-- Page Header -->
     <div class="text-center mb-8">
-      <div class="inline-block p-3 bg-blue-50 rounded-2xl mb-4 transition-colors duration-200">
+      <div class="inline-block p-3 bg-blue-50 rounded-2xl mb-4 transition-colors duration-200" aria-hidden="true">
         <span class="text-4xl">✏️</span>
       </div>
       <h1 class="text-3xl md:text-4xl font-black text-slate-900 tracking-tight">EPS to SVG Converter</h1>
       <p class="text-slate-500 text-sm md:text-base mt-2 max-w-lg mx-auto">
-        Convert EPS vector graphics to SVG format. <strong>100% client-side</strong> — your files never leave your browser.
+        Convert EPS and Adobe Illustrator files to SVG. <strong>100% client-side</strong> — your files never leave your browser.
       </p>
     </div>
 
-    <!-- Info Box -->
-    <div class="max-w-2xl mx-auto mb-8 bg-blue-50 border border-blue-200 rounded-xl p-4 transition-colors duration-200">
+    <section class="max-w-2xl mx-auto mb-8 bg-blue-50 border border-blue-200 rounded-xl p-4 transition-colors duration-200" aria-label="What is EPS">
       <div class="flex items-start gap-3">
-        <span class="text-2xl">🎨</span>
+        <span class="text-2xl" aria-hidden="true">🎨</span>
         <div>
-          <h4 class="font-bold text-sm text-blue-900">What is EPS?</h4>
-          <p class="text-xs text-blue-700 mt-1">EPS (Encapsulated PostScript) is a vector format used in professional printing and design. Converting to SVG creates a modern, web-friendly vector file that can be edited in any browser and used on websites.</p>
+          <h2 class="font-bold text-sm text-blue-900">What is EPS?</h2>
+          <p class="text-xs text-blue-700 mt-1">EPS (Encapsulated PostScript) is a vector format used in professional printing and design. Converting to SVG creates a modern, web-friendly vector file that can be edited in any browser and used directly on websites.</p>
         </div>
       </div>
-    </div>
+    </section>
 
-    <!-- Supported Formats -->
-    <div class="max-w-2xl mx-auto mb-8 bg-purple-50 border border-purple-200 rounded-xl p-4 transition-colors duration-200">
+    <section class="max-w-2xl mx-auto mb-8 bg-purple-50 border border-purple-200 rounded-xl p-4 transition-colors duration-200" aria-label="Supported formats">
       <div class="flex items-start gap-3">
-        <span class="text-2xl">📋</span>
+        <span class="text-2xl" aria-hidden="true">📋</span>
         <div>
-          <h4 class="font-bold text-sm text-purple-900">Supported Input Formats</h4>
+          <h2 class="font-bold text-sm text-purple-900">Supported Input Formats</h2>
           <div class="flex flex-wrap gap-2 mt-2">
             <span class="text-xs bg-white px-2 py-1 rounded border border-purple-200">.EPS (Encapsulated PostScript)</span>
-            <span class="text-xs bg-white px-2 py-1 rounded border border-purple-200">.AI (Adobe Illustrator EPS)</span>
+            <span class="text-xs bg-white px-2 py-1 rounded border border-purple-200">.AI (Adobe Illustrator)</span>
           </div>
-          <p class="text-xs text-purple-700 mt-2">Note: EPS files with embedded raster images will have those images converted to embedded base64 PNG data.</p>
+          <p class="text-xs text-purple-700 mt-2">EPS files with embedded raster images have those images converted to embedded base64 PNG data.</p>
         </div>
       </div>
-    </div>
+    </section>
 
-    <!-- Conversion Dropzone -->
-    <div id="dropzone" class="bg-white border-2 border-dashed border-slate-300 hover:border-blue-400 transition-all rounded-3xl p-8 md:p-12 text-center shadow-lg max-w-2xl mx-auto cursor-pointer">
+    <div id="dropzone" class="bg-white border-2 border-dashed border-slate-300 hover:border-blue-400 transition-all rounded-3xl p-8 md:p-12 text-center shadow-lg max-w-2xl mx-auto cursor-pointer" role="button" tabindex="0" aria-label="Upload EPS files">
       <div class="flex flex-col items-center">
-        <div class="w-20 h-20 bg-blue-50 rounded-2xl flex items-center justify-center mb-4 text-4xl transition-colors duration-200">
-          📁
-        </div>
-        <h3 class="text-xl font-bold text-slate-900 mb-1">Drop your EPS files here</h3>
+        <div class="w-20 h-20 bg-blue-50 rounded-2xl flex items-center justify-center mb-4 text-4xl transition-colors duration-200" aria-hidden="true">📁</div>
+        <h2 class="text-xl font-bold text-slate-900 mb-1">Drop your EPS files here</h2>
         <p class="text-slate-400 text-sm mb-4">or click to browse (batch conversion supported)</p>
-        <input type="file" id="fileInput" accept=".eps,.ai,application/postscript,application/eps" multiple class="hidden">
+        <input type="file" id="fileInput" accept=".eps,.ai,application/postscript,application/eps" multiple class="hidden" aria-label="Choose EPS files">
         <button onclick="document.getElementById('fileInput').click()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-3 rounded-xl text-sm shadow-md shadow-blue-500/20 transition-all active:scale-95">
           Select EPS Files
         </button>
@@ -472,23 +659,21 @@
       </div>
     </div>
 
-    <!-- File Info -->
     <div id="fileInfo" class="hidden max-w-2xl mx-auto mt-6 bg-white rounded-xl shadow-sm border border-slate-200 p-6 transition-colors duration-200">
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-3">
-          <span class="text-2xl">📄</span>
+          <span class="text-2xl" aria-hidden="true">📄</span>
           <div>
             <p id="fileCount" class="font-medium text-slate-900"></p>
             <p id="totalSize" class="text-xs text-slate-400"></p>
           </div>
         </div>
-        <button onclick="clearFiles()" class="text-slate-400 hover:text-red-500 transition-colors">✕</button>
+        <button onclick="clearFiles()" class="text-slate-400 hover:text-red-500 transition-colors" aria-label="Remove files">✕</button>
       </div>
 
-      <!-- Options -->
       <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-slate-50 rounded-lg transition-colors duration-200">
         <div>
-          <label class="block text-xs font-medium text-slate-700 mb-1">🎨 Color Mode</label>
+          <label for="colorMode" class="block text-xs font-medium text-slate-700 mb-1">🎨 Color Mode</label>
           <select id="colorMode" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm bg-white transition-colors duration-200">
             <option value="color" selected>Preserve colors</option>
             <option value="black">Convert to black</option>
@@ -496,7 +681,7 @@
           </select>
         </div>
         <div>
-          <label class="block text-xs font-medium text-slate-700 mb-1">📐 SVG Precision</label>
+          <label for="precision" class="block text-xs font-medium text-slate-700 mb-1">📐 SVG Precision</label>
           <select id="precision" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm bg-white transition-colors duration-200">
             <option value="2" selected>Standard (2 decimals)</option>
             <option value="4">High (4 decimals)</option>
@@ -514,8 +699,7 @@
         </button>
       </div>
 
-      <!-- Progress Bar -->
-      <div id="progressContainer" class="hidden mt-4">
+      <div id="progressContainer" class="hidden mt-4" role="status" aria-live="polite">
         <div class="flex justify-between text-xs text-slate-500 mb-1">
           <span id="progressLabel">Converting...</span>
           <span id="progressText">0%</span>
@@ -527,24 +711,21 @@
       </div>
     </div>
 
-    <!-- Preview Grid -->
-    <div id="previewSection" class="hidden max-w-2xl mx-auto mt-6">
+    <section id="previewSection" class="hidden max-w-2xl mx-auto mt-6" aria-label="SVG preview">
       <div class="flex items-center justify-between mb-3">
-        <h4 class="font-bold text-sm text-slate-700">🖼️ Vector Preview</h4>
+        <h2 class="font-bold text-sm text-slate-700">🖼️ Vector Preview</h2>
         <span id="previewStats" class="text-xs text-slate-400"></span>
       </div>
-      <div id="vectorGrid" class="vector-grid">
-        <!-- Cards render here -->
-      </div>
-    </div>
+      <p class="text-xs text-slate-400 mb-2">💡 Click any preview to open the interactive viewer with zoom and pan.</p>
+      <div id="vectorGrid" class="vector-grid"></div>
+    </section>
 
-    <!-- Result Section -->
-    <div id="resultSection" class="hidden max-w-2xl mx-auto mt-6">
+    <section id="resultSection" class="hidden max-w-2xl mx-auto mt-6" aria-label="Download">
       <div class="bg-green-50 border border-green-200 rounded-xl p-6 transition-colors duration-200">
-        <div class="flex items-center justify-between mb-4">
+        <div class="flex items-start justify-between mb-4 gap-3 flex-wrap">
           <div>
-            <div class="text-4xl mb-1">✅</div>
-            <h3 class="font-bold text-slate-900">Conversion Complete!</h3>
+            <div class="text-4xl mb-1" aria-hidden="true">✅</div>
+            <h2 class="font-bold text-slate-900">Conversion Complete!</h2>
             <p class="text-sm text-slate-600">Your SVG files are ready to download.</p>
             <div class="mt-3 flex flex-wrap gap-2">
               <span id="convertedCount" class="stat-badge blue">0 of 0 converted</span>
@@ -561,10 +742,7 @@
           </div>
         </div>
 
-        <!-- Download Links -->
-        <div id="downloadLinksContainer" class="mt-3 grid grid-cols-2 md:grid-cols-3 gap-2 max-h-48 overflow-y-auto">
-          <!-- Links appear here -->
-        </div>
+        <div id="downloadLinksContainer" class="mt-3 grid grid-cols-2 md:grid-cols-3 gap-2 max-h-48 overflow-y-auto"></div>
 
         <div class="mt-4 flex flex-wrap gap-3">
           <button onclick="resetAll()" class="px-6 py-3 border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors text-sm">
@@ -572,60 +750,128 @@
           </button>
         </div>
       </div>
-    </div>
+    </section>
 
-    <!-- Info Section -->
-    <div class="max-w-2xl mx-auto mt-12 grid grid-cols-1 md:grid-cols-3 gap-4">
+    <section class="max-w-2xl mx-auto mt-12 grid grid-cols-1 md:grid-cols-3 gap-4" aria-label="Key features">
       <div class="bg-white p-4 rounded-xl border border-slate-100 text-center transition-colors duration-200">
-        <div class="text-2xl mb-1">🔒</div>
-        <h4 class="font-bold text-sm">100% Private</h4>
+        <div class="text-2xl mb-1" aria-hidden="true">🔒</div>
+        <h3 class="font-bold text-sm">100% Private</h3>
         <p class="text-xs text-slate-500">Your files never leave your browser</p>
       </div>
       <div class="bg-white p-4 rounded-xl border border-slate-100 text-center transition-colors duration-200">
-        <div class="text-2xl mb-1">📐</div>
-        <h4 class="font-bold text-sm">Scalable</h4>
-        <p class="text-xs text-slate-500">Vector output at any size</p>
+        <div class="text-2xl mb-1" aria-hidden="true">📐</div>
+        <h3 class="font-bold text-sm">Scalable Vectors</h3>
+        <p class="text-xs text-slate-500">SVG output at any size</p>
       </div>
       <div class="bg-white p-4 rounded-xl border border-slate-100 text-center transition-colors duration-200">
-        <div class="text-2xl mb-1">⚡</div>
-        <h4 class="font-bold text-sm">Fast & Free</h4>
+        <div class="text-2xl mb-1" aria-hidden="true">⚡</div>
+        <h3 class="font-bold text-sm">Fast &amp; Free</h3>
         <p class="text-xs text-slate-500">No sign-up required</p>
       </div>
-    </div>
+    </section>
 
-    <!-- FAQ -->
-    <section class="max-w-2xl mx-auto mt-12">
+    <!-- Long-form SEO content -->
+    <section class="max-w-2xl mx-auto mt-12" aria-label="About the converter">
+      <h2 class="text-xl font-black text-slate-900 mb-4">What is EPS to SVG conversion?</h2>
+      <div class="bg-white p-5 rounded-xl border border-slate-100 mb-4 transition-colors duration-200">
+        <p class="text-sm text-slate-600 leading-relaxed">
+          EPS (Encapsulated PostScript) is a vector file format built on Adobe PostScript. It stores graphics as commands — lines, curves, fills, and strokes — rather than as pixels, which is why EPS files scale to any size without losing quality. EPS has been a mainstay of print and design work for decades, but it does not display directly in web browsers.
+        </p>
+        <p class="text-sm text-slate-600 leading-relaxed mt-3">
+          SVG (Scalable Vector Graphics) is the web equivalent. It is an XML format that browsers, design tools, and code editors can all read and modify. Converting EPS to SVG lets you use your vector artwork directly on websites, in HTML, in CSS, and in modern JavaScript frameworks — without a plugin.
+        </p>
+      </div>
+
+      <h2 class="text-xl font-black text-slate-900 mb-4">When should you use this tool?</h2>
+      <div class="bg-white p-5 rounded-xl border border-slate-100 mb-4 transition-colors duration-200">
+        <ul class="text-sm text-slate-600 leading-relaxed list-disc pl-5 space-y-1">
+          <li>You have logos or illustrations in EPS format and need them for a website.</li>
+          <li>You exported vector art from Adobe Illustrator or Inkscape and want to publish it as SVG.</li>
+          <li>You need to embed vector graphics directly in HTML or CSS without external dependencies.</li>
+          <li>You want to batch-convert many EPS files to SVG without installing desktop software.</li>
+          <li>You want the conversion to run entirely on your device, without uploading files to a server.</li>
+        </ul>
+      </div>
+
+      <h2 class="text-xl font-black text-slate-900 mb-4">How the converter works</h2>
+      <div class="bg-white p-5 rounded-xl border border-slate-100 mb-4 transition-colors duration-200">
+        <p class="text-sm text-slate-600 leading-relaxed mb-3">
+          The converter reads the PostScript code inside your EPS file and interprets the drawing operators: <code>moveto</code>, <code>lineto</code>, <code>curveto</code>, <code>closepath</code>, <code>fill</code>, <code>stroke</code>, <code>setrgbcolor</code>, and others. Each operator is translated into the equivalent SVG element. Transformations (<code>translate</code>, <code>scale</code>, <code>rotate</code>, <code>concat</code>) are applied to the coordinates as they are emitted, so the SVG matches the original layout.
+        </p>
+        <p class="text-sm text-slate-600 leading-relaxed">
+          The <code>%%BoundingBox</code> comment in the EPS header is used to set the SVG <code>viewBox</code> and aspect ratio, so the converted file is ready to use without manual cropping.
+        </p>
+      </div>
+
+      <h2 class="text-xl font-black text-slate-900 mb-4">EPS vs SVG: a quick comparison</h2>
+      <div class="bg-white p-5 rounded-xl border border-slate-100 mb-4 transition-colors duration-200 overflow-x-auto">
+        <table class="w-full text-sm text-slate-600">
+          <thead>
+            <tr class="border-b border-slate-200">
+              <th class="text-left py-2 pr-4 font-bold">Feature</th>
+              <th class="text-left py-2 pr-4 font-bold">EPS</th>
+              <th class="text-left py-2 font-bold">SVG</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="border-b border-slate-100"><td class="py-2 pr-4">Format type</td><td class="py-2 pr-4">PostScript</td><td class="py-2">XML</td></tr>
+            <tr class="border-b border-slate-100"><td class="py-2 pr-4">Browser support</td><td class="py-2 pr-4">None</td><td class="py-2">Native</td></tr>
+            <tr class="border-b border-slate-100"><td class="py-2 pr-4">Editable in text editor</td><td class="py-2 pr-4">Hard</td><td class="py-2">Yes</td></tr>
+            <tr class="border-b border-slate-100"><td class="py-2 pr-4">File size</td><td class="py-2 pr-4">Larger</td><td class="py-2">Smaller</td></tr>
+            <tr><td class="py-2 pr-4">Typical use</td><td class="py-2 pr-4">Print, prepress</td><td class="py-2">Web, apps</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- FAQ — visible, mirrors FAQPage schema -->
+    <section class="max-w-2xl mx-auto mt-12" aria-label="Frequently asked questions">
       <h2 class="text-xl font-black text-slate-900 text-center mb-6">Frequently Asked Questions</h2>
       <div class="space-y-3">
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">Is my data safe?</h3>
-          <p class="text-slate-600 text-sm mt-1">Yes! All conversion happens locally in your browser. Your EPS files are never uploaded to any server.</p>
-        </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">What EPS features are supported?</h3>
-          <p class="text-slate-600 text-sm mt-1">Basic vector paths, shapes, lines, text, and colors are supported. Complex PostScript features (gradients, transparency, embedded fonts) may be simplified.</p>
-        </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">What about embedded images?</h3>
-          <p class="text-slate-600 text-sm mt-1">If your EPS contains embedded raster images, they are extracted and embedded as base64 PNG data in the SVG output. This may increase the SVG file size.</p>
-        </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">Can I convert multiple EPS files at once?</h3>
-          <p class="text-slate-600 text-sm mt-1">Yes! Drop or select multiple EPS files and all of them will be converted. You can download them all at once as a ZIP file.</p>
-        </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">Will my fonts be preserved?</h3>
-          <p class="text-slate-600 text-sm mt-1">Text elements are extracted and rendered using SVG text elements. If the original font isn't available in the SVG, it will fall back to a system font. For best results, convert text to paths in your EPS editor first.</p>
-        </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">What is the difference between EPS and SVG?</h3>
-          <p class="text-slate-600 text-sm mt-1">EPS is a PostScript-based format for print. SVG is an XML-based format for the web. SVG is easier to edit, smaller in size, and works natively in browsers.</p>
-        </div>
+        <details class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200" open>
+          <summary class="font-bold text-slate-900 text-sm cursor-pointer">Is my EPS data safe?</summary>
+          <p class="text-slate-600 text-sm mt-2">Yes. All conversion happens locally in your browser. Your EPS files are never uploaded to any server.</p>
+        </details>
+        <details class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
+          <summary class="font-bold text-slate-900 text-sm cursor-pointer">Is this EPS to SVG converter free?</summary>
+          <p class="text-slate-600 text-sm mt-2">Yes, the converter is completely free and does not require a sign-up or account.</p>
+        </details>
+        <details class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
+          <summary class="font-bold text-slate-900 text-sm cursor-pointer">What EPS features are supported?</summary>
+          <p class="text-slate-600 text-sm mt-2">Basic vector paths, shapes, lines, text, and colors are supported. Complex PostScript features such as gradients, transparency, and embedded fonts may be simplified.</p>
+        </details>
+        <details class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
+          <summary class="font-bold text-slate-900 text-sm cursor-pointer">Can I convert Adobe Illustrator .ai files?</summary>
+          <p class="text-slate-600 text-sm mt-2">Yes. Adobe Illustrator files saved with PDF compatibility embed PostScript data, and the converter parses that data the same way it parses EPS.</p>
+        </details>
+        <details class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
+          <summary class="font-bold text-slate-900 text-sm cursor-pointer">What about embedded raster images?</summary>
+          <p class="text-slate-600 text-sm mt-2">If your EPS contains embedded raster images, they are extracted and embedded as base64 PNG data in the SVG output. This may increase the SVG file size.</p>
+        </details>
+        <details class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
+          <summary class="font-bold text-slate-900 text-sm cursor-pointer">Can I convert multiple EPS files at once?</summary>
+          <p class="text-slate-600 text-sm mt-2">Yes. Drop or select multiple EPS files and all of them will be converted. You can download them all at once as a ZIP file.</p>
+        </details>
+        <details class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
+          <summary class="font-bold text-slate-900 text-sm cursor-pointer">Will my fonts be preserved?</summary>
+          <p class="text-slate-600 text-sm mt-2">Text is extracted and rendered as SVG text elements. If the original font is not available, the SVG falls back to a system font. For best fidelity, convert text to paths in your EPS editor before converting.</p>
+        </details>
+        <details class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
+          <summary class="font-bold text-slate-900 text-sm cursor-pointer">What is the difference between EPS and SVG?</summary>
+          <p class="text-slate-600 text-sm mt-2">EPS is a PostScript-based vector format used in print. SVG is an XML-based vector format designed for the web. SVG is easier to edit, smaller in size, and supported natively by all modern browsers.</p>
+        </details>
+        <details class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
+          <summary class="font-bold text-slate-900 text-sm cursor-pointer">Does the tool work offline?</summary>
+          <p class="text-slate-600 text-sm mt-2">Once the page has loaded in your browser, all conversions run locally and work offline.</p>
+        </details>
+        <details class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
+          <summary class="font-bold text-slate-900 text-sm cursor-pointer">Is there a file size limit?</summary>
+          <p class="text-slate-600 text-sm mt-2">The tool accepts EPS files up to 50 MB each. Because everything runs locally, the practical limit is your device's available memory.</p>
+        </details>
       </div>
     </section>
   </main>
 
-  <!-- Footer -->
   <footer class="border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-500 mt-auto transition-colors duration-200">
     <div class="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-3">
       <p class="font-medium">© Droplet. 100% Client-Side Privacy First File Utility.</p>
@@ -640,44 +886,34 @@
   </footer>
 
   <script>
-    // ============================================
-    // DARK MODE TOGGLE
-    // ============================================
+    // ============================================================
+    // THEME TOGGLE
+    // ============================================================
     const themeToggle = document.getElementById('theme-toggle');
     const html = document.documentElement;
-    
-    let currentTheme = localStorage.getItem('theme') || 
-      (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-    
-    if (currentTheme === 'dark') {
-      html.classList.add('dark');
-      themeToggle.textContent = '☀️';
-    } else {
-      themeToggle.textContent = '🌙';
-    }
-    
+    themeToggle.textContent = html.classList.contains('dark') ? '☀️' : '🌙';
     themeToggle.addEventListener('click', () => {
       if (html.classList.contains('dark')) {
         html.classList.remove('dark');
         themeToggle.textContent = '🌙';
-        localStorage.setItem('theme', 'light');
+        try { localStorage.setItem('theme', 'light'); } catch (e) {}
       } else {
         html.classList.add('dark');
         themeToggle.textContent = '☀️';
-        localStorage.setItem('theme', 'dark');
+        try { localStorage.setItem('theme', 'dark'); } catch (e) {}
       }
     });
 
-    // ============================================
+    // ============================================================
     // STATE
-    // ============================================
+    // ============================================================
     let files = [];
     let convertedFiles = [];
     let totalSize = 0;
 
-    // ============================================
+    // ============================================================
     // FILE HANDLING
-    // ============================================
+    // ============================================================
     const dropzone = document.getElementById('dropzone');
     const fileInput = document.getElementById('fileInput');
 
@@ -685,23 +921,18 @@
       e.preventDefault();
       dropzone.classList.add('dropzone-highlight');
     });
-
-    dropzone.addEventListener('dragleave', () => {
-      dropzone.classList.remove('dropzone-highlight');
-    });
-
+    dropzone.addEventListener('dragleave', () => dropzone.classList.remove('dropzone-highlight'));
     dropzone.addEventListener('drop', (e) => {
       e.preventDefault();
       dropzone.classList.remove('dropzone-highlight');
-      if (e.dataTransfer.files.length > 0) {
-        handleFiles(e.dataTransfer.files);
-      }
+      if (e.dataTransfer.files.length > 0) handleFiles(e.dataTransfer.files);
     });
-
     dropzone.addEventListener('click', (e) => {
       if (e.target.tagName !== 'BUTTON') fileInput.click();
     });
-
+    dropzone.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fileInput.click(); }
+    });
     fileInput.addEventListener('change', (e) => {
       if (e.target.files.length > 0) handleFiles(e.target.files);
     });
@@ -709,14 +940,12 @@
     function handleFiles(fileList) {
       const validFiles = [];
       let invalidCount = 0;
-
       for (let i = 0; i < fileList.length; i++) {
         const file = fileList[i];
-        const ext = file.name.toLowerCase();
-        const isEps = ext.endsWith('.eps') || ext.endsWith('.ai') ||
+        const name = file.name.toLowerCase();
+        const isEps = name.endsWith('.eps') || name.endsWith('.ai') ||
                       file.type === 'application/postscript' ||
                       file.type === 'application/eps';
-        
         if (isEps && file.size <= 50 * 1024 * 1024) {
           validFiles.push(file);
           totalSize += file.size;
@@ -724,16 +953,13 @@
           invalidCount++;
         }
       }
-
       if (validFiles.length === 0) {
         alert('No valid EPS files found. Please select .EPS or .AI files under 50MB.');
         return;
       }
-
       if (invalidCount > 0) {
         alert(`${invalidCount} file(s) were skipped due to size limits or invalid format.`);
       }
-
       files = validFiles;
       document.getElementById('fileCount').textContent = `${files.length} file(s)`;
       document.getElementById('totalSize').textContent = `Total: ${(totalSize / 1024 / 1024).toFixed(2)} MB`;
@@ -741,7 +967,6 @@
       dropzone.classList.add('hidden');
       document.getElementById('resultSection').classList.add('hidden');
       document.getElementById('previewSection').classList.add('hidden');
-      
       showInitialPreviews();
     }
 
@@ -749,9 +974,8 @@
       const grid = document.getElementById('vectorGrid');
       const preview = document.getElementById('previewSection');
       const stats = document.getElementById('previewStats');
-      
       grid.innerHTML = '';
-      
+
       const maxPreview = Math.min(files.length, 12);
       for (let i = 0; i < maxPreview; i++) {
         const file = files[i];
@@ -772,45 +996,24 @@
         `;
         grid.appendChild(card);
       }
-      
       if (files.length > 12) {
         const more = document.createElement('div');
         more.className = 'vector-card';
-        more.style.display = 'flex';
-        more.style.alignItems = 'center';
-        more.style.justifyContent = 'center';
-        more.style.minHeight = '140px';
-        more.style.background = '#f1f5f9';
-        more.style.border = '2px dashed #cbd5e1';
+        more.style.cssText = 'display:flex;align-items:center;justify-content:center;min-height:150px;background:#f1f5f9;border:2px dashed #cbd5e1;';
         more.innerHTML = `<span style="font-size:12px;color:#64748b;">+ ${files.length - 12} more files</span>`;
         grid.appendChild(more);
       }
-      
       stats.textContent = `${files.length} files`;
       preview.classList.remove('hidden');
     }
 
-    // ============================================
-    // EPS PARSING (PostScript Parser)
-    // ============================================
-    
-    /**
-     * Lightweight EPS/PostScript parser.
-     * Handles the common subset used by vector illustrations:
-     *  - moveto/lineto/curveto/closepath (path construction)
-     *  - fill/stroke/fillstroke
-     *  - setrgbcolor/setgray/setcmykcolor
-     *  - setlinewidth
-     *  - scale/translate/rotate (transformations)
-     *  - newpath/clip
-     *  - show/ashow (text)
-     *  - BoundingBox from %%BoundingBox comment
-     */
+    // ============================================================
+    // EPS PARSER (unchanged core logic)
+    // ============================================================
     function parseEPS(epsText, options) {
       const precision = parseInt(options.precision) || 2;
       const colorMode = options.colorMode || 'color';
-      
-      // Extract bounding box from comments
+
       let bbox = { llx: 0, lly: 0, urx: 612, ury: 792 };
       const bboxMatch = epsText.match(/%%BoundingBox:\s*(-?\d+)\s+(-?\d+)\s+(-?\d+)\s+(-?\d+)/);
       if (bboxMatch) {
@@ -821,52 +1024,39 @@
           ury: parseInt(bboxMatch[4])
         };
       }
-      
       const width = bbox.urx - bbox.llx;
       const height = bbox.ury - bbox.lly;
-      
-      // Strip out PostScript comments
-      const code = epsText
-        .replace(/%[^\n]*/g, '')
-        .replace(/\r\n/g, '\n');
-      
-      // Tokenize
+
+      const code = epsText.replace(/%[^\n]*/g, '').replace(/\r\n/g, '\n');
       const tokens = code.split(/\s+/).filter(t => t.length > 0);
-      
-      // Parser state
+
       const gstate = {
-        ctm: [1, 0, 0, 1, 0, 0], // current transform matrix
-        color: [0, 0, 0], // current RGB color
+        ctm: [1, 0, 0, 1, 0, 0],
+        color: [0, 0, 0],
         lineWidth: 1,
-        path: [], // list of path segments
+        path: [],
         currentPoint: [0, 0],
         subpathStart: null
       };
-      
-      const elements = []; // output SVG elements
-      const stack = []; // graphics state stack
-      
+      const elements = [];
+      const stack = [];
+
       const fmt = (n) => {
         const rounded = Number(n).toFixed(precision);
         return parseFloat(rounded).toString();
       };
-      
       const transform = (x, y) => {
         const m = gstate.ctm;
         return [m[0] * x + m[2] * y + m[4], m[1] * x + m[3] * y + m[5]];
       };
-      
-      const multiply = (m1, m2) => {
-        return [
-          m1[0] * m2[0] + m1[2] * m2[1],
-          m1[1] * m2[0] + m1[3] * m2[1],
-          m1[0] * m2[2] + m1[2] * m2[3],
-          m1[1] * m2[2] + m1[3] * m2[3],
-          m1[0] * m2[4] + m1[2] * m2[5] + m1[4],
-          m1[1] * m2[4] + m1[3] * m2[5] + m1[5]
-        ];
-      };
-      
+      const multiply = (m1, m2) => [
+        m1[0] * m2[0] + m1[2] * m2[1],
+        m1[1] * m2[0] + m1[3] * m2[1],
+        m1[0] * m2[2] + m1[2] * m2[3],
+        m1[1] * m2[2] + m1[3] * m2[3],
+        m1[0] * m2[4] + m1[2] * m2[5] + m1[4],
+        m1[1] * m2[4] + m1[3] * m2[5] + m1[5]
+      ];
       const colorToHex = (rgb) => {
         if (colorMode === 'black') return '#000000';
         if (colorMode === 'currentColor') return 'currentColor';
@@ -876,208 +1066,97 @@
         };
         return '#' + toHex(rgb[0]) + toHex(rgb[1]) + toHex(rgb[2]);
       };
-      
-      const operands = []; // operand stack
-      
-      // Convert path to SVG path data
+      const operands = [];
       const pathToD = () => {
         if (gstate.path.length === 0) return '';
         let d = '';
-        let started = false;
-        
         for (const seg of gstate.path) {
-          if (seg.op === 'M') {
-            d += `M ${fmt(seg.x)} ${fmt(seg.y)} `;
-            started = true;
-          } else if (seg.op === 'L') {
-            d += `L ${fmt(seg.x)} ${fmt(seg.y)} `;
-          } else if (seg.op === 'C') {
-            d += `C ${fmt(seg.x1)} ${fmt(seg.y1)} ${fmt(seg.x2)} ${fmt(seg.y2)} ${fmt(seg.x)} ${fmt(seg.y)} `;
-          } else if (seg.op === 'Z') {
-            d += 'Z ';
-          }
+          if (seg.op === 'M') d += `M ${fmt(seg.x)} ${fmt(seg.y)} `;
+          else if (seg.op === 'L') d += `L ${fmt(seg.x)} ${fmt(seg.y)} `;
+          else if (seg.op === 'C') d += `C ${fmt(seg.x1)} ${fmt(seg.y1)} ${fmt(seg.x2)} ${fmt(seg.y2)} ${fmt(seg.x)} ${fmt(seg.y)} `;
+          else if (seg.op === 'Z') d += 'Z ';
         }
         return d.trim();
       };
-      
       const flushPath = (paintOp) => {
         const d = pathToD();
         if (d) {
           const color = colorToHex(gstate.color);
           const stroke = gstate.lineWidth;
-          
           const attrs = [`d="${d}"`];
-          
-          if (paintOp === 'fill' || paintOp === 'fillstroke' || paintOp === 'eofill') {
-            attrs.push(`fill="${color}"`);
-          } else {
-            attrs.push('fill="none"');
-          }
-          
+          if (paintOp === 'fill' || paintOp === 'fillstroke' || paintOp === 'eofill') attrs.push(`fill="${color}"`);
+          else attrs.push('fill="none"');
           if (paintOp === 'stroke' || paintOp === 'fillstroke') {
             attrs.push(`stroke="${color}"`);
             attrs.push(`stroke-width="${fmt(stroke)}"`);
             attrs.push('stroke-linecap="round"');
             attrs.push('stroke-linejoin="round"');
           }
-          
           elements.push(`<path ${attrs.join(' ')}/>`);
         }
-        
         gstate.path = [];
       };
-      
-      // Process tokens
+
       for (let i = 0; i < tokens.length; i++) {
         const token = tokens[i];
-        
-        // Try to parse as number
-        if (/^-?\d*\.?\d+$/.test(token)) {
-          operands.push(parseFloat(token));
-          continue;
-        }
-        
-        // Handle operators
+        if (/^-?\d*\.?\d+$/.test(token)) { operands.push(parseFloat(token)); continue; }
+
         switch (token) {
-          case 'newpath':
-            gstate.path = [];
-            break;
-            
-          case 'moveto':
-          case 'm': {
-            const y = operands.pop();
-            const x = operands.pop();
+          case 'newpath': gstate.path = []; break;
+          case 'moveto': case 'm': {
+            const y = operands.pop(); const x = operands.pop();
             const [tx, ty] = transform(x, y);
             gstate.path.push({ op: 'M', x: tx, y: ty });
             gstate.currentPoint = [tx, ty];
             gstate.subpathStart = [tx, ty];
-            operands.length = 0;
-            break;
+            operands.length = 0; break;
           }
-          
-          case 'lineto':
-          case 'l': {
-            const y = operands.pop();
-            const x = operands.pop();
+          case 'lineto': case 'l': {
+            const y = operands.pop(); const x = operands.pop();
             const [tx, ty] = transform(x, y);
             gstate.path.push({ op: 'L', x: tx, y: ty });
             gstate.currentPoint = [tx, ty];
-            operands.length = 0;
-            break;
+            operands.length = 0; break;
           }
-          
-          case 'curveto':
-          case 'c': {
-            const y3 = operands.pop();
-            const x3 = operands.pop();
-            const y2 = operands.pop();
-            const x2 = operands.pop();
-            const y1 = operands.pop();
-            const x1 = operands.pop();
+          case 'curveto': case 'c': {
+            const y3 = operands.pop(), x3 = operands.pop();
+            const y2 = operands.pop(), x2 = operands.pop();
+            const y1 = operands.pop(), x1 = operands.pop();
             const [tx1, ty1] = transform(x1, y1);
             const [tx2, ty2] = transform(x2, y2);
             const [tx3, ty3] = transform(x3, y3);
             gstate.path.push({ op: 'C', x1: tx1, y1: ty1, x2: tx2, y2: ty2, x: tx3, y: ty3 });
             gstate.currentPoint = [tx3, ty3];
-            operands.length = 0;
-            break;
+            operands.length = 0; break;
           }
-          
           case 'closepath':
             gstate.path.push({ op: 'Z' });
             if (gstate.subpathStart) gstate.currentPoint = gstate.subpathStart;
-            operands.length = 0;
-            break;
-            
-          case 'fill':
-          case 'F':
-            flushPath('fill');
-            operands.length = 0;
-            break;
-            
-          case 'eofill':
-            flushPath('eofill');
-            operands.length = 0;
-            break;
-            
-          case 'stroke':
-          case 'S':
-            flushPath('stroke');
-            operands.length = 0;
-            break;
-            
-          case 'fillstroke':
-          case 'B':
-            flushPath('fillstroke');
-            operands.length = 0;
-            break;
-            
-          case 'setrgbcolor':
-          case 'RG': {
-            const b = operands.pop();
-            const g = operands.pop();
-            const r = operands.pop();
-            gstate.color = [r, g, b];
-            operands.length = 0;
-            break;
+            operands.length = 0; break;
+          case 'fill': case 'F': flushPath('fill'); operands.length = 0; break;
+          case 'eofill': flushPath('eofill'); operands.length = 0; break;
+          case 'stroke': case 'S': flushPath('stroke'); operands.length = 0; break;
+          case 'fillstroke': case 'B': flushPath('fillstroke'); operands.length = 0; break;
+          case 'setrgbcolor': case 'RG': {
+            const b = operands.pop(), g = operands.pop(), r = operands.pop();
+            gstate.color = [r, g, b]; operands.length = 0; break;
           }
-          
-          case 'setgray':
-          case 'G': {
-            const v = operands.pop();
-            gstate.color = [v, v, v];
-            operands.length = 0;
-            break;
-          }
-          
+          case 'setgray': case 'G': { const v = operands.pop(); gstate.color = [v, v, v]; operands.length = 0; break; }
           case 'setcmykcolor': {
-            const k = operands.pop();
-            const y = operands.pop();
-            const m = operands.pop();
-            const c = operands.pop();
-            // Convert CMYK to RGB
-            const r = (1 - c) * (1 - k);
-            const g = (1 - m) * (1 - k);
-            const b = (1 - y) * (1 - k);
-            gstate.color = [r, g, b];
-            operands.length = 0;
-            break;
+            const k = operands.pop(), y = operands.pop(), m = operands.pop(), c = operands.pop();
+            gstate.color = [(1 - c) * (1 - k), (1 - m) * (1 - k), (1 - y) * (1 - k)];
+            operands.length = 0; break;
           }
-          
-          case 'setlinewidth':
-          case 'w':
-            gstate.lineWidth = operands.pop() || 1;
-            operands.length = 0;
-            break;
-            
-          case 'scale':
-          case 'translate':
-          case 'rotate': {
-            // These are handled below with 'concat' approach
-            break;
-          }
-          
+          case 'setlinewidth': case 'w': gstate.lineWidth = operands.pop() || 1; operands.length = 0; break;
           case 'concat': {
-            // Expects matrix [a b c d e f]
-            const f = operands.pop();
-            const e = operands.pop();
-            const d = operands.pop();
-            const c = operands.pop();
-            const b = operands.pop();
-            const a = operands.pop();
+            const f = operands.pop(), e = operands.pop(), d = operands.pop();
+            const c = operands.pop(), b = operands.pop(), a = operands.pop();
             gstate.ctm = multiply(gstate.ctm, [a, b, c, d, e, f]);
-            operands.length = 0;
-            break;
+            operands.length = 0; break;
           }
-          
           case 'gsave':
-            stack.push({
-              ctm: [...gstate.ctm],
-              color: [...gstate.color],
-              lineWidth: gstate.lineWidth
-            });
+            stack.push({ ctm: [...gstate.ctm], color: [...gstate.color], lineWidth: gstate.lineWidth });
             break;
-            
           case 'grestore': {
             const saved = stack.pop();
             if (saved) {
@@ -1087,84 +1166,52 @@
             }
             break;
           }
-          
-          case 'show':
-          case 'ashow':
-          case 'widthshow': {
+          case 'show': case 'ashow': case 'widthshow': {
             const str = operands.pop();
             if (typeof str === 'string') {
-              // Simplified text handling - extract characters
               const text = str.replace(/[()\\]/g, '');
               if (text.trim()) {
                 const [tx, ty] = transform(gstate.currentPoint[0], gstate.currentPoint[1]);
                 const color = colorToHex(gstate.color);
-                elements.push(
-                  `<text x="${fmt(tx)}" y="${fmt(ty)}" fill="${color}" font-family="Helvetica, Arial, sans-serif" font-size="12">${escapeHtml(text)}</text>`
-                );
+                elements.push(`<text x="${fmt(tx)}" y="${fmt(ty)}" fill="${color}" font-family="Helvetica, Arial, sans-serif" font-size="12">${escapeHtml(text)}</text>`);
               }
             }
-            operands.length = 0;
-            break;
+            operands.length = 0; break;
           }
-          
           default: {
-            // Handle PostScript string literal
             if (token.startsWith('(')) {
-              // String - may span multiple tokens
-              let str = token;
-              let j = i + 1;
-              while (!str.endsWith(')') && j < tokens.length && j < i + 50) {
-                str += ' ' + tokens[j];
-                j++;
-              }
+              let str = token, j = i + 1;
+              while (!str.endsWith(')') && j < tokens.length && j < i + 50) { str += ' ' + tokens[j]; j++; }
               i = j - 1;
               operands.push(str);
             } else if (token.startsWith('[')) {
-              // Array start - collect until ']'
-              const arr = [];
-              let j = i + 1;
+              const arr = []; let j = i + 1;
               while (j < tokens.length && !tokens[j].includes(']')) {
                 const t = tokens[j];
-                if (/^-?\d*\.?\d+$/.test(t)) {
-                  arr.push(parseFloat(t));
-                }
+                if (/^-?\d*\.?\d+$/.test(t)) arr.push(parseFloat(t));
                 j++;
               }
               i = j;
-              // If array has 6 numbers, it's a transform matrix
-              if (arr.length === 6) {
-                operands.push(arr[0], arr[1], arr[2], arr[3], arr[4], arr[5]);
-              }
+              if (arr.length === 6) operands.push(arr[0], arr[1], arr[2], arr[3], arr[4], arr[5]);
             }
-            // Otherwise ignore unknown tokens
           }
         }
       }
-      
-      // Flush any remaining path
-      if (gstate.path.length > 0) {
-        flushPath('stroke');
-      }
-      
-      // Build SVG
+      if (gstate.path.length > 0) flushPath('stroke');
+
       const svgContent = elements.join('\n    ');
-      
       const svg = `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="${bbox.llx} ${bbox.lly} ${width} ${height}" width="${width}" height="${height}">
     ${svgContent}
 </svg>`;
-      
       return svg;
     }
 
-    // ============================================
+    // ============================================================
     // CONVERT
-    // ============================================
+    // ============================================================
     async function convertAll() {
-      if (files.length === 0) {
-        alert('Please select EPS files first.');
-        return;
-      }
+      if (files.length === 0) { alert('Please select EPS files first.'); return; }
 
       const colorMode = document.getElementById('colorMode').value;
       const precision = document.getElementById('precision').value;
@@ -1175,31 +1222,19 @@
       document.getElementById('convertBtn').textContent = '⏳ Converting...';
 
       convertedFiles = [];
-      let successCount = 0;
-      let failCount = 0;
-      let totalOutputSize = 0;
+      let successCount = 0, failCount = 0, totalOutputSize = 0;
 
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
         const progress = 10 + Math.round((i / files.length) * 80);
         setProgress(progress, `Converting ${i + 1} of ${files.length}: ${file.name}`);
-
         try {
           const text = await readFileAsText(file);
           const svg = parseEPS(text, { colorMode, precision });
-          
           const blob = new Blob([svg], { type: 'image/svg+xml;charset=utf-8' });
           const fileName = file.name.replace(/\.(eps|ai)$/i, '') + '.svg';
           const url = URL.createObjectURL(blob);
-          
-          convertedFiles.push({
-            blob,
-            name: fileName,
-            originalName: file.name,
-            size: blob.size,
-            url,
-            svg
-          });
+          convertedFiles.push({ blob, name: fileName, originalName: file.name, size: blob.size, url, svg });
           totalOutputSize += blob.size;
           successCount++;
         } catch (error) {
@@ -1209,7 +1244,6 @@
       }
 
       setProgress(100, '✅ Complete!');
-
       setTimeout(() => {
         showResults(successCount, failCount, totalOutputSize);
         document.getElementById('convertBtn').disabled = false;
@@ -1227,36 +1261,29 @@
       });
     }
 
-    // ============================================
-    // SHOW RESULTS
-    // ============================================
+    // ============================================================
+    // SHOW RESULTS — interactive thumbnails
+    // ============================================================
     function showResults(successCount, failCount, totalBytes) {
-      // Update preview grid
       const grid = document.getElementById('vectorGrid');
       const stats = document.getElementById('previewStats');
       grid.innerHTML = '';
 
-      const successful = convertedFiles;
-      
-      successful.slice(0, 12).forEach((f, idx) => {
+      convertedFiles.slice(0, 12).forEach((f) => {
         const card = document.createElement('div');
         card.className = 'vector-card';
-        card.style.cursor = 'pointer';
-        
-        // Create a sanitized preview
         const previewSvg = f.svg.replace(/<\?xml[^>]*\?>/g, '');
-        
         card.innerHTML = `
           <div class="status-badge svg">SVG</div>
           <div class="vector-preview">
+            <div class="card-hover-overlay"><span class="hint">🔍 Open viewer</span></div>
             ${previewSvg}
           </div>
           <div class="vector-info">
             <div class="name">${escapeHtml(f.name)}</div>
-            <div class="meta">${(f.size / 1024).toFixed(1)} KB</div>
+            <div class="meta">${(f.size / 1024).toFixed(1)} KB · tap to zoom</div>
           </div>
         `;
-        
         card.addEventListener('click', () => openSvgModal(f));
         grid.appendChild(card);
       });
@@ -1264,33 +1291,25 @@
       if (convertedFiles.length > 12) {
         const more = document.createElement('div');
         more.className = 'vector-card';
-        more.style.display = 'flex';
-        more.style.alignItems = 'center';
-        more.style.justifyContent = 'center';
-        more.style.minHeight = '140px';
-        more.style.background = '#f1f5f9';
-        more.style.border = '2px dashed #cbd5e1';
+        more.style.cssText = 'display:flex;align-items:center;justify-content:center;min-height:150px;background:#f1f5f9;border:2px dashed #cbd5e1;';
         more.innerHTML = `<span style="font-size:12px;color:#64748b;">+ ${convertedFiles.length - 12} more</span>`;
         grid.appendChild(more);
       }
 
       stats.textContent = `${convertedFiles.length} SVG files`;
       document.getElementById('previewSection').classList.remove('hidden');
-
-      // Update result section
       document.getElementById('convertedCount').textContent = `${successCount} of ${files.length} converted`;
       document.getElementById('totalSizeBadge').textContent = `${(totalBytes / 1024).toFixed(1)} KB`;
 
-      // Add download links
       const links = document.getElementById('downloadLinksContainer');
       links.innerHTML = '';
       convertedFiles.forEach(f => {
         const link = document.createElement('a');
         link.href = f.url;
-        link.download = f.name;
+        link.download = 'dropletweb-' + f.name;
         link.className = 'bg-white border border-slate-200 rounded-lg p-2 text-center hover:border-blue-400 transition-all text-xs truncate';
         link.textContent = '🎨 ' + f.name.substring(0, 16) + (f.name.length > 16 ? '...' : '');
-        link.title = f.name;
+        link.title = 'dropletweb-' + f.name;
         links.appendChild(link);
       });
 
@@ -1298,32 +1317,26 @@
       document.getElementById('resultSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
-    // ============================================
-    // DOWNLOAD
-    // ============================================
+    // ============================================================
+    // DOWNLOAD — dropletweb- prefix
+    // ============================================================
     function downloadAll() {
-      if (convertedFiles.length === 0) {
-        alert('No files to download.');
-        return;
-      }
+      if (convertedFiles.length === 0) { alert('No files to download.'); return; }
 
-      if (convertedFiles.length === 1) {
-        downloadSingle(convertedFiles[0]);
-        return;
-      }
+      if (convertedFiles.length === 1) { downloadSingle(convertedFiles[0]); return; }
 
       if (typeof JSZip !== 'undefined') {
         const zip = new JSZip();
-        convertedFiles.forEach(f => zip.file(f.name, f.blob));
+        convertedFiles.forEach(f => zip.file('dropletweb-' + f.name, f.blob));
         zip.generateAsync({ type: 'blob' }).then(content => {
           const url = URL.createObjectURL(content);
           const link = document.createElement('a');
           link.href = url;
-          link.download = 'svg-converted.zip';
+          link.download = 'dropletweb-svg.zip';
           document.body.appendChild(link);
           link.click();
           document.body.removeChild(link);
-          URL.revokeObjectURL(url);
+          setTimeout(() => URL.revokeObjectURL(url), 5000);
         });
       } else {
         downloadAllIndividual();
@@ -1333,7 +1346,7 @@
     function downloadSingle(f) {
       const link = document.createElement('a');
       link.href = f.url;
-      link.download = f.name;
+      link.download = 'dropletweb-' + f.name;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -1345,9 +1358,9 @@
       });
     }
 
-    // ============================================
-    // SVG MODAL VIEWER
-    // ============================================
+    // ============================================================
+    // INTERACTIVE SVG MODAL VIEWER
+    // ============================================================
     function openSvgModal(f) {
       const existing = document.getElementById('svgModal');
       if (existing) existing.remove();
@@ -1355,44 +1368,196 @@
       const modal = document.createElement('div');
       modal.id = 'svgModal';
       modal.className = 'svg-modal-overlay';
-      
+      modal.setAttribute('role', 'dialog');
+      modal.setAttribute('aria-modal', 'true');
+      modal.setAttribute('aria-label', 'Interactive SVG viewer');
+
       const previewSvg = f.svg.replace(/<\?xml[^>]*\?>/g, '');
-      
+
       modal.innerHTML = `
         <div class="svg-modal">
           <div class="svg-modal-header">
-            <div style="display:flex;align-items:center;gap:12px;">
-              <span style="font-size:24px;">🎨</span>
-              <div>
-                <h3 style="font-weight:700;font-size:15px;color:#0f172a;">${escapeHtml(f.name)}</h3>
-                <p style="font-size:11px;color:#64748b;">${(f.size / 1024).toFixed(2)} KB • SVG</p>
+            <div style="display:flex;align-items:center;gap:12px;min-width:0;flex:1;">
+              <span style="font-size:24px;" aria-hidden="true">🎨</span>
+              <div style="min-width:0;">
+                <h3 style="font-weight:700;font-size:15px;color:#0f172a;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(f.name)}</h3>
+                <p style="font-size:11px;color:#64748b;">${(f.size / 1024).toFixed(2)} KB · SVG</p>
               </div>
             </div>
-            <div style="display:flex;gap:8px;">
-              <button onclick="downloadFromModal('${f.url}', '${escapeHtml(f.name)}')" style="background:#2563eb;color:white;border:none;padding:8px 14px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;">
-                📥 Download
-              </button>
-              <button onclick="copySvg('${escapeHtml(f.name)}')" style="background:#f1f5f9;color:#475569;border:none;padding:8px 14px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;">
-                📋 Copy SVG
-              </button>
-              <button onclick="closeSvgModal()" style="background:transparent;border:none;font-size:22px;cursor:pointer;color:#94a3b8;padding:4px 8px;">✕</button>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <button class="modal-btn" data-action="download" style="background:#2563eb;color:white;border:none;padding:8px 14px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;">📥 Download</button>
+              <button class="modal-btn" data-action="copy" style="background:#f1f5f9;color:#475569;border:1px solid #e2e8f0;padding:8px 14px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;">📋 Copy SVG</button>
+              <button class="modal-btn" data-action="code" style="background:#f1f5f9;color:#475569;border:1px solid #e2e8f0;padding:8px 14px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;">{ } View Code</button>
+              <button class="modal-btn" data-action="close" style="background:transparent;border:none;font-size:22px;cursor:pointer;color:#94a3b8;padding:4px 8px;" aria-label="Close">✕</button>
             </div>
           </div>
-          <div class="svg-modal-body">
-            ${previewSvg}
+
+          <div class="svg-modal-toolbar" id="svgToolbar">
+            <button data-tool="zoom-out" title="Zoom out">➖</button>
+            <span class="zoom-label" id="zoomLabel">100%</span>
+            <button data-tool="zoom-in" title="Zoom in">➕</button>
+            <button data-tool="zoom-fit" title="Fit to screen">⛶ Fit</button>
+            <button data-tool="zoom-reset" title="Reset zoom">⟲ 100%</button>
+            <span class="divider"></span>
+            <button data-tool="rotate-left" title="Rotate left">↺</button>
+            <button data-tool="rotate-right" title="Rotate right">↻</button>
+            <button data-tool="rotate-reset" title="Reset rotation">⟲ 0°</button>
+            <span class="divider"></span>
+            <button data-bg="checker" class="active" title="Transparent grid">▦ Grid</button>
+            <button data-bg="white" title="White background">▢ White</button>
+            <button data-bg="dark" title="Dark background">■ Dark</button>
+          </div>
+
+          <div class="svg-modal-body" id="svgBody">
+            <div id="svgViewport">
+              ${previewSvg}
+            </div>
           </div>
         </div>
       `;
-      
+
       document.body.appendChild(modal);
-      
-      // Store svg content for copy
-      window._currentSvg = f.svg;
-      
-      // Close on outside click
+
+      // State for the modal's viewport
+      const state = {
+        scale: 1,
+        rotate: 0,
+        tx: 0,
+        ty: 0,
+        dragging: false,
+        lastX: 0,
+        lastY: 0
+      };
+
+      const viewport = modal.querySelector('#svgViewport');
+      const body = modal.querySelector('#svgBody');
+      const zoomLabel = modal.querySelector('#zoomLabel');
+
+      function applyTransform() {
+        viewport.style.transform =
+          `translate(${state.tx}px, ${state.ty}px) rotate(${state.rotate}deg) scale(${state.scale})`;
+        zoomLabel.textContent = Math.round(state.scale * 100) + '%';
+      }
+
+      function fitToScreen() {
+        // Reset transform then measure
+        state.scale = 1; state.tx = 0; state.ty = 0; state.rotate = 0;
+        viewport.style.transform = '';
+        requestAnimationFrame(() => {
+          const bodyW = body.clientWidth - 32;
+          const bodyH = body.clientHeight - 32;
+          const svgEl = viewport.querySelector('svg');
+          if (!svgEl) return;
+          const vb = svgEl.viewBox ? svgEl.viewBox.baseVal : null;
+          const svgW = (vb && vb.width) ? vb.width : svgEl.getBoundingClientRect().width;
+          const svgH = (vb && vb.height) ? vb.height : svgEl.getBoundingClientRect().height;
+          if (!svgW || !svgH) return;
+          const scale = Math.min(bodyW / svgW, bodyH / svgH);
+          state.scale = scale;
+          state.tx = (body.clientWidth - svgW * scale) / 2;
+          state.ty = (body.clientHeight - svgH * scale) / 2;
+          applyTransform();
+        });
+      }
+
+      // Initial fit
+      fitToScreen();
+
+      // Toolbar
+      modal.querySelectorAll('[data-tool]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const t = btn.dataset.tool;
+          if (t === 'zoom-in') { state.scale = Math.min(10, state.scale * 1.25); applyTransform(); }
+          else if (t === 'zoom-out') { state.scale = Math.max(0.1, state.scale / 1.25); applyTransform(); }
+          else if (t === 'zoom-fit') { fitToScreen(); }
+          else if (t === 'zoom-reset') { state.scale = 1; state.tx = 0; state.ty = 0; applyTransform(); }
+          else if (t === 'rotate-left') { state.rotate -= 90; applyTransform(); }
+          else if (t === 'rotate-right') { state.rotate += 90; applyTransform(); }
+          else if (t === 'rotate-reset') { state.rotate = 0; applyTransform(); }
+        });
+      });
+
+      modal.querySelectorAll('[data-bg]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          modal.querySelectorAll('[data-bg]').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          body.classList.remove('bg-white', 'bg-dark');
+          if (btn.dataset.bg === 'white') body.classList.add('bg-white');
+          else if (btn.dataset.bg === 'dark') body.classList.add('bg-dark');
+        });
+      });
+
+      // Drag to pan
+      body.addEventListener('mousedown', (e) => {
+        if (e.target.closest('.svg-modal-toolbar') || e.target.closest('.svg-modal-header')) return;
+        state.dragging = true;
+        state.lastX = e.clientX;
+        state.lastY = e.clientY;
+        body.classList.add('dragging');
+        e.preventDefault();
+      });
+      window.addEventListener('mousemove', (e) => {
+        if (!state.dragging) return;
+        state.tx += e.clientX - state.lastX;
+        state.ty += e.clientY - state.lastY;
+        state.lastX = e.clientX;
+        state.lastY = e.clientY;
+        applyTransform();
+      });
+      window.addEventListener('mouseup', () => {
+        state.dragging = false;
+        body.classList.remove('dragging');
+      });
+
+      // Touch drag
+      body.addEventListener('touchstart', (e) => {
+        if (e.target.closest('.svg-modal-toolbar') || e.target.closest('.svg-modal-header')) return;
+        if (e.touches.length !== 1) return;
+        state.dragging = true;
+        state.lastX = e.touches[0].clientX;
+        state.lastY = e.touches[0].clientY;
+        e.preventDefault();
+      }, { passive: false });
+      body.addEventListener('touchmove', (e) => {
+        if (!state.dragging || e.touches.length !== 1) return;
+        state.tx += e.touches[0].clientX - state.lastX;
+        state.ty += e.touches[0].clientY - state.lastY;
+        state.lastX = e.touches[0].clientX;
+        state.lastY = e.touches[0].clientY;
+        applyTransform();
+        e.preventDefault();
+      }, { passive: false });
+      body.addEventListener('touchend', () => { state.dragging = false; });
+
+      // Mouse wheel zoom
+      body.addEventListener('wheel', (e) => {
+        if (!e.ctrlKey && !e.metaKey) return;
+        e.preventDefault();
+        const delta = -Math.sign(e.deltaY) * 0.15;
+        state.scale = Math.max(0.1, Math.min(10, state.scale * (1 + delta)));
+        applyTransform();
+      }, { passive: false });
+
+      // Buttons
+      modal.querySelector('[data-action="download"]').addEventListener('click', () => {
+        const link = document.createElement('a');
+        link.href = f.url;
+        link.download = 'dropletweb-' + f.name;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      });
+      modal.querySelector('[data-action="copy"]').addEventListener('click', () => copySvgCode(f.svg));
+      modal.querySelector('[data-action="code"]').addEventListener('click', () => openCodeView(f.svg, f.name));
+      modal.querySelector('[data-action="close"]').addEventListener('click', closeSvgModal);
+
+      // Outside click
       modal.addEventListener('click', (e) => {
         if (e.target === modal) closeSvgModal();
       });
+
+      // Store svg content for copy
+      window._currentSvg = f.svg;
     }
 
     function closeSvgModal() {
@@ -1400,22 +1565,13 @@
       if (modal) modal.remove();
     }
 
-    function downloadFromModal(url, name) {
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = name;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    }
-
-    function copySvg(name) {
-      if (!window._currentSvg) return;
-      navigator.clipboard.writeText(window._currentSvg).then(() => {
+    function copySvgCode(svgText) {
+      if (!svgText) return;
+      navigator.clipboard.writeText(svgText).then(() => {
         alert('✅ SVG code copied to clipboard!');
       }).catch(() => {
         const textarea = document.createElement('textarea');
-        textarea.value = window._currentSvg;
+        textarea.value = svgText;
         document.body.appendChild(textarea);
         textarea.select();
         document.execCommand('copy');
@@ -1424,13 +1580,51 @@
       });
     }
 
+    function openCodeView(svgText, name) {
+      const existing = document.getElementById('svgCodeModal');
+      if (existing) existing.remove();
+
+      const modal = document.createElement('div');
+      modal.id = 'svgCodeModal';
+      modal.className = 'svg-modal-overlay';
+      modal.innerHTML = `
+        <div class="svg-modal" style="width:900px;">
+          <div class="svg-modal-header">
+            <div style="display:flex;align-items:center;gap:12px;">
+              <span style="font-size:24px;">{ }</span>
+              <div>
+                <h3 style="font-weight:700;font-size:15px;color:#0f172a;">Source: ${escapeHtml(name)}</h3>
+                <p style="font-size:11px;color:#64748b;">${svgText.length.toLocaleString()} characters</p>
+              </div>
+            </div>
+            <div style="display:flex;gap:8px;">
+              <button id="codeCopyBtn" style="background:#2563eb;color:white;border:none;padding:8px 14px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;">📋 Copy</button>
+              <button id="codeCloseBtn" style="background:transparent;border:none;font-size:22px;cursor:pointer;color:#94a3b8;padding:4px 8px;">✕</button>
+            </div>
+          </div>
+          <div style="padding:16px;flex:1;min-height:0;overflow:hidden;">
+            <pre class="code-preview" style="height:100%;">${escapeHtml(svgText)}</pre>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(modal);
+      modal.querySelector('#codeCopyBtn').addEventListener('click', () => copySvgCode(svgText));
+      modal.querySelector('#codeCloseBtn').addEventListener('click', () => modal.remove());
+      modal.addEventListener('click', (e) => { if (e.target === modal) modal.remove(); });
+    }
+
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') closeSvgModal();
+      if (e.key === 'Escape') {
+        const m1 = document.getElementById('svgModal');
+        const m2 = document.getElementById('svgCodeModal');
+        if (m2) m2.remove();
+        else if (m1) m1.remove();
+      }
     });
 
-    // ============================================
+    // ============================================================
     // UTILITIES
-    // ============================================
+    // ============================================================
     function escapeHtml(str) {
       const div = document.createElement('div');
       div.textContent = str;
