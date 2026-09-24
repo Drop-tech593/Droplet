@@ -1,1476 +1,1844 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title id="pageTitle">Edit PDF - Droplet</title>
-  <meta name="description" content="Edit PDF files online for free. 100% client-side, your files never leave your browser.">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rotate PDF — Free Online Page Rotation Tool | Droplet</title>
+<meta name="description" content="Rotate PDF pages online for free. Rotate individual pages, ranges, or all pages at once. Preview before export. 100% client-side — your file never leaves your browser.">
+<meta name="keywords" content="rotate pdf, rotate pdf pages, rotate pdf online, rotate single page pdf, rotate all pages pdf, fix sideways pdf, landscape to portrait pdf, portrait to landscape pdf, free pdf rotator, client-side rotate pdf, private pdf rotate">
+<meta name="author" content="Droplet">
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+<meta name="googlebot" content="index, follow">
+<meta name="bingbot" content="index, follow">
+<meta name="theme-color" content="#3b82f6">
+<meta name="application-name" content="Droplet">
+<meta name="format-detection" content="telephone=no">
 
-  <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
+<link rel="canonical" href="https://dropletweb.xyz/rotate-pdf">
 
-  <!-- PDF.js for PDF rendering -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Droplet">
+<meta property="og:title" content="Rotate PDF — Free, Private, Interactive | Droplet">
+<meta property="og:description" content="Rotate PDF pages individually or in bulk. Preview the output before export. 100% client-side.">
+<meta property="og:url" content="https://dropletweb.xyz/rotate-pdf">
+<meta property="og:image" content="https://dropletweb.xyz/Gemini_Generated_Image_sdu6v7sdu6v7sdu6.jpg">
+<meta property="og:image:alt" content="Droplet PDF Rotator">
+<meta property="og:locale" content="en_ZA">
 
-  <style>
-    * { box-sizing: border-box; }
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Rotate PDF — Free, Private, Interactive">
+<meta name="twitter:description" content="Rotate PDF pages individually or in bulk. 100% client-side.">
+<meta name="twitter:image" content="https://dropletweb.xyz/Gemini_Generated_Image_sdu6v7sdu6v7sdu6.jpg">
 
-    .scrollbar-thin::-webkit-scrollbar { width: 5px; height: 5px; }
-    .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
-    .scrollbar-thin::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-    .scrollbar-thin::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+<link rel="icon" href="/Gemini_Generated_Image_sdu6v7sdu6v7sdu6.jpg" type="image/jpeg">
 
-    /* ===== TOP BAR ===== */
-    .top-bar {
-      background: white;
-      border-bottom: 1px solid #e2e8f0;
-      padding: 4px 16px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      flex-wrap: wrap;
-      min-height: 40px;
-    }
-    .top-bar .logo {
-      font-weight: 700;
-      font-size: 15px;
-      color: #0f172a;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      margin-right: 8px;
-      cursor: pointer;
-      text-decoration: none;
-    }
-    .top-bar .logo img { height: 26px; width: auto; border-radius: 6px; }
-    .top-bar .logo:hover { color: #2563eb; }
-    .top-bar .menu-btn {
-      padding: 3px 8px;
-      font-size: 12px;
-      font-weight: 500;
-      color: #475569;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: background 0.15s;
-      background: transparent;
-      border: none;
-      position: relative;
-    }
-    .top-bar .menu-btn:hover { background: #f1f5f9; }
-    .top-bar .menu-btn .dropdown {
-      display: none;
-      position: absolute;
-      top: 100%;
-      left: 0;
-      min-width: 200px;
-      background: white;
-      border-radius: 8px;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.15);
-      border: 1px solid #e2e8f0;
-      padding: 4px 0;
-      z-index: 100;
-    }
-    .top-bar .menu-btn:hover .dropdown { display: block; }
-    .top-bar .menu-btn .dropdown a {
-      display: block;
-      padding: 5px 14px;
-      font-size: 12px;
-      color: #1e293b;
-      text-decoration: none;
-      transition: background 0.15s;
-      cursor: pointer;
-    }
-    .top-bar .menu-btn .dropdown a:hover { background: #f1f5f9; }
-    .top-bar .menu-btn .dropdown .divider {
-      height: 1px;
-      background: #e2e8f0;
-      margin: 4px 8px;
-    }
-    .top-bar .menu-btn .dropdown .shortcut {
-      float: right;
-      color: #94a3b8;
-      font-size: 11px;
-    }
-    .top-bar .doc-title {
-      font-size: 13px;
-      font-weight: 500;
-      color: #1e293b;
-      padding: 4px 10px;
-      border-radius: 4px;
-      cursor: pointer;
-      transition: background 0.15s;
-      max-width: 300px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-    .top-bar .doc-title:hover { background: #f1f5f9; }
-    .top-bar .doc-title .saved { color: #22c55e; font-size: 11px; margin-left: 6px; }
-    .top-bar .tool-badge {
-      font-size: 11px;
-      background: #dbeafe;
-      color: #1e40af;
-      padding: 2px 12px;
-      border-radius: 12px;
-      font-weight: 600;
-    }
-    .top-bar .action-btn {
-      padding: 3px 8px;
-      font-size: 12px;
-      font-weight: 500;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: all 0.15s;
-      border: 1px solid #e2e8f0;
-      background: white;
-      color: #475569;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-    .top-bar .action-btn:hover { background: #f1f5f9; border-color: #cbd5e1; }
-    .top-bar .action-btn.primary {
-      background: #2563eb;
-      color: white;
-      border-color: #2563eb;
-    }
-    .top-bar .action-btn.primary:hover { background: #1d4ed8; border-color: #1d4ed8; }
-    .top-bar .spacer { flex: 1; }
-    .top-bar .zoom-controls {
-      display: flex;
-      align-items: center;
-      gap: 3px;
-      font-size: 12px;
-      color: #475569;
-    }
-    .top-bar .zoom-controls button {
-      width: 24px;
-      height: 24px;
-      border-radius: 6px;
-      border: 1px solid #e2e8f0;
-      background: white;
-      cursor: pointer;
-      font-size: 13px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.15s;
-    }
-    .top-bar .zoom-controls button:hover { background: #f1f5f9; }
+<script>
+  (function () {
+    try {
+      var saved = localStorage.getItem('theme');
+      var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      var theme = saved || (prefersDark ? 'dark' : 'light');
+      if (theme === 'dark') document.documentElement.classList.add('dark');
+    } catch (e) {}
+  })();
+</script>
 
-    /* ===== TOOLBAR ROW 2 ===== */
-    .toolbar-row {
-      background: white;
-      border-bottom: 1px solid #e2e8f0;
-      padding: 4px 12px;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      flex-wrap: wrap;
-      min-height: 38px;
-      transition: all 0.2s;
-    }
-    .toolbar-row .tool-btn {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      padding: 4px 10px;
-      border-radius: 6px;
-      font-size: 12px;
-      font-weight: 500;
-      color: #475569;
-      border: 2px solid transparent;
-      cursor: pointer;
-      transition: all 0.15s;
-      background: transparent;
-      white-space: nowrap;
-    }
-    .toolbar-row .tool-btn:hover { background: #f1f5f9; color: #1e293b; }
-    .toolbar-row .tool-btn.active { border-color: #2563eb; background: #eff6ff; color: #2563eb; }
-    .toolbar-row .tool-btn .icon { font-size: 14px; }
-    .toolbar-row .tool-divider {
-      width: 1px;
-      height: 22px;
-      background: #e2e8f0;
-      margin: 0 4px;
-    }
-    .toolbar-row .fmt-btn {
-      padding: 3px 8px;
-      border-radius: 4px;
-      border: 1px solid transparent;
-      background: transparent;
-      cursor: pointer;
-      font-size: 13px;
-      color: #475569;
-      transition: all 0.15s;
-      font-weight: 500;
-    }
-    .toolbar-row .fmt-btn:hover { background: #f1f5f9; }
-    .toolbar-row .fmt-btn.active { background: #eff6ff; border-color: #2563eb; color: #2563eb; }
-    .toolbar-row .fmt-btn.bold { font-weight: 700; }
-    .toolbar-row .fmt-btn.italic { font-style: italic; }
-    .toolbar-row .fmt-btn.underline { text-decoration: underline; }
-    .toolbar-row .fmt-btn.strike { text-decoration: line-through; }
-    .toolbar-row .fmt-select {
-      padding: 3px 6px;
-      border: 1px solid #e2e8f0;
-      border-radius: 4px;
-      font-size: 12px;
-      background: white;
-      color: #1e293b;
-      outline: none;
-      cursor: pointer;
-    }
-    .toolbar-row .fmt-select:focus { border-color: #2563eb; }
-    .toolbar-row .color-btn {
-      width: 24px;
-      height: 24px;
-      border-radius: 4px;
-      border: 2px solid #e2e8f0;
-      cursor: pointer;
-      padding: 2px;
-      background: white;
-    }
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4006702663328202"
+   crossorigin="anonymous"></script>
 
-    /* ===== LEFT SIDEBAR ===== */
-    .left-sidebar {
-      width: 200px;
-      min-width: 200px;
-      background: white;
-      border-right: 1px solid #e2e8f0;
-      padding: 10px;
-      overflow-y: auto;
-      max-height: calc(100vh - 120px);
-      display: flex;
-      flex-direction: column;
-    }
-    .left-sidebar .sidebar-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 8px;
-      padding: 0 2px;
-    }
-    .left-sidebar .sidebar-title {
-      font-size: 10px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: #94a3b8;
-    }
-    .left-sidebar .sidebar-add {
-      width: 22px;
-      height: 22px;
-      border-radius: 6px;
-      border: none;
-      background: transparent;
-      color: #94a3b8;
-      cursor: pointer;
-      font-size: 16px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.15s;
-    }
-    .left-sidebar .sidebar-add:hover { background: #f1f5f9; color: #2563eb; }
-    .page-thumbnail {
-      position: relative;
-      border: 2px solid transparent;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: all 0.2s;
-      background: white;
-      overflow: hidden;
-      margin-bottom: 6px;
-    }
-    .page-thumbnail:hover { border-color: #94a3b8; }
-    .page-thumbnail.active { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12); }
-    .page-thumbnail .thumb-content {
-      height: 70px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 24px;
-      color: #94a3b8;
-      background: #f8fafc;
-    }
-    .page-thumbnail .page-number {
-      position: absolute;
-      bottom: 3px;
-      right: 5px;
-      font-size: 8px;
-      font-weight: 600;
-      color: #fff;
-      background: rgba(0,0,0,0.5);
-      padding: 1px 5px;
-      border-radius: 3px;
-    }
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/docx/8.5.0/docx.umd.js"></script>
 
-    /* ===== WORKSPACE ===== */
-    .workspace {
-      background: #e9edf2;
-      flex: 1;
-      overflow: auto;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 30px;
-      min-height: 500px;
-      position: relative;
-    }
-    .workspace .page-container {
-      background: #ffffff;
-      border-radius: 2px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 8px 24px rgba(0,0,0,0.12);
-      position: relative;
-      transition: transform 0.2s;
-      transform-origin: center center;
-    }
-    .workspace .page-container canvas { display: block; width: 100%; height: auto; }
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Rotate PDF",
+  "url": "https://dropletweb.xyz/rotate-pdf",
+  "description": "Free online PDF rotator. Rotate individual pages, ranges, or all pages at once. Live preview of the output. Runs entirely in your browser.",
+  "applicationCategory": "UtilitiesApplication",
+  "operatingSystem": "Any (Web)",
+  "browserRequirements": "Requires JavaScript. Works in Chrome, Firefox, Safari, Edge.",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "featureList": [
+    "Rotate individual PDF pages",
+    "Rotate a range of pages",
+    "Rotate all pages at once",
+    "Preview rotation before export",
+    "Auto-detect landscape pages",
+    "Undo and redo rotation state",
+    "Multi-select with Shift-click",
+    "Export rotated PDF",
+    "Export pages as individual PDFs in a ZIP",
+    "Export rotation manifest as DOCX or XLSX",
+    "100% client-side privacy",
+    "No sign-up required"
+  ],
+  "creator": { "@type": "Organization", "name": "Droplet", "url": "https://dropletweb.xyz/" },
+  "inLanguage": "en"
+}
+</script>
 
-    /* ===== RIGHT PANEL ===== */
-    .props-panel {
-      width: 260px;
-      min-width: 260px;
-      background: white;
-      border-left: 1px solid #e2e8f0;
-      padding: 14px;
-      overflow-y: auto;
-      max-height: calc(100vh - 120px);
-    }
-    .props-panel .panel-empty {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100%;
-      min-height: 200px;
-      color: #94a3b8;
-      text-align: center;
-      padding: 20px;
-    }
-    .props-panel .panel-empty .icon { font-size: 32px; margin-bottom: 8px; }
-    .props-panel .panel-empty p { font-size: 12px; max-width: 180px; }
-    .props-panel .section-title {
-      font-size: 10px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: #94a3b8;
-      margin-bottom: 6px;
-      padding-bottom: 3px;
-      border-bottom: 1px solid #e2e8f0;
-    }
-    .props-panel .prop-group { margin-bottom: 10px; }
-    .props-panel .prop-group label {
-      display: block;
-      font-size: 11px;
-      font-weight: 500;
-      color: #64748b;
-      margin-bottom: 2px;
-    }
-    .props-panel .prop-group input[type="color"] {
-      width: 30px;
-      height: 30px;
-      border: 2px solid #e2e8f0;
-      border-radius: 6px;
-      cursor: pointer;
-      padding: 2px;
-    }
-    .props-panel .prop-group input[type="range"] { width: 100%; accent-color: #2563eb; }
-    .props-panel .prop-group select {
-      width: 100%;
-      padding: 4px 8px;
-      border: 1px solid #e2e8f0;
-      border-radius: 6px;
-      font-size: 12px;
-      background: white;
-      outline: none;
-    }
-    .props-panel .prop-group select:focus { border-color: #2563eb; }
-    .props-panel .prop-group .flex-row { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
-    .props-panel .prop-group .flex-row input[type="number"] {
-      width: 56px;
-      padding: 3px 6px;
-      border: 1px solid #e2e8f0;
-      border-radius: 4px;
-      font-size: 12px;
-    }
-    .props-panel .action-btn-sm {
-      padding: 3px 8px;
-      font-size: 12px;
-      font-weight: 500;
-      border-radius: 6px;
-      border: 1px solid #e2e8f0;
-      background: white;
-      cursor: pointer;
-      transition: all 0.15s;
-    }
-    .props-panel .action-btn-sm:hover { background: #f1f5f9; }
-    .props-panel .action-btn-sm.danger { color: #ef4444; border-color: #ef4444; }
-    .props-panel .action-btn-sm.danger:hover { background: #fef2f2; }
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "HowTo",
+  "name": "How to Rotate a PDF",
+  "description": "Rotate pages in a PDF using Droplet's free online rotator.",
+  "totalTime": "PT1M",
+  "tool": [
+    { "@type": "HowToTool", "name": "Web browser" },
+    { "@type": "HowToTool", "name": "PDF file" }
+  ],
+  "step": [
+    { "@type": "HowToStep", "position": 1, "name": "Upload PDF", "text": "Drop a PDF onto the drop zone or click to browse your device." },
+    { "@type": "HowToStep", "position": 2, "name": "Choose rotation", "text": "Click a thumbnail and use the rotate buttons, or select a range of pages and rotate them together. Rotate All Pages rotates the whole document." },
+    { "@type": "HowToStep", "position": 3, "name": "Preview", "text": "Each thumbnail shows the rotation state as a 3D card. The preview strip below shows the final orientation of every page." },
+    { "@type": "HowToStep", "position": 4, "name": "Download", "text": "Press Export Rotated PDF. The file downloads as dropletweb-<original-name>-rotated.pdf." }
+  ]
+}
+</script>
 
-    .props-panel .panel-handle { display: none; }
-    .props-panel .panel-close { display: none; }
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    { "@type": "Question", "name": "Is my PDF safe?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. All processing happens locally in your browser. Your PDF is never uploaded to any server and is removed from memory when you close the page." } },
+    { "@type": "Question", "name": "Is this tool free?", "acceptedAnswer": { "@type": "Answer", "text": "Yes, the tool is completely free and does not require a sign-up or account." } },
+    { "@type": "Question", "name": "How do I rotate a single page?", "acceptedAnswer": { "@type": "Answer", "text": "Click the page to select it, then click Rotate Left or Rotate Right. The thumbnail flips to show you the new orientation immediately." } },
+    { "@type": "Question", "name": "How do I rotate multiple pages at once?", "acceptedAnswer": { "@type": "Answer", "text": "Click the first page, then Shift-click the last page of the range. Every page in between is selected. Click Rotate Left or Rotate Right to rotate all of them together." } },
+    { "@type": "Question", "name": "Can I rotate every page in the PDF?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. Click Rotate All Pages in the toolbar. Every page in the document is rotated by the amount you choose." } },
+    { "@type": "Question", "name": "Can I rotate a specific range of pages?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. Type a range in the Range input — for example 3-7, 12 — and press Enter. That range becomes the selection, then you can rotate it with the toolbar buttons." } },
+    { "@type": "Question", "name": "Will the rotation show in the exported PDF?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. Rotation is applied as a native PDF rotation entry on each page. When you open the exported PDF in any viewer, the pages appear rotated exactly as you set them." } },
+    { "@type": "Question", "name": "Can I undo a rotation?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. Use Ctrl+Z to undo and Ctrl+Y to redo. Every rotation change is recorded in the history." } },
+    { "@type": "Question", "name": "Does it detect pages that are already sideways?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. The tool highlights landscape pages that may need rotation with an orange badge. You can rotate them all with the Rotate All Pages button or individually." } },
+    { "@type": "Question", "name": "Will the text remain selectable in the rotated PDF?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. Rotation is metadata; it does not re-render the page. Text, links, vector graphics, and embedded fonts are preserved exactly." } },
+    { "@type": "Question", "name": "What is the maximum file size?", "acceptedAnswer": { "@type": "Answer", "text": "The tool accepts PDFs up to 100 MB. Because everything runs locally, the practical limit is your device's available memory." } },
+    { "@type": "Question", "name": "Does it work offline?", "acceptedAnswer": { "@type": "Answer", "text": "Once the page has loaded, all parsing and rotation run locally. You can rotate PDFs without an internet connection." } }
+  ]
+}
+</script>
 
-    /* ===== STATUS BAR ===== */
-    .status-bar {
-      background: white;
-      border-top: 1px solid #e2e8f0;
-      padding: 3px 16px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      font-size: 11px;
-      color: #94a3b8;
-      min-height: 26px;
-    }
-    .status-bar .status-left { display: flex; gap: 16px; align-items: center; }
-    .status-bar .status-right { display: flex; gap: 8px; align-items: center; }
-    .status-bar .status-right button {
-      background: none;
-      border: none;
-      color: #94a3b8;
-      cursor: pointer;
-      font-size: 11px;
-      padding: 2px 6px;
-      border-radius: 4px;
-      transition: background 0.15s;
-    }
-    .status-bar .status-right button:hover { background: #f1f5f9; }
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://dropletweb.xyz/" },
+    { "@type": "ListItem", "position": 2, "name": "PDF Tools", "item": "https://dropletweb.xyz/#pdf-tools" },
+    { "@type": "ListItem", "position": 3, "name": "Rotate PDF", "item": "https://dropletweb.xyz/rotate-pdf" }
+  ]
+}
+</script>
 
-    /* ===== EMPTY STATE ===== */
-    .empty-state {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100%;
-      min-height: 400px;
-      text-align: center;
-      padding: 40px;
-    }
-    .empty-state .icon { font-size: 56px; margin-bottom: 12px; }
-    .empty-state h3 { font-size: 20px; font-weight: 700; color: #1e293b; margin-bottom: 4px; }
-    .empty-state p { font-size: 14px; color: #94a3b8; max-width: 360px; margin-bottom: 16px; }
-    .empty-state .drop-zone {
-      border: 2px dashed #d1d5db;
-      border-radius: 12px;
-      padding: 40px 60px;
-      margin-top: 8px;
-      transition: all 0.2s;
-      cursor: pointer;
-    }
-    .empty-state .drop-zone:hover { border-color: #2563eb; background: #f8fafc; }
-    .empty-state .drop-zone.dragover { border-color: #2563eb; background: #eff6ff; }
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Droplet PDF Rotator",
+  "applicationCategory": "UtilitiesApplication",
+  "operatingSystem": "Web",
+  "aggregateRating": { "@type": "AggregateRating", "ratingValue": "4.9", "ratingCount": "146" },
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+}
+</script>
 
-    /* ===== BACK TO HOME ===== */
-    .back-home-btn {
-      position: fixed;
-      bottom: 16px;
-      left: 16px;
-      z-index: 60;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      padding: 6px 14px;
-      background: white;
-      border: 1px solid #e2e8f0;
-      border-radius: 50px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-      font-size: 12px;
-      font-weight: 500;
-      color: #475569;
-      text-decoration: none;
-      transition: all 0.2s;
-    }
-    .back-home-btn:hover { background: #f1f5f9; box-shadow: 0 4px 12px rgba(0,0,0,0.1); transform: translateY(-1px); }
-    .back-home-btn svg { width: 16px; height: 16px; flex-shrink: 0; }
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "name": "Rotate PDF",
+  "url": "https://dropletweb.xyz/rotate-pdf",
+  "description": "Rotate PDF pages individually or in bulk and export the result. Runs entirely in your browser.",
+  "isPartOf": { "@type": "WebSite", "name": "Droplet", "url": "https://dropletweb.xyz/" },
+  "primaryImageOfPage": "https://dropletweb.xyz/Gemini_Generated_Image_sdu6v7sdu6v7sdu6.jpg",
+  "datePublished": "2026-01-01",
+  "dateModified": "2026-09-24",
+  "inLanguage": "en"
+}
+</script>
 
-    /* ===== DARK MODE ===== */
-    html.dark .top-bar,
-    html.dark .toolbar-row,
-    html.dark .left-sidebar,
-    html.dark .props-panel,
-    html.dark .status-bar {
-      background: #1e293b;
-      border-color: #334155;
-    }
-    html.dark .top-bar .logo { color: #f1f5f9; }
-    html.dark .top-bar .menu-btn { color: #94a3b8; }
-    html.dark .top-bar .menu-btn:hover { background: #334155; }
-    html.dark .top-bar .menu-btn .dropdown { background: #1e293b; border-color: #334155; }
-    html.dark .top-bar .menu-btn .dropdown a { color: #e2e8f0; }
-    html.dark .top-bar .menu-btn .dropdown a:hover { background: #334155; }
-    html.dark .top-bar .menu-btn .dropdown .divider { background: #334155; }
-    html.dark .top-bar .menu-btn .dropdown .shortcut { color: #64748b; }
-    html.dark .top-bar .doc-title { color: #f1f5f9; }
-    html.dark .top-bar .doc-title:hover { background: #334155; }
-    html.dark .top-bar .tool-badge { background: #1e3a5f; color: #60a5fa; }
-    html.dark .top-bar .action-btn {
-      background: #0f172a;
-      border-color: #334155;
-      color: #e2e8f0;
-    }
-    html.dark .top-bar .action-btn:hover { background: #334155; }
-    html.dark .top-bar .action-btn.primary { background: #2563eb; border-color: #2563eb; color: white; }
-    html.dark .top-bar .action-btn.primary:hover { background: #1d4ed8; }
-    html.dark .top-bar .zoom-controls button {
-      background: #0f172a;
-      border-color: #334155;
-      color: #e2e8f0;
-    }
-    html.dark .top-bar .zoom-controls button:hover { background: #334155; }
-    html.dark .top-bar .zoom-controls { color: #94a3b8; }
-    html.dark .toolbar-row .tool-btn { color: #94a3b8; }
-    html.dark .toolbar-row .tool-btn:hover { background: #334155; color: #f1f5f9; }
-    html.dark .toolbar-row .tool-btn.active { border-color: #3b82f6; background: #1e3a5f; color: #60a5fa; }
-    html.dark .toolbar-row .tool-divider { background: #334155; }
-    html.dark .toolbar-row .fmt-btn { color: #94a3b8; }
-    html.dark .toolbar-row .fmt-btn:hover { background: #334155; }
-    html.dark .toolbar-row .fmt-btn.active { background: #1e3a5f; border-color: #3b82f6; color: #60a5fa; }
-    html.dark .toolbar-row .fmt-select {
-      background: #0f172a;
-      border-color: #334155;
-      color: #f1f5f9;
-    }
-    html.dark .workspace { background: #111827; }
-    html.dark .workspace .page-container { background: white; }
-    html.dark .props-panel { border-color: #334155; }
-    html.dark .props-panel .section-title { color: #64748b; border-color: #334155; }
-    html.dark .props-panel .prop-group label { color: #94a3b8; }
-    html.dark .props-panel .prop-group select {
-      background: #0f172a;
-      border-color: #334155;
-      color: #f1f5f9;
-    }
-    html.dark .props-panel .prop-group input[type="color"] { border-color: #334155; }
-    html.dark .props-panel .prop-group input[type="number"] {
-      background: #0f172a;
-      border-color: #334155;
-      color: #f1f5f9;
-    }
-    html.dark .props-panel .action-btn-sm {
-      background: #0f172a;
-      border-color: #334155;
-      color: #e2e8f0;
-    }
-    html.dark .props-panel .action-btn-sm:hover { background: #334155; }
-    html.dark .props-panel .action-btn-sm.danger { color: #ef4444; border-color: #ef4444; }
-    html.dark .props-panel .action-btn-sm.danger:hover { background: #1e3a5f; }
-    html.dark .props-panel .panel-empty p { color: #64748b; }
-    html.dark .page-thumbnail { background: #1e293b; }
-    html.dark .page-thumbnail .thumb-content { background: #0f172a; color: #64748b; }
-    html.dark .page-thumbnail.active { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); }
-    html.dark .left-sidebar .sidebar-add:hover { background: #334155; color: #60a5fa; }
-    html.dark .status-bar { color: #64748b; }
-    html.dark .status-bar .status-right button:hover { background: #334155; }
-    html.dark .empty-state h3 { color: #f1f5f9; }
-    html.dark .empty-state p { color: #94a3b8; }
-    html.dark .empty-state .drop-zone { border-color: #334155; }
-    html.dark .empty-state .drop-zone:hover { border-color: #3b82f6; background: #1e293b; }
-    html.dark .back-home-btn {
-      background: #1e293b;
-      border-color: #334155;
-      color: #e2e8f0;
-    }
-    html.dark .back-home-btn:hover { background: #334155; }
+<style>
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+  .hidden { display: none !important; }
+  .dropzone-highlight { border-color: #3b82f6 !important; background: #eff6ff !important; }
 
-    #theme-toggle {
-      background: none;
-      border: none;
-      font-size: 1.1rem;
-      cursor: pointer;
-      padding: 3px 6px;
-      border-radius: 6px;
-      transition: background 0.2s;
-      color: #475569;
-    }
-    #theme-toggle:hover { background: #f1f5f9; }
-    html.dark #theme-toggle { color: #e2e8f0; }
-    html.dark #theme-toggle:hover { background: #334155; }
+  /* ============================================================ */
+  /* Page grid — 3D card rotation                                  */
+  /* ============================================================ */
+  .pages-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+    gap: 14px;
+    max-height: 660px;
+    overflow-y: auto;
+    padding: 8px;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    background: #f8fafc;
+    transition: background 0.2s, border-color 0.2s;
+    perspective: 1200px;
+  }
+  .pages-grid::-webkit-scrollbar { width: 8px; height: 8px; }
+  .pages-grid::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 8px; }
+  .pages-grid::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 8px; }
+  .pages-grid::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
-    @media (max-width: 1024px) {
-      .props-panel { width: 220px; min-width: 220px; padding: 10px; }
-    }
-    @media (max-width: 768px) {
-      .props-panel { width: 200px; min-width: 200px; padding: 8px; }
-      .top-bar { padding: 3px 8px; gap: 4px; }
-      .top-bar .menu-btn { padding: 2px 5px; font-size: 11px; }
-      .top-bar .action-btn { padding: 2px 5px; font-size: 11px; }
-      .top-bar .logo { font-size: 13px; }
-      .top-bar .logo img { height: 22px; }
-      .top-bar .doc-title { font-size: 11px; max-width: 120px; }
-      .top-bar .tool-badge { font-size: 9px; padding: 1px 8px; }
-      .toolbar-row { padding: 3px 8px; gap: 2px; }
-      .toolbar-row .tool-btn { padding: 3px 6px; font-size: 11px; }
-      .toolbar-row .tool-btn .label { display: none; }
-      .toolbar-row .fmt-select { font-size: 11px; padding: 2px 4px; max-width: 80px; }
-      .left-sidebar { width: 56px; min-width: 56px; padding: 6px; }
-      .left-sidebar .sidebar-title { display: none; }
-      .left-sidebar .page-thumbnail .thumb-content { height: 44px; font-size: 16px; }
-      .left-sidebar .sidebar-add { font-size: 14px; }
-      .status-bar { font-size: 10px; padding: 2px 8px; }
-      .status-bar .status-left { gap: 8px; }
-      .back-home-btn { bottom: 12px; left: 8px; padding: 5px 10px; font-size: 11px; }
-      .back-home-btn span { display: none; }
-    }
-    @media (max-width: 640px) {
-      .props-panel {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        width: 100%;
-        min-width: unset;
-        max-height: 50vh;
-        border-left: none;
-        border-top: 1px solid #e2e8f0;
-        border-radius: 16px 16px 0 0;
-        padding: 14px;
-        overflow-y: auto;
-        z-index: 50;
-        transform: translateY(100%);
-        transition: transform 0.3s ease;
-      }
-      .props-panel.open { transform: translateY(0); }
-      .props-panel .panel-handle {
-        width: 36px;
-        height: 4px;
-        background: #cbd5e1;
-        border-radius: 4px;
-        margin: 0 auto 10px;
-        display: block !important;
-      }
-      .props-panel .panel-close {
-        float: right;
-        background: none;
-        border: none;
-        font-size: 18px;
-        cursor: pointer;
-        color: #94a3b8;
-        display: block !important;
-      }
-      .props-panel .panel-close:hover { color: #1e293b; }
-      .top-bar .zoom-controls .label { display: none; }
-      .back-home-btn { bottom: 10px; padding: 4px 8px; }
-      .workspace { padding: 16px; }
-    }
-  </style>
+  .page-thumb {
+    position: relative;
+    aspect-ratio: 3 / 4;
+    border-radius: 10px;
+    overflow: visible;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    user-select: none;
+    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    transform-style: preserve-3d;
+    will-change: transform;
+  }
+  .page-thumb:hover { transform: translateY(-3px); }
+
+  .page-thumb .card {
+    position: absolute;
+    inset: 0;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #ffffff;
+    border: 2px solid #e2e8f0;
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.2s, box-shadow 0.2s;
+    transform-style: preserve-3d;
+    display: flex;
+    flex-direction: column;
+  }
+  .page-thumb.selected .card {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+  }
+  .page-thumb:hover .card {
+    border-color: #94a3b8;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  }
+  .page-thumb.selected:hover .card {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25), 0 8px 24px rgba(0, 0, 0, 0.12);
+  }
+
+  /* Rotation states applied to the inner canvas-wrap, not the whole card,
+     so the badge and label stay upright while the page image rotates. */
+  .page-thumb .preview-canvas-wrap {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px;
+    overflow: hidden;
+    position: relative;
+  }
+  .page-thumb .preview-canvas-wrap canvas {
+    max-width: 100%;
+    max-height: 100%;
+    display: block;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    background: #ffffff;
+    transform-origin: center center;
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .page-thumb .page-label {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    background: rgba(15, 23, 42, 0.85);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    text-align: center;
+    padding: 3px 6px;
+    letter-spacing: 0.02em;
+    z-index: 3;
+    display: flex;
+    justify-content: space-between;
+  }
+  .page-thumb .page-label .orig { color: #94a3b8; }
+
+  .page-thumb .pos-badge {
+    position: absolute;
+    top: 6px; left: 6px;
+    min-width: 26px;
+    height: 26px;
+    padding: 0 8px;
+    border-radius: 999px;
+    background: #3b82f6;
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+    z-index: 4;
+  }
+  .page-thumb.selected .pos-badge { background: #2563eb; }
+
+  .page-thumb .rotation-badge {
+    position: absolute;
+    top: 6px; right: 6px;
+    padding: 3px 8px;
+    border-radius: 6px;
+    background: rgba(245, 158, 11, 0.95);
+    color: #ffffff;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    z-index: 4;
+    display: none;
+  }
+  .page-thumb.rotated .rotation-badge { display: block; }
+
+  .page-thumb .landscape-badge {
+    position: absolute;
+    bottom: 28px;
+    right: 6px;
+    padding: 2px 8px;
+    border-radius: 6px;
+    background: #6366f1;
+    color: #ffffff;
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    z-index: 4;
+    display: none;
+  }
+  .page-thumb.landscape .landscape-badge { display: block; }
+
+  /* ============================================================ */
+  /* Toolbar                                                       */
+  /* ============================================================ */
+  .toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    padding: 12px 14px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    margin-bottom: 12px;
+    transition: background 0.2s, border-color 0.2s;
+  }
+  .toolbar .group { display: flex; align-items: center; gap: 6px; }
+  .toolbar .group-label {
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #94a3b8;
+    margin-right: 4px;
+  }
+  .toolbar button {
+    padding: 7px 12px;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+    background: #fff;
+    color: #334155;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .toolbar button:hover:not(:disabled) { background: #f1f5f9; }
+  .toolbar button:disabled { opacity: 0.4; cursor: not-allowed; }
+  .toolbar button.primary { background: #3b82f6; color: #fff; border-color: #3b82f6; }
+  .toolbar button.primary:hover:not(:disabled) { background: #2563eb; }
+  .toolbar button.danger { color: #ef4444; border-color: #fecaca; }
+  .toolbar button.danger:hover:not(:disabled) { background: #fef2f2; }
+  .toolbar .divider { width: 1px; height: 22px; background: #e2e8f0; margin: 0 4px; }
+  .toolbar .stats {
+    margin-left: auto;
+    font-size: 12px;
+    font-weight: 600;
+    color: #64748b;
+  }
+  .toolbar .stats strong { color: #3b82f6; }
+
+  /* Range input */
+  .range-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    padding: 12px 14px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    margin-bottom: 12px;
+    font-size: 13px;
+    transition: background 0.2s, border-color 0.2s;
+  }
+  .range-bar input[type="text"] {
+    flex: 1;
+    min-width: 180px;
+    padding: 8px 12px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 13px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .range-bar input[type="text"]:focus { border-color: #3b82f6; }
+  .range-bar button {
+    padding: 7px 14px;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+    background: #fff;
+    color: #334155;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .range-bar button:hover { background: #f1f5f9; }
+  .range-bar .stats { color: #64748b; font-size: 12px; font-weight: 600; margin-left: auto; }
+
+  /* ============================================================ */
+  /* Preview strip                                                 */
+  /* ============================================================ */
+  .preview-strip {
+    display: flex;
+    gap: 6px;
+    padding: 10px 12px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    margin-top: 12px;
+    overflow-x: auto;
+    flex-shrink: 0;
+    transition: background 0.2s, border-color 0.2s;
+  }
+  .preview-strip::-webkit-scrollbar { height: 6px; }
+  .preview-strip::-webkit-scrollbar-track { background: #f1f5f9; }
+  .preview-strip::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+  .preview-strip .strip-thumb {
+    flex-shrink: 0;
+    width: 60px;
+    height: 78px;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 2px solid #e2e8f0;
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    transition: all 0.15s;
+  }
+  .preview-strip .strip-thumb canvas {
+    max-width: 100%;
+    max-height: 100%;
+    display: block;
+    object-fit: contain;
+    transition: transform 0.3s ease;
+  }
+  .preview-strip .strip-thumb .out-num {
+    position: absolute;
+    bottom: 2px; right: 2px;
+    background: rgba(15, 23, 42, 0.8);
+    color: #fff;
+    font-size: 9px;
+    font-weight: 700;
+    padding: 1px 5px;
+    border-radius: 4px;
+  }
+
+  /* ============================================================ */
+  /* Action bar                                                    */
+  /* ============================================================ */
+  .action-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    padding: 12px 14px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    margin-top: 12px;
+    transition: background 0.2s, border-color 0.2s;
+  }
+  .action-bar .spacer { flex: 1; }
+  .action-bar button {
+    padding: 9px 16px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s;
+    border: 1px solid transparent;
+  }
+  .btn-primary { background: #3b82f6; color: #fff; }
+  .btn-primary:hover:not(:disabled) { background: #2563eb; }
+  .btn-secondary { background: #fff; color: #334155; border-color: #e2e8f0; }
+  .btn-secondary:hover:not(:disabled) { background: #f1f5f9; }
+  .btn-success { background: #10b981; color: #fff; }
+  .btn-success:hover:not(:disabled) { background: #059669; }
+  .btn-success:disabled,
+  .btn-primary:disabled,
+  .btn-secondary:disabled { opacity: 0.45; cursor: not-allowed; }
+
+  .info-badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 999px;
+    font-size: 10px;
+    font-weight: 700;
+  }
+  .badge-pages { background: #dbeafe; color: #1e40af; }
+  .badge-rotated { background: #fef3c7; color: #92400e; }
+  .badge-landscape { background: #e0e7ff; color: #3730a3; }
+  .badge-size { background: #d1fae5; color: #065f46; }
+
+  /* ============================================================ */
+  /* Processing overlay                                            */
+  /* ============================================================ */
+  #processingOverlay {
+    position: fixed; inset: 0;
+    background: rgba(15, 23, 42, 0.82);
+    backdrop-filter: blur(5px);
+    z-index: 9999;
+    display: none;
+    align-items: center; justify-content: center;
+  }
+  #processingOverlay.show { display: flex; }
+  #processingOverlay .overlay-card {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 28px 32px;
+    max-width: 380px;
+    width: calc(100% - 32px);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+    text-align: center;
+  }
+  #processingOverlay .spinner {
+    width: 42px; height: 42px;
+    border: 4px solid #e2e8f0;
+    border-top-color: #3b82f6;
+    border-radius: 50%;
+    margin: 0 auto 14px;
+    animation: spin 0.9s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  #processingOverlay h4 { font-size: 15px; font-weight: 700; color: #0f172a; margin-bottom: 6px; }
+  #processingOverlay p { font-size: 12px; color: #64748b; margin-bottom: 12px; min-height: 18px; }
+  #processingOverlay .bar {
+    width: 100%; height: 6px; background: #e2e8f0; border-radius: 999px; overflow: hidden;
+  }
+  #processingOverlay .bar-inner {
+    height: 100%; background: #3b82f6; width: 0%; transition: width 0.35s ease;
+  }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: #0f172a;
+    color: #fff;
+    padding: 11px 20px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 600;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+    z-index: 20000;
+    transition: transform 0.3s ease;
+    max-width: calc(100% - 32px);
+    text-align: center;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+  .toast.success { background: #10b981; }
+  .toast.error { background: #ef4444; }
+
+  /* Home button */
+  .home-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    background: #f1f5f9;
+    color: #334155;
+    border: 1px solid #e2e8f0;
+    border-radius: 999px;
+    text-decoration: none;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .home-btn:hover { background: #e2e8f0; border-color: #cbd5e1; }
+
+  /* Theme toggle */
+  #theme-toggle {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 0.25rem 0.5rem;
+    border-radius: 8px;
+    transition: background 0.2s;
+    color: #475569;
+    line-height: 1;
+  }
+  #theme-toggle:hover { background: #f1f5f9; }
+  html.dark #theme-toggle { color: #e2e8f0; }
+  html.dark #theme-toggle:hover { background: #334155; }
+
+  /* Dark mode */
+  html.dark body { background: #0f172a; color: #e2e8f0; }
+  html.dark header { background: #1e293b; border-color: #334155; }
+  html.dark header h1 { color: #f1f5f9; }
+  html.dark header p { color: #60a5fa !important; }
+  html.dark header nav a { color: #94a3b8; }
+  html.dark header nav a:hover { color: #f1f5f9; }
+
+  html.dark #dropzone { background: #1e293b; border-color: #475569; }
+  html.dark #dropzone:hover { border-color: #3b82f6; }
+  html.dark #dropzone h2 { color: #f1f5f9; }
+  html.dark #dropzone p { color: #94a3b8; }
+
+  html.dark #fileInfo { background: #1e293b; border-color: #334155; }
+  html.dark #fileInfo .text-slate-900 { color: #f1f5f9; }
+  html.dark #fileInfo .text-slate-400 { color: #94a3b8; }
+  html.dark #fileInfo .border-slate-200 { border-color: #334155; }
+
+  html.dark .pages-grid { background: #0f172a; border-color: #334155; }
+  html.dark .page-thumb .card { background: #1e293b; border-color: #334155; }
+  html.dark .page-thumb .preview-canvas-wrap canvas { box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5); }
+  html.dark .pages-grid::-webkit-scrollbar-track { background: #0f172a; }
+  html.dark .pages-grid::-webkit-scrollbar-thumb { background: #475569; }
+
+  html.dark .toolbar,
+  html.dark .action-bar,
+  html.dark .preview-strip,
+  html.dark .range-bar {
+    background: #1e293b;
+    border-color: #334155;
+  }
+  html.dark .toolbar button,
+  html.dark .range-bar button {
+    background: #0f172a;
+    color: #cbd5e1;
+    border-color: #334155;
+  }
+  html.dark .toolbar button:hover:not(:disabled),
+  html.dark .range-bar button:hover { background: #334155; }
+  html.dark .toolbar button.primary { background: #2563eb; border-color: #2563eb; color: white; }
+  html.dark .toolbar button.primary:hover:not(:disabled) { background: #1d4ed8; }
+  html.dark .toolbar .divider { background: #334155; }
+  html.dark .toolbar .stats { color: #94a3b8; }
+  html.dark .range-bar input[type="text"] { background: #0f172a; border-color: #334155; color: #f1f5f9; }
+  html.dark .range-bar .stats { color: #94a3b8; }
+  html.dark .preview-strip .strip-thumb { background: #1e293b; border-color: #334155; }
+
+  html.dark .btn-secondary { background: #0f172a; color: #cbd5e1; border-color: #334155; }
+  html.dark .btn-secondary:hover:not(:disabled) { background: #334155; }
+
+  html.dark .bg-white { background: #1e293b !important; }
+  html.dark .border-slate-100 { border-color: #334155 !important; }
+  html.dark .border-slate-200 { border-color: #334155 !important; }
+  html.dark .border-slate-300 { border-color: #334155 !important; }
+  html.dark .text-slate-500 { color: #94a3b8 !important; }
+  html.dark .text-slate-600 { color: #94a3b8 !important; }
+  html.dark .text-slate-700 { color: #cbd5e1 !important; }
+  html.dark .text-slate-900 { color: #f1f5f9 !important; }
+  html.dark .bg-blue-50 { background: #1e3a5f !important; }
+  html.dark .border-blue-200 { border-color: #2563eb !important; }
+  html.dark .text-blue-700 { color: #60a5fa !important; }
+  html.dark .text-blue-900 { color: #93c5fd !important; }
+  html.dark .bg-slate-50 { background: #0f172a !important; }
+  html.dark .bg-slate-100 { background: #334155 !important; }
+  html.dark .bg-green-50 { background: #0f172a !important; border-color: #334155 !important; }
+  html.dark .border-green-200 { border-color: #334155 !important; }
+
+  html.dark .badge-pages { background: #1e3a5f; color: #93c5fd; }
+  html.dark .badge-rotated { background: #78350f; color: #fcd34d; }
+  html.dark .badge-landscape { background: #3730a3; color: #c7d2fe; }
+  html.dark .badge-size { background: #064e3b; color: #6ee7b7; }
+
+  html.dark footer { background: #0f172a !important; border-color: #334155 !important; }
+  html.dark footer a { color: #94a3b8; }
+  html.dark footer a:hover { color: #f1f5f9; }
+  html.dark footer p { color: #94a3b8 !important; }
+
+  html.dark .back-home-btn { background: #1e293b !important; border-color: #475569 !important; color: #e2e8f0 !important; }
+  html.dark .back-home-btn:hover { background: #334155 !important; border-color: #3b82f6 !important; }
+  html.dark .home-btn { background: #0f172a; border-color: #334155; color: #e2e8f0; }
+  html.dark .home-btn:hover { background: #334155; }
+
+  html.dark .bg-green-600 { background: #059669 !important; }
+  html.dark .bg-green-600:hover { background: #047857 !important; }
+  html.dark .bg-blue-600 { background: #2563eb !important; }
+  html.dark .bg-blue-600:hover { background: #1d4ed8 !important; }
+
+  html.dark #processingOverlay .overlay-card { background: #1e293b; }
+  html.dark #processingOverlay h4 { color: #f1f5f9; }
+  html.dark #processingOverlay p { color: #94a3b8; }
+  html.dark #processingOverlay .bar { background: #334155; }
+</style>
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen flex flex-col transition-colors duration-200">
 
-  <!-- ===== TOP BAR ===== -->
-  <header class="top-bar">
-    <a href="/" class="logo" title="Go to Home">
-      <img src="Gemini_Generated_Image_sdu6v7sdu6v7sdu6.jpg" alt="Droplet">
-      <span>Droplet</span>
-    </a>
-
-    <div class="menu-btn" style="position:relative;">File
-      <div class="dropdown">
-        <a onclick="document.getElementById('pdfInput').click()">📂 Open PDF</a>
-        <a onclick="alert('New Blank PDF')">📄 New Blank PDF</a>
-        <a onclick="alert('Add PDF / Merge')">📎 Add PDF / Merge</a>
-        <div class="divider"></div>
-        <a onclick="alert('Save Project')">💾 Save Project <span class="shortcut">Ctrl+S</span></a>
-        <a onclick="alert('Save Project As...')">📁 Save Project As...</a>
-        <div class="divider"></div>
-        <a onclick="alert('Export PDF')">📤 Export PDF</a>
-        <a onclick="alert('Print')">🖨️ Print <span class="shortcut">Ctrl+P</span></a>
-        <div class="divider"></div>
-        <a onclick="alert('Close Document')">✕ Close Document</a>
+  <header class="bg-white border-b border-slate-200 py-3.5 px-6 sticky top-0 z-50 transition-colors duration-200">
+    <div class="max-w-6xl mx-auto flex justify-between items-center">
+      <a href="/" class="flex items-center gap-3 group" aria-label="Droplet home">
+        <img src="Gemini_Generated_Image_sdu6v7sdu6v7sdu6.jpg" alt="Droplet logo" class="h-9 w-auto rounded-xl shadow-sm group-hover:scale-105 transition-transform">
+        <div>
+          <h1 class="text-xl font-black tracking-tight text-slate-900 leading-none">Droplet</h1>
+          <p class="text-[9px] text-blue-600 font-extrabold tracking-widest uppercase mt-0.5">DRAG, DROP AND CONVERT.</p>
+        </div>
+      </a>
+      <div class="flex items-center gap-3">
+        <a href="/" class="home-btn"><span>←</span><span>Home</span></a>
+        <button id="theme-toggle" aria-label="Toggle dark mode">🌙</button>
+        <nav class="hidden md:flex items-center space-x-6 text-xs font-bold text-slate-600" aria-label="Primary">
+          <a href="/" class="hover:text-blue-600 transition-colors">← Back</a>
+        </nav>
       </div>
     </div>
-
-    <div class="menu-btn" style="position:relative;">Edit
-      <div class="dropdown">
-        <a onclick="alert('Undo')">↶ Undo <span class="shortcut">Ctrl+Z</span></a>
-        <a onclick="alert('Redo')">↷ Redo <span class="shortcut">Ctrl+Y</span></a>
-        <div class="divider"></div>
-        <a onclick="alert('Cut')">✂️ Cut <span class="shortcut">Ctrl+X</span></a>
-        <a onclick="alert('Copy')">📋 Copy <span class="shortcut">Ctrl+C</span></a>
-        <a onclick="alert('Paste')">📋 Paste <span class="shortcut">Ctrl+V</span></a>
-        <a onclick="alert('Delete')">🗑️ Delete <span class="shortcut">Del</span></a>
-        <a onclick="alert('Select All')">☑️ Select All <span class="shortcut">Ctrl+A</span></a>
-        <div class="divider"></div>
-        <a onclick="alert('Find')">🔍 Find <span class="shortcut">Ctrl+F</span></a>
-        <a onclick="alert('Replace')">🔄 Replace <span class="shortcut">Ctrl+H</span></a>
-      </div>
-    </div>
-
-    <div class="menu-btn" style="position:relative;">Insert
-      <div class="dropdown">
-        <a onclick="alert('Insert Text')">📝 Text</a>
-        <a onclick="alert('Insert Image')">🖼️ Image</a>
-        <a onclick="alert('Insert Table')">📊 Table</a>
-        <a onclick="alert('Insert Link')">🔗 Link</a>
-        <a onclick="alert('Insert Shape')">⬛ Shape</a>
-        <a onclick="alert('Insert Signature')">✍️ Signature</a>
-        <div class="divider"></div>
-        <a onclick="alert('Insert Page Break')">📄 Page Break</a>
-        <a onclick="alert('Insert Header')">📌 Header</a>
-        <a onclick="alert('Insert Footer')">📌 Footer</a>
-        <a onclick="alert('Insert Page Number')">🔢 Page Number</a>
-      </div>
-    </div>
-
-    <div class="menu-btn" style="position:relative;">Pages
-      <div class="dropdown">
-        <a onclick="alert('Add Page')">📄 Add Page</a>
-        <a onclick="alert('Duplicate Page')">📋 Duplicate Page</a>
-        <div class="divider"></div>
-        <a onclick="alert('Rotate Left')">🔄 Rotate Left</a>
-        <a onclick="alert('Rotate Right')">🔄 Rotate Right</a>
-        <a onclick="alert('Delete Page')">🗑️ Delete Page</a>
-        <div class="divider"></div>
-        <a onclick="alert('Reorder Pages')">📋 Reorder Pages</a>
-        <a onclick="alert('Extract Pages')">📤 Extract Pages</a>
-        <a onclick="alert('Split PDF')">✂️ Split PDF</a>
-        <a onclick="alert('Merge PDF')">🔗 Merge PDF</a>
-      </div>
-    </div>
-
-    <div class="menu-btn" style="position:relative;">View
-      <div class="dropdown">
-        <a onclick="alert('Zoom In')">🔍 Zoom In <span class="shortcut">Ctrl++</span></a>
-        <a onclick="alert('Zoom Out')">🔍 Zoom Out <span class="shortcut">Ctrl+-</span></a>
-        <a onclick="alert('Actual Size')">1:1 Actual Size</a>
-        <a onclick="alert('Fit Page')">📄 Fit Page</a>
-        <a onclick="alert('Fit Width')">📄 Fit Width</a>
-        <div class="divider"></div>
-        <a onclick="toggleSidebar('pages')">📑 Toggle Pages</a>
-        <a onclick="toggleSidebar('props')">📋 Toggle Properties</a>
-      </div>
-    </div>
-
-    <span class="doc-title" id="docTitle" onclick="renameDocument()">
-      Untitled PDF <span class="saved">●</span>
-    </span>
-
-    <span class="tool-badge" id="toolBadge">✏️ Edit PDF</span>
-
-    <div class="spacer"></div>
-
-    <button class="action-btn" onclick="alert('Undo')" title="Undo (Ctrl+Z)">↶</button>
-    <button class="action-btn" onclick="alert('Redo')" title="Redo (Ctrl+Y)">↷</button>
-
-    <div class="zoom-controls">
-      <button onclick="alert('Zoom out')">−</button>
-      <span class="label" id="zoomLabel">100%</span>
-      <button onclick="alert('Zoom in')">+</button>
-    </div>
-
-    <button id="theme-toggle" aria-label="Toggle theme">🌙</button>
-    <button class="action-btn primary" onclick="alert('Export PDF')">💾 Export</button>
   </header>
 
-  <!-- ===== TOOLBAR ROW 2 ===== -->
-  <div class="toolbar-row" id="toolbarRow">
-    <!-- Main Tools -->
-    <button class="tool-btn active" data-tool="select" onclick="setTool('select')">
-      <span class="icon">🖱️</span><span class="label">Select</span>
-    </button>
-    <button class="tool-btn" data-tool="text" onclick="setTool('text')">
-      <span class="icon">T</span><span class="label">Text</span>
-    </button>
-    <button class="tool-btn" data-tool="image" onclick="setTool('image')">
-      <span class="icon">🖼️</span><span class="label">Image</span>
-    </button>
-    <button class="tool-btn" data-tool="draw" onclick="setTool('draw')">
-      <span class="icon">✏️</span><span class="label">Draw</span>
-    </button>
-    <button class="tool-btn" data-tool="highlight" onclick="setTool('highlight')">
-      <span class="icon">🖍️</span><span class="label">Highlight</span>
-    </button>
-    <button class="tool-btn" data-tool="shape" onclick="setTool('shape')">
-      <span class="icon">□</span><span class="label">Shape</span>
-    </button>
-    <button class="tool-btn" data-tool="sign" onclick="setTool('sign')">
-      <span class="icon">✍️</span><span class="label">Sign</span>
-    </button>
-    <button class="tool-btn" data-tool="forms" onclick="setTool('forms')">
-      <span class="icon">☑️</span><span class="label">Forms</span>
-    </button>
+  <main class="max-w-4xl mx-auto px-4 py-8 md:py-12 flex-grow w-full">
 
-    <div class="tool-divider"></div>
-
-    <!-- Contextual Formatting (Text Tool) -->
-    <div id="textFormatting" class="hidden" style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;">
-      <select class="fmt-select" id="fontFamily" style="width:100px;">
-        <option value="Arial">Arial</option>
-        <option value="Times New Roman">Times New Roman</option>
-        <option value="Calibri">Calibri</option>
-        <option value="Helvetica">Helvetica</option>
-        <option value="Georgia">Georgia</option>
-        <option value="Verdana">Verdana</option>
-        <option value="Courier New">Courier New</option>
-      </select>
-
-      <select class="fmt-select" id="fontSize" style="width:56px;">
-        <option value="8">8</option>
-        <option value="9">9</option>
-        <option value="10">10</option>
-        <option value="11">11</option>
-        <option value="12" selected>12</option>
-        <option value="14">14</option>
-        <option value="16">16</option>
-        <option value="18">18</option>
-        <option value="20">20</option>
-        <option value="24">24</option>
-        <option value="28">28</option>
-        <option value="36">36</option>
-        <option value="48">48</option>
-        <option value="72">72</option>
-      </select>
-
-      <div class="tool-divider"></div>
-
-      <button class="fmt-btn bold" onclick="alert('Bold')" title="Bold (Ctrl+B)">B</button>
-      <button class="fmt-btn italic" onclick="alert('Italic')" title="Italic (Ctrl+I)">I</button>
-      <button class="fmt-btn underline" onclick="alert('Underline')" title="Underline (Ctrl+U)">U</button>
-      <button class="fmt-btn strike" onclick="alert('Strikethrough')" title="Strikethrough">S</button>
-
-      <div class="tool-divider"></div>
-
-      <input type="color" class="color-btn" id="textColor" value="#1e293b" title="Text Color">
-      <input type="color" class="color-btn" id="highlightColor" value="#fef08a" title="Highlight Color" style="background:#fef08a;">
-
-      <div class="tool-divider"></div>
-
-      <button class="fmt-btn" onclick="alert('Left align')" title="Left align">≡</button>
-      <button class="fmt-btn" onclick="alert('Center align')" title="Center align">≣</button>
-      <button class="fmt-btn" onclick="alert('Right align')" title="Right align">≡</button>
-      <button class="fmt-btn" onclick="alert('Justify')" title="Justify">☰</button>
-
-      <div class="tool-divider"></div>
-
-      <button class="fmt-btn" onclick="alert('Bullet list')" title="Bullet list">•</button>
-      <button class="fmt-btn" onclick="alert('Numbered list')" title="Numbered list">1.</button>
-
-      <div class="tool-divider"></div>
-
-      <select class="fmt-select" id="lineSpacing" style="width:70px;">
-        <option value="1">1.0</option>
-        <option value="1.15" selected>1.15</option>
-        <option value="1.5">1.5</option>
-        <option value="2">2.0</option>
-      </select>
+    <div class="max-w-2xl mx-auto mb-4 flex justify-start">
+      <a href="/" class="back-home-btn inline-flex items-center gap-2 bg-white hover:bg-slate-50 border border-slate-200 shadow-sm rounded-full px-5 py-2.5 text-sm font-medium text-slate-700 transition-all hover:shadow-md hover:border-slate-300 active:scale-95">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        </svg>
+        Back to Home
+      </a>
     </div>
 
-    <!-- Contextual Formatting (Draw Tool) -->
-    <div id="drawFormatting" class="hidden" style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;">
-      <span style="font-size:11px;color:#94a3b8;margin-right:4px;">Pen</span>
-      <select class="fmt-select" style="width:80px;">
-        <option>Pen</option>
-        <option>Marker</option>
-        <option>Highlighter</option>
-      </select>
-      <input type="color" class="color-btn" value="#1e293b" title="Pen Color">
-      <span style="font-size:11px;color:#94a3b8;margin-left:4px;">Size</span>
-      <select class="fmt-select" style="width:50px;">
-        <option>1</option>
-        <option selected>2</option>
-        <option>3</option>
-        <option>4</option>
-        <option>5</option>
-        <option>8</option>
-        <option>10</option>
-      </select>
-      <button class="fmt-btn" onclick="alert('Eraser')" title="Eraser">🧹</button>
-    </div>
-
-    <!-- Contextual Formatting (Shape Tool) -->
-    <div id="shapeFormatting" class="hidden" style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;">
-      <select class="fmt-select" style="width:100px;">
-        <option>Rectangle</option>
-        <option>Rounded Rectangle</option>
-        <option>Circle</option>
-        <option>Line</option>
-        <option>Arrow</option>
-        <option>Text Box</option>
-      </select>
-      <input type="color" class="color-btn" value="#3b82f6" title="Fill Color">
-      <input type="color" class="color-btn" value="#1e293b" title="Border Color">
-      <span style="font-size:11px;color:#94a3b8;margin-left:4px;">Border</span>
-      <select class="fmt-select" style="width:50px;">
-        <option>0</option>
-        <option selected>1</option>
-        <option>2</option>
-        <option>3</option>
-        <option>4</option>
-        <option>5</option>
-      </select>
-    </div>
-
-    <!-- Contextual Formatting (Highlight Tool) -->
-    <div id="highlightFormatting" class="hidden" style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;">
-      <span style="font-size:11px;color:#94a3b8;margin-right:4px;">Highlight</span>
-      <select class="fmt-select" style="width:100px;">
-        <option>Highlight</option>
-        <option>Underline</option>
-        <option>Strikethrough</option>
-        <option>Squiggly</option>
-      </select>
-      <input type="color" class="color-btn" value="#fef08a" title="Highlight Color" style="background:#fef08a;">
-      <span style="font-size:11px;color:#94a3b8;margin-left:4px;">Opacity</span>
-      <select class="fmt-select" style="width:50px;">
-        <option>50%</option>
-        <option selected>70%</option>
-        <option>100%</option>
-      </select>
-    </div>
-  </div>
-
-  <!-- ===== MAIN CONTENT ===== -->
-  <div class="flex flex-1 overflow-hidden">
-
-    <!-- ===== LEFT SIDEBAR ===== -->
-    <div class="left-sidebar scrollbar-thin" id="pagesSidebar">
-      <div class="sidebar-header">
-        <span class="sidebar-title">Pages</span>
-        <button class="sidebar-add" onclick="alert('Add page')" title="Add page">+</button>
+    <div class="text-center mb-8">
+      <div class="inline-block p-3 bg-blue-50 rounded-2xl mb-4 transition-colors duration-200" aria-hidden="true">
+        <span class="text-4xl">🔄</span>
       </div>
-      
-      <div id="pageThumbnails" style="flex:1;">
-        <div class="text-center text-slate-400 text-xs py-8" id="emptyThumbnails">
-          <div class="text-2xl mb-2">📄</div>
-          <p>No pages</p>
-          <p class="text-[9px] mt-1">Open a PDF</p>
+      <h1 class="text-3xl md:text-4xl font-black text-slate-900 tracking-tight">Rotate PDF</h1>
+      <p class="text-slate-500 text-sm md:text-base mt-2 max-w-lg mx-auto">
+        Rotate individual pages, ranges, or the whole document. <strong>100% client-side</strong> — your file never leaves your browser.
+      </p>
+    </div>
+
+    <section class="max-w-2xl mx-auto mb-8 bg-blue-50 border border-blue-200 rounded-xl p-4 transition-colors duration-200" aria-label="How it works">
+      <div class="flex items-start gap-3">
+        <span class="text-2xl" aria-hidden="true">💡</span>
+        <div>
+          <h2 class="font-bold text-sm text-blue-900">Click a page, then rotate it.</h2>
+          <p class="text-xs text-blue-700 mt-1">Every thumbnail is a 3D card that flips when you rotate it. Select a range with Shift-click, or use Rotate All Pages to rotate the whole document in one go.</p>
         </div>
-        <div id="thumbnailList"></div>
+      </div>
+    </section>
+
+    <div id="dropzone" class="bg-white border-2 border-dashed border-slate-300 hover:border-blue-400 transition-all rounded-3xl p-8 md:p-12 text-center shadow-lg max-w-2xl mx-auto cursor-pointer" role="button" tabindex="0" aria-label="Upload PDF">
+      <div class="flex flex-col items-center">
+        <div class="w-20 h-20 bg-blue-50 rounded-2xl flex items-center justify-center mb-4 text-4xl transition-colors duration-200" aria-hidden="true">📄</div>
+        <h2 class="text-xl font-bold text-slate-900 mb-1">Drop your PDF here</h2>
+        <p class="text-slate-400 text-sm mb-4">or click to browse</p>
+        <input type="file" id="fileInput" accept=".pdf,application/pdf" class="hidden" aria-label="Choose PDF">
+        <button onclick="document.getElementById('fileInput').click()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-3 rounded-xl text-sm shadow-md shadow-blue-500/20 transition-all active:scale-95">
+          Select PDF File
+        </button>
+        <p class="text-xs text-slate-400 mt-3">Max file size: ~100MB</p>
       </div>
     </div>
 
-    <!-- ===== CENTER WORKSPACE ===== -->
-    <div class="workspace" id="workspace">
-      <div class="empty-state" id="emptyState">
-        <div class="icon">📄</div>
-        <h3 id="emptyTitle">Edit a PDF</h3>
-        <p id="emptyDescription">Open a PDF to add text, images, signatures, drawings and more.</p>
-        <div class="drop-zone" id="dropZone" onclick="document.getElementById('pdfInput').click()">
-          <div style="font-size:32px;margin-bottom:8px;">📂</div>
-          <p style="font-size:13px;font-weight:500;color:#1e293b;">Drag & drop a PDF here</p>
-          <p style="font-size:12px;color:#94a3b8;">or click to browse</p>
+    <div id="fileInfo" class="hidden max-w-2xl mx-auto mt-6 bg-white rounded-xl shadow-sm border border-slate-200 p-6 transition-colors duration-200">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <span class="text-2xl" aria-hidden="true">📄</span>
+          <div>
+            <p id="fileName" class="font-medium text-slate-900"></p>
+            <p id="fileSize" class="text-xs text-slate-400"></p>
+            <p id="pageCount" class="text-xs text-slate-400"></p>
+          </div>
         </div>
-        <div class="flex flex-wrap gap-3 mt-4 justify-center">
-          <button onclick="document.getElementById('pdfInput').click()" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2.5 rounded-xl text-sm shadow-md shadow-blue-500/20 transition-all active:scale-95">
-            📂 Open PDF
-          </button>
-          <button onclick="alert('Create blank PDF')" class="bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-2.5 rounded-xl text-sm shadow-md shadow-green-500/20 transition-all active:scale-95">
-            📄 Create Blank PDF
+        <button onclick="clearFile()" class="text-slate-400 hover:text-red-500 transition-colors" aria-label="Remove file">✕</button>
+      </div>
+
+      <div id="readerSection" class="hidden mt-4 border-t border-slate-200 pt-4">
+        <div class="flex items-center justify-between mb-2">
+          <h2 class="font-bold text-sm text-slate-700">🔄 Pages</h2>
+          <span id="pageStats" class="text-xs text-slate-400"></span>
+        </div>
+
+        <div class="toolbar" id="toolbar">
+          <div class="group">
+            <span class="group-label">Selected</span>
+            <button id="rotLeftBtn" title="Rotate selected left 90°">↺ 90°</button>
+            <button id="rotRightBtn" title="Rotate selected right 90°">↻ 90°</button>
+            <button id="rot180Btn" title="Rotate selected 180°">↻ 180°</button>
+          </div>
+          <div class="divider"></div>
+          <div class="group">
+            <span class="group-label">Whole PDF</span>
+            <button id="rotateAllLeftBtn" class="primary" title="Rotate every page left 90°">↺ All Left</button>
+            <button id="rotateAllRightBtn" class="primary" title="Rotate every page right 90°">↻ All Right</button>
+            <button id="rotateAll180Btn" class="primary" title="Rotate every page 180°">↻ All 180°</button>
+          </div>
+          <div class="divider"></div>
+          <div class="group">
+            <button id="undoBtn" title="Undo (Ctrl+Z)">↶</button>
+            <button id="redoBtn" title="Redo (Ctrl+Y)">↷</button>
+            <button id="resetBtn" title="Reset all rotations">⨯ Reset</button>
+          </div>
+          <div class="stats" id="stats">
+            <span><strong>0</strong> pages</span>
+          </div>
+        </div>
+
+        <div class="range-bar">
+          <label for="rangeInput" style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.04em;">Select Range</label>
+          <input type="text" id="rangeInput" placeholder="e.g. 3-7, 12" aria-label="Page range">
+          <button id="rangeApplyBtn" class="primary" style="background:#3b82f6;color:#fff;border-color:transparent;">Apply</button>
+          <button id="selectAllBtn">Select all</button>
+          <button id="clearSelBtn">Clear</button>
+          <span class="stats" id="selectionStats">0 selected</span>
+        </div>
+
+        <div id="pagesGrid" class="pages-grid" role="list" aria-label="PDF pages"></div>
+
+        <div class="preview-strip" id="previewStrip" aria-label="Output preview"></div>
+
+        <div class="action-bar">
+          <button id="exportBtn" class="btn-success" disabled>📥 Export Rotated PDF</button>
+          <button id="exportZipBtn" class="btn-secondary" disabled>📦 Export pages as ZIP</button>
+          <div class="spacer"></div>
+          <button id="resetSelBtn" class="btn-secondary">Reset Selection</button>
+        </div>
+
+        <div class="action-bar" style="margin-top:6px;">
+          <button id="exportManifestDocxBtn" class="btn-secondary">📝 Export rotation manifest as DOCX</button>
+          <button id="exportManifestXlsxBtn" class="btn-secondary">📊 Export rotation manifest as XLSX</button>
+        </div>
+      </div>
+
+      <div class="mt-4 flex flex-wrap gap-3">
+        <button onclick="clearFile()" class="px-4 py-3 border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors text-sm">
+          Change File
+        </button>
+      </div>
+    </div>
+
+    <section id="resultSection" class="hidden max-w-2xl mx-auto mt-6" aria-label="Download result">
+      <div class="bg-green-50 border border-green-200 rounded-xl p-6 text-center transition-colors duration-200">
+        <div class="text-4xl mb-2" aria-hidden="true">✅</div>
+        <h2 class="font-bold text-slate-900">Ready!</h2>
+        <p class="text-sm text-slate-600 mt-1" id="resultSummary">Your rotated PDF is ready.</p>
+        <div class="mt-2 flex flex-wrap gap-2 justify-center">
+          <span id="resultBadgePages" class="info-badge badge-pages">0 pages</span>
+          <span id="resultBadgeRotated" class="info-badge badge-rotated">0 rotated</span>
+          <span id="resultBadgeSize" class="info-badge badge-size">0 MB</span>
+        </div>
+        <div class="mt-4 flex flex-wrap gap-3 justify-center">
+          <a id="downloadLink" href="#" download="dropletweb-rotated.pdf" class="bg-green-600 hover:bg-green-700 text-white font-bold px-6 py-3 rounded-xl transition-all shadow-md shadow-green-500/20">
+            📥 Download Rotated PDF
+          </a>
+          <button onclick="resetConverter()" class="px-6 py-3 border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors text-sm">
+            Start Over
           </button>
         </div>
-        <p class="text-xs text-slate-400 mt-4">🔒 Processed locally in your browser</p>
-        <input type="file" id="pdfInput" accept=".pdf,application/pdf" class="hidden" multiple>
+        <p id="downloadFileName" class="text-xs text-slate-400 mt-3"></p>
+      </div>
+    </section>
+
+    <section class="max-w-2xl mx-auto mt-12 grid grid-cols-1 md:grid-cols-3 gap-4" aria-label="Key features">
+      <div class="bg-white p-4 rounded-xl border border-slate-100 text-center transition-colors duration-200">
+        <div class="text-2xl mb-1" aria-hidden="true">🔒</div>
+        <h3 class="font-bold text-sm">100% Private</h3>
+        <p class="text-xs text-slate-500">Your file never leaves your browser</p>
+      </div>
+      <div class="bg-white p-4 rounded-xl border border-slate-100 text-center transition-colors duration-200">
+        <div class="text-2xl mb-1" aria-hidden="true">🎯</div>
+        <h3 class="font-bold text-sm">Per-Page Control</h3>
+        <p class="text-xs text-slate-500">Rotate any page, any amount</p>
+      </div>
+      <div class="bg-white p-4 rounded-xl border border-slate-100 text-center transition-colors duration-200">
+        <div class="text-2xl mb-1" aria-hidden="true">🔤</div>
+        <h3 class="font-bold text-sm">Native PDF Output</h3>
+        <p class="text-xs text-slate-500">Text and vectors preserved exactly</p>
+      </div>
+    </section>
+
+    <article class="max-w-2xl mx-auto mt-12" aria-label="About rotating PDFs">
+      <h2 class="text-xl font-black text-slate-900 mb-4">Rotating PDF pages: the complete guide</h2>
+      <div class="bg-white p-5 rounded-xl border border-slate-100 mb-4 transition-colors duration-200">
+        <p class="text-sm text-slate-600 leading-relaxed mb-3">
+          A PDF page has a coordinate system. That system defines where the content sits on the page, and how the page is displayed. Part of that system is a rotation angle — a multiple of 90 degrees — that tells every viewer how to turn the page before showing it. Get the angle right, and a landscape page shows up correctly. Get it wrong, and the reader sees the content sideways.
+        </p>
+        <p class="text-sm text-slate-600 leading-relaxed mb-3">
+          Every PDF page carries its own rotation. A single document can have pages with different rotation angles. This is why the operation is called "rotating pages" rather than "rotating the PDF" — because each page can be turned independently. The rotation angle is a piece of metadata attached to the page dictionary. Changing it does not change the content on the page. It only changes the way the page is displayed when opened.
+        </p>
+        <p class="text-sm text-slate-600 leading-relaxed">
+          Because rotation is metadata, it is a lossless operation. Text remains selectable, images remain at full resolution, vector graphics remain sharp, and links remain clickable. The underlying page content is untouched — only the viewer's interpretation of it changes.
+        </p>
       </div>
 
-      <div class="page-container hidden" id="pageContainer">
-        <canvas id="pdfCanvas"></canvas>
+      <h2 class="text-xl font-black text-slate-900 mb-4">When you need to rotate PDF pages</h2>
+      <div class="bg-white p-5 rounded-xl border border-slate-100 mb-4 transition-colors duration-200">
+        <ul class="text-sm text-slate-600 leading-relaxed list-disc pl-5 space-y-2">
+          <li><strong>Landscape scans inserted sideways.</strong> When a scanner processes a landscape page but the software treats it as portrait, the content arrives rotated 90°.</li>
+          <li><strong>Mixed-orientation documents.</strong> A report that combines portrait text with landscape charts, where the charts need consistent orientation.</li>
+          <li><strong>Photos of documents.</strong> Phone photos of physical pages are frequently off by 90°.</li>
+          <li><strong>Scanned presentations.</strong> Slides scanned in landscape mode often need rotation for consistent reading.</li>
+          <li><strong>Flipped or upside-down pages.</strong> Pages scanned or printed on both sides can end up 180° out of alignment.</li>
+          <li><strong>Reading on rotated displays.</strong> When you want to view a PDF sideways on a monitor that can turn, aligning the page makes reading easier.</li>
+          <li><strong>Printing landscape material on portrait paper.</strong> Rotating the page can make a landscape chart fit a portrait sheet without scaling.</li>
+        </ul>
+      </div>
+
+      <h2 class="text-xl font-black text-slate-900 mb-4">How to use this tool</h2>
+      <div class="bg-white p-5 rounded-xl border border-slate-100 mb-4 transition-colors duration-200">
+        <p class="text-sm text-slate-600 leading-relaxed mb-3">
+          <strong>Step 1. Upload your PDF.</strong> Drag it onto the drop zone or click Select PDF File. Every page renders as a 3D card with two numbers: the source page number and the current rotation angle if not zero.
+        </p>
+        <p class="text-sm text-slate-600 leading-relaxed mb-3">
+          <strong>Step 2. Rotate individual pages.</strong> Click a thumbnail to select it. Use Rotate Left, Rotate Right, or Rotate 180° in the toolbar. The thumbnail's canvas rotates with a smooth animation so you can see the effect immediately.
+        </p>
+        <p class="text-sm text-slate-600 leading-relaxed mb-3">
+          <strong>Step 3. Rotate ranges.</strong> Click the first page of a range, then Shift-click the last. Every page in between is selected. Rotate them all with the toolbar buttons.
+        </p>
+        <p class="text-sm text-slate-600 leading-relaxed mb-3">
+          <strong>Step 4. Rotate the whole document.</strong> The Whole PDF group in the toolbar has three buttons — All Left, All Right, All 180° — that rotate every page in one click.
+        </p>
+        <p class="text-sm text-slate-600 leading-relaxed">
+          <strong>Step 5. Export.</strong> Press Export Rotated PDF. The file downloads as <code>dropletweb-&lt;original-name&gt;-rotated.pdf</code>. Rotation is applied as a native PDF rotation entry on each page, so every viewer will show the pages in the orientation you set.
+        </p>
+      </div>
+
+      <h2 class="text-xl font-black text-slate-900 mb-4">Rotation vs. re-rendering</h2>
+      <div class="bg-white p-5 rounded-xl border border-slate-100 mb-4 transition-colors duration-200 overflow-x-auto">
+        <table class="w-full text-sm text-slate-600">
+          <thead>
+            <tr class="border-b border-slate-200">
+              <th class="text-left py-2 pr-4 font-bold">Approach</th>
+              <th class="text-left py-2 pr-4 font-bold">Behaviour</th>
+              <th class="text-left py-2 font-bold">Result</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="border-b border-slate-100"><td class="py-2 pr-4">Rotation metadata</td><td class="py-2 pr-4">Viewer turns the page at display time</td><td class="py-2">Lossless, reversible, small file</td></tr>
+            <tr><td class="py-2 pr-4">Re-rendered page</td><td class="py-2 pr-4">Content is redrawn rotated in the new file</td><td class="py-2">Lossy, irreversible, larger file</td></tr>
+          </tbody>
+        </table>
+        <p class="text-sm text-slate-600 leading-relaxed mt-3">
+          This tool uses rotation metadata. It is the correct approach and the one Adobe Acrobat, every professional PDF editor, and every print workflow uses.
+        </p>
+      </div>
+
+      <h2 class="text-xl font-black text-slate-900 mb-4">Why client-side matters</h2>
+      <div class="bg-white p-5 rounded-xl border border-slate-100 mb-4 transition-colors duration-200">
+        <p class="text-sm text-slate-600 leading-relaxed">
+          Server-based PDF tools upload your document to a remote machine. For contracts, financial records, medical files, or anything under confidentiality obligations, that means a copy of your file lives on someone else's computer, even if only for a few seconds. This tool never uploads anything. The PDF stays in your browser's memory, rotation is applied on your CPU, and the output file is generated locally. Open your browser's developer tools and watch the Network tab — nothing is sent anywhere after the initial page load.
+        </p>
+      </div>
+    </article>
+
+    <section class="max-w-2xl mx-auto mt-12" aria-label="Frequently asked questions">
+      <h2 class="text-xl font-black text-slate-900 text-center mb-6">Frequently Asked Questions</h2>
+      <div class="space-y-3">
+        <details class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200" open>
+          <summary class="font-bold text-slate-900 text-sm cursor-pointer">Is my PDF safe?</summary>
+          <p class="text-slate-600 text-sm mt-2">Yes. All processing happens locally in your browser. Your PDF is never uploaded to any server and is removed from memory when you close the page.</p>
+        </details>
+        <details class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
+          <summary class="font-bold text-slate-900 text-sm cursor-pointer">Is this tool free?</summary>
+          <p class="text-slate-600 text-sm mt-2">Yes, the tool is completely free and does not require a sign-up or account.</p>
+        </details>
+        <details class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
+          <summary class="font-bold text-slate-900 text-sm cursor-pointer">How do I rotate a single page?</summary>
+          <p class="text-slate-600 text-sm mt-2">Click the page to select it, then click Rotate Left or Rotate Right. The thumbnail flips to show the new orientation immediately.</p>
+        </details>
+        <details class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
+          <summary class="font-bold text-slate-900 text-sm cursor-pointer">How do I rotate multiple pages at once?</summary>
+          <p class="text-slate-600 text-sm mt-2">Click the first page, then Shift-click the last page of the range. Every page in between is selected. Click Rotate Left or Rotate Right to rotate all of them together.</p>
+        </details>
+        <details class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
+          <summary class="font-bold text-slate-900 text-sm cursor-pointer">Can I rotate every page in the PDF?</summary>
+          <p class="text-slate-600 text-sm mt-2">Yes. Use the Whole PDF group in the toolbar — All Left, All Right, or All 180°. Every page in the document is rotated in one click.</p>
+        </details>
+        <details class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
+          <summary class="font-bold text-slate-900 text-sm cursor-pointer">Can I rotate a specific range of pages?</summary>
+          <p class="text-slate-600 text-sm mt-2">Yes. Type a range in the Select Range input — for example <code>3-7, 12</code> — and press Enter. That range becomes the selection, then rotate it with the toolbar buttons.</p>
+        </details>
+        <details class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
+          <summary class="font-bold text-slate-900 text-sm cursor-pointer">Will the rotation show in the exported PDF?</summary>
+          <p class="text-slate-600 text-sm mt-2">Yes. Rotation is applied as a native PDF rotation entry on each page. When you open the exported PDF in any viewer, the pages appear rotated exactly as you set them.</p>
+        </details>
+        <details class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
+          <summary class="font-bold text-slate-900 text-sm cursor-pointer">Can I undo a rotation?</summary>
+          <p class="text-slate-600 text-sm mt-2">Yes. Use Ctrl+Z to undo and Ctrl+Y to redo. Every rotation change is recorded in the history.</p>
+        </details>
+        <details class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
+          <summary class="font-bold text-slate-900 text-sm cursor-pointer">Does it detect pages that are already sideways?</summary>
+          <p class="text-slate-600 text-sm mt-2">Yes. The tool highlights landscape pages with a small badge so you can identify and rotate them quickly.</p>
+        </details>
+        <details class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
+          <summary class="font-bold text-slate-900 text-sm cursor-pointer">Will the text remain selectable in the rotated PDF?</summary>
+          <p class="text-slate-600 text-sm mt-2">Yes. Rotation is metadata; it does not re-render the page. Text, links, vector graphics, and embedded fonts are preserved exactly.</p>
+        </details>
+        <details class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
+          <summary class="font-bold text-slate-900 text-sm cursor-pointer">What is the maximum file size?</summary>
+          <p class="text-slate-600 text-sm mt-2">The tool accepts PDFs up to 100 MB. Because everything runs locally, the practical limit is your device's available memory.</p>
+        </details>
+        <details class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
+          <summary class="font-bold text-slate-900 text-sm cursor-pointer">Does it work offline?</summary>
+          <p class="text-slate-600 text-sm mt-2">Once the page has loaded, all parsing and rotation run locally. You can rotate PDFs without an internet connection.</p>
+        </details>
+      </div>
+    </section>
+  </main>
+
+  <footer class="border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-500 mt-auto transition-colors duration-200">
+    <div class="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-3">
+      <p class="font-medium">© Droplet. 100% Client-Side Privacy First File Utility.</p>
+      <div class="space-x-4">
+        <a href="/about.html" class="hover:text-blue-600 transition-colors">About</a>
+        <span>•</span>
+        <a href="/privacy.html" class="hover:text-blue-600 transition-colors">Privacy</a>
+        <span>•</span>
+        <a href="/terms.html" class="hover:text-blue-600 transition-colors">Terms</a>
       </div>
     </div>
+  </footer>
 
-    <!-- ===== RIGHT PROPERTIES PANEL ===== -->
-    <div class="props-panel scrollbar-thin" id="propsPanel">
-      <div class="panel-handle"></div>
-      <button class="panel-close" onclick="togglePropsPanel()">✕</button>
-
-      <div id="propsEmpty" class="panel-empty">
-        <div class="icon">📋</div>
-        <p>No selection</p>
-        <p style="font-size:11px;color:#cbd5e1;margin-top:4px;">Open a PDF to see document properties</p>
-      </div>
-
-      <!-- Page Properties -->
-      <div id="pageProps" class="hidden">
-        <div class="section-title">📄 Page</div>
-        <div class="prop-group">
-          <label>Size</label>
-          <select>
-            <option value="a4">A4 (210 × 297 mm)</option>
-            <option value="letter">Letter (8.5 × 11 in)</option>
-            <option value="legal">Legal (8.5 × 14 in)</option>
-            <option value="a3">A3 (297 × 420 mm)</option>
-          </select>
-        </div>
-        <div class="prop-group">
-          <label>Orientation</label>
-          <div class="flex-row" style="gap:4px;">
-            <button class="action-btn-sm" onclick="alert('Portrait')" style="flex:1;text-align:center;">▯ Portrait</button>
-            <button class="action-btn-sm" onclick="alert('Landscape')" style="flex:1;text-align:center;">▭ Landscape</button>
-          </div>
-        </div>
-        <div class="prop-group">
-          <label>Background</label>
-          <div class="flex-row">
-            <input type="color" value="#ffffff">
-            <span style="font-size:12px;color:#94a3b8;">White</span>
-          </div>
-        </div>
-        <div class="prop-group">
-          <label>Page</label>
-          <div class="flex-row">
-            <span style="font-size:12px;color:#94a3b8;">1 of 1</span>
-          </div>
-        </div>
-
-        <div class="section-title" style="margin-top:14px;">📑 Operations</div>
-        <div class="prop-group">
-          <div class="flex-row" style="gap:4px;flex-wrap:wrap;">
-            <button class="action-btn-sm" onclick="alert('Rotate Left')">🔄 Left</button>
-            <button class="action-btn-sm" onclick="alert('Rotate Right')">🔄 Right</button>
-            <button class="action-btn-sm" onclick="alert('Duplicate')">📋 Duplicate</button>
-            <button class="action-btn-sm danger" onclick="alert('Delete')">🗑️ Delete</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Text Properties -->
-      <div id="textProps" class="hidden">
-        <div class="section-title">✏️ Text</div>
-        <div class="prop-group">
-          <label>Font</label>
-          <select>
-            <option>Arial</option>
-            <option>Times New Roman</option>
-            <option>Calibri</option>
-            <option>Helvetica</option>
-            <option>Georgia</option>
-            <option>Verdana</option>
-          </select>
-        </div>
-        <div class="prop-group">
-          <label>Size</label>
-          <div class="flex-row">
-            <input type="range" min="8" max="72" value="12" style="flex:1;">
-            <span style="font-size:12px;color:#94a3b8;min-width:28px;">12</span>
-          </div>
-        </div>
-        <div class="prop-group">
-          <label>Color</label>
-          <div class="flex-row">
-            <input type="color" value="#1e293b">
-            <span style="font-size:12px;color:#94a3b8;">Text</span>
-          </div>
-        </div>
-        <div class="prop-group">
-          <label>Opacity</label>
-          <div class="flex-row">
-            <input type="range" min="10" max="100" value="100" style="flex:1;">
-            <span style="font-size:12px;color:#94a3b8;min-width:28px;">100%</span>
-          </div>
-        </div>
-        <div class="prop-group">
-          <label>Position</label>
-          <div class="flex-row">
-            <span style="font-size:12px;color:#94a3b8;">X: 125</span>
-            <span style="font-size:12px;color:#94a3b8;">Y: 260</span>
-          </div>
-        </div>
-        <div class="prop-group">
-          <label>Size</label>
-          <div class="flex-row">
-            <span style="font-size:12px;color:#94a3b8;">W: 240</span>
-            <span style="font-size:12px;color:#94a3b8;">H: 38</span>
-          </div>
-        </div>
-        <div class="prop-group" style="border-top:1px solid #e2e8f0;padding-top:10px;">
-          <button class="action-btn-sm danger" onclick="alert('Delete text')">🗑️ Delete</button>
-        </div>
-      </div>
-
-      <!-- Image Properties -->
-      <div id="imageProps" class="hidden">
-        <div class="section-title">🖼️ Image</div>
-        <div class="prop-group">
-          <label>Width</label>
-          <div class="flex-row">
-            <input type="number" value="200" min="10" style="width:64px;">
-            <span style="font-size:12px;color:#94a3b8;">px</span>
-            <button class="action-btn-sm" onclick="alert('Lock ratio')" style="padding:2px 6px;">🔗</button>
-          </div>
-        </div>
-        <div class="prop-group">
-          <label>Height</label>
-          <div class="flex-row">
-            <input type="number" value="150" min="10" style="width:64px;">
-            <span style="font-size:12px;color:#94a3b8;">px</span>
-          </div>
-        </div>
-        <div class="prop-group">
-          <label>Rotation</label>
-          <div class="flex-row">
-            <input type="range" min="0" max="360" value="0" style="flex:1;">
-            <span style="font-size:12px;color:#94a3b8;min-width:28px;">0°</span>
-          </div>
-        </div>
-        <div class="prop-group">
-          <label>Opacity</label>
-          <div class="flex-row">
-            <input type="range" min="10" max="100" value="100" style="flex:1;">
-            <span style="font-size:12px;color:#94a3b8;min-width:28px;">100%</span>
-          </div>
-        </div>
-        <div class="prop-group">
-          <label>Arrange</label>
-          <div class="flex-row" style="gap:4px;">
-            <button class="action-btn-sm" onclick="alert('Forward')">⬆ Forward</button>
-            <button class="action-btn-sm" onclick="alert('Backward')">⬇ Backward</button>
-          </div>
-        </div>
-        <div class="prop-group" style="border-top:1px solid #e2e8f0;padding-top:10px;">
-          <button class="action-btn-sm danger" onclick="alert('Delete image')">🗑️ Delete</button>
-        </div>
-      </div>
-
-      <!-- Shape Properties -->
-      <div id="shapeProps" class="hidden">
-        <div class="section-title">⬛ Shape</div>
-        <div class="prop-group">
-          <label>Fill Color</label>
-          <div class="flex-row">
-            <input type="color" value="#3b82f6">
-            <span style="font-size:12px;color:#94a3b8;">Fill</span>
-          </div>
-        </div>
-        <div class="prop-group">
-          <label>Border Color</label>
-          <div class="flex-row">
-            <input type="color" value="#1e293b">
-            <span style="font-size:12px;color:#94a3b8;">Border</span>
-          </div>
-        </div>
-        <div class="prop-group">
-          <label>Border Thickness</label>
-          <div class="flex-row">
-            <input type="range" min="0" max="10" value="2" style="flex:1;">
-            <span style="font-size:12px;color:#94a3b8;min-width:28px;">2px</span>
-          </div>
-        </div>
-        <div class="prop-group">
-          <label>Opacity</label>
-          <div class="flex-row">
-            <input type="range" min="10" max="100" value="100" style="flex:1;">
-            <span style="font-size:12px;color:#94a3b8;min-width:28px;">100%</span>
-          </div>
-        </div>
-        <div class="prop-group" style="border-top:1px solid #e2e8f0;padding-top:10px;">
-          <button class="action-btn-sm danger" onclick="alert('Delete shape')">🗑️ Delete</button>
-        </div>
-      </div>
+  <div id="processingOverlay">
+    <div class="overlay-card">
+      <div class="spinner"></div>
+      <h4 id="processingTitle">Working…</h4>
+      <p id="processingStatus">Please wait</p>
+      <div class="bar"><div class="bar-inner" id="processingBar"></div></div>
     </div>
   </div>
 
-  <!-- ===== STATUS BAR ===== -->
-  <div class="status-bar">
-    <div class="status-left">
-      <span id="statusPage">Page 1 of 1</span>
-      <span id="statusSize">A4 • 210 × 297 mm</span>
-      <span id="statusObjects" style="display:none;">3 objects selected</span>
-    </div>
-    <div class="status-right">
-      <button onclick="alert('Fit Page')">Fit Page</button>
-      <button onclick="alert('Fit Width')">Fit Width</button>
-      <button onclick="alert('Zoom out')">−</button>
-      <span>100%</span>
-      <button onclick="alert('Zoom in')">+</button>
-    </div>
-  </div>
-
-  <!-- ===== BACK TO HOME ===== -->
-  <a href="/" class="back-home-btn" title="Back to Home">
-    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-    </svg>
-    <span>Back to Home</span>
-  </a>
+  <div class="toast" id="toast"></div>
 
   <script>
-    // ============================================
-    // SIMPLE ROUTER - Redirect based on URL
-    // ============================================
-    // This runs when the page loads. If the current URL is a tool page
-    // (like /rotate-pdf), it redirects to /edit-pdf with a query parameter
-    // so the edit page knows which tool to activate.
-    
-    (function() {
-      const path = window.location.pathname;
-      const pageName = path.split('/').pop().replace('.html', '');
-      
-      // Map of tool pages to their display names
-      const toolMap = {
-        'edit-pdf': { tool: 'select', title: 'Edit PDF', icon: '✏️', desc: 'Edit your PDF documents' },
-        'rotate-pdf': { tool: 'select', title: 'Rotate PDF', icon: '🔄', desc: 'Rotate pages in your PDF' },
-        'scan-to-pdf': { tool: 'image', title: 'Scan to PDF', icon: '📷', desc: 'Convert scanned images to PDF' },
-        'merge-pdf': { tool: 'select', title: 'Merge PDF', icon: '🔗', desc: 'Combine multiple PDFs into one' },
-        'split-pdf': { tool: 'select', title: 'Split PDF', icon: '✂️', desc: 'Split PDF into separate files' },
-        'remove-pages': { tool: 'select', title: 'Remove Pages', icon: '🗑️', desc: 'Delete pages from your PDF' },
-        'extract-pages': { tool: 'select', title: 'Extract Pages', icon: '📤', desc: 'Extract pages from your PDF' },
-        'organize-pdf': { tool: 'select', title: 'Organize PDF', icon: '🗂️', desc: 'Rearrange pages in your PDF' },
-        'add-page-numbers': { tool: 'text', title: 'Add Page Numbers', icon: '🔢', desc: 'Add page numbers to your PDF' },
-        'add-watermark': { tool: 'text', title: 'Add Watermark', icon: '💧', desc: 'Add watermark to your PDF' },
-        'crop-pdf': { tool: 'select', title: 'Crop PDF', icon: '✂️', desc: 'Crop pages in your PDF' },
-        'pdf-forms': { tool: 'forms', title: 'PDF Forms', icon: '📋', desc: 'Fill and create PDF forms' },
-        'ai-summarizer': { tool: 'text', title: 'AI Summarizer', icon: '🤖', desc: 'Summarize your PDF content' },
-        'translate-pdf': { tool: 'text', title: 'Translate PDF', icon: '🌍', desc: 'Translate PDF content' },
-        'pdf-to-markdown': { tool: 'text', title: 'PDF to Markdown', icon: '📝', desc: 'Convert PDF to Markdown' }
-      };
-      
-      // If we're on a tool page (not edit-pdf), redirect to edit-pdf with the tool info
-      if (pageName !== 'edit-pdf' && toolMap[pageName]) {
-        const tool = toolMap[pageName];
-        // Store the tool info in sessionStorage so edit-pdf can use it
-        sessionStorage.setItem('droplet_tool', JSON.stringify(tool));
-        // Redirect to edit-pdf
-        window.location.href = '/edit-pdf.html';
-        return;
-      }
-      
-      // If we're already on edit-pdf, check if there's a tool in sessionStorage
-      const storedTool = sessionStorage.getItem('droplet_tool');
-      if (storedTool && pageName === 'edit-pdf') {
-        const tool = JSON.parse(storedTool);
-        // Clear it so it doesn't persist
-        sessionStorage.removeItem('droplet_tool');
-        // Apply the tool
-        applyTool(tool);
-        // Update the badge
-        document.getElementById('toolBadge').textContent = tool.icon + ' ' + tool.title;
-        document.getElementById('emptyTitle').textContent = tool.title;
-        document.getElementById('emptyDescription').textContent = tool.desc;
-        document.getElementById('pageTitle').textContent = tool.title + ' - Droplet';
-        // Set the tool
-        setTool(tool.tool);
-      }
-    })();
+    // ============================================================
+    // PDF.JS WORKER
+    // ============================================================
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-    function applyTool(tool) {
-      // This function will be called when a tool is loaded from sessionStorage
-      console.log('🔧 Tool loaded:', tool.title);
-    }
-
-    // ============================================
-    // DARK MODE TOGGLE
-    // ============================================
+    // ============================================================
+    // THEME TOGGLE
+    // ============================================================
     const themeToggle = document.getElementById('theme-toggle');
     const html = document.documentElement;
-    
-    let currentTheme = localStorage.getItem('theme') || 
-      (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-    
-    if (currentTheme === 'dark') {
-      html.classList.add('dark');
-      themeToggle.textContent = '☀️';
-    } else {
-      themeToggle.textContent = '🌙';
-    }
-    
+    themeToggle.textContent = html.classList.contains('dark') ? '☀️' : '🌙';
     themeToggle.addEventListener('click', () => {
       if (html.classList.contains('dark')) {
         html.classList.remove('dark');
         themeToggle.textContent = '🌙';
-        localStorage.setItem('theme', 'light');
+        try { localStorage.setItem('theme', 'light'); } catch (e) {}
       } else {
         html.classList.add('dark');
         themeToggle.textContent = '☀️';
-        localStorage.setItem('theme', 'dark');
+        try { localStorage.setItem('theme', 'dark'); } catch (e) {}
       }
     });
 
-    // ============================================
-    // TOOL SELECTION & CONTEXTUAL TOOLBAR
-    // ============================================
-    let currentTool = 'select';
+    // ============================================================
+    // STATE
+    // ============================================================
+    const State = {
+      file: null,
+      arrayBuffer: null,
+      pdfDoc: null,
+      totalPages: 0,
+      // rotations: pageNumber (1-based) -> angle in degrees (normalized 0/90/180/270)
+      rotations: new Map(),
+      // Landscape detection: pageNumber -> boolean
+      landscape: new Map(),
+      // Source page rotation from PDF metadata: pageNumber -> angle
+      sourceRotation: new Map(),
+      selected: new Set(),
+      thumbs: new Map(),        // pageNumber -> canvas
+      lastClicked: -1,
+      undoStack: [],
+      redoStack: []
+    };
 
-    function setTool(tool) {
-      currentTool = tool;
-      
-      document.querySelectorAll('.toolbar-row .tool-btn').forEach(btn => {
-        btn.classList.toggle('active', btn.dataset.tool === tool);
+    // DOM
+    const dropzone = document.getElementById('dropzone');
+    const fileInput = document.getElementById('fileInput');
+    const fileInfo = document.getElementById('fileInfo');
+    const fileName = document.getElementById('fileName');
+    const fileSize = document.getElementById('fileSize');
+    const pageCount = document.getElementById('pageCount');
+    const readerSection = document.getElementById('readerSection');
+    const pageStats = document.getElementById('pageStats');
+    const pagesGrid = document.getElementById('pagesGrid');
+    const previewStrip = document.getElementById('previewStrip');
+    const toolbar = document.getElementById('toolbar');
+    const statsEl = document.getElementById('stats');
+    const rotLeftBtn = document.getElementById('rotLeftBtn');
+    const rotRightBtn = document.getElementById('rotRightBtn');
+    const rot180Btn = document.getElementById('rot180Btn');
+    const rotateAllLeftBtn = document.getElementById('rotateAllLeftBtn');
+    const rotateAllRightBtn = document.getElementById('rotateAllRightBtn');
+    const rotateAll180Btn = document.getElementById('rotateAll180Btn');
+    const undoBtn = document.getElementById('undoBtn');
+    const redoBtn = document.getElementById('redoBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const rangeInput = document.getElementById('rangeInput');
+    const rangeApplyBtn = document.getElementById('rangeApplyBtn');
+    const selectAllBtn = document.getElementById('selectAllBtn');
+    const clearSelBtn = document.getElementById('clearSelBtn');
+    const selectionStats = document.getElementById('selectionStats');
+    const exportBtn = document.getElementById('exportBtn');
+    const exportZipBtn = document.getElementById('exportZipBtn');
+    const resetSelBtn = document.getElementById('resetSelBtn');
+    const exportManifestDocxBtn = document.getElementById('exportManifestDocxBtn');
+    const exportManifestXlsxBtn = document.getElementById('exportManifestXlsxBtn');
+    const resultSection = document.getElementById('resultSection');
+    const resultSummary = document.getElementById('resultSummary');
+    const resultBadgePages = document.getElementById('resultBadgePages');
+    const resultBadgeRotated = document.getElementById('resultBadgeRotated');
+    const resultBadgeSize = document.getElementById('resultBadgeSize');
+    const downloadLink = document.getElementById('downloadLink');
+    const downloadFileName = document.getElementById('downloadFileName');
+    const processingOverlay = document.getElementById('processingOverlay');
+    const processingTitle = document.getElementById('processingTitle');
+    const processingStatus = document.getElementById('processingStatus');
+    const processingBar = document.getElementById('processingBar');
+    const toast = document.getElementById('toast');
+
+    // ============================================================
+    // HELPERS
+    // ============================================================
+    function showToast(text, type, duration) {
+      toast.textContent = text;
+      toast.className = 'toast' + (type ? ' ' + type : '');
+      toast.classList.add('show');
+      clearTimeout(toast._timeout);
+      toast._timeout = setTimeout(() => toast.classList.remove('show'), duration || 2400);
+    }
+    function showProcessing(title, status) {
+      processingTitle.textContent = title || 'Working…';
+      processingStatus.textContent = status || 'Please wait';
+      processingBar.style.width = '0%';
+      processingOverlay.classList.add('show');
+      document.body.style.overflow = 'hidden';
+    }
+    function setProcessing(status, pct) {
+      processingStatus.textContent = status;
+      if (typeof pct === 'number') processingBar.style.width = Math.max(0, Math.min(100, pct)) + '%';
+    }
+    function hideProcessing() {
+      processingOverlay.classList.remove('show');
+      document.body.style.overflow = '';
+    }
+    function normAngle(a) { return ((a % 360) + 360) % 360; }
+
+    function parseRanges(str, max) {
+      const pages = new Set();
+      if (!str) return [];
+      str.split(',').forEach(part => {
+        part = part.trim();
+        if (!part) return;
+        if (part.includes('-')) {
+          const [a, b] = part.split('-').map(s => parseInt(s.trim(), 10));
+          if (!isNaN(a) && !isNaN(b)) {
+            const from = Math.max(1, Math.min(a, b));
+            const to = Math.min(max, Math.max(a, b));
+            for (let p = from; p <= to; p++) pages.add(p);
+          }
+        } else {
+          const n = parseInt(part, 10);
+          if (!isNaN(n) && n >= 1 && n <= max) pages.add(n);
+        }
       });
-      
-      document.getElementById('textFormatting').style.display = 'none';
-      document.getElementById('drawFormatting').style.display = 'none';
-      document.getElementById('shapeFormatting').style.display = 'none';
-      document.getElementById('highlightFormatting').style.display = 'none';
-      
-      if (tool === 'text') {
-        document.getElementById('textFormatting').style.display = 'flex';
-      } else if (tool === 'draw') {
-        document.getElementById('drawFormatting').style.display = 'flex';
-      } else if (tool === 'shape') {
-        document.getElementById('shapeFormatting').style.display = 'flex';
-      } else if (tool === 'highlight') {
-        document.getElementById('highlightFormatting').style.display = 'flex';
-      }
-      
-      showPropsForTool(tool);
-      document.getElementById('propsPanel').classList.remove('open');
+      return Array.from(pages).sort((a, b) => a - b);
     }
 
-    function showPropsForTool(tool) {
-      document.getElementById('propsEmpty').classList.add('hidden');
-      document.getElementById('pageProps').classList.add('hidden');
-      document.getElementById('textProps').classList.add('hidden');
-      document.getElementById('imageProps').classList.add('hidden');
-      document.getElementById('shapeProps').classList.add('hidden');
+    // ============================================================
+    // FILE HANDLING
+    // ============================================================
+    dropzone.addEventListener('click', (e) => { if (e.target.tagName !== 'BUTTON') fileInput.click(); });
+    dropzone.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fileInput.click(); }
+    });
+    document.querySelector('#dropzone button').addEventListener('click', (e) => {
+      e.stopPropagation(); fileInput.click();
+    });
+    fileInput.addEventListener('change', function () {
+      if (this.files.length > 0) { handleFile(this.files[0]); this.value = ''; }
+    });
+    dropzone.addEventListener('dragover', function (e) { e.preventDefault(); this.classList.add('dropzone-highlight'); });
+    dropzone.addEventListener('dragleave', function (e) { e.preventDefault(); this.classList.remove('dropzone-highlight'); });
+    dropzone.addEventListener('drop', function (e) {
+      e.preventDefault();
+      this.classList.remove('dropzone-highlight');
+      if (e.dataTransfer.files.length > 0) handleFile(e.dataTransfer.files[0]);
+    });
 
-      const map = {
-        'select': 'pageProps',
-        'text': 'textProps',
-        'image': 'imageProps',
-        'shape': 'shapeProps',
-        'sign': 'pageProps',
-        'draw': 'pageProps',
-        'highlight': 'pageProps',
-        'forms': 'pageProps'
-      };
-      
-      const id = map[tool] || 'pageProps';
-      const hasPdf = !document.getElementById('emptyState').classList.contains('hidden');
-      if (!hasPdf) {
-        document.getElementById('propsEmpty').classList.remove('hidden');
+    async function handleFile(file) {
+      if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
+        alert('Please select a valid PDF file.');
         return;
       }
-      document.getElementById(id).classList.remove('hidden');
-    }
+      if (file.size > 100 * 1024 * 1024) {
+        alert('File is too large. Please use a PDF under 100MB.');
+        return;
+      }
 
-    // Set default tool
-    setTool('select');
+      State.file = file;
+      State.rotations = new Map();
+      State.landscape = new Map();
+      State.sourceRotation = new Map();
+      State.selected = new Set();
+      State.thumbs.clear();
+      State.lastClicked = -1;
+      State.undoStack = [];
+      State.redoStack = [];
 
-    function togglePropsPanel() {
-      document.getElementById('propsPanel').classList.toggle('open');
-    }
+      fileName.textContent = file.name;
+      fileSize.textContent = (file.size / 1024 / 1024).toFixed(2) + ' MB';
+      fileInfo.classList.remove('hidden');
+      dropzone.classList.add('hidden');
+      resultSection.classList.add('hidden');
+      readerSection.classList.add('hidden');
 
-    function toggleSidebar(type) {
-      if (type === 'pages') {
-        document.getElementById('pagesSidebar').classList.toggle('hidden');
-      } else if (type === 'props') {
-        document.getElementById('propsPanel').classList.toggle('hidden');
+      showProcessing('Reading PDF…', 'Loading file');
+      try {
+        State.arrayBuffer = await file.arrayBuffer();
+        setProcessing('Parsing pages…', 20);
+        State.pdfDoc = await pdfjsLib.getDocument({ data: State.arrayBuffer.slice() }).promise;
+        State.totalPages = State.pdfDoc.numPages;
+        pageCount.textContent = `📄 ${State.totalPages} pages`;
+
+        setProcessing('Rendering thumbnails…', 40);
+        readerSection.classList.remove('hidden');
+        pageStats.textContent = `${State.totalPages} pages`;
+        await renderThumbnails();
+
+        // Detect landscape pages
+        setProcessing('Detecting landscape pages…', 88);
+        for (let i = 1; i <= State.totalPages; i++) {
+          const page = await State.pdfDoc.getPage(i);
+          const vp = page.getViewport({ scale: 1 });
+          const isLandscape = vp.width > vp.height;
+          State.landscape.set(i, isLandscape);
+          // Capture existing rotation from PDF metadata
+          State.sourceRotation.set(i, normAngle(page.rotate || 0));
+        }
+
+        renderGrid();
+        updateAllUI();
+        pushHistory();
+
+        setProcessing('Ready', 100);
+        hideProcessing();
+
+        const landscapeCount = Array.from(State.landscape.values()).filter(Boolean).length;
+        if (landscapeCount > 0) {
+          showToast(`${State.totalPages} pages loaded · ${landscapeCount} landscape`, 'success', 3200);
+        } else {
+          showToast(`${State.totalPages} pages loaded`, 'success', 2600);
+        }
+      } catch (err) {
+        console.error(err);
+        hideProcessing();
+        showToast('Failed to load PDF: ' + err.message, 'error', 4000);
       }
     }
 
-    function renameDocument() {
-      const newName = prompt('Rename document:', document.getElementById('docTitle').textContent.trim());
-      if (newName) {
-        document.getElementById('docTitle').innerHTML = newName + ' <span class="saved">●</span>';
+    async function renderThumbnails() {
+      const THUMB_WIDTH = 240;
+      for (let i = 1; i <= State.totalPages; i++) {
+        const page = await State.pdfDoc.getPage(i);
+        const vp1 = page.getViewport({ scale: 1 });
+        const scale = THUMB_WIDTH / vp1.width;
+        const vp = page.getViewport({ scale });
+        const canvas = document.createElement('canvas');
+        canvas.width = vp.width;
+        canvas.height = vp.height;
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        await page.render({ canvasContext: ctx, viewport: vp }).promise;
+        State.thumbs.set(i, canvas);
+        const pct = 40 + Math.round((i / State.totalPages) * 45);
+        setProcessing(`Rendered page ${i} of ${State.totalPages}`, pct);
       }
     }
 
-    // ============================================
-    // PDF LOADING
-    // ============================================
-    const dropZone = document.getElementById('dropZone');
-
-    dropZone.addEventListener('dragover', (e) => {
-      e.preventDefault();
-      dropZone.classList.add('dragover');
-    });
-
-    dropZone.addEventListener('dragleave', () => {
-      dropZone.classList.remove('dragover');
-    });
-
-    dropZone.addEventListener('drop', (e) => {
-      e.preventDefault();
-      dropZone.classList.remove('dragover');
-      const files = e.dataTransfer.files;
-      if (files.length > 0 && files[0].type === 'application/pdf') {
-        loadPDF(files[0]);
+    // ============================================================
+    // GRID
+    // ============================================================
+    function renderGrid() {
+      pagesGrid.innerHTML = '';
+      for (let i = 1; i <= State.totalPages; i++) {
+        pagesGrid.appendChild(buildThumbElement(i));
       }
-    });
-
-    document.getElementById('pdfInput').addEventListener('change', function(e) {
-      if (this.files.length > 0) {
-        loadPDF(this.files[0]);
-      }
-    });
-
-    function loadPDF(file) {
-      document.getElementById('emptyState').classList.add('hidden');
-      document.getElementById('pageContainer').classList.remove('hidden');
-      document.getElementById('emptyThumbnails').classList.add('hidden');
-      document.getElementById('propsEmpty').classList.add('hidden');
-      document.getElementById('pageProps').classList.remove('hidden');
-      
-      document.getElementById('docTitle').innerHTML = file.name + ' <span class="saved">●</span>';
-      
-      const list = document.getElementById('thumbnailList');
-      list.innerHTML = `
-        <div class="page-thumbnail active mb-2">
-          <div class="thumb-content">📄</div>
-          <div class="page-number">1</div>
-        </div>
-        <div class="page-thumbnail mb-2">
-          <div class="thumb-content">📄</div>
-          <div class="page-number">2</div>
-        </div>
-        <div class="page-thumbnail mb-2">
-          <div class="thumb-content">📄</div>
-          <div class="page-number">3</div>
-        </div>
-      `;
-      
-      document.getElementById('statusPage').textContent = 'Page 1 of 3';
-      document.getElementById('statusSize').textContent = 'A4 • 210 × 297 mm';
-      
-      setTool(currentTool);
-      alert(`📄 PDF loaded: ${file.name}`);
     }
 
-    document.querySelector('.empty-state .bg-blue-600')?.addEventListener('click', () => {
-      document.getElementById('pdfInput').click();
+    function buildThumbElement(pageNum) {
+      const wrap = document.createElement('div');
+      wrap.className = 'page-thumb';
+      wrap.dataset.page = pageNum;
+      wrap.setAttribute('role', 'listitem');
+      wrap.setAttribute('aria-label', `Page ${pageNum}`);
+      if (State.selected.has(pageNum)) wrap.classList.add('selected');
+      const rot = State.rotations.get(pageNum) || 0;
+      if (rot) wrap.classList.add('rotated');
+      if (State.landscape.get(pageNum)) wrap.classList.add('landscape');
+
+      const card = document.createElement('div');
+      card.className = 'card';
+
+      const previewWrap = document.createElement('div');
+      previewWrap.className = 'preview-canvas-wrap';
+      const srcCanvas = State.thumbs.get(pageNum);
+      if (srcCanvas) {
+        const c = document.createElement('canvas');
+        c.width = srcCanvas.width;
+        c.height = srcCanvas.height;
+        c.getContext('2d').drawImage(srcCanvas, 0, 0);
+        c.style.transform = `rotate(${rot}deg)`;
+        previewWrap.appendChild(c);
+      }
+      card.appendChild(previewWrap);
+
+      const posBadge = document.createElement('div');
+      posBadge.className = 'pos-badge';
+      posBadge.textContent = String(pageNum);
+      card.appendChild(posBadge);
+
+      const rotBadge = document.createElement('div');
+      rotBadge.className = 'rotation-badge';
+      rotBadge.textContent = `↻ ${rot}°`;
+      card.appendChild(rotBadge);
+
+      const landBadge = document.createElement('div');
+      landBadge.className = 'landscape-badge';
+      landBadge.textContent = 'LANDSCAPE';
+      card.appendChild(landBadge);
+
+      const label = document.createElement('div');
+      label.className = 'page-label';
+      label.innerHTML = `<span class="orig">src ${pageNum}</span>`;
+      card.appendChild(label);
+
+      wrap.appendChild(card);
+
+      wrap.addEventListener('click', (e) => onThumbClick(pageNum, e));
+
+      return wrap;
+    }
+
+    function onThumbClick(pageNum, e) {
+      if (e.shiftKey && State.lastClicked > 0) {
+        const from = Math.min(State.lastClicked, pageNum);
+        const to = Math.max(State.lastClicked, pageNum);
+        State.selected.clear();
+        for (let p = from; p <= to; p++) State.selected.add(p);
+      } else if (e.ctrlKey || e.metaKey) {
+        if (State.selected.has(pageNum)) State.selected.delete(pageNum);
+        else State.selected.add(pageNum);
+        State.lastClicked = pageNum;
+      } else {
+        State.selected.clear();
+        State.selected.add(pageNum);
+        State.lastClicked = pageNum;
+      }
+      updateAllUI();
+    }
+
+    // ============================================================
+    // UI UPDATES
+    // ============================================================
+    function updateAllUI() {
+      // Update card states
+      document.querySelectorAll('.page-thumb').forEach(wrap => {
+        const pageNum = parseInt(wrap.dataset.page, 10);
+        const rot = State.rotations.get(pageNum) || 0;
+        wrap.classList.toggle('selected', State.selected.has(pageNum));
+        wrap.classList.toggle('rotated', rot !== 0);
+        // Update canvas rotation
+        const canvas = wrap.querySelector('.preview-canvas-wrap canvas');
+        if (canvas) canvas.style.transform = `rotate(${rot}deg)`;
+        // Update rotation badge
+        const rotBadge = wrap.querySelector('.rotation-badge');
+        if (rotBadge) rotBadge.textContent = `↻ ${rot}°`;
+      });
+
+      updatePreviewStrip();
+      updateStats();
+      updateSelectionStats();
+      updateButtons();
+    }
+
+    function updatePreviewStrip() {
+      previewStrip.innerHTML = '';
+      for (let i = 1; i <= State.totalPages; i++) {
+        const div = document.createElement('div');
+        div.className = 'strip-thumb';
+        const rot = State.rotations.get(i) || 0;
+        div.title = `Page ${i}${rot ? ` · rotated ${rot}°` : ''}`;
+        const srcCanvas = State.thumbs.get(i);
+        if (srcCanvas) {
+          const c = document.createElement('canvas');
+          const scale = 60 / Math.max(srcCanvas.width, srcCanvas.height);
+          c.width = srcCanvas.width * scale;
+          c.height = srcCanvas.height * scale;
+          c.getContext('2d').drawImage(srcCanvas, 0, 0, c.width, c.height);
+          if (rot) c.style.transform = `rotate(${rot}deg)`;
+          div.appendChild(c);
+        }
+        const out = document.createElement('div');
+        out.className = 'out-num';
+        out.textContent = String(i);
+        div.appendChild(out);
+        previewStrip.appendChild(div);
+      }
+    }
+
+    function updateStats() {
+      const total = State.totalPages;
+      const rotated = Array.from(State.rotations.values()).filter(v => v !== 0).length;
+      let str = `<span><strong>${total}</strong> page${total === 1 ? '' : 's'}</span>`;
+      if (rotated) str += ` · <span>${rotated} rotated</span>`;
+      statsEl.innerHTML = str;
+    }
+
+    function updateSelectionStats() {
+      const n = State.selected.size;
+      selectionStats.textContent = `${n} selected`;
+    }
+
+    function updateButtons() {
+      const hasSelection = State.selected.size > 0;
+      rotLeftBtn.disabled = !hasSelection;
+      rotRightBtn.disabled = !hasSelection;
+      rot180Btn.disabled = !hasSelection;
+      const hasPages = State.totalPages > 0;
+      rotateAllLeftBtn.disabled = !hasPages;
+      rotateAllRightBtn.disabled = !hasPages;
+      rotateAll180Btn.disabled = !hasPages;
+      exportBtn.disabled = !hasPages;
+      exportZipBtn.disabled = !hasPages;
+      exportManifestDocxBtn.disabled = !hasPages;
+      exportManifestXlsxBtn.disabled = !hasPages;
+      undoBtn.style.opacity = State.undoStack.length ? '1' : '0.4';
+      redoBtn.style.opacity = State.redoStack.length ? '1' : '0.4';
+    }
+
+    // ============================================================
+    // HISTORY
+    // ============================================================
+    function snapshot() {
+      return JSON.stringify({
+        rotations: Array.from(State.rotations.entries())
+      });
+    }
+    function pushHistory() {
+      State.undoStack.push(snapshot());
+      if (State.undoStack.length > 100) State.undoStack.shift();
+      State.redoStack = [];
+      updateButtons();
+    }
+    function applySnapshot(json) {
+      const s = JSON.parse(json);
+      State.rotations = new Map(s.rotations);
+      updateAllUI();
+    }
+    function undo() {
+      if (!State.undoStack.length) return;
+      const current = snapshot();
+      const prev = State.undoStack.pop();
+      State.redoStack.push(current);
+      applySnapshot(prev);
+      showToast('Undo', 'success', 1200);
+    }
+    function redo() {
+      if (!State.redoStack.length) return;
+      const current = snapshot();
+      const next = State.redoStack.pop();
+      State.undoStack.push(current);
+      applySnapshot(next);
+      showToast('Redo', 'success', 1200);
+    }
+
+    // ============================================================
+    // ROTATION ACTIONS
+    // ============================================================
+    function rotateSelected(deg) {
+      if (!State.selected.size) return;
+      State.selected.forEach(p => {
+        const cur = State.rotations.get(p) || 0;
+        State.rotations.set(p, normAngle(cur + deg));
+      });
+      pushHistory();
+      updateAllUI();
+      const n = State.selected.size;
+      showToast(`Rotated ${n} page${n === 1 ? '' : 's'} ${deg > 0 ? 'right' : 'left'}`, 'success', 1400);
+    }
+
+    rotLeftBtn.addEventListener('click', () => rotateSelected(-90));
+    rotRightBtn.addEventListener('click', () => rotateSelected(90));
+    rot180Btn.addEventListener('click', () => rotateSelected(180));
+
+    rotateAllLeftBtn.addEventListener('click', () => {
+      for (let i = 1; i <= State.totalPages; i++) {
+        State.rotations.set(i, normAngle((State.rotations.get(i) || 0) - 90));
+      }
+      pushHistory();
+      updateAllUI();
+      showToast(`Rotated all ${State.totalPages} pages left`, 'success', 1600);
+    });
+    rotateAllRightBtn.addEventListener('click', () => {
+      for (let i = 1; i <= State.totalPages; i++) {
+        State.rotations.set(i, normAngle((State.rotations.get(i) || 0) + 90));
+      }
+      pushHistory();
+      updateAllUI();
+      showToast(`Rotated all ${State.totalPages} pages right`, 'success', 1600);
+    });
+    rotateAll180Btn.addEventListener('click', () => {
+      for (let i = 1; i <= State.totalPages; i++) {
+        State.rotations.set(i, normAngle((State.rotations.get(i) || 0) + 180));
+      }
+      pushHistory();
+      updateAllUI();
+      showToast(`Rotated all ${State.totalPages} pages 180°`, 'success', 1600);
     });
 
-    // ============================================
+    resetBtn.addEventListener('click', () => {
+      State.rotations = new Map();
+      pushHistory();
+      updateAllUI();
+      showToast('All rotations reset', 'success', 1600);
+    });
+
+    undoBtn.addEventListener('click', undo);
+    redoBtn.addEventListener('click', redo);
+
+    // ============================================================
+    // SELECTION CONTROLS
+    // ============================================================
+    rangeApplyBtn.addEventListener('click', () => {
+      const pages = parseRanges(rangeInput.value, State.totalPages);
+      State.selected = new Set(pages);
+      State.lastClicked = pages.length ? pages[pages.length - 1] : -1;
+      updateAllUI();
+      showToast(`${pages.length} page${pages.length === 1 ? '' : 's'} selected`, 'success', 1400);
+    });
+    rangeInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') rangeApplyBtn.click(); });
+
+    selectAllBtn.addEventListener('click', () => {
+      State.selected = new Set();
+      for (let i = 1; i <= State.totalPages; i++) State.selected.add(i);
+      State.lastClicked = State.totalPages;
+      updateAllUI();
+    });
+    clearSelBtn.addEventListener('click', () => {
+      State.selected.clear();
+      State.lastClicked = -1;
+      updateAllUI();
+    });
+    resetSelBtn.addEventListener('click', () => {
+      State.selected.clear();
+      State.lastClicked = -1;
+      updateAllUI();
+      showToast('Selection cleared', 'success', 1200);
+    });
+
+    // ============================================================
+    // EXPORT — rotated PDF
+    // ============================================================
+    async function exportRotatedPDF() {
+      if (!State.totalPages) { showToast('No pages to export', 'error'); return; }
+      showProcessing('Building rotated PDF…', 'Applying rotations');
+      try {
+        const src = await PDFLib.PDFDocument.load(State.arrayBuffer, {
+          ignoreEncryption: true, updateMetadata: false
+        });
+        const out = await PDFLib.PDFDocument.create();
+        out.setProducer('Droplet Rotate PDF');
+        out.setCreator('Droplet');
+        try {
+          const t = src.getTitle(); if (t) out.setTitle(t);
+          const a = src.getAuthor(); if (a) out.setAuthor(a);
+        } catch (e) {}
+
+        const indices = [];
+        for (let i = 0; i < State.totalPages; i++) indices.push(i);
+        setProcessing(`Copying ${indices.length} pages…`, 30);
+        const copied = await out.copyPages(src, indices);
+
+        for (let i = 0; i < copied.length; i++) {
+          const pageNum = i + 1;
+          const userRot = State.rotations.get(pageNum) || 0;
+          const srcRot = State.sourceRotation.get(pageNum) || 0;
+          const total = normAngle(srcRot + userRot);
+          copied[i].setRotation(PDFLib.degrees(total));
+          out.addPage(copied[i]);
+          const pct = 30 + Math.round(((i + 1) / copied.length) * 55);
+          setProcessing(`Applied rotation to page ${pageNum}`, pct);
+        }
+
+        setProcessing('Serialising…', 92);
+        const bytes = await out.save();
+        const blob = new Blob([bytes], { type: 'application/pdf' });
+        const url = URL.createObjectURL(blob);
+        const base = (State.file && State.file.name ? State.file.name.replace(/\.pdf$/i, '') : 'document');
+        const finalName = `dropletweb-${base}-rotated.pdf`;
+        downloadLink.href = url;
+        downloadLink.download = finalName;
+        downloadFileName.textContent = `File will be saved as: ${finalName}`;
+        const rotated = Array.from(State.rotations.values()).filter(v => v !== 0).length;
+        resultBadgePages.textContent = `${State.totalPages} pages`;
+        resultBadgeRotated.textContent = `${rotated} rotated`;
+        resultBadgeSize.textContent = `${(blob.size / 1024 / 1024).toFixed(2)} MB`;
+        resultSummary.textContent = `Exported ${State.totalPages} page${State.totalPages === 1 ? '' : 's'}${rotated ? `, ${rotated} rotated` : ''}.`;
+        hideProcessing();
+        resultSection.classList.remove('hidden');
+        resultSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        showToast(`Rotated PDF exported`, 'success');
+      } catch (err) {
+        console.error(err);
+        hideProcessing();
+        showToast('Export failed: ' + err.message, 'error', 4000);
+      }
+    }
+
+    // ============================================================
+    // EXPORT — pages as ZIP
+    // ============================================================
+    async function exportPagesAsZIP() {
+      if (!State.totalPages) { showToast('No pages', 'error'); return; }
+      if (typeof JSZip === 'undefined') { showToast('ZIP library not loaded', 'error'); return; }
+      showProcessing('Building ZIP…', 'One PDF per page');
+      try {
+        const src = await PDFLib.PDFDocument.load(State.arrayBuffer, {
+          ignoreEncryption: true, updateMetadata: false
+        });
+        const zip = new JSZip();
+        const base = (State.file && State.file.name ? State.file.name.replace(/\.pdf$/i, '') : 'document');
+        for (let i = 0; i < State.totalPages; i++) {
+          const pageNum = i + 1;
+          setProcessing(`Page ${pageNum} of ${State.totalPages}…`, 10 + Math.round((i / State.totalPages) * 80));
+          const out = await PDFLib.PDFDocument.create();
+          out.setProducer('Droplet Rotate PDF');
+          out.setCreator('Droplet');
+          const [copied] = await out.copyPages(src, [i]);
+          const userRot = State.rotations.get(pageNum) || 0;
+          const srcRot = State.sourceRotation.get(pageNum) || 0;
+          copied.setRotation(PDFLib.degrees(normAngle(srcRot + userRot)));
+          out.addPage(copied);
+          const bytes = await out.save();
+          const filename = `dropletweb-${base}-page-${String(pageNum).padStart(4, '0')}.pdf`;
+          zip.file(filename, bytes);
+        }
+        setProcessing('Packaging ZIP…', 92);
+        const zipBlob = await zip.generateAsync({ type: 'blob', compression: 'DEFLATE' });
+        const url = URL.createObjectURL(zipBlob);
+        const finalName = `dropletweb-${base}-rotated.zip`;
+        downloadLink.href = url;
+        downloadLink.download = finalName;
+        downloadFileName.textContent = `File will be saved as: ${finalName}`;
+        const rotated = Array.from(State.rotations.values()).filter(v => v !== 0).length;
+        resultBadgePages.textContent = `${State.totalPages} files`;
+        resultBadgeRotated.textContent = `${rotated} rotated`;
+        resultBadgeSize.textContent = `${(zipBlob.size / 1024 / 1024).toFixed(2)} MB`;
+        resultSummary.textContent = `Packaged ${State.totalPages} page${State.totalPages === 1 ? '' : 's'} as individual PDFs in a ZIP.`;
+        hideProcessing();
+        resultSection.classList.remove('hidden');
+        resultSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        showToast(`ZIP with ${State.totalPages} PDFs ready`, 'success');
+      } catch (err) {
+        console.error(err);
+        hideProcessing();
+        showToast('ZIP export failed: ' + err.message, 'error', 4000);
+      }
+    }
+
+    // ============================================================
+    // EXPORT — manifest as DOCX
+    // ============================================================
+    async function exportManifestDOCX() {
+      if (!State.totalPages) { showToast('No pages', 'error'); return; }
+      if (typeof docx === 'undefined') { showToast('DOCX library not loaded', 'error'); return; }
+      showProcessing('Building DOCX…', 'Rotation manifest');
+      try {
+        const { Document, Packer, Paragraph, TextRun } = docx;
+        const children = [
+          new Paragraph({ children: [new TextRun({ text: 'PDF Rotation Manifest', bold: true, size: 36 })] }),
+          new Paragraph({ children: [new TextRun({ text: 'Source: ' + (State.file ? State.file.name : 'Untitled'), size: 22, color: '64748b' })] }),
+          new Paragraph({ children: [new TextRun({ text: 'Generated: ' + new Date().toLocaleString(), size: 22, color: '64748b' })] }),
+          new Paragraph({ children: [new TextRun({ text: '' })] }),
+          new Paragraph({ children: [new TextRun({ text: `Total pages: ${State.totalPages}`, size: 24 })] }),
+          new Paragraph({ children: [new TextRun({ text: `Rotated: ${Array.from(State.rotations.values()).filter(v => v !== 0).length}`, size: 24 })] }),
+          new Paragraph({ children: [new TextRun({ text: '' })] }),
+          new Paragraph({ children: [new TextRun({ text: 'Per-page details:', bold: true, size: 26 })] })
+        ];
+        for (let i = 1; i <= State.totalPages; i++) {
+          const userRot = State.rotations.get(i) || 0;
+          const srcRot = State.sourceRotation.get(i) || 0;
+          const total = normAngle(srcRot + userRot);
+          const lscape = State.landscape.get(i) ? ' [landscape]' : '';
+          children.push(new Paragraph({
+            children: [new TextRun({
+              text: `Page ${i}: source rotation ${srcRot}°, user rotation ${userRot}°, output rotation ${total}°${lscape}`,
+              size: 22
+            })]
+          }));
+        }
+        const doc = new Document({ sections: [{ properties: {}, children }] });
+        const blob = await Packer.toBlob(doc);
+        const url = URL.createObjectURL(blob);
+        const base = (State.file && State.file.name ? State.file.name.replace(/\.pdf$/i, '') : 'document');
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `dropletweb-${base}-rotation-manifest.docx`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(url), 5000);
+        hideProcessing();
+        showToast('DOCX manifest exported', 'success');
+      } catch (err) {
+        console.error(err);
+        hideProcessing();
+        showToast('DOCX export failed: ' + err.message, 'error', 4000);
+      }
+    }
+
+    // ============================================================
+    // EXPORT — manifest as XLSX
+    // ============================================================
+    async function exportManifestXLSX() {
+      if (!State.totalPages) { showToast('No pages', 'error'); return; }
+      if (typeof XLSX === 'undefined') { showToast('XLSX library not loaded', 'error'); return; }
+      showProcessing('Building XLSX…', 'Rotation manifest');
+      try {
+        const wb = XLSX.utils.book_new();
+        const summary = [
+          ['Report', 'PDF Rotation Manifest'],
+          ['Source', State.file ? State.file.name : 'Untitled'],
+          ['Generated', new Date().toISOString()],
+          ['Total pages', State.totalPages],
+          ['Rotated', Array.from(State.rotations.values()).filter(v => v !== 0).length]
+        ];
+        const summaryWs = XLSX.utils.aoa_to_sheet(summary);
+        summaryWs['!cols'] = [{ wch: 18 }, { wch: 60 }];
+        XLSX.utils.book_append_sheet(wb, summaryWs, 'Summary');
+
+        const rows = [['Page', 'Source Rotation', 'User Rotation', 'Output Rotation', 'Landscape?']];
+        for (let i = 1; i <= State.totalPages; i++) {
+          const userRot = State.rotations.get(i) || 0;
+          const srcRot = State.sourceRotation.get(i) || 0;
+          rows.push([
+            i,
+            `${srcRot}°`,
+            `${userRot}°`,
+            `${normAngle(srcRot + userRot)}°`,
+            State.landscape.get(i) ? 'Yes' : 'No'
+          ]);
+        }
+        const ws = XLSX.utils.aoa_to_sheet(rows);
+        ws['!cols'] = [{ wch: 8 }, { wch: 18 }, { wch: 16 }, { wch: 16 }, { wch: 12 }];
+        XLSX.utils.book_append_sheet(wb, ws, 'Rotations');
+
+        const buf = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+        const blob = new Blob([buf], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+        const url = URL.createObjectURL(blob);
+        const base = (State.file && State.file.name ? State.file.name.replace(/\.pdf$/i, '') : 'document');
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `dropletweb-${base}-rotation-manifest.xlsx`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(url), 5000);
+        hideProcessing();
+        showToast('XLSX manifest exported', 'success');
+      } catch (err) {
+        console.error(err);
+        hideProcessing();
+        showToast('XLSX export failed: ' + err.message, 'error', 4000);
+      }
+    }
+
+    // ============================================================
+    // WIRE BUTTONS
+    // ============================================================
+    exportBtn.addEventListener('click', exportRotatedPDF);
+    exportZipBtn.addEventListener('click', exportPagesAsZIP);
+    exportManifestDocxBtn.addEventListener('click', exportManifestDOCX);
+    exportManifestXlsxBtn.addEventListener('click', exportManifestXLSX);
+
+    // ============================================================
+    // RESET / CLEAR
+    // ============================================================
+    function clearFile() {
+      State.file = null;
+      State.arrayBuffer = null;
+      State.pdfDoc = null;
+      State.totalPages = 0;
+      State.rotations = new Map();
+      State.landscape = new Map();
+      State.sourceRotation = new Map();
+      State.selected.clear();
+      State.thumbs.clear();
+      State.lastClicked = -1;
+      State.undoStack = [];
+      State.redoStack = [];
+      fileInput.value = '';
+      fileInfo.classList.add('hidden');
+      dropzone.classList.remove('hidden');
+      resultSection.classList.add('hidden');
+      readerSection.classList.add('hidden');
+      pagesGrid.innerHTML = '';
+      previewStrip.innerHTML = '';
+      rangeInput.value = '';
+      selectionStats.textContent = '0 selected';
+      downloadLink.href = '#';
+      updateButtons();
+    }
+    function resetConverter() {
+      clearFile();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // ============================================================
     // KEYBOARD SHORTCUTS
-    // ============================================
+    // ============================================================
     document.addEventListener('keydown', (e) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
-        e.preventDefault();
-        alert('Undo');
-      }
-      if ((e.ctrlKey || e.metaKey) && e.key === 'y') {
-        e.preventDefault();
-        alert('Redo');
-      }
-      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
-        e.preventDefault();
-        alert('Save Project');
-      }
-      if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
-        e.preventDefault();
-        alert('Find');
-      }
-      if ((e.ctrlKey || e.metaKey) && e.key === 'h') {
-        e.preventDefault();
-        alert('Replace');
-      }
-      if ((e.ctrlKey || e.metaKey) && e.key === 'p') {
-        e.preventDefault();
-        alert('Print');
-      }
-      if ((e.ctrlKey || e.metaKey) && e.key === 'b') {
-        e.preventDefault();
-        alert('Bold');
-      }
-      if ((e.ctrlKey || e.metaKey) && e.key === 'i') {
-        e.preventDefault();
-        alert('Italic');
-      }
-      if ((e.ctrlKey || e.metaKey) && e.key === 'u') {
-        e.preventDefault();
-        alert('Underline');
-      }
+      const t = e.target.tagName;
+      if (t === 'INPUT' || t === 'TEXTAREA' || t === 'SELECT') return;
+      if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) { e.preventDefault(); undo(); }
+      if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || (e.shiftKey && e.key === 'Z'))) { e.preventDefault(); redo(); }
+      if ((e.ctrlKey || e.metaKey) && e.key === 's') { e.preventDefault(); exportRotatedPDF(); }
+      if ((e.ctrlKey || e.metaKey) && e.key === 'a') { e.preventDefault(); selectAllBtn.click(); }
+      if (e.key === '[') { if (State.selected.size) rotateSelected(-90); }
+      if (e.key === ']') { if (State.selected.size) rotateSelected(90); }
       if (e.key === 'Escape') {
-        document.getElementById('propsPanel').classList.remove('open');
+        State.selected.clear();
+        updateAllUI();
       }
     });
 
-    console.log('📄 Droplet PDF Editor - Simple Router');
-    console.log('🔗 Visiting /rotate-pdf redirects to /edit-pdf with the tool loaded');
-    console.log('💡 All PDF tools share the same editor interface');
+    updateButtons();
+    console.log('🔄 Rotate PDF loaded — 100% client-side');
   </script>
 </body>
 </html>
