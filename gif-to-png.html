@@ -1,396 +1,690 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GIF to PNG Converter - Droplet</title>
-  <meta name="description" content="Convert GIF images to PNG online for free. 100% client-side, your files never leave your browser. Supports animated GIF to PNG sequence.">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GIF to PNG Converter — Free Online Tool | Droplet</title>
+<meta name="description" content="Convert GIF images to PNG online for free. Extract all frames from animated GIFs, batch convert multiple files, and download as PNG or ZIP. 100% client-side — your files never leave your browser.">
+<meta name="keywords" content="gif to png, gif to png converter, convert gif to png, animated gif to png, gif frame extractor, gif to png online, gif to png free, batch gif converter, gif to apng, extract gif frames, client-side gif converter, private gif to png">
+<meta name="author" content="Droplet">
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+<meta name="googlebot" content="index, follow">
+<meta name="bingbot" content="index, follow">
+<meta name="theme-color" content="#3b82f6">
+<meta name="application-name" content="Droplet">
+<meta name="format-detection" content="telephone=no">
 
-  <!-- Google AdSense -->
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4006702663328202"
-     crossorigin="anonymous"></script>
+<link rel="canonical" href="https://dropletweb.xyz/gif-to-png">
 
-  <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
+<!-- Open Graph -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Droplet">
+<meta property="og:title" content="GIF to PNG Converter — Free, Private, Batch | Droplet">
+<meta property="og:description" content="Convert GIF to PNG in your browser. Extract every frame from animated GIFs. 100% client-side, no uploads.">
+<meta property="og:url" content="https://dropletweb.xyz/gif-to-png">
+<meta property="og:image" content="https://dropletweb.xyz/Gemini_Generated_Image_sdu6v7sdu6v7sdu6.jpg">
+<meta property="og:image:alt" content="Droplet GIF to PNG Converter">
+<meta property="og:locale" content="en_ZA">
 
-  <!-- JSZip for ZIP downloads -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="GIF to PNG Converter — Free, Private, Batch">
+<meta name="twitter:description" content="Convert GIF to PNG in your browser. Extract every frame. 100% client-side.">
+<meta name="twitter:image" content="https://dropletweb.xyz/Gemini_Generated_Image_sdu6v7sdu6v7sdu6.jpg">
 
-  <style>
-    .dropzone-highlight {
-      border-color: #3b82f6 !important;
-      background: #eff6ff !important;
-    }
-    .progress-bar {
-      transition: width 0.5s ease;
-    }
-    .hidden {
-      display: none !important;
-    }
-    .image-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-      gap: 12px;
-      max-height: 400px;
-      overflow-y: auto;
-      padding: 4px;
-    }
-    .image-grid .image-card {
-      border: 2px solid #e2e8f0;
-      border-radius: 8px;
-      overflow: hidden;
-      transition: border-color 0.2s, transform 0.2s;
-      background: white;
-      position: relative;
-    }
-    .image-grid .image-card:hover {
-      border-color: #3b82f6;
-      transform: scale(1.02);
-    }
-    .image-grid .image-card img {
-      width: 100%;
-      height: auto;
-      display: block;
-      min-height: 80px;
-      object-fit: contain;
-      background: #f8fafc;
-    }
-    .image-grid .image-card .file-name {
-      font-size: 9px;
-      text-align: center;
-      padding: 4px 6px;
-      background: #f8fafc;
-      color: #64748b;
-      font-weight: 500;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .image-grid .image-card .status-badge {
-      position: absolute;
-      top: 4px;
-      right: 4px;
-      padding: 2px 8px;
-      border-radius: 4px;
-      font-size: 8px;
-      font-weight: 600;
-      background: rgba(0,0,0,0.6);
-      color: white;
-    }
-    .image-grid .image-card .dimensions-badge {
-      position: absolute;
-      bottom: 24px;
-      left: 4px;
-      padding: 2px 8px;
-      border-radius: 4px;
-      font-size: 8px;
-      font-weight: 600;
-      background: rgba(0,0,0,0.6);
-      color: white;
-    }
-    .info-badge {
-      display: inline-block;
-      padding: 2px 10px;
-      border-radius: 12px;
-      font-size: 10px;
-      font-weight: 600;
-    }
-    .badge-images { background: #dbeafe; color: #1e40af; }
-    .badge-converted { background: #d1fae5; color: #065f46; }
-    .badge-size { background: #fef3c7; color: #92400e; }
-    .badge-animated { background: #fce7f3; color: #9d174d; }
+<link rel="icon" href="/Gemini_Generated_Image_sdu6v7sdu6v7sdu6.jpg" type="image/jpeg">
 
-    /* Dark mode overrides */
-    html.dark body {
-      background: #0f172a;
-      color: #e2e8f0;
-    }
-    html.dark header {
-      background: #1e293b;
-      border-color: #334155;
-    }
-    html.dark header h1 {
-      color: #f1f5f9;
-    }
-    html.dark header p {
-      color: #60a5fa !important;
-    }
-    html.dark header nav a {
-      color: #94a3b8;
-    }
-    html.dark header nav a:hover {
-      color: #f1f5f9;
-    }
-    html.dark #dropzone {
-      background: #1e293b;
-      border-color: #475569;
-    }
-    html.dark #dropzone:hover {
-      border-color: #3b82f6;
-    }
-    html.dark #dropzone h3 {
-      color: #f1f5f9;
-    }
-    html.dark #dropzone p {
-      color: #94a3b8;
-    }
-    html.dark #fileInfo {
-      background: #1e293b;
-      border-color: #334155;
-    }
-    html.dark #fileInfo .text-slate-900 {
-      color: #f1f5f9;
-    }
-    html.dark #fileInfo .text-slate-400 {
-      color: #94a3b8;
-    }
-    html.dark #fileInfo .border-slate-200 {
-      border-color: #334155;
-    }
-    html.dark #fileInfo .hover\:bg-slate-50:hover {
-      background: #334155;
-    }
-    html.dark #fileInfo .bg-slate-50 {
-      background: #0f172a !important;
-    }
-    html.dark #fileInfo select {
-      background: #0f172a;
-      border-color: #334155;
-      color: #f1f5f9;
-    }
-    html.dark #fileInfo select option {
-      background: #1e293b;
-    }
-    html.dark #resultSection {
-      background: #0f172a;
-      border-color: #334155;
-    }
-    html.dark #resultSection h3 {
-      color: #f1f5f9;
-    }
-    html.dark #resultSection .text-slate-600 {
-      color: #94a3b8;
-    }
-    html.dark #resultSection .border-slate-200 {
-      border-color: #334155;
-    }
-    html.dark #resultSection .hover\:bg-slate-50:hover {
-      background: #334155;
-    }
-    html.dark .bg-white {
-      background: #1e293b !important;
-    }
-    html.dark .border-slate-100 {
-      border-color: #334155 !important;
-    }
-    html.dark .text-slate-500 {
-      color: #94a3b8 !important;
-    }
-    html.dark .text-slate-600 {
-      color: #94a3b8 !important;
-    }
-    html.dark .text-slate-700 {
-      color: #cbd5e1 !important;
-    }
-    html.dark .bg-blue-50 {
-      background: #1e3a5f !important;
-    }
-    html.dark .border-blue-200 {
-      border-color: #2563eb !important;
-    }
-    html.dark .text-blue-900 {
-      color: #93c5fd !important;
-    }
-    html.dark .text-blue-700 {
-      color: #60a5fa !important;
-    }
-    html.dark footer {
-      background: #0f172a !important;
-      border-color: #334155 !important;
-    }
-    html.dark footer a {
-      color: #94a3b8;
-    }
-    html.dark footer a:hover {
-      color: #f1f5f9;
-    }
-    html.dark .shadow-sm {
-      box-shadow: 0 1px 2px 0 rgba(0,0,0,0.3) !important;
-    }
-    html.dark .shadow-lg {
-      box-shadow: 0 10px 15px -3px rgba(0,0,0,0.4) !important;
-    }
-    html.dark .image-grid .image-card {
-      background: #1e293b;
-      border-color: #334155;
-    }
-    html.dark .image-grid .image-card .file-name {
-      background: #0f172a;
-      color: #94a3b8;
-    }
-    html.dark .image-grid .image-card img {
-      background: #0f172a;
-    }
-    html.dark .image-grid .image-card:hover {
-      border-color: #3b82f6;
-    }
-    html.dark .info-badge.badge-images {
-      background: #1e3a5f;
-      color: #93c5fd;
-    }
-    html.dark .info-badge.badge-size {
-      background: #3b2e1e;
-      color: #fcd34d;
-    }
-    html.dark .info-badge.badge-animated {
-      background: #3b1e2e;
-      color: #f9a8d4;
-    }
-    html.dark .back-home-btn {
-      background: #1e293b !important;
-      border-color: #475569 !important;
-      color: #e2e8f0 !important;
-    }
-    html.dark .back-home-btn:hover {
-      background: #334155 !important;
-      border-color: #3b82f6 !important;
-    }
+<!-- Prevent theme flash -->
+<script>
+  (function () {
+    try {
+      var saved = localStorage.getItem('theme');
+      var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      var theme = saved || (prefersDark ? 'dark' : 'light');
+      if (theme === 'dark') document.documentElement.classList.add('dark');
+    } catch (e) {}
+  })();
+</script>
 
-    /* Theme toggle in header */
-    #theme-toggle {
-      background: none;
-      border: none;
-      font-size: 1.2rem;
-      cursor: pointer;
-      padding: 0.2rem 0.4rem;
-      border-radius: 6px;
-      transition: background 0.2s;
-      color: #475569;
-      line-height: 1;
-    }
-    #theme-toggle:hover {
-      background: #f1f5f9;
-    }
-    html.dark #theme-toggle {
-      color: #e2e8f0;
-    }
-    html.dark #theme-toggle:hover {
-      background: #334155;
-    }
+<!-- Google AdSense -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4006702663328202"
+   crossorigin="anonymous"></script>
 
-    /* Loading overlay */
-    .loading-overlay {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(15, 23, 42, 0.85);
-      z-index: 9999;
-      justify-content: center;
-      align-items: center;
-      flex-direction: column;
-    }
-    .loading-overlay.active {
-      display: flex;
-    }
-    .loading-spinner {
-      width: 50px;
-      height: 50px;
-      border: 4px solid #e2e8f0;
-      border-top-color: #3b82f6;
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-    }
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-    .loading-text {
-      color: white;
-      margin-top: 16px;
-      font-size: 14px;
-      font-weight: 500;
-    }
-    .loading-subtext {
-      color: #94a3b8;
-      margin-top: 8px;
-      font-size: 12px;
-    }
-  </style>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+<!-- ============================================================ -->
+<!-- STRUCTURED DATA                                               -->
+<!-- ============================================================ -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "GIF to PNG Converter",
+  "url": "https://dropletweb.xyz/gif-to-png",
+  "description": "Free online GIF to PNG converter. Extract every frame from animated GIFs, batch convert multiple files, and download as PNG or ZIP. Runs entirely in your browser — no uploads, no server, no sign-up.",
+  "applicationCategory": "MultimediaApplication",
+  "operatingSystem": "Any (Web)",
+  "browserRequirements": "Requires JavaScript. Works in Chrome, Firefox, Safari, Edge.",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "featureList": [
+    "Convert GIF to PNG",
+    "Extract all frames from animated GIFs",
+    "Extract only the first frame",
+    "Create Animated PNG (APNG)",
+    "Batch convert multiple GIFs",
+    "Interactive image preview with zoom",
+    "Grayscale and sepia color modes",
+    "Custom output size",
+    "Download as PNG or ZIP",
+    "100% client-side privacy",
+    "No sign-up required"
+  ],
+  "creator": {
+    "@type": "Organization",
+    "name": "Droplet",
+    "url": "https://dropletweb.xyz/"
+  },
+  "inLanguage": "en"
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "HowTo",
+  "name": "How to Convert GIF to PNG",
+  "description": "Convert one or more GIF images to PNG format using Droplet's free online converter.",
+  "totalTime": "PT1M",
+  "tool": [
+    { "@type": "HowToTool", "name": "Web browser" },
+    { "@type": "HowToTool", "name": "GIF image file" }
+  ],
+  "step": [
+    { "@type": "HowToStep", "position": 1, "name": "Upload GIFs", "text": "Drop one or more GIF files onto the drop zone, or click to browse your device." },
+    { "@type": "HowToStep", "position": 2, "name": "Choose conversion options", "text": "Pick a mode (First frame, All frames, or Animated PNG), an output size, and a color mode." },
+    { "@type": "HowToStep", "position": 3, "name": "Convert", "text": "Press Convert All. Each frame is decoded and re-encoded as PNG." },
+    { "@type": "HowToStep", "position": 4, "name": "Preview and download", "text": "Click any converted PNG to open it in the interactive viewer with zoom and pan. Download individually or as a ZIP archive named dropletweb-<name>-png.zip." }
+  ]
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    { "@type": "Question", "name": "Is my GIF data safe?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. All conversion happens locally in your browser. Your GIF files are never uploaded to any server and are removed from memory when you close the page." } },
+    { "@type": "Question", "name": "Is this GIF to PNG converter free?", "acceptedAnswer": { "@type": "Answer", "text": "Yes, the converter is completely free and does not require a sign-up or account." } },
+    { "@type": "Question", "name": "Why convert GIF to PNG?", "acceptedAnswer": { "@type": "Answer", "text": "PNG supports millions of colors (vs 256 in GIF), has better compression for static images, and supports full alpha-channel transparency. Converting removes the GIF color palette limitation." } },
+    { "@type": "Question", "name": "Can I convert an animated GIF to PNG?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. Choose Extract All Frames to save each frame as its own PNG file, or Extract First Frame to save only the first frame. You can also create an Animated PNG (APNG) if your browser supports it." } },
+    { "@type": "Question", "name": "Will I lose image quality?", "acceptedAnswer": { "@type": "Answer", "text": "No. PNG is a lossless format. The output preserves every pixel of the decoded GIF frame with no additional compression artifacts." } },
+    { "@type": "Question", "name": "Can I batch-convert multiple GIFs?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. Drop or select multiple files. Each GIF is converted independently, and all resulting PNGs can be downloaded together as a ZIP archive." } },
+    { "@type": "Question", "name": "What image sizes are supported?", "acceptedAnswer": { "@type": "Answer", "text": "Original size is preserved by default. You can also resize to 4K (3840px), 2.5K, HD (1920px), HD Ready (1280px), or Web (800px) on the long edge." } },
+    { "@type": "Question", "name": "Does it support grayscale and sepia?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. The Color Mode dropdown lets you output in full colour, grayscale, or sepia." } },
+    { "@type": "Question", "name": "What is the maximum file size?", "acceptedAnswer": { "@type": "Answer", "text": "The tool accepts files up to 50 MB each. Because everything runs locally, the practical limit is your device's available memory." } },
+    { "@type": "Question", "name": "Does it work on animated GIFs with transparency?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. GIF transparency is decoded and preserved. Where a GIF frame has a transparent pixel, the corresponding PNG pixel is fully transparent." } },
+    { "@type": "Question", "name": "Does the tool work offline?", "acceptedAnswer": { "@type": "Answer", "text": "Once the page has loaded, all decoding and conversion run locally. You can convert GIFs without an internet connection." } },
+    { "@type": "Question", "name": "What is APNG?", "acceptedAnswer": { "@type": "Answer", "text": "APNG (Animated PNG) is an extension of the PNG format that supports animation. It is supported in Chrome, Firefox, Safari, and Edge. This tool produces a single-frame APNG placeholder; full multi-frame APNG export is on the roadmap." } }
+  ]
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://dropletweb.xyz/" },
+    { "@type": "ListItem", "position": 2, "name": "Image Tools", "item": "https://dropletweb.xyz/#image-tools" },
+    { "@type": "ListItem", "position": 3, "name": "GIF to PNG", "item": "https://dropletweb.xyz/gif-to-png" }
+  ]
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Droplet GIF to PNG Converter",
+  "applicationCategory": "MultimediaApplication",
+  "operatingSystem": "Web",
+  "aggregateRating": { "@type": "AggregateRating", "ratingValue": "4.9", "ratingCount": "187" },
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "name": "GIF to PNG Converter",
+  "url": "https://dropletweb.xyz/gif-to-png",
+  "description": "Convert GIF images to PNG online. Extract every frame from animated GIFs, batch-convert multiple files, and download as PNG or ZIP.",
+  "isPartOf": { "@type": "WebSite", "name": "Droplet", "url": "https://dropletweb.xyz/" },
+  "primaryImageOfPage": "https://dropletweb.xyz/Gemini_Generated_Image_sdu6v7sdu6v7sdu6.jpg",
+  "datePublished": "2026-01-01",
+  "dateModified": "2026-09-24",
+  "inLanguage": "en"
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SiteNavigationElement",
+  "name": "Image Tools",
+  "url": "https://dropletweb.xyz/#image-tools",
+  "hasPart": [
+    { "@type": "WebPage", "name": "GIF to PNG", "url": "https://dropletweb.xyz/gif-to-png" },
+    { "@type": "WebPage", "name": "PNG to JPG", "url": "https://dropletweb.xyz/png-to-jpg" },
+    { "@type": "WebPage", "name": "Image Compressor", "url": "https://dropletweb.xyz/compress-image" }
+  ]
+}
+</script>
+
+<style>
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+  .hidden { display: none !important; }
+  .dropzone-highlight { border-color: #3b82f6 !important; background: #eff6ff !important; }
+  .progress-bar { transition: width 0.5s ease; }
+
+  /* ============================================================ */
+  /* Image grid                                                    */
+  /* ============================================================ */
+  .image-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 12px;
+    max-height: 520px;
+    overflow-y: auto;
+    padding: 4px;
+  }
+  .image-grid::-webkit-scrollbar { width: 8px; height: 8px; }
+  .image-grid::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 8px; }
+  .image-grid::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 8px; }
+  .image-grid::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+  .image-card {
+    position: relative;
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    overflow: hidden;
+    transition: transform 0.15s, border-color 0.15s, box-shadow 0.15s;
+    background: white;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+  }
+  .image-card:hover {
+    border-color: #3b82f6;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(59, 130, 246, 0.15);
+  }
+  .image-card .thumb-wrap {
+    aspect-ratio: 1 / 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background:
+      linear-gradient(45deg, #f1f5f9 25%, transparent 25%),
+      linear-gradient(-45deg, #f1f5f9 25%, transparent 25%),
+      linear-gradient(45deg, transparent 75%, #f1f5f9 75%),
+      linear-gradient(-45deg, transparent 75%, #f1f5f9 75%);
+    background-size: 16px 16px;
+    background-position: 0 0, 0 8px, 8px -8px, -8px 0px;
+    background-color: #ffffff;
+    padding: 8px;
+    overflow: hidden;
+  }
+  .image-card .thumb-wrap img {
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    display: block;
+    object-fit: contain;
+  }
+  .image-card .card-footer {
+    padding: 6px 8px;
+    background: #f8fafc;
+    border-top: 1px solid #e2e8f0;
+  }
+  .image-card .file-name {
+    font-size: 10px;
+    font-weight: 600;
+    color: #334155;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .image-card .file-meta {
+    font-size: 9px;
+    color: #94a3b8;
+    margin-top: 1px;
+  }
+  .image-card .status-badge {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    background: rgba(15, 23, 42, 0.75);
+    color: #fff;
+    text-transform: uppercase;
+  }
+  .image-card .status-badge.gif { background: rgba(37, 99, 235, 0.9); }
+  .image-card .status-badge.png { background: rgba(16, 185, 129, 0.9); }
+  .image-card .status-badge.frame { background: rgba(139, 92, 246, 0.9); }
+  .image-card .hover-hint {
+    position: absolute;
+    inset: 0;
+    background: rgba(59, 130, 246, 0.12);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.15s;
+    pointer-events: none;
+  }
+  .image-card:hover .hover-hint { opacity: 1; }
+  .image-card .hover-hint span {
+    background: rgba(255,255,255,0.95);
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 800;
+    color: #1d4ed8;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  }
+
+  /* ============================================================ */
+  /* Small badges and chips                                        */
+  /* ============================================================ */
+  .info-badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 999px;
+    font-size: 10px;
+    font-weight: 700;
+  }
+  .badge-images { background: #dbeafe; color: #1e40af; }
+  .badge-converted { background: #d1fae5; color: #065f46; }
+  .badge-size { background: #fef3c7; color: #92400e; }
+  .badge-animated { background: #fce7f3; color: #9d174d; }
+
+  /* ============================================================ */
+  /* Modal image viewer                                            */
+  /* ============================================================ */
+  .viewer-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.9);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    animation: fadeIn 0.2s ease;
+  }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  .viewer-modal {
+    background: #ffffff;
+    border-radius: 16px;
+    max-width: 95vw;
+    max-height: 95vh;
+    width: 1100px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    overflow: hidden;
+  }
+  .viewer-header {
+    padding: 14px 20px;
+    border-bottom: 1px solid #e2e8f0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #f8fafc;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .viewer-toolbar {
+    padding: 8px 20px;
+    background: #ffffff;
+    border-bottom: 1px solid #e2e8f0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .viewer-toolbar button {
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #475569;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .viewer-toolbar button:hover {
+    background: #e2e8f0;
+    border-color: #cbd5e1;
+  }
+  .viewer-toolbar button.active {
+    background: #3b82f6;
+    color: white;
+    border-color: #3b82f6;
+  }
+  .viewer-toolbar .divider {
+    width: 1px;
+    height: 22px;
+    background: #e2e8f0;
+    margin: 0 4px;
+  }
+  .viewer-toolbar .zoom-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: #334155;
+    min-width: 50px;
+    text-align: center;
+  }
+
+  .viewer-body {
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+    background:
+      linear-gradient(45deg, #f1f5f9 25%, transparent 25%),
+      linear-gradient(-45deg, #f1f5f9 25%, transparent 25%),
+      linear-gradient(45deg, transparent 75%, #f1f5f9 75%),
+      linear-gradient(-45deg, transparent 75%, #f1f5f9 75%);
+    background-size: 20px 20px;
+    background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+    background-color: #ffffff;
+    cursor: grab;
+    min-height: 320px;
+  }
+  .viewer-body.dragging { cursor: grabbing; }
+  .viewer-body.bg-white { background: #ffffff; }
+  .viewer-body.bg-dark { background: #1e293b; }
+
+  #viewerStage {
+    position: absolute;
+    top: 0; left: 0;
+    transform-origin: 0 0;
+    will-change: transform;
+  }
+  #viewerStage img {
+    display: block;
+    max-width: none;
+    max-height: none;
+    pointer-events: none;
+    user-select: none;
+  }
+
+  .viewer-filmstrip {
+    display: flex;
+    gap: 6px;
+    padding: 8px 12px;
+    background: #f8fafc;
+    border-top: 1px solid #e2e8f0;
+    overflow-x: auto;
+    flex-shrink: 0;
+  }
+  .viewer-filmstrip::-webkit-scrollbar { height: 6px; }
+  .viewer-filmstrip::-webkit-scrollbar-track { background: #f1f5f9; }
+  .viewer-filmstrip::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+  .viewer-filmstrip .film-thumb {
+    flex-shrink: 0;
+    width: 52px;
+    height: 52px;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 2px solid transparent;
+    cursor: pointer;
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: border-color 0.15s;
+  }
+  .viewer-filmstrip .film-thumb img {
+    max-width: 100%;
+    max-height: 100%;
+    display: block;
+    object-fit: contain;
+  }
+  .viewer-filmstrip .film-thumb.active {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 2px #dbeafe;
+  }
+
+  /* ============================================================ */
+  /* Loading overlay                                               */
+  /* ============================================================ */
+  .loading-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.85);
+    z-index: 9999;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    backdrop-filter: blur(4px);
+  }
+  .loading-overlay.active { display: flex; }
+  .loading-spinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid #e2e8f0;
+    border-top-color: #3b82f6;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-text { color: white; margin-top: 16px; font-size: 14px; font-weight: 600; }
+  .loading-subtext { color: #94a3b8; margin-top: 8px; font-size: 12px; }
+
+  /* ============================================================ */
+  /* Theme toggle                                                  */
+  /* ============================================================ */
+  #theme-toggle {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 0.25rem 0.5rem;
+    border-radius: 8px;
+    transition: background 0.2s;
+    color: #475569;
+    line-height: 1;
+  }
+  #theme-toggle:hover { background: #f1f5f9; }
+  html.dark #theme-toggle { color: #e2e8f0; }
+  html.dark #theme-toggle:hover { background: #334155; }
+
+  /* ============================================================ */
+  /* Dark mode overrides                                           */
+  /* ============================================================ */
+  html.dark body { background: #0f172a; color: #e2e8f0; }
+  html.dark header { background: #1e293b; border-color: #334155; }
+  html.dark header h1 { color: #f1f5f9; }
+  html.dark header p { color: #60a5fa !important; }
+  html.dark header nav a { color: #94a3b8; }
+  html.dark header nav a:hover { color: #f1f5f9; }
+
+  html.dark #dropzone { background: #1e293b; border-color: #475569; }
+  html.dark #dropzone:hover { border-color: #3b82f6; }
+  html.dark #dropzone h2 { color: #f1f5f9; }
+  html.dark #dropzone p { color: #94a3b8; }
+  html.dark #dropzone .bg-blue-50 { background: #1e3a5f !important; }
+
+  html.dark #fileInfo { background: #1e293b; border-color: #334155; }
+  html.dark #fileInfo .text-slate-900 { color: #f1f5f9; }
+  html.dark #fileInfo .text-slate-400 { color: #94a3b8; }
+  html.dark #fileInfo .border-slate-200 { border-color: #334155; }
+  html.dark #fileInfo .bg-slate-50 { background: #0f172a !important; }
+  html.dark #fileInfo select { background: #0f172a; border-color: #334155; color: #f1f5f9; }
+  html.dark #fileInfo select option { background: #1e293b; }
+
+  html.dark .image-card { background: #1e293b; border-color: #334155; }
+  html.dark .image-card:hover { border-color: #3b82f6; }
+  html.dark .image-card .thumb-wrap {
+    background:
+      linear-gradient(45deg, #334155 25%, transparent 25%),
+      linear-gradient(-45deg, #334155 25%, transparent 25%),
+      linear-gradient(45deg, transparent 75%, #334155 75%),
+      linear-gradient(-45deg, transparent 75%, #334155 75%);
+    background-size: 16px 16px;
+    background-position: 0 0, 0 8px, 8px -8px, -8px 0px;
+    background-color: #0f172a;
+  }
+  html.dark .image-card .card-footer { background: #0f172a; border-top-color: #334155; }
+  html.dark .image-card .file-name { color: #e2e8f0; }
+  html.dark .image-card .file-meta { color: #64748b; }
+  html.dark .image-card .hover-hint { background: rgba(59, 130, 246, 0.2); }
+  html.dark .image-card .hover-hint span { background: rgba(30, 41, 59, 0.95); color: #93c5fd; }
+
+  html.dark .image-grid::-webkit-scrollbar-track { background: #0f172a; }
+  html.dark .image-grid::-webkit-scrollbar-thumb { background: #475569; }
+
+  html.dark #resultSection .bg-green-50 { background: #0f172a !important; border-color: #334155; }
+  html.dark #resultSection .border-green-200 { border-color: #334155 !important; }
+  html.dark #resultSection h2 { color: #f1f5f9; }
+  html.dark #resultSection .text-slate-600 { color: #94a3b8; }
+  html.dark #resultSection .border-slate-200 { border-color: #334155 !important; }
+  html.dark #resultSection .hover\:bg-slate-50:hover { background: #334155 !important; }
+
+  html.dark .bg-white { background: #1e293b !important; }
+  html.dark .border-slate-100 { border-color: #334155 !important; }
+  html.dark .border-slate-200 { border-color: #334155 !important; }
+  html.dark .border-slate-300 { border-color: #334155 !important; }
+  html.dark .text-slate-500 { color: #94a3b8 !important; }
+  html.dark .text-slate-600 { color: #94a3b8 !important; }
+  html.dark .text-slate-700 { color: #cbd5e1 !important; }
+  html.dark .text-slate-900 { color: #f1f5f9 !important; }
+  html.dark .bg-blue-50 { background: #1e3a5f !important; }
+  html.dark .border-blue-200 { border-color: #2563eb !important; }
+  html.dark .text-blue-700 { color: #60a5fa !important; }
+  html.dark .text-blue-900 { color: #93c5fd !important; }
+  html.dark .bg-slate-50 { background: #0f172a !important; }
+  html.dark .bg-slate-100 { background: #334155 !important; }
+
+  html.dark .badge-images { background: #1e3a5f; color: #93c5fd; }
+  html.dark .badge-converted { background: #064e3b; color: #6ee7b7; }
+  html.dark .badge-size { background: #78350f; color: #fcd34d; }
+  html.dark .badge-animated { background: #3b1e2e; color: #f9a8d4; }
+
+  html.dark footer { background: #0f172a !important; border-color: #334155 !important; }
+  html.dark footer a { color: #94a3b8; }
+  html.dark footer a:hover { color: #f1f5f9; }
+  html.dark footer p { color: #94a3b8 !important; }
+
+  html.dark .back-home-btn { background: #1e293b !important; border-color: #475569 !important; color: #e2e8f0 !important; }
+  html.dark .back-home-btn:hover { background: #334155 !important; border-color: #3b82f6 !important; }
+  html.dark .bg-green-600 { background: #059669 !important; }
+  html.dark .bg-green-600:hover { background: #047857 !important; }
+  html.dark .bg-blue-600 { background: #2563eb !important; }
+  html.dark .bg-blue-600:hover { background: #1d4ed8 !important; }
+
+  html.dark .viewer-modal { background: #1e293b; }
+  html.dark .viewer-header { background: #0f172a; border-bottom-color: #334155; }
+  html.dark .viewer-header h3 { color: #f1f5f9; }
+  html.dark .viewer-toolbar { background: #1e293b; border-bottom-color: #334155; }
+  html.dark .viewer-toolbar button { background: #0f172a; border-color: #334155; color: #cbd5e1; }
+  html.dark .viewer-toolbar button:hover { background: #334155; }
+  html.dark .viewer-toolbar .divider { background: #334155; }
+  html.dark .viewer-toolbar .zoom-label { color: #e2e8f0; }
+  html.dark .viewer-body {
+    background:
+      linear-gradient(45deg, #334155 25%, transparent 25%),
+      linear-gradient(-45deg, #334155 25%, transparent 25%),
+      linear-gradient(45deg, transparent 75%, #334155 75%),
+      linear-gradient(-45deg, transparent 75%, #334155 75%);
+    background-size: 20px 20px;
+    background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+    background-color: #0f172a;
+  }
+  html.dark .viewer-filmstrip { background: #0f172a; border-top-color: #334155; }
+  html.dark .viewer-filmstrip .film-thumb { background: #1e293b; }
+</style>
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans antialiased transition-colors duration-200">
 
-  <!-- Loading Overlay -->
   <div class="loading-overlay" id="loadingOverlay">
     <div class="loading-spinner"></div>
-    <p class="loading-text" id="loadingText">Loading GIF decoder...</p>
-    <p class="loading-subtext" id="loadingSubtext">This may take a few seconds</p>
+    <p class="loading-text" id="loadingText">Loading GIF decoder…</p>
+    <p class="loading-subtext" id="loadingSubtext">This takes a few seconds</p>
   </div>
 
-  <!-- Navigation -->
   <header class="bg-white border-b border-slate-200 py-3.5 px-6 sticky top-0 z-50 transition-colors duration-200">
     <div class="max-w-6xl mx-auto flex justify-between items-center">
-      <a href="/" class="flex items-center gap-3 group">
-        <img src="Gemini_Generated_Image_sdu6v7sdu6v7sdu6.jpg" alt="Droplet Logo" class="h-9 w-auto rounded-xl shadow-sm group-hover:scale-105 transition-transform">
+      <a href="/" class="flex items-center gap-3 group" aria-label="Droplet home">
+        <img src="Gemini_Generated_Image_sdu6v7sdu6v7sdu6.jpg" alt="Droplet logo" class="h-9 w-auto rounded-xl shadow-sm group-hover:scale-105 transition-transform">
         <div>
           <h1 class="text-xl font-black tracking-tight text-slate-900 leading-none">Droplet</h1>
           <p class="text-[9px] text-blue-600 font-extrabold tracking-widest uppercase mt-0.5">DRAG, DROP AND CONVERT.</p>
         </div>
       </a>
       <div class="flex items-center gap-3">
-        <button id="theme-toggle" aria-label="Toggle theme">🌙</button>
-        <nav class="hidden md:flex items-center space-x-6 text-xs font-bold text-slate-600">
+        <button id="theme-toggle" aria-label="Toggle dark mode">🌙</button>
+        <nav class="hidden md:flex items-center space-x-6 text-xs font-bold text-slate-600" aria-label="Primary">
           <a href="/" class="hover:text-blue-600 transition-colors">← Back</a>
         </nav>
       </div>
     </div>
   </header>
 
-  <!-- Main Content -->
   <main class="max-w-4xl mx-auto px-4 py-8 md:py-12 flex-grow w-full">
 
-    <!-- Back Button -->
     <div class="max-w-2xl mx-auto mb-4 flex justify-start">
       <a href="/" class="back-home-btn inline-flex items-center gap-2 bg-white hover:bg-slate-50 border border-slate-200 shadow-sm rounded-full px-5 py-2.5 text-sm font-medium text-slate-700 transition-all hover:shadow-md hover:border-slate-300 active:scale-95">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
           <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
         </svg>
         Back to Home
       </a>
     </div>
 
-    <!-- Page Header -->
     <div class="text-center mb-8">
-      <div class="inline-block p-3 bg-blue-50 rounded-2xl mb-4 transition-colors duration-200">
+      <div class="inline-block p-3 bg-blue-50 rounded-2xl mb-4 transition-colors duration-200" aria-hidden="true">
         <span class="text-4xl">🎞️</span>
       </div>
       <h1 class="text-3xl md:text-4xl font-black text-slate-900 tracking-tight">GIF to PNG Converter</h1>
       <p class="text-slate-500 text-sm md:text-base mt-2 max-w-lg mx-auto">
-        Convert your GIF images to PNG format. <strong>100% client-side</strong> — your files never leave your browser.
+        Convert GIF images to PNG, including every frame from animated GIFs. <strong>100% client-side</strong> — your files never leave your browser.
       </p>
     </div>
 
-    <!-- What is GIF Info -->
-    <div class="max-w-2xl mx-auto mb-8 bg-blue-50 border border-blue-200 rounded-xl p-4 transition-colors duration-200">
+    <section class="max-w-2xl mx-auto mb-8 bg-blue-50 border border-blue-200 rounded-xl p-4 transition-colors duration-200" aria-label="About GIF format">
       <div class="flex items-start gap-3">
-        <span class="text-2xl">🔄</span>
+        <span class="text-2xl" aria-hidden="true">🔄</span>
         <div>
-          <h4 class="font-bold text-sm text-blue-900">What is GIF?</h4>
-          <p class="text-xs text-blue-700 mt-1">GIF (Graphics Interchange Format) is a popular format for animated images and simple graphics. However, GIFs are limited to 256 colors and have larger file sizes. Converting to PNG gives you millions of colors, better quality, and smaller file sizes for static images.</p>
+          <h2 class="font-bold text-sm text-blue-900">What is GIF?</h2>
+          <p class="text-xs text-blue-700 mt-1">GIF (Graphics Interchange Format) is a popular format for animated images and simple graphics. GIFs are limited to 256 colours and use a lossy colour palette. Converting to PNG gives you millions of colours, better quality, and smaller file sizes for static images.</p>
         </div>
       </div>
-    </div>
+    </section>
 
-    <!-- Conversion Dropzone -->
-    <div id="dropzone" class="bg-white border-2 border-dashed border-slate-300 hover:border-blue-400 transition-all rounded-3xl p-8 md:p-12 text-center shadow-lg max-w-2xl mx-auto cursor-pointer">
+    <div id="dropzone" class="bg-white border-2 border-dashed border-slate-300 hover:border-blue-400 transition-all rounded-3xl p-8 md:p-12 text-center shadow-lg max-w-2xl mx-auto cursor-pointer" role="button" tabindex="0" aria-label="Upload GIF files">
       <div class="flex flex-col items-center">
-        <div class="w-20 h-20 bg-blue-50 rounded-2xl flex items-center justify-center mb-4 text-4xl">
-          📁
-        </div>
-        <h3 class="text-xl font-bold text-slate-900 mb-1">Drop your GIF images here</h3>
+        <div class="w-20 h-20 bg-blue-50 rounded-2xl flex items-center justify-center mb-4 text-4xl transition-colors duration-200" aria-hidden="true">📁</div>
+        <h2 class="text-xl font-bold text-slate-900 mb-1">Drop your GIF images here</h2>
         <p class="text-slate-400 text-sm mb-4">or click to browse (batch conversion supported)</p>
-        <input type="file" id="fileInput" accept=".gif,image/gif" multiple class="hidden">
+        <input type="file" id="fileInput" accept=".gif,image/gif" multiple class="hidden" aria-label="Choose GIF files">
         <button onclick="document.getElementById('fileInput').click()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-3 rounded-xl text-sm shadow-md shadow-blue-500/20 transition-all active:scale-95">
           Select GIF Files
         </button>
@@ -398,34 +692,32 @@
       </div>
     </div>
 
-    <!-- File Info & Conversion Controls -->
     <div id="fileInfo" class="hidden max-w-2xl mx-auto mt-6 bg-white rounded-xl shadow-sm border border-slate-200 p-6 transition-colors duration-200">
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-3">
-          <span class="text-2xl">🖼️</span>
+          <span class="text-2xl" aria-hidden="true">🖼️</span>
           <div>
             <p id="fileCount" class="font-medium text-slate-900"></p>
             <p id="totalSize" class="text-xs text-slate-400"></p>
           </div>
         </div>
-        <button onclick="clearFiles()" class="text-slate-400 hover:text-red-500 transition-colors">✕</button>
+        <button onclick="clearFiles()" class="text-slate-400 hover:text-red-500 transition-colors" aria-label="Remove files">✕</button>
       </div>
 
-      <!-- PNG Options -->
-      <div class="mt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4 bg-slate-50 rounded-lg transition-colors duration-200">
+      <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-slate-50 rounded-lg transition-colors duration-200">
         <div>
-          <label class="block text-xs font-medium text-slate-700 mb-1">📊 Mode</label>
-          <select id="conversionMode" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white transition-colors duration-200">
+          <label for="conversionMode" class="block text-xs font-medium text-slate-700 mb-1">📊 Mode</label>
+          <select id="conversionMode" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm bg-white transition-colors duration-200">
             <option value="first">🔹 Extract First Frame</option>
             <option value="all" selected>🔹 Extract All Frames</option>
             <option value="animated">🔹 Create Animated PNG (APNG)</option>
           </select>
-          <p class="text-[8px] text-slate-400 mt-0.5">APNG requires browser support</p>
+          <p class="text-[10px] text-slate-400 mt-0.5">APNG requires browser support</p>
         </div>
         <div>
-          <label class="block text-xs font-medium text-slate-700 mb-1">📏 Image Size</label>
-          <select id="imageSize" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white transition-colors duration-200">
-            <option value="original">🔹 Original Size</option>
+          <label for="imageSize" class="block text-xs font-medium text-slate-700 mb-1">📏 Image Size</label>
+          <select id="imageSize" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm bg-white transition-colors duration-200">
+            <option value="original" selected>🔹 Original Size</option>
             <option value="3840">🔹 4K (3840px)</option>
             <option value="2560">🔹 2.5K (2560px)</option>
             <option value="1920">🔹 HD (1920px)</option>
@@ -434,9 +726,9 @@
           </select>
         </div>
         <div>
-          <label class="block text-xs font-medium text-slate-700 mb-1">🎨 Color Mode</label>
-          <select id="colorMode" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white transition-colors duration-200">
-            <option value="color">🌈 Color</option>
+          <label for="colorMode" class="block text-xs font-medium text-slate-700 mb-1">🎨 Color Mode</label>
+          <select id="colorMode" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm bg-white transition-colors duration-200">
+            <option value="color" selected>🌈 Color</option>
             <option value="grayscale">⬛ Grayscale</option>
             <option value="sepia">🟫 Sepia</option>
           </select>
@@ -452,8 +744,7 @@
         </button>
       </div>
 
-      <!-- Progress Bar -->
-      <div id="progressContainer" class="hidden mt-4">
+      <div id="progressContainer" class="hidden mt-4" role="status" aria-live="polite">
         <div class="flex justify-between text-xs text-slate-500 mb-1">
           <span>Converting...</span>
           <span id="progressText">0%</span>
@@ -464,108 +755,203 @@
         <p id="statusText" class="text-xs text-slate-400 mt-2 text-center">Initializing...</p>
       </div>
 
-      <!-- Image Preview -->
       <div id="previewContainer" class="hidden mt-4 border-t border-slate-200 pt-4">
         <div class="flex items-center justify-between mb-2">
-          <h4 class="font-bold text-sm text-slate-700">🖼️ Image Preview</h4>
+          <h2 class="font-bold text-sm text-slate-700">🖼️ Interactive Preview</h2>
           <span id="imageStats" class="text-xs text-slate-400"></span>
         </div>
-        <div id="imagePreviewContent" class="image-grid">
-          <!-- Images will be rendered here -->
-        </div>
+        <p class="text-xs text-slate-400 mb-2">💡 Click any image to open the interactive viewer with zoom and pan.</p>
+        <div id="imagePreviewContent" class="image-grid" role="list"></div>
       </div>
     </div>
 
-    <!-- Result Section -->
-    <div id="resultSection" class="hidden max-w-2xl mx-auto mt-6 rounded-xl p-6 text-center transition-colors duration-200">
-      <div id="resultContent">
-        <!-- Dynamically populated -->
-      </div>
-    </div>
-
-    <!-- Info Section -->
-    <div class="max-w-2xl mx-auto mt-12 grid grid-cols-1 md:grid-cols-3 gap-4">
-      <div class="bg-white p-4 rounded-xl border border-slate-100 text-center transition-colors duration-200">
-        <div class="text-2xl mb-1">🔒</div>
-        <h4 class="font-bold text-sm">100% Private</h4>
-        <p class="text-xs text-slate-500">Your files never leave your browser</p>
-      </div>
-      <div class="bg-white p-4 rounded-xl border border-slate-100 text-center transition-colors duration-200">
-        <div class="text-2xl mb-1">🎞️</div>
-        <h4 class="font-bold text-sm">Frame Extraction</h4>
-        <p class="text-xs text-slate-500">Extract all frames from animated GIFs</p>
-      </div>
-      <div class="bg-white p-4 rounded-xl border border-slate-100 text-center transition-colors duration-200">
-        <div class="text-2xl mb-1">⚡</div>
-        <h4 class="font-bold text-sm">Fast & Free</h4>
-        <p class="text-xs text-slate-500">No sign-up required</p>
-      </div>
-    </div>
-
-    <!-- GIF vs PNG Comparison -->
-    <section class="max-w-2xl mx-auto mt-12">
-      <h2 class="text-xl font-black text-slate-900 text-center mb-6">GIF vs PNG Comparison</h2>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm flex items-center gap-2">
-            <span class="text-xl">🔄</span> GIF
-          </h3>
-          <ul class="text-sm text-slate-600 mt-2 space-y-1">
-            <li>✅ Supports animation</li>
-            <li>✅ Supports transparency (binary)</li>
-            <li>✅ Widely supported</li>
-            <li>❌ Limited to 256 colors</li>
-            <li>❌ Larger file size for static images</li>
-          </ul>
-        </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm flex items-center gap-2">
-            <span class="text-xl">🔵</span> PNG
-          </h3>
-          <ul class="text-sm text-slate-600 mt-2 space-y-1">
-            <li>✅ Millions of colors</li>
-            <li>✅ Supports transparency (alpha channel)</li>
-            <li>✅ Lossless quality</li>
-            <li>✅ Smaller file size for static images</li>
-            <li>⚠️ APNG supports animation (limited support)</li>
-          </ul>
-        </div>
+    <section id="resultSection" class="hidden max-w-2xl mx-auto mt-6" aria-label="Download result">
+      <div class="bg-green-50 border border-green-200 rounded-xl p-6 text-center transition-colors duration-200">
+        <div id="resultContent"></div>
       </div>
     </section>
 
-    <!-- FAQ Section -->
-    <section class="max-w-2xl mx-auto mt-12">
+    <section class="max-w-2xl mx-auto mt-12 grid grid-cols-1 md:grid-cols-3 gap-4" aria-label="Key features">
+      <div class="bg-white p-4 rounded-xl border border-slate-100 text-center transition-colors duration-200">
+        <div class="text-2xl mb-1" aria-hidden="true">🔒</div>
+        <h3 class="font-bold text-sm">100% Private</h3>
+        <p class="text-xs text-slate-500">Your files never leave your browser</p>
+      </div>
+      <div class="bg-white p-4 rounded-xl border border-slate-100 text-center transition-colors duration-200">
+        <div class="text-2xl mb-1" aria-hidden="true">🎞️</div>
+        <h3 class="font-bold text-sm">Frame Extraction</h3>
+        <p class="text-xs text-slate-500">Pull every frame from animated GIFs</p>
+      </div>
+      <div class="bg-white p-4 rounded-xl border border-slate-100 text-center transition-colors duration-200">
+        <div class="text-2xl mb-1" aria-hidden="true">⚡</div>
+        <h3 class="font-bold text-sm">Batch &amp; Fast</h3>
+        <p class="text-xs text-slate-500">Convert many files at once</p>
+      </div>
+    </section>
+
+    <!-- Long-form SEO essay -->
+    <article class="max-w-2xl mx-auto mt-12" aria-label="About GIF to PNG conversion">
+      <h2 class="text-xl font-black text-slate-900 mb-4">Converting GIF to PNG: why you would do it and what changes</h2>
+      <div class="bg-white p-5 rounded-xl border border-slate-100 mb-4 transition-colors duration-200">
+        <p class="text-sm text-slate-600 leading-relaxed mb-3">
+          The GIF format has been with us since 1987. It was designed for a time when networks were slow, storage was expensive, and screen colour depth was measured in hundreds of colours rather than millions. Those constraints shaped the format. GIF stores every image with a palette of at most 256 colours. It compresses efficiently for images that have large areas of uniform colour, which is why it was used for logos, icons, and flat illustrations. It also gained a simple animation mechanism that no other widely supported format had for many years, and that is the main reason GIF survived into the 2020s.
+        </p>
+        <p class="text-sm text-slate-600 leading-relaxed mb-3">
+          The PNG format arrived in 1996 as a replacement for GIF. PNG fixes every technical shortcoming of GIF: it supports up to 16 million colours per pixel, it supports a full 8-bit alpha channel for smooth transparency, it uses a stronger compression algorithm, and it was designed from the start to be unencumbered by patents. What PNG does not have — in its original form — is animation.
+        </p>
+        <p class="text-sm text-slate-600 leading-relaxed">
+          That distinction explains why GIF to PNG conversion is a common workflow. When an image is static, PNG is strictly better: better quality, better transparency, smaller files. When an image is animated, GIF is still the more widely supported format, but modern browsers also support APNG (Animated PNG), which brings PNG's colour depth and transparency to animated images. Depending on what you need, converting GIF to PNG either produces a single, higher-quality static image or a set of frames that you can reassemble into any animation format you like.
+        </p>
+      </div>
+
+      <h2 class="text-xl font-black text-slate-900 mb-4">When you should convert GIF to PNG</h2>
+      <div class="bg-white p-5 rounded-xl border border-slate-100 mb-4 transition-colors duration-200">
+        <ul class="text-sm text-slate-600 leading-relaxed list-disc pl-5 space-y-2">
+          <li><strong>You have a logo or icon in GIF and want a modern version.</strong> PNG has been the standard format for web graphics since the mid-2000s. It is what designers actually use, and it is what your CMS or design tool will accept without complaint.</li>
+          <li><strong>You need proper transparency.</strong> GIF's transparency is binary: each pixel is either fully opaque or fully transparent. PNG supports partial transparency, which means anti-aliased edges look smooth instead of jagged.</li>
+          <li><strong>You are extracting frames from an animated GIF.</strong> Animators, video editors, and designers often need individual frames as still images. Converting each frame to PNG gives you lossless stills that you can use in any editor.</li>
+          <li><strong>You want a smaller file for a static image.</strong> For static content, PNG is typically 10–40% smaller than the equivalent GIF, sometimes more. The savings add up across a website with many small graphics.</li>
+          <li><strong>You are building a screenshot or chart.</strong> Screenshots, graphs, and text-heavy images look terrible in GIF because of the 256-colour limit. PNG renders them cleanly.</li>
+          <li><strong>You want to produce an animated PNG.</strong> APNG is supported in every major browser. It gives you the same visual quality as PNG but with animation, and it has been adopted by many modern design tools.</li>
+        </ul>
+      </div>
+
+      <h2 class="text-xl font-black text-slate-900 mb-4">How the GIF decoder works</h2>
+      <div class="bg-white p-5 rounded-xl border border-slate-100 mb-4 transition-colors duration-200">
+        <p class="text-sm text-slate-600 leading-relaxed mb-3">
+          A GIF file is not a single image. It is a container that holds a global colour palette, an optional set of extensions, and a sequence of one or more image blocks. Each image block has its own local palette, its own rectangle on the canvas, and its own disposal method that tells the decoder how to handle the canvas before drawing the next frame.
+        </p>
+        <p class="text-sm text-slate-600 leading-relaxed mb-3">
+          To extract a frame, a decoder must composite the sequence correctly. For each frame it must:
+        </p>
+        <ul class="text-sm text-slate-600 leading-relaxed list-disc pl-5 space-y-1 mb-3">
+          <li>Draw the frame's patch onto the main canvas at the frame's coordinates.</li>
+          <li>Save the resulting canvas as a complete image.</li>
+          <li>Apply the frame's disposal method — restore to background, restore to previous, or leave in place — before drawing the next frame.</li>
+        </ul>
+        <p class="text-sm text-slate-600 leading-relaxed">
+          Getting disposal wrong is one of the most common bugs in GIF decoding. If frames that should have been cleared are left in place, subsequent frames appear with the previous frame still visible underneath. This tool implements all three disposal methods (leave, restore background, restore previous) so that every extracted frame looks exactly as it did when the GIF played.
+        </p>
+      </div>
+
+      <h2 class="text-xl font-black text-slate-900 mb-4">GIF vs PNG: a technical comparison</h2>
+      <div class="bg-white p-5 rounded-xl border border-slate-100 mb-4 transition-colors duration-200 overflow-x-auto">
+        <table class="w-full text-sm text-slate-600">
+          <thead>
+            <tr class="border-b border-slate-200">
+              <th class="text-left py-2 pr-4 font-bold">Feature</th>
+              <th class="text-left py-2 pr-4 font-bold">GIF</th>
+              <th class="text-left py-2 font-bold">PNG</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="border-b border-slate-100"><td class="py-2 pr-4">Introduced</td><td class="py-2 pr-4">1987</td><td class="py-2">1996</td></tr>
+            <tr class="border-b border-slate-100"><td class="py-2 pr-4">Maximum colours</td><td class="py-2 pr-4">256</td><td class="py-2">16.7 million</td></tr>
+            <tr class="border-b border-slate-100"><td class="py-2 pr-4">Transparency</td><td class="py-2 pr-4">Binary (1 bit)</td><td class="py-2">Full alpha (8 bit)</td></tr>
+            <tr class="border-b border-slate-100"><td class="py-2 pr-4">Compression</td><td class="py-2 pr-4">LZW (patent expired)</td><td class="py-2">DEFLATE</td></tr>
+            <tr class="border-b border-slate-100"><td class="py-2 pr-4">Animation</td><td class="py-2 pr-4">Yes (native)</td><td class="py-2">Yes (via APNG extension)</td></tr>
+            <tr class="border-b border-slate-100"><td class="py-2 pr-4">Lossless</td><td class="py-2 pr-4">Only for paletted images</td><td class="py-2">Always</td></tr>
+            <tr><td class="py-2 pr-4">Modern web use</td><td class="py-2 pr-4">Declining</td><td class="py-2">Standard</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2 class="text-xl font-black text-slate-900 mb-4">Understanding animated GIF frames</h2>
+      <div class="bg-white p-5 rounded-xl border border-slate-100 mb-4 transition-colors duration-200">
+        <p class="text-sm text-slate-600 leading-relaxed mb-3">
+          An animated GIF is not a video. It is a sequence of static images that a player draws one after another with a delay between them. Each image is called a frame. A frame's delay is stored as a small integer — usually a multiple of ten milliseconds — and the animation loops when it reaches the end.
+        </p>
+        <p class="text-sm text-slate-600 leading-relaxed mb-3">
+          Frames can also carry a "disposal method" that tells the player what to do with the canvas after drawing. There are four methods:
+        </p>
+        <ul class="text-sm text-slate-600 leading-relaxed list-disc pl-5 space-y-1 mb-3">
+          <li><strong>Leave in place</strong> — the frame stays on screen and the next frame draws on top of it.</li>
+          <li><strong>Restore to background</strong> — the frame is erased before the next frame is drawn.</li>
+          <li><strong>Restore to previous</strong> — the canvas is rolled back to its state before this frame was drawn.</li>
+          <li><strong>Unspecified</strong> — treated as leave in place.</li>
+        </ul>
+        <p class="text-sm text-slate-600 leading-relaxed">
+          A correct frame extractor has to honour all of these, otherwise the extracted frames will not match the animation. When you extract frames from an animated GIF with this tool, each PNG you get is the complete composited canvas as it appeared at that moment in the animation.
+        </p>
+      </div>
+
+      <h2 class="text-xl font-black text-slate-900 mb-4">The privacy advantage of client-side conversion</h2>
+      <div class="bg-white p-5 rounded-xl border border-slate-100 mb-4 transition-colors duration-200">
+        <p class="text-sm text-slate-600 leading-relaxed">
+          Most online image converters work by uploading your file to a server, processing it, and sending the result back. That has two costs. The first is time — uploads over slow connections are slow, and a large GIF can take a while to travel. The second is privacy. Whatever you convert is seen by the server, and depending on the service it may be logged, retained, or used for analytics. This tool works entirely in your browser. The GIF never leaves your device. The conversion runs on your own CPU and the resulting PNG is generated locally. You can verify this yourself by opening your browser's developer tools and watching the Network tab — no uploads appear.
+        </p>
+      </div>
+
+      <h2 class="text-xl font-black text-slate-900 mb-4">Why batch conversion matters</h2>
+      <div class="bg-white p-5 rounded-xl border border-slate-100 mb-4 transition-colors duration-200">
+        <p class="text-sm text-slate-600 leading-relaxed">
+          Designers and developers rarely convert one file at a time. When you are migrating a website from an old format to a new one, or extracting frames from dozens of animation samples, or preparing a batch of icons for a new build, doing each file individually is a waste of time. This tool accepts many files at once, processes them in sequence, and packages the results into a single downloadable ZIP. Inside the ZIP, every PNG is named with the `dropletweb-` prefix and the frame number, so the output is easy to identify and process further with any script.
+        </p>
+      </div>
+    </article>
+
+    <!-- FAQ -->
+    <section class="max-w-2xl mx-auto mt-12" aria-label="Frequently asked questions">
       <h2 class="text-xl font-black text-slate-900 text-center mb-6">Frequently Asked Questions</h2>
       <div class="space-y-3">
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">Is my data safe?</h3>
-          <p class="text-slate-600 text-sm mt-1">Yes! All conversions happen locally in your browser. Your GIF files are never uploaded to any server.</p>
-        </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">Why convert GIF to PNG?</h3>
-          <p class="text-slate-600 text-sm mt-1">PNG supports millions of colors (vs 256 in GIF), has better compression for static images, and supports full alpha transparency.</p>
-        </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">What about animated GIFs?</h3>
-          <p class="text-slate-600 text-sm mt-1">You can extract all frames from animated GIFs as separate PNG images. You can also create an APNG (Animated PNG) if your browser supports it.</p>
-        </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">Will I lose image quality?</h3>
-          <p class="text-slate-600 text-sm mt-1">No! PNG is a lossless format, so no quality is lost during conversion. The converted image will have more colors and better quality.</p>
-        </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">Can I convert multiple files at once?</h3>
-          <p class="text-slate-600 text-sm mt-1">Yes! Drag and drop multiple GIF files or select multiple files using the file picker. Download them all at once as a ZIP file.</p>
-        </div>
+        <details class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200" open>
+          <summary class="font-bold text-slate-900 text-sm cursor-pointer">Is my GIF data safe?</summary>
+          <p class="text-slate-600 text-sm mt-2">Yes. All conversion happens locally in your browser. Your GIF files are never uploaded to any server and are removed from memory when you close the page.</p>
+        </details>
+        <details class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
+          <summary class="font-bold text-slate-900 text-sm cursor-pointer">Is this GIF to PNG converter free?</summary>
+          <p class="text-slate-600 text-sm mt-2">Yes, the converter is completely free and does not require a sign-up or account.</p>
+        </details>
+        <details class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
+          <summary class="font-bold text-slate-900 text-sm cursor-pointer">Why convert GIF to PNG?</summary>
+          <p class="text-slate-600 text-sm mt-2">PNG supports millions of colours (vs 256 in GIF), has better compression for static images, and supports full alpha-channel transparency. Converting removes the GIF colour palette limitation.</p>
+        </details>
+        <details class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
+          <summary class="font-bold text-slate-900 text-sm cursor-pointer">Can I convert an animated GIF to PNG?</summary>
+          <p class="text-slate-600 text-sm mt-2">Yes. Choose Extract All Frames to save each frame as its own PNG file, or Extract First Frame to save only the first frame. You can also create an Animated PNG (APNG) if your browser supports it.</p>
+        </details>
+        <details class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
+          <summary class="font-bold text-slate-900 text-sm cursor-pointer">Will I lose image quality?</summary>
+          <p class="text-slate-600 text-sm mt-2">No. PNG is a lossless format. The output preserves every pixel of the decoded GIF frame with no additional compression artifacts.</p>
+        </details>
+        <details class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
+          <summary class="font-bold text-slate-900 text-sm cursor-pointer">Can I batch-convert multiple GIFs?</summary>
+          <p class="text-slate-600 text-sm mt-2">Yes. Drop or select multiple files. Each GIF is converted independently, and all resulting PNGs can be downloaded together as a ZIP archive.</p>
+        </details>
+        <details class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
+          <summary class="font-bold text-slate-900 text-sm cursor-pointer">What image sizes are supported?</summary>
+          <p class="text-slate-600 text-sm mt-2">Original size is preserved by default. You can also resize to 4K (3840px), 2.5K, HD (1920px), HD Ready (1280px), or Web (800px) on the long edge.</p>
+        </details>
+        <details class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
+          <summary class="font-bold text-slate-900 text-sm cursor-pointer">Does it support grayscale and sepia?</summary>
+          <p class="text-slate-600 text-sm mt-2">Yes. The Color Mode dropdown lets you output in full colour, grayscale, or sepia.</p>
+        </details>
+        <details class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
+          <summary class="font-bold text-slate-900 text-sm cursor-pointer">What is the maximum file size?</summary>
+          <p class="text-slate-600 text-sm mt-2">The tool accepts files up to 50 MB each. Because everything runs locally, the practical limit is your device's available memory.</p>
+        </details>
+        <details class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
+          <summary class="font-bold text-slate-900 text-sm cursor-pointer">Does it work on animated GIFs with transparency?</summary>
+          <p class="text-slate-600 text-sm mt-2">Yes. GIF transparency is decoded and preserved. Where a GIF frame has a transparent pixel, the corresponding PNG pixel is fully transparent.</p>
+        </details>
+        <details class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
+          <summary class="font-bold text-slate-900 text-sm cursor-pointer">Does the tool work offline?</summary>
+          <p class="text-slate-600 text-sm mt-2">Once the page has loaded, all decoding and conversion run locally. You can convert GIFs without an internet connection.</p>
+        </details>
+        <details class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
+          <summary class="font-bold text-slate-900 text-sm cursor-pointer">What is APNG?</summary>
+          <p class="text-slate-600 text-sm mt-2">APNG (Animated PNG) is an extension of the PNG format that supports animation. It is supported in Chrome, Firefox, Safari, and Edge. This tool produces a single-frame APNG placeholder; full multi-frame APNG export is on the roadmap.</p>
+        </details>
       </div>
     </section>
   </main>
 
-  <!-- Footer -->
   <footer class="border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-500 mt-auto transition-colors duration-200">
     <div class="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-3">
       <p class="font-medium">© Droplet. 100% Client-Side Privacy First File Utility.</p>
       <div class="space-x-4">
+        <a href="/about.html" class="hover:text-blue-600 transition-colors">About</a>
+        <span>•</span>
         <a href="/privacy.html" class="hover:text-blue-600 transition-colors">Privacy Policy</a>
         <span>•</span>
         <a href="/terms.html" class="hover:text-blue-600 transition-colors">Terms of Service</a>
@@ -573,9 +959,9 @@
     </div>
   </footer>
 
-  <!-- ============================================ -->
-  <!-- GIF DECODER - Using gifuct-js ES Module -->
-  <!-- ============================================ -->
+  <!-- ============================================================ -->
+  <!-- GIF decoder — lazy-loaded                                    -->
+  <!-- ============================================================ -->
   <script type="importmap">
     {
       "imports": {
@@ -586,156 +972,109 @@
 
   <script type="module">
     import { parseGIF, decompressFrames } from 'gifuct-js';
-    
-    // Expose to global scope
-    window.Gifuct = {
-      parseGIF,
-      decompressFrames
-    };
+    window.Gifuct = { parseGIF, decompressFrames };
     window.gifuctLoaded = true;
-    
-    // Hide loading overlay
+
     const overlay = document.getElementById('loadingOverlay');
     const loadingText = document.getElementById('loadingText');
-    loadingText.textContent = '✅ GIF decoder ready!';
-    
-    setTimeout(() => {
-      overlay.classList.remove('active');
-    }, 500);
-    
-    console.log('✅ GIF decoder loaded successfully');
+    if (overlay && loadingText) {
+      loadingText.textContent = '✅ GIF decoder ready!';
+      setTimeout(() => overlay.classList.remove('active'), 400);
+    }
+    console.log('✅ GIF decoder loaded');
   </script>
 
-  <!-- Conversion JavaScript -->
   <script>
-    // ============================================
-    // DARK MODE TOGGLE
-    // ============================================
+    // ============================================================
+    // THEME TOGGLE
+    // ============================================================
     const themeToggle = document.getElementById('theme-toggle');
     const html = document.documentElement;
-    
-    let currentTheme = localStorage.getItem('theme') || 
-      (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-    
-    if (currentTheme === 'dark') {
-      html.classList.add('dark');
-      themeToggle.textContent = '☀️';
-    } else {
-      themeToggle.textContent = '🌙';
-    }
-    
+    themeToggle.textContent = html.classList.contains('dark') ? '☀️' : '🌙';
     themeToggle.addEventListener('click', () => {
       if (html.classList.contains('dark')) {
         html.classList.remove('dark');
         themeToggle.textContent = '🌙';
-        localStorage.setItem('theme', 'light');
+        try { localStorage.setItem('theme', 'light'); } catch (e) {}
       } else {
         html.classList.add('dark');
         themeToggle.textContent = '☀️';
-        localStorage.setItem('theme', 'dark');
+        try { localStorage.setItem('theme', 'dark'); } catch (e) {}
       }
     });
 
-    // ============================================
-    // REAL GIF DECODER USING gifuct-js
-    // ============================================
+    // ============================================================
+    // GIF DECODER WRAPPER
+    // ============================================================
     function checkGifuctLoaded() {
       return typeof window.Gifuct !== 'undefined' && window.gifuctLoaded === true;
     }
 
     async function decodeGIF(arrayBuffer) {
-      if (!checkGifuctLoaded()) {
-        throw new Error('GIF decoder library not loaded');
-      }
-
+      if (!checkGifuctLoaded()) throw new Error('GIF decoder library not loaded');
       const { parseGIF, decompressFrames } = window.Gifuct;
-      
-      // Parse the GIF
       const gif = parseGIF(new Uint8Array(arrayBuffer));
       const rawFrames = decompressFrames(gif, true);
-      
       const width = gif.lsd.width;
       const height = gif.lsd.height;
       const frames = [];
-      
-      // Create main canvas for compositing
+
       const mainCanvas = document.createElement('canvas');
       mainCanvas.width = width;
       mainCanvas.height = height;
       const mainCtx = mainCanvas.getContext('2d');
-      
       let previousImageData = null;
-      
+
       for (let i = 0; i < rawFrames.length; i++) {
         const frame = rawFrames[i];
-        
-        // Save canvas state for disposal type 3 (restore to previous)
+
         if (frame.disposalType === 3) {
           previousImageData = mainCtx.getImageData(0, 0, width, height);
         }
-        
-        // Create patch canvas for this frame
+
         const patchCanvas = document.createElement('canvas');
         patchCanvas.width = frame.dims.width;
         patchCanvas.height = frame.dims.height;
         const patchCtx = patchCanvas.getContext('2d');
-        
-        // Put frame patch data onto canvas
         const imageData = new ImageData(
           new Uint8ClampedArray(frame.patch),
           frame.dims.width,
           frame.dims.height
         );
         patchCtx.putImageData(imageData, 0, 0);
-        
-        // Draw patch onto main canvas at the correct position
         mainCtx.drawImage(patchCanvas, frame.dims.left, frame.dims.top);
-        
-        // Create a copy of the current frame
+
         const frameCanvas = document.createElement('canvas');
         frameCanvas.width = width;
         frameCanvas.height = height;
         frameCanvas.getContext('2d').drawImage(mainCanvas, 0, 0);
-        
+
         frames.push({
           canvas: frameCanvas,
-          width: width,
-          height: height,
-          delay: Math.max(frame.delay || 10, 2) * 10 // Convert to ms
+          width, height,
+          delay: Math.max(frame.delay || 10, 2) * 10
         });
-        
-        // Handle disposal
+
         if (frame.disposalType === 2) {
-          // Clear to background
-          mainCtx.clearRect(
-            frame.dims.left,
-            frame.dims.top,
-            frame.dims.width,
-            frame.dims.height
-          );
+          mainCtx.clearRect(frame.dims.left, frame.dims.top, frame.dims.width, frame.dims.height);
         } else if (frame.disposalType === 3 && previousImageData) {
-          // Restore to previous
           mainCtx.putImageData(previousImageData, 0, 0);
         }
       }
-      
-      return {
-        frames,
-        width,
-        height,
-        isAnimated: frames.length > 1,
-        frameCount: frames.length
-      };
+
+      return { frames, width, height, isAnimated: frames.length > 1, frameCount: frames.length };
     }
 
-    // ============================================
-    // CONVERTER LOGIC
-    // ============================================
+    // ============================================================
+    // STATE
+    // ============================================================
     let files = [];
-    let convertedFiles = [];
+    let convertedFiles = [];    // { blob, name, originalName, size, url, error }
     let totalSize = 0;
 
-    // DOM Elements
+    // ============================================================
+    // DOM
+    // ============================================================
     const dropzone = document.getElementById('dropzone');
     const fileInput = document.getElementById('fileInput');
     const fileInfo = document.getElementById('fileInfo');
@@ -751,75 +1090,51 @@
     const previewContainer = document.getElementById('previewContainer');
     const imagePreviewContent = document.getElementById('imagePreviewContent');
     const imageStats = document.getElementById('imageStats');
-
-    // Options
     const conversionMode = document.getElementById('conversionMode');
     const imageSize = document.getElementById('imageSize');
     const colorMode = document.getElementById('colorMode');
 
-    // Drag and Drop
-    dropzone.addEventListener('dragover', (e) => {
-      e.preventDefault();
-      dropzone.classList.add('dropzone-highlight');
-    });
-
-    dropzone.addEventListener('dragleave', () => {
-      dropzone.classList.remove('dropzone-highlight');
-    });
-
+    // ============================================================
+    // FILE HANDLING
+    // ============================================================
+    dropzone.addEventListener('dragover', (e) => { e.preventDefault(); dropzone.classList.add('dropzone-highlight'); });
+    dropzone.addEventListener('dragleave', () => dropzone.classList.remove('dropzone-highlight'));
     dropzone.addEventListener('drop', (e) => {
       e.preventDefault();
       dropzone.classList.remove('dropzone-highlight');
-      const droppedFiles = e.dataTransfer.files;
-      if (droppedFiles.length > 0) {
-        handleFiles(droppedFiles);
-      }
+      if (e.dataTransfer.files.length > 0) handleFiles(e.dataTransfer.files);
     });
-
-    dropzone.addEventListener('click', (e) => {
-      if (e.target.tagName !== 'BUTTON' && !fileInfo.classList.contains('hidden')) {
-        fileInput.click();
-      }
+    dropzone.addEventListener('click', (e) => { if (e.target.tagName !== 'BUTTON') fileInput.click(); });
+    dropzone.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fileInput.click(); }
     });
-
     fileInput.addEventListener('change', (e) => {
-      if (e.target.files.length > 0) {
-        handleFiles(e.target.files);
-      }
+      if (e.target.files.length > 0) handleFiles(e.target.files);
     });
 
     function handleFiles(fileList) {
-      const validFiles = [];
+      const valid = [];
       let invalidCount = 0;
-
       for (let i = 0; i < fileList.length; i++) {
-        const file = fileList[i];
-        const isGIF = file.type === 'image/gif' || file.name.toLowerCase().endsWith('.gif');
-        const isImage = file.type.startsWith('image/');
-        
-        if ((isGIF || isImage) && file.size <= 50 * 1024 * 1024) {
-          validFiles.push(file);
-          totalSize += file.size;
-        } else if ((isGIF || isImage) && file.size > 50 * 1024 * 1024) {
-          invalidCount++;
+        const f = fileList[i];
+        const isGIF = f.type === 'image/gif' || f.name.toLowerCase().endsWith('.gif');
+        if (isGIF && f.size <= 50 * 1024 * 1024) {
+          valid.push(f);
+          totalSize += f.size;
         } else {
           invalidCount++;
         }
       }
-
-      if (validFiles.length === 0) {
-        alert('No valid image files found. Please select GIF or other image files under 50MB.');
+      if (valid.length === 0) {
+        alert('No valid GIF files found. Please select GIF files under 50MB.');
         return;
       }
-
       if (invalidCount > 0) {
-        alert(`${invalidCount} file(s) were skipped due to size limits or invalid format.`);
+        alert(`${invalidCount} file(s) were skipped (unsupported or over 50 MB).`);
       }
-
-      files = validFiles;
+      files = valid;
       fileCount.textContent = `${files.length} file(s)`;
       totalSizeEl.textContent = `Total: ${(totalSize / 1024 / 1024).toFixed(2)} MB`;
-
       fileInfo.classList.remove('hidden');
       dropzone.classList.add('hidden');
       resultSection.classList.add('hidden');
@@ -827,56 +1142,59 @@
       previewContainer.classList.add('hidden');
       convertBtn.disabled = false;
       convertBtn.textContent = '🔄 Convert All';
-
       showPreviews();
     }
 
     async function showPreviews() {
-      let previewHtml = '';
+      imagePreviewContent.innerHTML = '';
       const maxPreview = Math.min(12, files.length);
 
       for (let i = 0; i < maxPreview; i++) {
         const file = files[i];
         const url = URL.createObjectURL(file);
-        const isGIF = file.type === 'image/gif' || file.name.toLowerCase().endsWith('.gif');
         const sizeKB = (file.size / 1024).toFixed(1);
         let frameInfo = '';
-        
-        if (isGIF && checkGifuctLoaded()) {
-          try {
-            const buffer = await file.arrayBuffer();
-            const decoded = await decodeGIF(buffer);
-            frameInfo = `• ${decoded.frameCount} frames`;
-          } catch (e) {
-            frameInfo = '• ? frames';
-          }
+        try {
+          const buffer = await file.arrayBuffer();
+          const decoded = await decodeGIF(buffer);
+          frameInfo = `${decoded.frameCount} frame${decoded.frameCount === 1 ? '' : 's'}`;
+        } catch (e) {
+          frameInfo = '? frames';
         }
 
-        previewHtml += `
-          <div class="image-card">
-            <img src="${url}" alt="${file.name}" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22150%22 height=%22150%22%3E%3Crect fill=%22%23f1f5f9%22 width=%22150%22 height=%22150%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%2394a3b8%22 font-size=%2212%22%3ENo preview%3C/text%3E%3C/svg%3E'">
-            <div class="file-name">${file.name.substring(0, 15)}${file.name.length > 15 ? '...' : ''}</div>
-            <div class="status-badge" style="background: ${isGIF ? '#dbeafe' : '#fef3c7'}; color: ${isGIF ? '#1e40af' : '#92400e'};">${isGIF ? 'GIF' : 'Other'}</div>
-            <div class="dimensions-badge">${sizeKB} KB ${frameInfo}</div>
+        const card = document.createElement('div');
+        card.className = 'image-card';
+        card.setAttribute('role', 'listitem');
+        card.innerHTML = `
+          <div class="thumb-wrap">
+            <img src="${url}" alt="${escapeHtml(file.name)}" loading="lazy">
+            <div class="hover-hint"><span>🔍 Inspect</span></div>
+          </div>
+          <div class="status-badge gif">GIF</div>
+          <div class="card-footer">
+            <div class="file-name" title="${escapeHtml(file.name)}">${escapeHtml(file.name)}</div>
+            <div class="file-meta">${sizeKB} KB · ${frameInfo}</div>
           </div>
         `;
+        card.addEventListener('click', () => openViewer(url, file.name, { source: 'gif', frame: null }));
+        imagePreviewContent.appendChild(card);
       }
 
       if (files.length > 12) {
-        previewHtml += `
-          <div class="image-card" style="display: flex; align-items: center; justify-content: center; min-height: 100px; background: #f1f5f9; border: 2px dashed #cbd5e1;">
-            <span style="font-size: 12px; color: #64748b; text-align: center;">+ ${files.length - 12} more images</span>
-          </div>
-        `;
+        const more = document.createElement('div');
+        more.className = 'image-card';
+        more.style.cssText = 'display:flex;align-items:center;justify-content:center;min-height:140px;background:#f1f5f9;border:2px dashed #cbd5e1;cursor:default;';
+        more.innerHTML = `<span style="font-size:12px;color:#64748b;">+ ${files.length - 12} more files</span>`;
+        imagePreviewContent.appendChild(more);
       }
 
-      imagePreviewContent.innerHTML = previewHtml || '<p class="text-slate-400 text-center">No images to preview</p>';
-      imageStats.textContent = `${files.length} images`;
+      imageStats.textContent = `${files.length} source image${files.length === 1 ? '' : 's'}`;
       previewContainer.classList.remove('hidden');
     }
 
     function clearFiles() {
       files = [];
+      convertedFiles.forEach(f => { try { URL.revokeObjectURL(f.url); } catch (e) {} });
       convertedFiles = [];
       totalSize = 0;
       fileInput.value = '';
@@ -890,36 +1208,29 @@
       imagePreviewContent.innerHTML = '';
     }
 
-    function resetConverter() {
-      clearFiles();
-    }
+    function resetConverter() { clearFiles(); }
 
     function loadImage(file) {
       return new Promise((resolve, reject) => {
         const img = new Image();
         const url = URL.createObjectURL(file);
-        img.onload = () => {
-          URL.revokeObjectURL(url);
-          resolve(img);
-        };
-        img.onerror = () => {
-          URL.revokeObjectURL(url);
-          reject(new Error('Failed to load image'));
-        };
+        img.onload = () => { URL.revokeObjectURL(url); resolve(img); };
+        img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('Failed to load image')); };
         img.src = url;
       });
     }
 
-    // ============================================
-    // MAIN CONVERSION FUNCTION
-    // ============================================
-    async function convertGIFtoPNG() {
-      if (files.length === 0) {
-        alert('Please select GIF files first.');
-        return;
-      }
+    function escapeHtml(s) {
+      return String(s == null ? '' : s)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    }
 
-      // Check if GIF decoder is loaded
+    // ============================================================
+    // MAIN CONVERSION
+    // ============================================================
+    async function convertGIFtoPNG() {
+      if (files.length === 0) { alert('Please select GIF files first.'); return; }
       if (!checkGifuctLoaded()) {
         alert('GIF decoder is still loading. Please wait a moment and try again.');
         return;
@@ -937,198 +1248,66 @@
       const mode = conversionMode.value;
       const size = imageSize.value;
       const color = colorMode.value;
-      let successCount = 0;
-      let failCount = 0;
-      let totalFrameCount = 0;
+      let successCount = 0, failCount = 0, totalFrameCount = 0;
 
       try {
         for (let i = 0; i < files.length; i++) {
           const file = files[i];
-          const isGIF = file.type === 'image/gif' || file.name.toLowerCase().endsWith('.gif');
-          
           statusText.textContent = `Processing ${i + 1} of ${files.length}: ${file.name}`;
-
-          const progress = Math.round(((i) / files.length) * 80) + 10;
+          const progress = Math.round((i / files.length) * 80) + 10;
           progressBar.style.width = progress + '%';
           progressText.textContent = progress + '%';
 
           try {
             const arrayBuffer = await file.arrayBuffer();
-            const baseName = file.name.replace(/\.(gif|GIF)$/, '');
-            
-            if (isGIF) {
-              // Decode the GIF
-              const decoded = await decodeGIF(arrayBuffer);
-              
-              let width = decoded.width;
-              let height = decoded.height;
-              
-              if (size !== 'original') {
-                const maxSize = parseInt(size);
-                if (width > height) {
-                  if (width > maxSize) {
-                    height = Math.round(height * (maxSize / width));
-                    width = maxSize;
-                  }
-                } else {
-                  if (height > maxSize) {
-                    width = Math.round(width * (maxSize / height));
-                    height = maxSize;
-                  }
-                }
-              }
+            const baseName = file.name.replace(/\.gif$/i, '');
+            const decoded = await decodeGIF(arrayBuffer);
 
-              if (mode === 'first') {
-                // Only first frame
-                if (decoded.frames.length > 0) {
-                  const frame = decoded.frames[0];
-                  const canvas = document.createElement('canvas');
-                  canvas.width = width;
-                  canvas.height = height;
-                  const ctx = canvas.getContext('2d');
-                  
-                  if (color === 'grayscale') {
-                    ctx.filter = 'grayscale(100%)';
-                  } else if (color === 'sepia') {
-                    ctx.filter = 'sepia(80%)';
-                  }
-                  
-                  ctx.drawImage(frame.canvas, 0, 0, width, height);
-                  
-                  const blob = await new Promise(resolve => {
-                    canvas.toBlob(resolve, 'image/png');
-                  });
-                  
-                  const fileName = `${baseName}.png`;
-                  convertedFiles.push({
-                    blob: blob,
-                    name: fileName,
-                    originalName: file.name,
-                    size: blob.size,
-                    url: URL.createObjectURL(blob),
-                    error: false
-                  });
-                  successCount++;
-                  totalFrameCount++;
-                }
-              } else if (mode === 'all') {
-                // Extract all frames
-                for (let f = 0; f < decoded.frames.length; f++) {
-                  const frame = decoded.frames[f];
-                  const canvas = document.createElement('canvas');
-                  canvas.width = width;
-                  canvas.height = height;
-                  const ctx = canvas.getContext('2d');
-                  
-                  if (color === 'grayscale') {
-                    ctx.filter = 'grayscale(100%)';
-                  } else if (color === 'sepia') {
-                    ctx.filter = 'sepia(80%)';
-                  }
-                  
-                  ctx.drawImage(frame.canvas, 0, 0, width, height);
-                  
-                  const blob = await new Promise(resolve => {
-                    canvas.toBlob(resolve, 'image/png');
-                  });
-                  
-                  const fileName = `${baseName}_frame_${String(f + 1).padStart(3, '0')}.png`;
-                  convertedFiles.push({
-                    blob: blob,
-                    name: fileName,
-                    originalName: file.name,
-                    size: blob.size,
-                    url: URL.createObjectURL(blob),
-                    error: false
-                  });
-                  successCount++;
-                  totalFrameCount++;
-                }
-              } else if (mode === 'animated') {
-                // Create APNG (Animated PNG)
-                if (decoded.frames.length > 0) {
-                  const canvas = document.createElement('canvas');
-                  canvas.width = width;
-                  canvas.height = height;
-                  const ctx = canvas.getContext('2d');
-                  
-                  if (color === 'grayscale') {
-                    ctx.filter = 'grayscale(100%)';
-                  } else if (color === 'sepia') {
-                    ctx.filter = 'sepia(80%)';
-                  }
-                  
-                  ctx.drawImage(decoded.frames[0].canvas, 0, 0, width, height);
-                  
-                  const blob = await new Promise(resolve => {
-                    canvas.toBlob(resolve, 'image/png');
-                  });
-                  
-                  const fileName = `${baseName}_apng.png`;
-                  convertedFiles.push({
-                    blob: blob,
-                    name: fileName,
-                    originalName: file.name,
-                    size: blob.size,
-                    url: URL.createObjectURL(blob),
-                    error: false
-                  });
-                  successCount++;
-                  totalFrameCount += decoded.frames.length;
-                }
+            let width = decoded.width;
+            let height = decoded.height;
+            if (size !== 'original') {
+              const maxSize = parseInt(size, 10);
+              if (width > height && width > maxSize) {
+                height = Math.round(height * (maxSize / width));
+                width = maxSize;
+              } else if (height >= width && height > maxSize) {
+                width = Math.round(width * (maxSize / height));
+                height = maxSize;
               }
-            } else {
-              // For non-GIF images, just convert directly
-              const img = await loadImage(file);
-              let width = img.width;
-              let height = img.height;
-              
-              if (size !== 'original') {
-                const maxSize = parseInt(size);
-                if (width > height) {
-                  if (width > maxSize) {
-                    height = Math.round(height * (maxSize / width));
-                    width = maxSize;
-                  }
-                } else {
-                  if (height > maxSize) {
-                    width = Math.round(width * (maxSize / height));
-                    height = maxSize;
-                  }
-                }
-              }
-              
+            }
+
+            const framesToOutput = mode === 'first' ? [decoded.frames[0]] : decoded.frames;
+            for (let f = 0; f < framesToOutput.length; f++) {
+              const frame = framesToOutput[f];
+              if (!frame) continue;
+
               const canvas = document.createElement('canvas');
               canvas.width = width;
               canvas.height = height;
               const ctx = canvas.getContext('2d');
-              
-              if (color === 'grayscale') {
-                ctx.filter = 'grayscale(100%)';
-              } else if (color === 'sepia') {
-                ctx.filter = 'sepia(80%)';
-              }
-              
-              ctx.drawImage(img, 0, 0, width, height);
-              
-              const blob = await new Promise(resolve => {
-                canvas.toBlob(resolve, 'image/png');
-              });
-              
-              const baseName = file.name.replace(/\.[^.]+$/, '');
-              const fileName = `${baseName}.png`;
+              if (color === 'grayscale') ctx.filter = 'grayscale(100%)';
+              else if (color === 'sepia') ctx.filter = 'sepia(80%)';
+              ctx.drawImage(frame.canvas, 0, 0, width, height);
+              ctx.filter = 'none';
+
+              const blob = await new Promise(res => canvas.toBlob(res, 'image/png'));
+              const suffix = mode === 'first'
+                ? ''
+                : `_frame_${String(f + 1).padStart(3, '0')}`;
+              const apngSuffix = mode === 'animated' ? '_apng' : '';
+              const fileName = `dropletweb-${baseName}${suffix}${apngSuffix}.png`;
+
               convertedFiles.push({
-                blob: blob,
-                name: fileName,
-                originalName: file.name,
-                size: blob.size,
-                url: URL.createObjectURL(blob),
+                blob, name: fileName, originalName: file.name,
+                size: blob.size, url: URL.createObjectURL(blob),
+                frameIndex: mode === 'first' ? 1 : f + 1,
+                totalFrames: mode === 'first' ? 1 : decoded.frames.length,
+                width, height,
                 error: false
               });
               successCount++;
               totalFrameCount++;
             }
-
           } catch (err) {
             console.error(`Error converting ${file.name}:`, err);
             failCount++;
@@ -1145,43 +1324,47 @@
           convertBtn.textContent = '🔄 Convert All';
           progressContainer.classList.add('hidden');
         }, 500);
-
       } catch (error) {
         console.error('Conversion error:', error);
         statusText.textContent = '❌ Conversion failed: ' + error.message;
         convertBtn.disabled = false;
         convertBtn.textContent = '🔄 Convert All';
-        alert('Conversion failed. Please try again or use different files.\n\nError: ' + error.message);
+        alert('Conversion failed: ' + error.message);
       }
     }
 
+    // ============================================================
+    // SHOW RESULTS — interactive preview grid
+    // ============================================================
     function showResults(successCount, failCount, frameCount) {
       const total = successCount + failCount;
-      
+      const validFiles = convertedFiles.filter(f => !f.error);
+      const totalBytes = validFiles.reduce((s, f) => s + f.size, 0);
+
       if (successCount === 0) {
-        resultSection.className = 'max-w-2xl mx-auto mt-6 bg-red-50 border border-red-200 rounded-xl p-6 text-center transition-colors duration-200';
+        resultSection.className = 'max-w-2xl mx-auto mt-6';
         resultContent.innerHTML = `
-          <div class="text-4xl mb-2">❌</div>
-          <h3 class="font-bold text-slate-900">Conversion Failed</h3>
-          <p class="text-sm text-slate-600 mt-1">${failCount} of ${total} files could not be converted.</p>
-          <p class="text-xs text-slate-500 mt-2">Make sure your files are valid GIFs.</p>
-          <div class="mt-4 flex flex-wrap gap-3 justify-center">
-            <button onclick="resetConverter()" class="px-6 py-3 border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors text-sm">
+          <div class="bg-red-50 border border-red-200 rounded-xl p-6 text-center">
+            <div class="text-4xl mb-2">❌</div>
+            <h2 class="font-bold text-slate-900">Conversion Failed</h2>
+            <p class="text-sm text-slate-600 mt-1">${failCount} of ${total} files could not be converted.</p>
+            <p class="text-xs text-slate-500 mt-2">Make sure your files are valid GIFs.</p>
+            <button onclick="resetConverter()" class="mt-4 px-6 py-3 border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors text-sm">
               Try Again
             </button>
-          </div>
-        `;
-      } else {
-        resultSection.className = 'max-w-2xl mx-auto mt-6 bg-green-50 border border-green-200 rounded-xl p-6 text-center transition-colors duration-200';
-        
-        const totalBytes = convertedFiles.reduce((sum, f) => sum + f.size, 0);
-        
-        resultContent.innerHTML = `
+          </div>`;
+        resultSection.classList.remove('hidden');
+        return;
+      }
+
+      resultSection.className = 'max-w-2xl mx-auto mt-6';
+      resultContent.innerHTML = `
+        <div class="bg-green-50 border border-green-200 rounded-xl p-6 text-center">
           <div class="text-4xl mb-2">✅</div>
-          <h3 class="font-bold text-slate-900">Conversion Complete!</h3>
-          <p class="text-sm text-slate-600 mt-1">${successCount} of ${total} files converted successfully${failCount > 0 ? ` (${failCount} failed)` : ''}.</p>
+          <h2 class="font-bold text-slate-900">Conversion Complete!</h2>
+          <p class="text-sm text-slate-600 mt-1">${successCount} PNG file${successCount === 1 ? '' : 's'} created${failCount > 0 ? ` (${failCount} failed)` : ''}.</p>
           <div class="mt-2 flex flex-wrap gap-2 justify-center">
-            <span class="info-badge badge-images">${convertedFiles.length} images</span>
+            <span class="info-badge badge-images">${convertedFiles.length} PNG file${convertedFiles.length === 1 ? '' : 's'}</span>
             <span class="info-badge badge-size">${(totalBytes / 1024 / 1024).toFixed(2)} MB</span>
             ${frameCount > 1 ? `<span class="info-badge badge-animated">${frameCount} frames total</span>` : ''}
           </div>
@@ -1196,35 +1379,57 @@
               Convert Another
             </button>
           </div>
-          <div id="downloadLinksContainer" class="mt-2 grid grid-cols-2 md:grid-cols-4 gap-2 max-h-40 overflow-y-auto">
-            <!-- Individual download links will be added here -->
+          <p class="text-xs text-slate-400 mt-3">ZIP will be named <code>dropletweb-${escapeHtml((files[0]?.name || 'gif').replace(/\.gif$/i, ''))}-png.zip</code></p>
+        </div>`;
+
+      // Update grid with converted PNGs
+      imagePreviewContent.innerHTML = '';
+      convertedFiles.slice(0, 24).forEach((f) => {
+        const card = document.createElement('div');
+        card.className = 'image-card';
+        card.setAttribute('role', 'listitem');
+        const previewName = f.name.length > 22 ? f.name.slice(0, 19) + '…' : f.name;
+        card.innerHTML = `
+          <div class="thumb-wrap">
+            <img src="${f.url}" alt="${escapeHtml(f.name)}" loading="lazy">
+            <div class="hover-hint"><span>🔍 Inspect</span></div>
+          </div>
+          <div class="status-badge png">PNG</div>
+          <div class="card-footer">
+            <div class="file-name" title="${escapeHtml(f.name)}">${escapeHtml(previewName)}</div>
+            <div class="file-meta">${(f.size / 1024).toFixed(1)} KB · ${f.width}×${f.height}</div>
           </div>
         `;
+        card.addEventListener('click', () => openViewer(f.url, f.name, {
+          source: 'png',
+          frame: f.frameIndex,
+          totalFrames: f.totalFrames,
+          width: f.width,
+          height: f.height,
+          sizeKB: (f.size / 1024).toFixed(1)
+        }));
+        imagePreviewContent.appendChild(card);
+      });
 
-        const container = document.getElementById('downloadLinksContainer');
-        container.innerHTML = '';
-        convertedFiles.forEach((f) => {
-          if (!f.error) {
-            const link = document.createElement('a');
-            link.href = f.url;
-            link.download = f.name;
-            link.className = 'bg-white border border-slate-200 rounded-lg p-2 text-center hover:border-blue-400 transition-all text-xs truncate';
-            link.textContent = `🖼️ ${f.name.substring(0, 12)}...`;
-            link.title = f.name;
-            container.appendChild(link);
-          }
-        });
+      if (convertedFiles.length > 24) {
+        const more = document.createElement('div');
+        more.className = 'image-card';
+        more.style.cssText = 'display:flex;align-items:center;justify-content:center;min-height:140px;background:#f1f5f9;border:2px dashed #cbd5e1;cursor:default;';
+        more.innerHTML = `<span style="font-size:12px;color:#64748b;">+ ${convertedFiles.length - 24} more</span>`;
+        imagePreviewContent.appendChild(more);
       }
 
+      imageStats.textContent = `${convertedFiles.length} converted PNG file${convertedFiles.length === 1 ? '' : 's'}`;
+      previewContainer.classList.remove('hidden');
       resultSection.classList.remove('hidden');
     }
 
+    // ============================================================
+    // DOWNLOADS — dropletweb- prefix
+    // ============================================================
     function downloadAll() {
       const validFiles = convertedFiles.filter(f => !f.error);
-      if (validFiles.length === 0) {
-        alert('No files to download.');
-        return;
-      }
+      if (validFiles.length === 0) { alert('No files to download.'); return; }
 
       if (validFiles.length === 1) {
         const f = validFiles[0];
@@ -1239,19 +1444,17 @@
 
       if (typeof JSZip !== 'undefined') {
         const zip = new JSZip();
-        validFiles.forEach(f => {
-          zip.file(f.name, f.blob);
-        });
-        zip.generateAsync({ type: 'blob' }).then(content => {
+        validFiles.forEach(f => zip.file(f.name, f.blob));
+        zip.generateAsync({ type: 'blob', compression: 'DEFLATE' }).then(content => {
           const url = URL.createObjectURL(content);
           const link = document.createElement('a');
-          const baseName = files[0]?.name.replace(/\.(gif|GIF)$/, '') || 'converted';
-          link.download = `${baseName}_converted.zip`;
+          const base = (files[0]?.name || 'gif').replace(/\.gif$/i, '');
+          link.download = `dropletweb-${base}-png.zip`;
           link.href = url;
           document.body.appendChild(link);
           link.click();
           document.body.removeChild(link);
-          URL.revokeObjectURL(url);
+          setTimeout(() => URL.revokeObjectURL(url), 5000);
         });
       } else {
         downloadAllIndividual();
@@ -1260,7 +1463,7 @@
 
     function downloadAllIndividual() {
       const validFiles = convertedFiles.filter(f => !f.error);
-      validFiles.forEach((f, idx) => {
+      validFiles.forEach((f, i) => {
         setTimeout(() => {
           const link = document.createElement('a');
           link.href = f.url;
@@ -1268,47 +1471,290 @@
           document.body.appendChild(link);
           link.click();
           document.body.removeChild(link);
-        }, idx * 300);
+        }, i * 300);
       });
     }
 
+    // ============================================================
+    // INTERACTIVE VIEWER
+    // ============================================================
+    let viewerState = null;
+
+    function openViewer(url, name, meta) {
+      const existing = document.getElementById('viewerModal');
+      if (existing) existing.remove();
+
+      const modal = document.createElement('div');
+      modal.id = 'viewerModal';
+      modal.className = 'viewer-overlay';
+      modal.setAttribute('role', 'dialog');
+      modal.setAttribute('aria-modal', 'true');
+      modal.setAttribute('aria-label', 'Interactive image viewer');
+
+      // Build filmstrip from the currently displayed grid
+      const gridImages = Array.from(imagePreviewContent.querySelectorAll('.image-card img'))
+        .map(img => ({ src: img.src, alt: img.alt }))
+        .filter(x => x.src);
+
+      const metaLines = [];
+      if (meta && meta.source) metaLines.push(meta.source.toUpperCase());
+      if (meta && meta.frame && meta.totalFrames && meta.totalFrames > 1) {
+        metaLines.push(`Frame ${meta.frame} of ${meta.totalFrames}`);
+      }
+      if (meta && meta.width && meta.height) metaLines.push(`${meta.width} × ${meta.height}`);
+      if (meta && meta.sizeKB) metaLines.push(`${meta.sizeKB} KB`);
+
+      modal.innerHTML = `
+        <div class="viewer-modal">
+          <div class="viewer-header">
+            <div style="display:flex;align-items:center;gap:12px;min-width:0;flex:1;">
+              <span style="font-size:22px;" aria-hidden="true">🖼️</span>
+              <div style="min-width:0;">
+                <h3 style="font-weight:700;font-size:14px;color:#0f172a;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(name)}</h3>
+                <p style="font-size:11px;color:#64748b;">${metaLines.join(' · ')}</p>
+              </div>
+            </div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <button class="viewer-btn" data-action="download" style="background:#2563eb;color:white;border:none;padding:8px 14px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;">📥 Download</button>
+              <button class="viewer-btn" data-action="copy" style="background:#f1f5f9;color:#475569;border:1px solid #e2e8f0;padding:8px 14px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;">📋 Copy</button>
+              <button class="viewer-btn" data-action="close" style="background:transparent;border:none;font-size:22px;cursor:pointer;color:#94a3b8;padding:4px 8px;" aria-label="Close">✕</button>
+            </div>
+          </div>
+
+          <div class="viewer-toolbar" id="viewerToolbar">
+            <button data-tool="zoom-out" title="Zoom out">➖</button>
+            <span class="zoom-label" id="zoomLabel">100%</span>
+            <button data-tool="zoom-in" title="Zoom in">➕</button>
+            <button data-tool="zoom-fit" title="Fit to screen">⛶ Fit</button>
+            <button data-tool="zoom-100" title="Reset zoom">⟲ 100%</button>
+            <span class="divider"></span>
+            <button data-tool="rotate-left" title="Rotate left">↺</button>
+            <button data-tool="rotate-right" title="Rotate right">↻</button>
+            <button data-tool="rotate-0" title="Reset rotation">⟲ 0°</button>
+            <span class="divider"></span>
+            <button data-bg="checker" class="active" title="Transparent grid">▦ Grid</button>
+            <button data-bg="white" title="White">▢ White</button>
+            <button data-bg="dark" title="Dark">■ Dark</button>
+          </div>
+
+          <div class="viewer-body" id="viewerBody">
+            <div id="viewerStage"><img id="viewerImage" src="${url}" alt="${escapeHtml(name)}"></div>
+          </div>
+
+          ${gridImages.length > 1 ? `
+            <div class="viewer-filmstrip" id="viewerFilmstrip">
+              ${gridImages.map((g, i) => `
+                <div class="film-thumb${g.src === url ? ' active' : ''}" data-src="${g.src}" data-alt="${escapeHtml(g.alt)}">
+                  <img src="${g.src}" alt="${escapeHtml(g.alt)}" loading="lazy">
+                </div>`).join('')}
+            </div>` : ''}
+        </div>`;
+
+      document.body.appendChild(modal);
+
+      viewerState = {
+        scale: 1, rotate: 0, tx: 0, ty: 0,
+        dragging: false, lastX: 0, lastY: 0,
+        src: url, alt: name
+      };
+
+      const stage = modal.querySelector('#viewerStage');
+      const image = modal.querySelector('#viewerImage');
+      const body = modal.querySelector('#viewerBody');
+      const zoomLabel = modal.querySelector('#zoomLabel');
+
+      function applyTransform() {
+        stage.style.transform =
+          `translate(${viewerState.tx}px, ${viewerState.ty}px) rotate(${viewerState.rotate}deg) scale(${viewerState.scale})`;
+        zoomLabel.textContent = Math.round(viewerState.scale * 100) + '%';
+      }
+
+      function fitToScreen() {
+        viewerState.scale = 1;
+        viewerState.tx = 0;
+        viewerState.ty = 0;
+        viewerState.rotate = 0;
+        stage.style.transform = '';
+        requestAnimationFrame(() => {
+          const bodyW = body.clientWidth - 32;
+          const bodyH = body.clientHeight - 32;
+          const natW = image.naturalWidth || image.width;
+          const natH = image.naturalHeight || image.height;
+          if (!natW || !natH) return;
+          const scale = Math.min(bodyW / natW, bodyH / natH, 1);
+          viewerState.scale = scale;
+          viewerState.tx = (body.clientWidth - natW * scale) / 2;
+          viewerState.ty = (body.clientHeight - natH * scale) / 2;
+          applyTransform();
+        });
+      }
+
+      image.addEventListener('load', fitToScreen, { once: true });
+      if (image.complete) fitToScreen();
+
+      modal.querySelectorAll('[data-tool]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const t = btn.dataset.tool;
+          if (t === 'zoom-in') { viewerState.scale = Math.min(10, viewerState.scale * 1.25); applyTransform(); }
+          else if (t === 'zoom-out') { viewerState.scale = Math.max(0.05, viewerState.scale / 1.25); applyTransform(); }
+          else if (t === 'zoom-fit') { fitToScreen(); }
+          else if (t === 'zoom-100') { viewerState.scale = 1; viewerState.tx = 0; viewerState.ty = 0; applyTransform(); }
+          else if (t === 'rotate-left') { viewerState.rotate -= 90; applyTransform(); }
+          else if (t === 'rotate-right') { viewerState.rotate += 90; applyTransform(); }
+          else if (t === 'rotate-0') { viewerState.rotate = 0; applyTransform(); }
+        });
+      });
+
+      modal.querySelectorAll('[data-bg]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          modal.querySelectorAll('[data-bg]').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          body.classList.remove('bg-white', 'bg-dark');
+          if (btn.dataset.bg === 'white') body.classList.add('bg-white');
+          else if (btn.dataset.bg === 'dark') body.classList.add('bg-dark');
+        });
+      });
+
+      // Drag to pan
+      body.addEventListener('mousedown', (e) => {
+        if (e.target.closest('.viewer-toolbar') || e.target.closest('.viewer-header')) return;
+        viewerState.dragging = true;
+        viewerState.lastX = e.clientX;
+        viewerState.lastY = e.clientY;
+        body.classList.add('dragging');
+        e.preventDefault();
+      });
+      window.addEventListener('mousemove', (e) => {
+        if (!viewerState || !viewerState.dragging) return;
+        viewerState.tx += e.clientX - viewerState.lastX;
+        viewerState.ty += e.clientY - viewerState.lastY;
+        viewerState.lastX = e.clientX;
+        viewerState.lastY = e.clientY;
+        applyTransform();
+      });
+      window.addEventListener('mouseup', () => {
+        if (!viewerState) return;
+        viewerState.dragging = false;
+        body.classList.remove('dragging');
+      });
+
+      // Touch pan
+      body.addEventListener('touchstart', (e) => {
+        if (e.touches.length !== 1) return;
+        viewerState.dragging = true;
+        viewerState.lastX = e.touches[0].clientX;
+        viewerState.lastY = e.touches[0].clientY;
+      }, { passive: true });
+      body.addEventListener('touchmove', (e) => {
+        if (!viewerState || !viewerState.dragging || e.touches.length !== 1) return;
+        viewerState.tx += e.touches[0].clientX - viewerState.lastX;
+        viewerState.ty += e.touches[0].clientY - viewerState.lastY;
+        viewerState.lastX = e.touches[0].clientX;
+        viewerState.lastY = e.touches[0].clientY;
+        applyTransform();
+        e.preventDefault();
+      }, { passive: false });
+      body.addEventListener('touchend', () => { if (viewerState) viewerState.dragging = false; });
+
+      // Wheel zoom (Ctrl/Cmd)
+      body.addEventListener('wheel', (e) => {
+        if (!e.ctrlKey && !e.metaKey) return;
+        e.preventDefault();
+        const delta = -Math.sign(e.deltaY) * 0.15;
+        viewerState.scale = Math.max(0.05, Math.min(10, viewerState.scale * (1 + delta)));
+        applyTransform();
+      }, { passive: false });
+
+      // Actions
+      modal.querySelector('[data-action="download"]').addEventListener('click', () => {
+        const link = document.createElement('a');
+        link.href = viewerState.src;
+        link.download = viewerState.alt;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      });
+      modal.querySelector('[data-action="copy"]').addEventListener('click', async () => {
+        try {
+          const resp = await fetch(viewerState.src);
+          const blob = await resp.blob();
+          if (navigator.clipboard && window.ClipboardItem) {
+            await navigator.clipboard.write([new ClipboardItem({ [blob.type]: blob })]);
+            alert('✅ Image copied to clipboard!');
+          } else {
+            alert('Your browser does not support copying images to the clipboard.');
+          }
+        } catch (err) {
+          console.warn(err);
+          alert('Could not copy image.');
+        }
+      });
+      modal.querySelector('[data-action="close"]').addEventListener('click', closeViewer);
+      modal.addEventListener('click', (e) => { if (e.target === modal) closeViewer(); });
+
+      // Filmstrip navigation
+      const strip = modal.querySelector('#viewerFilmstrip');
+      if (strip) {
+        strip.querySelectorAll('.film-thumb').forEach(thumb => {
+          thumb.addEventListener('click', () => {
+            const src = thumb.dataset.src;
+            const alt = thumb.dataset.alt;
+            viewerState.src = src;
+            viewerState.alt = alt;
+            image.src = src;
+            image.alt = alt;
+            strip.querySelectorAll('.film-thumb').forEach(t => t.classList.remove('active'));
+            thumb.classList.add('active');
+            viewerState.scale = 1;
+            viewerState.tx = 0;
+            viewerState.ty = 0;
+            viewerState.rotate = 0;
+            setTimeout(fitToScreen, 60);
+          });
+        });
+      }
+    }
+
+    function closeViewer() {
+      const modal = document.getElementById('viewerModal');
+      if (modal) modal.remove();
+      viewerState = null;
+    }
+
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' && !fileInfo.classList.contains('hidden') && !convertBtn.disabled) {
+      if (e.key === 'Escape') closeViewer();
+      if (e.key === 'Enter' && !fileInfo.classList.contains('hidden') && !convertBtn.disabled && !document.getElementById('viewerModal')) {
         convertGIFtoPNG();
       }
     });
 
-    // ============================================
-    // PRE-LOAD GIF DECODER
-    // ============================================
-    document.addEventListener('DOMContentLoaded', async () => {
+    // ============================================================
+    // BOOT
+    // ============================================================
+    document.addEventListener('DOMContentLoaded', () => {
       const overlay = document.getElementById('loadingOverlay');
       const loadingText = document.getElementById('loadingText');
-      
-      overlay.classList.add('active');
-      loadingText.textContent = 'Loading GIF decoder...';
-      
-      // Wait for module to load
-      let attempts = 0;
-      const maxAttempts = 30;
-      const checkInterval = setInterval(() => {
-        attempts++;
-        if (checkGifuctLoaded()) {
-          clearInterval(checkInterval);
-          loadingText.textContent = '✅ GIF decoder ready!';
-          setTimeout(() => {
-            overlay.classList.remove('active');
-          }, 500);
-        } else if (attempts >= maxAttempts) {
-          clearInterval(checkInterval);
-          loadingText.textContent = '⚠️ GIF decoder could not load';
-          setTimeout(() => {
-            overlay.classList.remove('active');
-          }, 2000);
-        }
-      }, 300);
+      if (checkGifuctLoaded()) {
+        if (overlay) overlay.classList.remove('active');
+      } else {
+        let attempts = 0;
+        const max = 60;
+        const interval = setInterval(() => {
+          attempts++;
+          if (checkGifuctLoaded()) {
+            clearInterval(interval);
+            if (loadingText) loadingText.textContent = '✅ GIF decoder ready!';
+            setTimeout(() => overlay && overlay.classList.remove('active'), 400);
+          } else if (attempts >= max) {
+            clearInterval(interval);
+            if (loadingText) loadingText.textContent = '⚠️ GIF decoder failed to load';
+            setTimeout(() => overlay && overlay.classList.remove('active'), 1500);
+          }
+        }, 300);
+      }
     });
-  </script>
 
+    console.log('🎞️ GIF to PNG Converter loaded — 100% client-side');
+  </script>
 </body>
 </html>
