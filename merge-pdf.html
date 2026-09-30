@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Merge PDF - Droplet</title>
-  <meta name="description" content="Merge multiple PDFs into one. Drag to reorder, manage pages, and download. 100% client-side.">
+  <title>Merge PDF Online Free – Combine PDF Files & Reorder Pages | Droplet</title>
+  <meta name="description" content="Merge multiple PDFs into one file. Drag to reorder documents, manage individual pages, rotate, duplicate, delete, and add pages from other PDFs. 100% client-side, private, and free.">
+  <link rel="canonical" href="https://dropletweb.xyz/merge-pdf.html">
 
   <!-- Google AdSense -->
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4006702663328202"
@@ -156,6 +157,79 @@
       #manageModal { padding: 0; }
     }
 
+    /* ============================================================ */
+    /* SEO CONTENT                                                    */
+    /* ============================================================ */
+    .seo-content {
+      max-width: 42rem;
+      margin: 2.5rem auto 1rem;
+      color: #334155;
+      line-height: 1.65;
+    }
+    .seo-content h2 {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #0f172a;
+      margin: 2rem 0 0.5rem;
+    }
+    .seo-content p {
+      margin-bottom: 1rem;
+      font-size: 0.95rem;
+    }
+    .seo-content ul {
+      padding-left: 1.4rem;
+      margin-bottom: 1rem;
+      font-size: 0.95rem;
+    }
+    .seo-content li {
+      margin-bottom: 0.3rem;
+    }
+    .faq-section {
+      max-width: 42rem;
+      margin: 2rem auto;
+    }
+    .faq-section h2 {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #0f172a;
+      text-align: center;
+      margin-bottom: 1.25rem;
+    }
+    .faq-section details {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 0.75rem;
+      padding: 0.75rem 1.25rem;
+      margin-bottom: 0.6rem;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .faq-section summary {
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: #0f172a;
+      cursor: pointer;
+      list-style: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .faq-section summary::-webkit-details-marker { display: none; }
+    .faq-section summary::after {
+      content: "➕";
+      font-size: 0.8rem;
+      color: #94a3b8;
+      transition: transform 0.2s;
+    }
+    .faq-section details[open] summary::after {
+      content: "➖";
+    }
+    .faq-section details p {
+      margin-top: 0.6rem;
+      font-size: 0.9rem;
+      color: #475569;
+      line-height: 1.6;
+    }
+
     /* Dark mode */
     html.dark body { background: #0f172a; color: #e2e8f0; }
     html.dark header { background: #1e293b; border-color: #334155; }
@@ -199,6 +273,12 @@
     html.dark .sort-btn:hover { background: #334155; }
     html.dark .action-btn { background: #1e293b; border-color: #475569; color: #e2e8f0; }
     html.dark .action-btn:hover { background: #334155; }
+    html.dark .seo-content { color: #cbd5e1; }
+    html.dark .seo-content h2 { color: #f1f5f9; }
+    html.dark .faq-section h2 { color: #f1f5f9; }
+    html.dark .faq-section details { background: #1e293b; border-color: #334155; }
+    html.dark .faq-section summary { color: #f1f5f9; }
+    html.dark .faq-section details p { color: #94a3b8; }
   </style>
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans antialiased transition-colors duration-200">
@@ -273,7 +353,7 @@
           <div id="fileList" class="space-y-3"></div>
         </div>
 
-        <!-- DESKTOP SUMMARY PANEL – using custom class, no Tailwind visibility conflict -->
+        <!-- DESKTOP SUMMARY PANEL -->
         <div class="desktop-merge-panel w-80 flex-shrink-0">
           <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 sticky top-24 transition-colors duration-200">
             <div class="flex items-center justify-between mb-4">
@@ -358,30 +438,307 @@
       </div>
     </div>
 
-    <section class="max-w-2xl mx-auto mt-8 md:mt-12">
-      <h2 class="text-xl font-black text-slate-900 text-center mb-6">Frequently Asked Questions</h2>
-      <div class="space-y-3">
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">Is my data safe?</h3>
-          <p class="text-slate-600 text-sm mt-1">Yes! All merging happens locally in your browser. Your PDF files are never uploaded to any server.</p>
-        </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">Will page sizes be preserved?</h3>
-          <p class="text-slate-600 text-sm mt-1">Yes. Each page keeps its original dimensions (A4, Letter, A3, landscape, etc.).</p>
-        </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">Can I reorder pages inside a PDF?</h3>
-          <p class="text-slate-600 text-sm mt-1">Yes! Tap "Manage Pages" on any card to reorder, rotate, duplicate, or delete individual pages.</p>
-        </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">Can I add pages from another PDF?</h3>
-          <p class="text-slate-600 text-sm mt-1">Yes! Inside Manage Pages, use the "Add Pages" button to insert pages from any other PDF you've uploaded.</p>
-        </div>
-      </div>
+    <!-- ============================================================ -->
+    <!-- SEO CONTENT — Merge PDF long-tail keywords                    -->
+    <!-- ============================================================ -->
+    <section class="seo-content">
+      <h2>How Document Order Works</h2>
+      <p>
+        The final merged PDF is built by reading your file list from top to bottom. The first file
+        in the list becomes the first pages of the merged PDF, the second file follows, and so on.
+        Within each file, the page order is whatever you have set in the "Manage Pages" panel.
+      </p>
+      <p>
+        For example, if you have three files in the list — <em>Contract.pdf</em>,
+        <em>Invoice.pdf</em>, and <em>Notes.pdf</em> — the merged PDF will be:
+      </p>
+      <ul>
+        <li>All pages of Contract.pdf (in their current order)</li>
+        <li>Then all pages of Invoice.pdf</li>
+        <li>Then all pages of Notes.pdf</li>
+      </ul>
+      <p>
+        If you drag Invoice.pdf above Contract.pdf, the merged PDF becomes Invoice first, then
+        Contract, then Notes. The order you see on screen is the order you get in the output.
+      </p>
+
+      <h2>Drag and Drop to Reorder Files</h2>
+      <p>
+        Each PDF appears as a card in the file list. To change the order, click and hold a card
+        (or long-press on a touch screen), then drag it up or down. A ghost outline shows where
+        the card will land. Release to drop it in place.
+      </p>
+      <p>
+        The drag handle is the entire card, so you can grab it from anywhere except the "Manage
+        Pages" button and the remove ✕ button. On touch devices there is a short 200 ms delay
+        before dragging begins — this lets you tap the card without accidentally moving it.
+      </p>
+      <p>
+        The A-Z button sorts files alphabetically by filename. This is useful when you have many
+        files and want a predictable order, but it overrides any manual arrangement you have made.
+      </p>
+
+      <h2>Managing Individual Pages Inside a File</h2>
+      <p>
+        Click "Manage Pages" on any file card to open the page editor. Here you see a thumbnail of
+        every page in that file, and you can:
+      </p>
+      <ul>
+        <li><strong>Reorder pages</strong> — drag any page thumbnail to a new position, exactly like
+            reordering files.</li>
+        <li><strong>Rotate pages</strong> — select one or more pages and click Rotate to turn them
+            90° clockwise. Rotate four times to return to the original orientation.</li>
+        <li><strong>Duplicate pages</strong> — select a page and click Duplicate to insert a copy
+            immediately after it.</li>
+        <li><strong>Delete pages</strong> — select one or more pages and click Delete to remove them
+            from this file.</li>
+        <li><strong>Add pages from another PDF</strong> — insert pages from any other PDF you have
+            uploaded, or upload a new PDF on the spot.</li>
+        <li><strong>Select All</strong> — toggle the selection state of every page in the file.</li>
+      </ul>
+      <p>
+        All of these operations are applied to the working copy of the file. Click Done to save
+        your changes, or Cancel to discard them and return to the previous state.
+      </p>
+
+      <h2>Adding Pages From Another PDF</h2>
+      <p>
+        Inside the page editor, click "Add Pages" to open the insertion dialog. You can choose:
+      </p>
+      <ul>
+        <li><strong>An already-uploaded PDF</strong> — any other file in your current workspace.</li>
+        <li><strong>A PDF from your device</strong> — the dialog lets you pick a file from your
+            local storage and adds it to the workspace at the same time.</li>
+      </ul>
+      <p>
+        Then choose where to insert the pages:
+      </p>
+      <ul>
+        <li><strong>At beginning</strong> — the source PDF's pages become the first pages of the
+            current file.</li>
+        <li><strong>At end</strong> — the source pages are appended after the last page.</li>
+        <li><strong>After selected page</strong> — the source pages are inserted immediately after
+            the currently selected page.</li>
+      </ul>
+      <p>
+        After insertion, you can reorder, rotate, or delete the newly added pages just like any
+        other page in the file.
+      </p>
+
+      <h2>What Remains Intact in the Merge</h2>
+      <p>
+        The merge is a true PDF-level operation. Pages are copied from their source documents using
+        pdf-lib's <code>copyPages</code> method, which preserves:
+      </p>
+      <ul>
+        <li><strong>Original page dimensions</strong> — an A3 page stays A3, a Letter page stays
+            Letter, a custom-size page keeps its dimensions. Mixed-size documents merge without any
+            rescaling or letterboxing.</li>
+        <li><strong>Text and fonts</strong> — text remains selectable and searchable in the output,
+            not converted to images. Embedded fonts carry over.</li>
+        <li><strong>Vector graphics</strong> — charts, diagrams, and illustrations drawn with PDF
+            path operators stay as vectors and remain sharp at any zoom.</li>
+        <li><strong>Embedded images</strong> — photos and raster graphics are copied as-is, at their
+            original resolution.</li>
+        <li><strong>Form fields</strong> — AcroForm fields remain interactive in the merged output.
+            You can still fill them in after merging.</li>
+        <li><strong>Rotation state</strong> — a page that was already rotated in the source PDF keeps
+            its rotation, and additional rotations you apply in the editor are layered on top.</li>
+        <li><strong>Metadata on individual pages</strong> — page labels and annotations are copied
+            with the page.</li>
+      </ul>
+      <p>
+        This is fundamentally different from raster-based merging, where each page would be
+        rendered as an image before combining. Here, the pages are moved as live PDF objects.
+      </p>
+
+      <h2>What Is Not Carried Over</h2>
+      <ul>
+        <li><strong>Document-level metadata</strong> — the merged PDF starts with fresh metadata
+            (title, author, producer). The individual source files' metadata is not preserved.</li>
+        <li><strong>Bookmarks and outlines</strong> — bookmark trees are stored at the document
+            level, not the page level, so they are not copied into the merged PDF.</li>
+        <li><strong>AcroForm field names</strong> — if two source PDFs use the same field name,
+            the merged output may have naming conflicts. This is a limitation of the PDF spec,
+            not of this tool.</li>
+        <li><strong>Digital signatures</strong> — a signed PDF's signature becomes invalid once the
+            page is moved into a new document. The signature appearance may remain visible, but it
+            will not verify.</li>
+        <li><strong>Encrypted PDFs</strong> — files that require a password cannot be merged. Remove
+            the password first with a dedicated tool.</li>
+      </ul>
+
+      <h2>Practical Uses</h2>
+      <p>
+        <strong>Combining a signed contract and its appendix:</strong> Upload both PDFs, drag the
+        appendix above or below as needed, and merge. Signatures remain visible.
+      </p>
+      <p>
+        <strong>Building a report from multiple sections:</strong> Merge chapter files in order.
+        Use Manage Pages to reorder a chapter's internal pages if needed.
+      </p>
+      <p>
+        <strong>Assembling a packet with a custom cover page:</strong> Upload the cover as a
+        single-page PDF and place it first in the file list. Merge produces a packet with the cover
+        at the front.
+      </p>
+      <p>
+        <strong>Extracting and combining selected pages from multiple documents:</strong> Open each
+        file's page editor, delete the pages you don't want, then merge the reduced files. The
+        output contains only the pages you kept.
+      </p>
+      <p>
+        <strong>Rotating a scanned page and inserting it into a report:</strong> Upload the report,
+        open Manage Pages, use Add Pages to insert the scanned page from a second PDF, rotate it
+        as needed, and reposition it. Merge produces the combined document.
+      </p>
+
+      <h2>Privacy — Client-Side Merging</h2>
+      <p>
+        PDF parsing uses the open-source PDF.js library and merging uses pdf-lib. Both run entirely
+        in your browser. Your files are read into memory and never transmitted. The only external
+        resources loaded are the libraries themselves from a CDN.
+      </p>
+      <p>
+        Your workspace is saved to IndexedDB in your browser so that a page refresh does not lose
+        your progress. This data lives only on your device and is cleared when you click Start Over
+        or clear your browser storage.
+      </p>
+
+      <h2>Limitations You Should Know</h2>
+      <ul>
+        <li><strong>Encrypted PDFs are rejected.</strong> PDFs that require a password to open
+            cannot be read. Remove the password first.</li>
+        <li><strong>Very large files may be slow.</strong> Merging is done in memory. A collection
+            totalling several hundred megabytes will be slow on low-memory devices.</li>
+        <li><strong>Some malformed PDFs cannot be read.</strong> If a file is truncated or has a
+            broken cross-reference table, pdf-lib may fail to open it. The tool tries a fallback
+            path with <code>ignoreEncryption</code>, but some files are simply unreadable.</li>
+        <li><strong>Drag-and-drop does not work on all mobile browsers.</strong> The page editor
+            relies on Sortable.js, which uses touch events. It works on modern iOS Safari and
+            Chrome for Android, but older browsers may not support it. If dragging fails, you can
+            still reorder by deleting and re-adding pages in the desired sequence.</li>
+        <li><strong>No undo.</strong> Page deletions, rotations, and duplications are applied to the
+            working copy immediately. If you make a mistake, click Cancel to close the editor
+            without saving, then reopen it to start from the saved state.</li>
+      </ul>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- FAQ SECTION                                                   -->
+    <!-- ============================================================ -->
+    <section class="faq-section">
+      <h2>Merge PDF Questions</h2>
+
+      <details>
+        <summary>Is my data safe?</summary>
+        <p>
+          Yes. All merging happens locally in your browser using pdf-lib. Your PDF files are never
+          uploaded to any server. You can disconnect from the internet after the page loads and the
+          tool will continue to work.
+        </p>
+      </details>
+
+      <details>
+        <summary>Will page sizes be preserved?</summary>
+        <p>
+          Yes. Each page keeps its original dimensions. An A3 page stays A3, a Letter page stays
+          Letter, and pages of different sizes merge without any rescaling or letterboxing.
+        </p>
+      </details>
+
+      <details>
+        <summary>Will text remain selectable after merging?</summary>
+        <p>
+          Yes. The merge copies pages as live PDF objects, not as images. Text stays selectable and
+          searchable, fonts are preserved, and vector graphics stay sharp at any zoom level.
+        </p>
+      </details>
+
+      <details>
+        <summary>Can I reorder pages inside a PDF?</summary>
+        <p>
+          Yes. Click "Manage Pages" on any file card to open the page editor. Drag page thumbnails
+          to reorder, or use the Rotate, Duplicate, and Delete buttons to modify individual pages.
+          Click Done to save your changes.
+        </p>
+      </details>
+
+      <details>
+        <summary>Can I add pages from another PDF?</summary>
+        <p>
+          Yes. Inside the page editor, click "Add Pages". You can choose any other PDF already in
+          your workspace, or upload a new PDF from your device. Then choose whether to insert the
+          pages at the beginning, at the end, or after the currently selected page.
+        </p>
+      </details>
+
+      <details>
+        <summary>How do I change the order of the files?</summary>
+        <p>
+          Drag and drop the file cards in the list. The order you see on screen is the order used
+          in the merged output. You can also click the A-Z button to sort files alphabetically by
+          filename.
+        </p>
+      </details>
+
+      <details>
+        <summary>What happens to bookmarks and outlines?</summary>
+        <p>
+          Bookmark trees and document outlines are stored at the document level, not the page level.
+          They are not copied into the merged PDF. If the source PDFs had bookmarks, those are lost
+          in the merge.
+        </p>
+      </details>
+
+      <details>
+        <summary>Are AcroForm fields preserved?</summary>
+        <p>
+          Form fields are copied with their pages and remain interactive in the merged output. Note
+          that if two source PDFs use the same internal field name, there may be naming conflicts —
+          this is a limitation of the PDF specification, not of this tool.
+        </p>
+      </details>
+
+      <details>
+        <summary>Can I merge password-protected PDFs?</summary>
+        <p>
+          No. The tool can only read PDFs that open without a password. If your PDF requires a
+          password, remove the protection first using a dedicated PDF tool, then merge it here.
+        </p>
+      </details>
+
+      <details>
+        <summary>What happens to digital signatures?</summary>
+        <p>
+          A signed PDF's signature becomes invalid once the page is moved into a new document. The
+          signature appearance (the visible mark) may remain, but it will no longer verify as a
+          valid signature. This is inherent to how PDF signatures work.
+        </p>
+      </details>
+
+      <details>
+        <summary>Is there an undo?</summary>
+        <p>
+          Not directly. Page edits inside the editor are applied to a working copy immediately. If
+          you make a mistake, click Cancel to close the editor without saving, then reopen it to
+          start from the last saved state.
+        </p>
+      </details>
+
+      <details>
+        <summary>What is the maximum total file size?</summary>
+        <p>
+          About 100 MB total across all files. The practical limit depends on your device's memory,
+          since the merge happens entirely in the browser. Very large collections may take a while
+          to process.
+        </p>
+      </details>
+
     </section>
   </main>
 
-  <!-- MOBILE ACTION BAR – using custom class, no Tailwind visibility conflict -->
+  <!-- MOBILE ACTION BAR -->
   <div id="mobileBar" class="mobile-merge-bar hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 p-3 z-40 shadow-2xl transition-colors duration-200">
     <div class="flex items-center gap-2 mb-2">
       <div class="flex-1 text-xs">
@@ -763,7 +1120,6 @@
       workspaceEl.classList.remove('hidden');
       addMoreBtn.classList.remove('hidden');
       
-      // Responsive: show mobile bar only on small screens, using our custom class
       if (window.innerWidth < 1024) {
         mobileBar.classList.remove('hidden');
       } else {
@@ -1092,14 +1448,12 @@
       const file = workspace.files.find(f => f.id === workspace.editingFileId);
       if (!file || !pdfDoc) return;
 
-      // Pre-render all needed thumbnails in parallel (uses cache when possible)
       const thumbnails = await Promise.all(
         workspace.editingPages.map(p => 
           getPageThumbnail(file.id, p.index, p.rotation, pdfDoc)
         )
       );
 
-      // Build the DOM with all thumbnails ready
       for (let i = 0; i < workspace.editingPages.length; i++) {
         const pageDiv = document.createElement('div');
         pageDiv.className = 'page-item';
@@ -1133,7 +1487,6 @@
         pageGrid.appendChild(pageDiv);
       }
 
-      // Set up Sortable for reordering
       if (typeof Sortable !== 'undefined') {
         if (pageGrid._sortable) {
           pageGrid._sortable.destroy();
@@ -1187,7 +1540,6 @@
       return Array.from(workspace.selectedPageIndices).sort((a, b) => a - b);
     }
 
-    // ----- FIXED: Rotate without lag (use cache + update only changed images) -----
     async function rotateSelectedPage() {
       const selected = getSelectedPageIndices();
       if (selected.length === 0) { alert('Please select a page first.'); return; }
@@ -1195,15 +1547,12 @@
       const file = workspace.files.find(f => f.id === workspace.editingFileId);
       if (!file) return;
 
-      // Rotate selected pages
       selected.forEach(idx => {
         workspace.editingPages[idx].rotation = (workspace.editingPages[idx].rotation + 90) % 360;
       });
 
-      // --- LAG FIX: Update only the rotated thumbnails in place, no full re-render ---
       const pdfDoc = await getPdfDocForFile(file);
       
-      // Process each selected page individually
       for (const idx of selected) {
         const pageDiv = pageGrid.querySelector(`.page-item[data-page-index="${idx}"]`);
         if (!pageDiv) continue;
@@ -1211,7 +1560,6 @@
         const page = workspace.editingPages[idx];
         const cacheKey = `${file.id}:${page.index}:${page.rotation}`;
         
-        // If cached, use it; otherwise render and cache it
         let thumb = thumbnailCache.get(cacheKey);
         if (!thumb) {
           try {
@@ -1232,7 +1580,6 @@
           }
         }
 
-        // Update the existing <img> if present, otherwise create one
         let img = pageDiv.querySelector('img');
         if (img) {
           img.src = thumb;
@@ -1324,12 +1671,11 @@
     }
 
     // ============================================
-    // ADD PAGES MODAL – now supports local file upload
+    // ADD PAGES MODAL
     // ============================================
     function openAddPagesModal() {
       sourcePdfSelect.innerHTML = '<option value="">Select a PDF...</option>';
       
-      // 1) Add already uploaded files (excluding the current one)
       workspace.files.forEach(file => {
         if (file.id !== workspace.editingFileId) {
           const option = document.createElement('option');
@@ -1339,13 +1685,11 @@
         }
       });
 
-      // 2) Add an option to upload a new PDF from local storage
       const localOption = document.createElement('option');
       localOption.value = '__local__';
       localOption.textContent = '📂 Upload a PDF from your device...';
       sourcePdfSelect.appendChild(localOption);
 
-      // If no other uploaded PDFs exist, the user can still use local upload
       addPagesModal.classList.remove('hidden');
     }
 
@@ -1366,7 +1710,6 @@
 
       let sourceFile;
 
-      // ---- HANDLE LOCAL FILE UPLOAD ----
       if (sourceId === '__local__') {
         const input = document.createElement('input');
         input.type = 'file';
@@ -1378,7 +1721,7 @@
           input.click();
         });
 
-        if (!filePicked) return; // user cancelled
+        if (!filePicked) return;
 
         try {
           const rawBytes = new Uint8Array(await filePicked.arrayBuffer());
@@ -1409,7 +1752,6 @@
             thumbnail: null
           };
 
-          // Also store it in the main workspace so it can be merged later
           workspace.files.push(sourceFile);
           renderFileCard(sourceFile);
           dbPut('file-' + fileId, filePicked).catch(e => console.warn('Blob save failed:', e));
@@ -1421,12 +1763,10 @@
           return;
         }
       } else {
-        // Normal path: source from already uploaded files
         sourceFile = workspace.files.find(f => f.id === sourceId);
         if (!sourceFile) return;
       }
 
-      // Determine insert index
       let insertIndex;
       const selected = getSelectedPageIndices();
       
@@ -1453,11 +1793,9 @@
       
       closeAddPagesModal();
       
-      // Re-render with cached source thumbnails
       const file = workspace.files.find(f => f.id === workspace.editingFileId);
       const pdfDoc = await getPdfDocForFile(file);
       
-      // Pre-cache source thumbnails so insertion feels instant
       if (sourceFile.id !== workspace.editingFileId) {
         try {
           const sourcePdfDoc = await getPdfDocForFile(sourceFile);
@@ -1611,7 +1949,7 @@
     }
 
     // ============================================
-    // RESPONSIVE UI (single source of truth)
+    // RESPONSIVE UI
     // ============================================
     function updateResponsiveUI() {
       if (workspace.files.length === 0) {
@@ -1662,7 +2000,6 @@
     cancelAddPagesBtn.addEventListener('click', closeAddPagesModal);
     confirmAddPagesBtn.addEventListener('click', confirmAddPages);
 
-    // Handle window resize for responsive UI
     window.addEventListener('resize', updateResponsiveUI);
 
     // ============================================
@@ -1701,7 +2038,6 @@
         console.warn('Restore failed:', e);
       }
       
-      // Ensure responsive UI is correct after restore
       updateResponsiveUI();
     }
 
