@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>PDF to DOCX Converter Online Free – PDF to Word | Droplet</title>
-  <meta name="description" content="Convert PDF to Word (DOCX) online for free. 100% client-side. Extract text, headings, tables, and images into an editable Word document. Your files never leave your browser.">
+  <meta name="description" content="Convert PDF to Word (DOCX) online for free. Extracts text, headings, tables, and images into an editable Word document. 100% client-side, private, and free.">
   <link rel="canonical" href="https://dropletweb.xyz/pdf-to-docx.html">
 
   <!-- ===== GOOGLE ADSENSE ===== -->
@@ -170,6 +170,25 @@
     }
     .seo-content li {
       margin-bottom: 0.3rem;
+    }
+    .seo-content table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 1rem;
+      font-size: 0.9rem;
+    }
+    .seo-content th {
+      background: #f1f5f9;
+      padding: 8px 12px;
+      text-align: left;
+      border: 1px solid #e2e8f0;
+      font-weight: 700;
+      color: #0f172a;
+    }
+    .seo-content td {
+      padding: 8px 12px;
+      border: 1px solid #e2e8f0;
+      color: #475569;
     }
     .faq-section {
       max-width: 42rem;
@@ -387,6 +406,8 @@
     /* Dark mode for SEO content */
     html.dark .seo-content { color: #cbd5e1; }
     html.dark .seo-content h2 { color: #f1f5f9; }
+    html.dark .seo-content th { background: #1e293b; color: #f1f5f9; border-color: #334155; }
+    html.dark .seo-content td { border-color: #334155; color: #cbd5e1; }
     html.dark .faq-section h2 { color: #f1f5f9; }
     html.dark .faq-section details { background: #1e293b; border-color: #334155; }
     html.dark .faq-section summary { color: #f1f5f9; }
@@ -487,8 +508,8 @@
       <div class="flex items-start gap-3">
         <span class="text-2xl">📝</span>
         <div>
-          <h4 class="font-bold text-sm text-blue-900">Why Convert PDF to Word?</h4>
-          <p class="text-xs text-blue-700 mt-1">PDFs are great for sharing, but editing them can be difficult. Converting to DOCX gives you a fully editable Word document with proper formatting, headings, and spacing — perfect for revising, updating, or reusing content.</p>
+          <h4 class="font-bold text-sm text-blue-900">How this conversion works — read this first</h4>
+          <p class="text-xs text-blue-700 mt-1">The tool reads the PDF's text layer, extracts words with their positions, groups them into lines and paragraphs, and writes them into a new DOCX using the open-source <code>docx</code> library. <strong>This is not a pixel-perfect reconstruction.</strong> Word reflows text based on its own font metrics, so the output will look similar but not identical to the PDF.</p>
         </div>
       </div>
     </div>
@@ -594,122 +615,230 @@
       <div class="bg-white p-4 rounded-xl border border-slate-100 text-center transition-colors duration-200">
         <div class="text-2xl mb-1">📝</div>
         <h4 class="font-bold text-sm">Editable DOCX</h4>
-        <p class="text-xs text-slate-500">Professional formatting with proper spacing</p>
+        <p class="text-xs text-slate-500">Text, headings, lists, tables, images</p>
       </div>
     </div>
 
     <!-- ============================================================ -->
-    <!-- SEO CONTENT — PDF to DOCX long-tail keywords                  -->
+    <!-- SEO CONTENT — Actual reconstruction process                   -->
     <!-- ============================================================ -->
     <section class="seo-content">
-      <h2>How PDF to DOCX Conversion Works</h2>
+      <h2>What Actually Happens During Conversion</h2>
       <p>
-        This tool reads your PDF in the browser, analyses each page, and rebuilds the content as
-        a native Word document. The result is a real <code>.docx</code> file you can open in
-        Microsoft Word, Google Docs, LibreOffice, or Pages — not a renamed PDF and not an image
-        wrapped in a Word container.
+        This tool does not take a screenshot of your PDF and paste it into Word. It reads the PDF's
+        text layer, extracts the words with their positions, and rebuilds them as native Word
+        content. The result is a <code>.docx</code> file with real, editable text — not an image.
       </p>
       <p>
-        The conversion happens in two stages. First, the PDF is parsed to extract text, headings,
-        lists, tables, and embedded images. Second, the extracted content is written into a DOCX
-        document using the open-source <code>docx</code> library. Both stages run entirely in
-        your browser.
-      </p>
-
-      <h2>DOCX Rendering, Fonts, and Styling</h2>
-      <p>
-        Word documents use a different layout engine from PDFs. When you open the converted file,
-        Word applies its own font metrics, line-breaking rules, and paragraph spacing. This means
-        the DOCX will look similar to the PDF but not pixel-identical.
-      </p>
-      <p>
-        The converter maps content to standard Word styles:
+        The process runs in five stages:
       </p>
       <ul>
-        <li><strong>Headings</strong> become bold paragraphs at 14pt (level 1) or 12pt (level 2),
-            coloured dark blue so they stand out. Word's built-in Heading 1 / Heading 2 styles are
-            not applied, because those styles can carry theme colours and spacing that differ
-            between Word versions.</li>
-        <li><strong>Body text</strong> is set to 11pt with 1.15 line spacing and justified alignment.
-            This matches the look of a typical business document.</li>
-        <li><strong>Bullets and numbered lists</strong> are rendered with hanging indents and the
-            bullet character or number preserved from the PDF.</li>
-        <li><strong>Captions</strong> (lines starting with “Figure” or “Table”) are italicised and
-            centred.</li>
+        <li><strong>Read</strong> — PDF.js opens the file and reads each page's content stream.</li>
+        <li><strong>Extract</strong> — Text items are pulled out with their x/y coordinates, font
+            size, and font name.</li>
+        <li><strong>Group</strong> — Items with similar y-coordinates are collected into lines.
+            Lines with similar spacing are joined into paragraphs.</li>
+        <li><strong>Classify</strong> — Lines are examined to decide whether they are headings,
+            paragraphs, bullets, numbered items, captions, URLs, or tables.</li>
+        <li><strong>Write</strong> — The classified content is written into a DOCX file using the
+            <code>docx</code> library, with each element mapped to an appropriate Word construct.</li>
       </ul>
       <p>
-        Fonts are not embedded. If the original PDF used a font that is not installed on your
-        computer, Word will substitute a similar font. The text remains fully editable, but the
-        exact glyph shapes may differ.
+        The whole process runs in your browser. Nothing is uploaded.
+      </p>
+
+      <h2>Editable Text — What You Get</h2>
+      <p>
+        Every word extracted from the PDF's text layer becomes editable text in the DOCX. You can
+        click into any paragraph, delete it, retype it, or reformat it — exactly as if you had
+        typed the document in Word yourself.
+      </p>
+      <p>
+        Text is written using standard Word runs, not as text boxes or shapes. That means it
+        participates in the document's normal flow: it wraps, justifies, and reflows when you
+        change the page size or margins.
+      </p>
+      <p>
+        What is <strong>not</strong> preserved:
+      </p>
+      <ul>
+        <li><strong>Original fonts.</strong> The DOCX uses common fonts — Segoe UI, Calibri, Arial
+            — rather than embedding the fonts from the PDF. If your PDF used a custom typeface,
+            Word will substitute a similar one.</li>
+        <li><strong>Exact positioning.</strong> PDFs place characters at precise coordinates.
+            Word uses flowing text. Line breaks and page breaks will differ.</li>
+        <li><strong>Text colour and highlighting.</strong> Bold and italic are detected from the
+            PDF's font data, but custom colours and highlight backgrounds are not preserved.</li>
+        <li><strong>Underlines and strikethroughs.</strong> These decorations are drawn as lines in
+            the PDF and are not detected as text attributes.</li>
+      </ul>
+
+      <h2>Headings and Lists</h2>
+      <p>
+        Headings are detected by pattern matching and font size. A line becomes a level-1 heading
+        if it looks like <code>1. Introduction</code> or is in a list of known section names
+        (<em>Executive Summary</em>, <em>References</em>, <em>Appendix</em>). A line becomes a
+        level-2 heading if it looks like <code>1.2 Subsection</code>.
+      </p>
+      <p>
+        Headings are rendered as bold paragraphs at 14 pt (level 1) or 12 pt (level 2), coloured
+        dark blue. Word's built-in Heading 1 / Heading 2 styles are <strong>not</strong> applied,
+        because those styles carry theme colours and spacing that vary between Word versions and
+        would make the output unpredictable.
+      </p>
+      <p>
+        Bullets are detected when a line starts with a bullet character (<code>•</code>,
+        <code>●</code>, <code>▪</code>) and numbered items when a line starts with
+        <code>1.</code> or <code>1)</code>. Detected lists are rendered with hanging indents so the
+        bullet or number sits to the left of the wrapped text.
       </p>
 
       <h2>Tables</h2>
       <p>
-        Tables are detected by looking for rows of text where multiple columns are separated by
-        consistent horizontal gaps. When the converter finds at least two such aligned rows, it
-        creates a Word table with single-line borders. The first row is treated as a header and
-        rendered bold.
+        Table detection works by looking for groups of consecutive lines where multiple columns are
+        separated by consistent horizontal gaps. When at least two such lines have their column
+        starts aligned within about 25 pixels, they are treated as a table.
       </p>
       <p>
-        This heuristic works well for simple, evenly spaced tables. Complex tables — merged cells,
-        nested tables, tables with images inside cells, or tables that span multiple pages — may
-        not be detected as tables. In those cases the cells appear as separate paragraphs of text.
+        A detected table becomes a real Word table with single-line borders. The first row is
+        treated as a header and rendered bold.
+      </p>
+      <p>
+        This heuristic works well for <strong>simple, evenly spaced tables</strong> — for example a
+        financial summary with columns for <em>Item</em>, <em>Qty</em>, and <em>Price</em>. It
+        does <strong>not</strong> work reliably for:
+      </p>
+      <ul>
+        <li>Tables with merged cells spanning multiple columns or rows.</li>
+        <li>Tables with variable cell widths.</li>
+        <li>Tables that span page breaks.</li>
+        <li>Tables with images or complex formatting inside cells.</li>
+        <li>Tables where column starts drift by more than ~25 pixels between rows.</li>
+      </ul>
+      <p>
+        For complex tables, the content is extracted as separate paragraphs — the words are still
+        there and still editable, but the tabular structure is lost.
       </p>
 
       <h2>Images</h2>
       <p>
-        Embedded images are extracted directly from the PDF's internal object store and re-embedded
-        into the DOCX as PNG. Each image is scaled to fit within a 600×700 pixel box, centred on
-        the page, and preserved at its original resolution up to that limit.
+        Embedded raster images — JPEG, PNG, and similar formats — are extracted directly from the
+        PDF's internal object store. Each image is converted to PNG and embedded into the DOCX at
+        its original resolution, capped at 600 × 700 pixels for placement on the page.
       </p>
       <p>
-        Images that are drawn as vector graphics (charts, diagrams, logos rendered as paths) are
-        not extracted. They are part of the page content stream, not separate image objects, so the
-        converter cannot lift them out. If a PDF page is dominated by vector artwork, the DOCX will
-        contain the surrounding text but not the artwork.
+        Images are placed on their own paragraph, centred. You can move, resize, or replace them
+        in Word, and they retain their quality because they are embedded as full-resolution PNG
+        data.
       </p>
-
-      <h2>Page Layout and What Changes</h2>
       <p>
-        A PDF is a fixed-layout format: every element sits at an exact coordinate on a page of a
-        specific size. Word is a reflowable format: text flows and wraps based on the page size,
-        margins, and font installed on the reader's machine. Because of this, some changes are
-        unavoidable:
+        What is <strong>not</strong> extracted:
       </p>
       <ul>
-        <li><strong>Page breaks</strong> — the converter inserts a page break between PDF pages, so
-            the DOCX starts with the same page count. But if Word's text reflow pushes content onto
-            extra lines, later pages may shift.</li>
-        <li><strong>Margins</strong> — the DOCX uses 0.6-inch top and bottom margins and 0.7-inch
-            left and right margins. This is tighter than the default Word margins and closer to
-            typical PDF layouts.</li>
-        <li><strong>Line breaks</strong> — the converter preserves intentional line breaks by
-            joining lines that belong to the same paragraph. This produces natural flowing
-            paragraphs, but hard line breaks inside a sentence may be lost.</li>
-        <li><strong>Columns</strong> — multi-column PDFs are read in visual order (left column then
-            right column), which usually produces correct reading order but can occasionally mix
-            columns if they are not clearly separated.</li>
-        <li><strong>Headers and footers</strong> — repeating headers and footers in the PDF are
-            removed. The DOCX adds its own page-number footer (Page X of Y) centred at the bottom.</li>
-        <li><strong>Colours and backgrounds</strong> — text colour is preserved for headings and
-            links. Page background colours and text highlight colours are not carried over.</li>
+        <li><strong>Vector graphics.</strong> Charts, diagrams, and logos drawn as PDF paths are
+            part of the page content stream, not separate image objects. They cannot be lifted out
+            and will be missing from the DOCX.</li>
+        <li><strong>Background images</strong> that cover the entire page as a single object may
+            be skipped if they are very large.</li>
+        <li><strong>Images smaller than 20 × 20 pixels</strong> are ignored, as they are usually
+            decorative or noise.</li>
+        <li><strong>Image positioning.</strong> Where an image sat relative to surrounding text in
+            the PDF is not preserved — images flow with the text in the DOCX.</li>
       </ul>
 
-      <h2>Scanned PDFs and OCR</h2>
+      <h2>Layout — What Changes and Why</h2>
       <p>
-        If a PDF page contains only a scanned image and no real text layer, there is nothing for
-        the converter to extract. The page is detected as “scanned” and a warning is inserted in
-        the DOCX at that location. The embedded image itself is still added, so you can see the
-        scanned page — but the text is not editable.
+        PDF is a fixed-layout format. Every character sits at an exact coordinate on a page of a
+        specific size. Word is a reflowable format. Text flows and wraps based on the page size,
+        margins, and available fonts on the reader's machine.
       </p>
       <p>
-        To turn a scanned PDF into editable text you need OCR (Optical Character Recognition).
-        That is a separate process from PDF-to-DOCX conversion and is not performed by this tool.
+        This difference means the output DOCX will not be a pixel-perfect copy of the PDF. Specific
+        changes you should expect:
+      </p>
+      <table>
+        <thead>
+          <tr>
+            <th>Element</th>
+            <th>What Happens</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Page breaks</td>
+            <td>The converter inserts a page break between PDF pages, but Word's text reflow may push content onto additional lines, shifting later pages.</td>
+          </tr>
+          <tr>
+            <td>Margins</td>
+            <td>DOCX uses 0.6 in top/bottom and 0.7 in left/right, tighter than Word's defaults.</td>
+          </tr>
+          <tr>
+            <td>Line breaks</td>
+            <td>Lines belonging to the same paragraph are joined. Hard breaks inside a sentence may be lost.</td>
+          </tr>
+          <tr>
+            <td>Columns</td>
+            <td>Multi-column PDFs are read left-to-right, top-to-bottom. Columns may occasionally be interleaved.</td>
+          </tr>
+          <tr>
+            <td>Headers and footers</td>
+            <td>Removed. DOCX adds its own "Page X of Y" footer.</td>
+          </tr>
+          <tr>
+            <td>Page size</td>
+            <td>DOCX uses the default Word page size. Mixed-size PDFs will produce a uniform DOCX.</td>
+          </tr>
+          <tr>
+            <td>Hyphenation</td>
+            <td>Words hyphenated across lines in the PDF may remain hyphenated in the DOCX.</td>
+          </tr>
+        </tbody>
+      </table>
+      <p>
+        If you need a pixel-perfect copy of the PDF, keep the PDF. The DOCX is for editing the
+        content, not for reproducing the layout exactly.
+      </p>
+
+      <h2>Scanned PDFs — What You Should Know</h2>
+      <p>
+        A scanned PDF is a set of page images with no text layer. There is nothing for the
+        converter to extract, so the DOCX will contain the scanned images but no editable text.
+      </p>
+      <p>
+        When the converter detects that a page has less than 50 characters of text but contains
+        images, it marks that page as scanned and inserts a warning paragraph at the top of the
+        page in the DOCX. The scanned image itself is still embedded so you can see it.
+      </p>
+      <p>
+        To make scanned text editable, you need OCR (Optical Character Recognition). That is a
+        separate process from PDF-to-DOCX conversion. Our PDF to TXT converter includes in-browser
+        OCR and can extract text from scanned pages.
+      </p>
+
+      <h2>Honest Limitations</h2>
+      <p>
+        This tool does a good job on <strong>simple, text-heavy documents</strong> that were
+        exported from Word, Google Docs, or a publishing system — where the PDF has a real text
+        layer and the layout is mostly single-column paragraphs.
+      </p>
+      <p>
+        It does <strong>not</strong> produce a perfect copy of:
+      </p>
+      <ul>
+        <li>Magazine layouts with text flowing around images.</li>
+        <li>Complex tables with merged cells.</li>
+        <li>Documents with heavy vector artwork or infographics.</li>
+        <li>Slide decks, forms, or fillable PDFs.</li>
+        <li>Scanned documents (unless OCR is used first).</li>
+      </ul>
+      <p>
+        If your PDF falls into one of these categories, you may need to edit the DOCX manually
+        after conversion, or use a desktop-class PDF-to-Word tool.
       </p>
 
       <h2>Privacy — Client-Side Conversion</h2>
       <p>
-        PDF parsing uses the open-source PDF.js library, and DOCX generation uses the open-source
+        PDF parsing uses the open-source PDF.js library and DOCX generation uses the open-source
         <code>docx</code> library. Both run entirely in your browser. Your PDF is read into memory
         and never transmitted. The only external resources loaded are the libraries themselves
         from a CDN.
@@ -718,21 +847,22 @@
       <h2>Practical Examples</h2>
       <p>
         <strong>Editing a contract template:</strong> Convert the PDF to DOCX, open it in Word,
-        change the parties and dates, then export a new PDF. The heading and paragraph structure
-        survives the round trip.
+        change the parties and dates, and export a fresh PDF. Headings, paragraphs, and lists
+        survive the round trip intact.
       </p>
       <p>
         <strong>Reusing a report's text:</strong> Convert the PDF and copy the body text into a new
         document. The DOCX keeps paragraphs intact instead of one long line per page.
       </p>
       <p>
-        <strong>Extracting a table from a financial statement:</strong> Convert the PDF and check
-        the table in Word. If the table was simple and evenly spaced, it becomes a real Word table
+        <strong>Extracting a simple table from a financial statement:</strong> Convert the PDF and
+        check the table in Word. If it was simple and evenly spaced, it becomes a real Word table
         you can edit and reformat.
       </p>
       <p>
         <strong>Pulling images out of a brochure:</strong> Convert the PDF and find the embedded
-        images already placed in the DOCX at their original resolution.
+        images already placed in the DOCX at their original resolution, ready to be repositioned
+        or reused.
       </p>
     </section>
 
@@ -745,18 +875,37 @@
       <details>
         <summary>Will the DOCX look exactly like the PDF?</summary>
         <p>
-          No. Word reflows text based on its own font metrics and line-breaking rules, so the layout
-          will be similar but not identical. Headings, paragraphs, and lists keep their structure,
-          but line breaks and page breaks may shift. For a pixel-perfect copy, use the original PDF.
+          No. Word reflows text using its own font metrics and line-breaking rules. The layout will
+          be similar — headings, paragraphs, and lists keep their structure — but line breaks and
+          page breaks will shift. For a pixel-perfect copy of the original, keep the PDF.
+        </p>
+      </details>
+
+      <details>
+        <summary>Is the text really editable in Word?</summary>
+        <p>
+          Yes. The DOCX contains real Word text runs, not images. You can click into any paragraph
+          and change it, format it, delete it, or move it. This is genuine editable content, not a
+          picture of text.
+        </p>
+      </details>
+
+      <details>
+        <summary>Why doesn't the layout match the PDF exactly?</summary>
+        <p>
+          PDF is a fixed-layout format where every character sits at an exact coordinate. Word is a
+          reflowable format where text flows and wraps based on page size, margins, and available
+          fonts. Reconstructing one from the other is inherently approximate. The converter
+          reproduces the <em>content</em>, not the <em>layout</em>.
         </p>
       </details>
 
       <details>
         <summary>Are the fonts in the DOCX the same as in the PDF?</summary>
         <p>
-          Fonts are not embedded. The DOCX references standard fonts (Segoe UI, Calibri, Arial) for
-          body text and headings. If the original PDF used a custom font that is not installed on
-          your computer, Word will substitute a similar one. The text remains fully editable.
+          No. The DOCX uses standard fonts (Segoe UI, Calibri, Arial) rather than embedding the
+          fonts from the PDF. If your PDF used a custom font that is not installed on your computer,
+          Word will substitute a similar one. The text stays fully editable.
         </p>
       </details>
 
@@ -764,18 +913,18 @@
         <summary>What happens to tables in the conversion?</summary>
         <p>
           Simple, evenly spaced tables are detected and converted to real Word tables with borders
-          and a bold header row. Complex tables — with merged cells, nested tables, or images inside
-          cells — may not be detected as tables, in which case the cell contents appear as separate
-          paragraphs.
+          and a bold header row. Complex tables — merged cells, nested tables, variable column
+          widths — are not detected. Their content appears as separate paragraphs, so the words are
+          preserved but the tabular structure is lost.
         </p>
       </details>
 
       <details>
         <summary>Are images preserved in the DOCX?</summary>
         <p>
-          Yes, for embedded raster images (JPEG, PNG, etc.). They are extracted from the PDF and
-          re-embedded into the DOCX as PNG at their original resolution, scaled to fit within a
-          600×700 pixel box. Vector graphics (charts, diagrams drawn as paths) are not extracted.
+          Yes, for embedded raster images (JPEG, PNG, and similar). They are extracted at their
+          original resolution and re-embedded as PNG, capped at 600 × 700 pixels for placement.
+          Vector graphics — charts and diagrams drawn as PDF paths — are not extracted.
         </p>
       </details>
 
@@ -783,27 +932,27 @@
         <summary>Why does my scanned PDF produce empty text?</summary>
         <p>
           A scanned PDF contains images of pages, not a text layer. There is nothing for the
-          converter to extract, so the DOCX contains the scanned image but no editable text. To
-          make scanned text editable you need OCR (Optical Character Recognition), which is a
-          separate process.
+          converter to extract. Pages detected as scanned are marked with a warning in the DOCX and
+          the scanned image is embedded, but there is no editable text. To make scanned text
+          editable you need OCR, which is a separate process.
         </p>
       </details>
 
       <details>
         <summary>What page margins does the DOCX use?</summary>
         <p>
-          The DOCX uses 0.6-inch top and bottom margins and 0.7-inch left and right margins. These
-          are tighter than Word's defaults and closer to typical PDF layouts. You can change them
-          in Word's Layout → Margins menu after opening the file.
+          0.6-inch top and bottom margins and 0.7-inch left and right margins. These are tighter
+          than Word's defaults and closer to typical PDF layouts. You can change them in Word's
+          Layout → Margins menu after opening the file.
         </p>
       </details>
 
       <details>
         <summary>Are headers and footers from the PDF kept?</summary>
         <p>
-          No. Repeating headers and footers in the PDF (page numbers, running titles) are removed
-          during extraction because they are not part of the body content. The DOCX adds its own
-          footer with “Page X of Y” centred at the bottom.
+          No. Repeating headers and footers (page numbers, running titles) are removed because they
+          are not part of the body content. The DOCX adds its own footer with "Page X of Y"
+          centred at the bottom.
         </p>
       </details>
 
@@ -818,8 +967,8 @@
       <details>
         <summary>How large can my PDF be?</summary>
         <p>
-          Most modern browsers handle PDFs up to about 100 MB. Very large documents with many
-          images or hundreds of pages will take longer to process and use more memory. If a file
+          Most modern browsers handle PDFs up to about 100 MB. Very large documents with hundreds
+          of pages or many high-resolution images will take longer and use more memory. If a file
           fails, try splitting it into smaller parts first.
         </p>
       </details>
@@ -827,27 +976,9 @@
       <details>
         <summary>Is my PDF uploaded to a server?</summary>
         <p>
-          No. All parsing, analysis, and DOCX generation happen locally in your browser using
-          JavaScript. Your file never leaves your device. You can disconnect from the internet
-          after the page loads and the tool will continue to work.
-        </p>
-      </details>
-
-      <details>
-        <summary>What is the difference between this tool and the PDF to TXT converter?</summary>
-        <p>
-          This tool produces a formatted DOCX with headings, paragraphs, tables, and images.
-          The PDF to TXT converter produces a plain text file with no formatting. If you need an
-          editable Word document, use this tool. If you only need the raw text, TXT is faster.
-        </p>
-      </details>
-
-      <details>
-        <summary>Can I edit the DOCX after downloading?</summary>
-        <p>
-          Yes. The output is a standard <code>.docx</code> file. You can open it in Microsoft Word,
-          Google Docs, LibreOffice Writer, Apple Pages, or any other word processor and edit it
-          freely.
+          No. All parsing, analysis, and DOCX generation happen locally in your browser. Your file
+          never leaves your device. You can disconnect from the internet after the page loads and
+          the tool will continue to work.
         </p>
       </details>
 
