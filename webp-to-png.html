@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>WebP to PNG Converter - Droplet</title>
-  <meta name="description" content="Convert WebP images to PNG online for free. 100% client-side, your files never leave your browser. Supports batch conversion and transparency.">
+  <title>WebP to PNG Converter Online Free – Convert WebP Images | Droplet</title>
+  <meta name="description" content="Convert WebP images to PNG online for free. Handles transparency, preserves lossless quality. 100% client-side, private, and free.">
+  <link rel="canonical" href="https://dropletweb.xyz/webp-to-png">
 
   <!-- ===== GOOGLE ADSENSE ===== -->
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4006702663328202"
@@ -99,6 +100,98 @@
     .badge-converted { background: #d1fae5; color: #065f46; }
     .badge-size { background: #fef3c7; color: #92400e; }
     .badge-webp { background: #fce7f3; color: #9d174d; }
+
+    /* ============================================================ */
+    /* SEO CONTENT                                                    */
+    /* ============================================================ */
+    .seo-content {
+      max-width: 42rem;
+      margin: 2.5rem auto 1rem;
+      color: #334155;
+      line-height: 1.65;
+    }
+    .seo-content h2 {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #0f172a;
+      margin: 2rem 0 0.5rem;
+    }
+    .seo-content p {
+      margin-bottom: 1rem;
+      font-size: 0.95rem;
+    }
+    .seo-content ul {
+      padding-left: 1.4rem;
+      margin-bottom: 1rem;
+      font-size: 0.95rem;
+    }
+    .seo-content li {
+      margin-bottom: 0.3rem;
+    }
+    .seo-content table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 1rem;
+      font-size: 0.9rem;
+    }
+    .seo-content th {
+      background: #f1f5f9;
+      padding: 8px 12px;
+      text-align: left;
+      border: 1px solid #e2e8f0;
+      font-weight: 700;
+      color: #0f172a;
+    }
+    .seo-content td {
+      padding: 8px 12px;
+      border: 1px solid #e2e8f0;
+      color: #475569;
+    }
+    .faq-section {
+      max-width: 42rem;
+      margin: 2rem auto;
+    }
+    .faq-section h2 {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #0f172a;
+      text-align: center;
+      margin-bottom: 1.25rem;
+    }
+    .faq-section details {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 0.75rem;
+      padding: 0.75rem 1.25rem;
+      margin-bottom: 0.6rem;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .faq-section summary {
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: #0f172a;
+      cursor: pointer;
+      list-style: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .faq-section summary::-webkit-details-marker { display: none; }
+    .faq-section summary::after {
+      content: "➕";
+      font-size: 0.8rem;
+      color: #94a3b8;
+      transition: transform 0.2s;
+    }
+    .faq-section details[open] summary::after {
+      content: "➖";
+    }
+    .faq-section details p {
+      margin-top: 0.6rem;
+      font-size: 0.9rem;
+      color: #475569;
+      line-height: 1.6;
+    }
 
     /* Dark mode overrides */
     html.dark body {
@@ -255,6 +348,14 @@
       background: #334155 !important;
       border-color: #3b82f6 !important;
     }
+    html.dark .seo-content { color: #cbd5e1; }
+    html.dark .seo-content h2 { color: #f1f5f9; }
+    html.dark .seo-content th { background: #1e293b; color: #f1f5f9; border-color: #334155; }
+    html.dark .seo-content td { border-color: #334155; color: #cbd5e1; }
+    html.dark .faq-section h2 { color: #f1f5f9; }
+    html.dark .faq-section details { background: #1e293b; border-color: #334155; }
+    html.dark .faq-section summary { color: #f1f5f9; }
+    html.dark .faq-section details p { color: #94a3b8; }
 
     /* Theme toggle in header */
     #theme-toggle {
@@ -329,8 +430,8 @@
       <div class="flex items-start gap-3">
         <span class="text-2xl">🖼️</span>
         <div>
-          <h4 class="font-bold text-sm text-blue-900">What is WebP?</h4>
-          <p class="text-xs text-blue-700 mt-1">WebP is a modern image format developed by Google that offers superior compression compared to PNG and JPG. Converting to PNG gives you a lossless, universally compatible format that preserves transparency and image quality.</p>
+          <h4 class="font-bold text-sm text-blue-900">What this tool does — read this first</h4>
+          <p class="text-xs text-blue-700 mt-1">The converter decodes your WebP file using the browser's built-in image decoder, draws each frame onto a canvas, and writes it out as a lossless PNG. Transparency is preserved by default, and you can optionally flatten it onto a solid background colour.</p>
         </div>
       </div>
     </div>
@@ -364,7 +465,7 @@
         <button onclick="clearFiles()" class="text-slate-400 hover:text-red-500 transition-colors">✕</button>
       </div>
 
-      <!-- PNG Options - Improved -->
+      <!-- PNG Options -->
       <div class="mt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4 bg-slate-50 rounded-lg transition-colors duration-200">
         <div>
           <label class="block text-xs font-medium text-slate-700 mb-1">📏 Image Size</label>
@@ -417,7 +518,7 @@
         <p id="statusText" class="text-xs text-slate-400 mt-2 text-center">Initializing...</p>
       </div>
 
-      <!-- Image Preview - Improved -->
+      <!-- Image Preview -->
       <div id="previewContainer" class="hidden mt-4 border-t border-slate-200 pt-4">
         <div class="flex items-center justify-between mb-2">
           <h4 class="font-bold text-sm text-slate-700">🖼️ Image Preview</h4>
@@ -482,62 +583,336 @@
       </div>
     </div>
 
-    <!-- WebP vs PNG Comparison -->
-    <section class="max-w-2xl mx-auto mt-12">
-      <h2 class="text-xl font-black text-slate-900 text-center mb-6">WebP vs PNG Comparison</h2>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm flex items-center gap-2">
-            <span class="text-xl">🟢</span> WebP
-          </h3>
-          <ul class="text-sm text-slate-600 mt-2 space-y-1">
-            <li>✅ Smaller file size (up to 30% less than PNG)</li>
-            <li>✅ Supports transparency</li>
-            <li>✅ Supports animation</li>
-            <li>❌ Limited browser/device support</li>
-            <li>❌ Not compatible with older software</li>
-          </ul>
-        </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm flex items-center gap-2">
-            <span class="text-xl">🔵</span> PNG
-          </h3>
-          <ul class="text-sm text-slate-600 mt-2 space-y-1">
-            <li>✅ Universal compatibility</li>
-            <li>✅ Lossless quality</li>
-            <li>✅ Supports transparency</li>
-            <li>✅ Supported everywhere</li>
-            <li>❌ Larger file size than WebP</li>
-          </ul>
-        </div>
-      </div>
+    <!-- ============================================================ -->
+    <!-- SEO CONTENT — Transparency, lossless, animation, metadata     -->
+    <!-- ============================================================ -->
+    <section class="seo-content">
+      <h2>How WebP to PNG Conversion Works</h2>
+      <p>
+        The converter reads your WebP file in the browser using the built-in image decoder,
+        draws the pixels onto an HTML canvas, and writes the canvas out as a PNG. The result
+        is a lossless PNG file with the same pixels as the original WebP.
+      </p>
+      <p>
+        This is a straightforward decode-then-re-encode operation. Nothing is uploaded, nothing
+        is inspected, and the output file is written directly to your device via a Blob URL.
+      </p>
+
+      <h2>Transparency Handling</h2>
+      <p>
+        WebP supports an alpha channel, and so does PNG. Transparency is preserved by default
+        when the input WebP has it. If a WebP image has fully transparent areas — a logo on a
+        transparent background, for example — those areas stay transparent in the output PNG.
+      </p>
+      <p>
+        You can override this behaviour with the Transparency option:
+      </p>
+      <table>
+        <thead>
+          <tr>
+            <th>Option</th>
+            <th>Effect</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Preserve Transparency</td>
+            <td>Alpha channel is kept intact. Transparent pixels stay transparent.</td>
+          </tr>
+          <tr>
+            <td>White Background</td>
+            <td>Transparent pixels are filled with solid white (#FFFFFF).</td>
+          </tr>
+          <tr>
+            <td>Black Background</td>
+            <td>Transparent pixels are filled with solid black (#000000).</td>
+          </tr>
+          <tr>
+            <td>Light Blue Background</td>
+            <td>Transparent pixels are filled with a soft blue (#E0F0FF).</td>
+          </tr>
+        </tbody>
+      </table>
+      <p>
+        Flattening onto a background is useful when the PNG will be placed on a known surface
+        and you want to avoid any hint of transparency in the output. For general use, preserve
+        transparency.
+      </p>
+
+      <h2>Lossless Conversion</h2>
+      <p>
+        PNG is a lossless image format. When a WebP image is decoded and re-encoded as PNG, the
+        pixel values are preserved exactly. There is no additional quality loss beyond whatever
+        lossy compression the original WebP used.
+      </p>
+      <p>
+        This matters for images that were saved as lossless WebP. Those files contain exact
+        pixel data, and the conversion to PNG produces a pixel-identical result. For lossy WebP
+        files, the PNG preserves the decoded pixels but cannot recover data that was lost when
+        the WebP was created.
+      </p>
+      <p>
+        One consequence of lossless output: PNG files are usually larger than their WebP
+        sources. A 200 KB WebP can produce a 600 KB PNG. This is normal and is the price of
+        universal compatibility.
+      </p>
+
+      <h2>Animated WebP Behaviour</h2>
+      <p>
+        Animated WebP files contain multiple frames with timing information. This tool handles
+        them as follows:
+      </p>
+      <ul>
+        <li>The browser's image decoder renders the <strong>first frame</strong> of the animation
+            when an animated WebP is loaded into an <code>&lt;img&gt;</code> element.</li>
+        <li>The converter captures that first frame and writes it as a static PNG.</li>
+        <li>Subsequent frames are <strong>not</strong> exported. Animation is not preserved.</li>
+      </ul>
+      <p>
+        PNG does support a form of animation (APNG), but this tool does not implement APNG
+        encoding. If you need to convert an animated WebP to an animated format, you would need
+        a dedicated animation conversion tool.
+      </p>
+      <p>
+        For still WebP images — the majority of WebP files in the wild — this limitation does
+        not apply. The converter processes them exactly as intended.
+      </p>
+
+      <h2>Resolution and Image Dimensions</h2>
+      <p>
+        The output PNG uses the original image dimensions by default. A 1920 × 1080 WebP
+        becomes a 1920 × 1080 PNG. Aspect ratio is always preserved.
+      </p>
+      <p>
+        The Image Size option caps the longest edge at a maximum value:
+      </p>
+      <table>
+        <thead>
+          <tr>
+            <th>Setting</th>
+            <th>Longest Edge</th>
+            <th>Best For</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Original Size</td>
+            <td>Unchanged</td>
+            <td>Archival, printing, maximum detail</td>
+          </tr>
+          <tr>
+            <td>4K (3840px)</td>
+            <td>3840 pixels</td>
+            <td>Large displays, print-ready assets</td>
+          </tr>
+          <tr>
+            <td>2.5K (2560px)</td>
+            <td>2560 pixels</td>
+            <td>High-resolution screen assets</td>
+          </tr>
+          <tr>
+            <td>HD (1920px)</td>
+            <td>1920 pixels</td>
+            <td>Standard desktop and web</td>
+          </tr>
+          <tr>
+            <td>HD Ready (1280px)</td>
+            <td>1280 pixels</td>
+            <td>Web embedding, presentations</td>
+          </tr>
+          <tr>
+            <td>Web (800px)</td>
+            <td>800 pixels</td>
+            <td>Thumbnails, previews, mobile</td>
+          </tr>
+        </tbody>
+      </table>
+      <p>
+        When the image is downscaled, the browser uses high-quality interpolation. The result is
+        a clean, sharp PNG at the target dimensions.
+      </p>
+
+      <h2>Metadata</h2>
+      <p>
+        WebP files can carry EXIF metadata (camera model, GPS coordinates, capture date) and
+        XMP metadata (editing history, keywords). This tool <strong>does not preserve</strong>
+        any of that metadata.
+      </p>
+      <p>
+        The image is decoded to pixels, drawn onto a canvas, and re-encoded as a fresh PNG. The
+        new PNG contains no EXIF, no XMP, and no embedded colour profile beyond the default sRGB
+        assumption. This is good for privacy — uploading a photo for conversion does not leak
+        your GPS location — but it means you lose any descriptive or technical metadata that was
+        attached to the original file.
+      </p>
+
+      <h2>What Is Preserved and What Is Not</h2>
+      <p>
+        Preserved:
+      </p>
+      <ul>
+        <li>All pixel data (lossless PNG output).</li>
+        <li>The alpha channel, when transparency is set to preserve.</li>
+        <li>Image dimensions and aspect ratio (unless downscaled).</li>
+        <li>Colour values in sRGB space.</li>
+      </ul>
+      <p>
+        Not preserved:
+      </p>
+      <ul>
+        <li>EXIF and XMP metadata.</li>
+        <li>Animation (only the first frame is used).</li>
+        <li>Colour profiles beyond sRGB.</li>
+        <li>WebP-specific compression settings (they do not apply to PNG).</li>
+      </ul>
+
+      <h2>Practical Examples</h2>
+      <p>
+        <strong>Converting a downloaded WebP logo to PNG:</strong> Upload the WebP, choose
+        Original Size, Preserve Transparency, and Colour. The output PNG drops straight into a
+        design tool or website as a clean logo.
+      </p>
+      <p>
+        <strong>Preparing WebP photos for a print service:</strong> Upload the photos, choose
+        4K or Original Size, and Colour. The PNG files are accepted by print services that do
+        not support WebP.
+      </p>
+      <p>
+        <strong>Flattening a transparent icon onto white:</strong> Upload the icon, choose
+        Preserve Transparency off and White Background on. The result is an icon with a solid
+        white background, ready to use on documents and slides.
+      </p>
+      <p>
+        <strong>Creating grayscale versions of WebP images:</strong> Upload the WebP, choose
+        Grayscale and Preserve Transparency. The result is a grayscale PNG that keeps any
+        transparent regions.
+      </p>
+      <p>
+        <strong>Converting a batch of product photos:</strong> Upload a folder of WebP images,
+        choose HD (1920px) and Colour. Download the whole batch as a ZIP for use in an online
+        store.
+      </p>
+
+      <h2>Privacy — Client-Side Conversion</h2>
+      <p>
+        The WebP is decoded by the browser's built-in image decoder, rendered onto a canvas, and
+        written out as a PNG. Nothing leaves your device. The only external resources loaded are
+        the libraries themselves from a CDN. You can disconnect from the internet after the page
+        loads and the tool will continue to work for already-loaded images.
+      </p>
     </section>
 
-    <!-- FAQ Section -->
-    <section class="max-w-2xl mx-auto mt-12">
-      <h2 class="text-xl font-black text-slate-900 text-center mb-6">Frequently Asked Questions</h2>
-      <div class="space-y-3">
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">Is my data safe?</h3>
-          <p class="text-slate-600 text-sm mt-1">Yes! All conversions happen locally in your browser. Your WebP files are never uploaded to any server and are automatically deleted when you close the page.</p>
-        </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">Why convert WebP to PNG?</h3>
-          <p class="text-slate-600 text-sm mt-1">PNG is universally compatible and supports lossless quality and transparency. Converting WebP to PNG ensures your images work everywhere, including older browsers, design software, and print applications.</p>
-        </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">Will I lose image quality?</h3>
-          <p class="text-slate-600 text-sm mt-1">No! PNG is a lossless format, so no quality is lost during conversion. The converted image will be an exact pixel-perfect representation of your original WebP image.</p>
-        </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">What about transparency?</h3>
-          <p class="text-slate-600 text-sm mt-1">PNG supports transparency (alpha channel). If your WebP image has transparent areas, they will be preserved. You can also choose to add a white or black background if needed.</p>
-        </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">Can I convert multiple files at once?</h3>
-          <p class="text-slate-600 text-sm mt-1">Yes! Drag and drop multiple WebP files or select multiple files using the file picker. Each image will be converted individually, and you can download them all at once as a ZIP file.</p>
-        </div>
-      </div>
+    <!-- ============================================================ -->
+    <!-- FAQ SECTION                                                   -->
+    <!-- ============================================================ -->
+    <section class="faq-section">
+      <h2>WebP to PNG Questions</h2>
+
+      <details>
+        <summary>Is my data safe?</summary>
+        <p>
+          Yes. All conversion happens locally in your browser. Your WebP files are never uploaded
+          to any server. You can disconnect from the internet after the page loads and the tool
+          will continue to work.
+        </p>
+      </details>
+
+      <details>
+        <summary>Why convert WebP to PNG?</summary>
+        <p>
+          PNG is universally compatible. WebP is not supported by older versions of many
+          applications, and some design tools and print services do not accept it. Converting to
+          PNG ensures your images work everywhere without any further conversion.
+        </p>
+      </details>
+
+      <details>
+        <summary>Will I lose image quality?</summary>
+        <p>
+          No. PNG is a lossless format. The decoded pixels from the WebP are written directly to
+          the PNG without any additional quality loss. If the original WebP was lossless, the
+          output PNG is pixel-identical.
+        </p>
+      </details>
+
+      <details>
+        <summary>Is transparency preserved?</summary>
+        <p>
+          Yes, by default. The alpha channel of the WebP is carried over to the PNG. You can
+          optionally flatten transparency onto a solid white, black, or light blue background
+          using the Transparency option.
+        </p>
+      </details>
+
+      <details>
+        <summary>What happens to animated WebP files?</summary>
+        <p>
+          The browser renders the first frame of the animation when the file is loaded, and the
+          converter captures that first frame as a static PNG. Subsequent frames and the animation
+          timing are not preserved. PNG does not support the WebP animation format.
+        </p>
+      </details>
+
+      <details>
+        <summary>Are metadata like GPS coordinates preserved?</summary>
+        <p>
+          No. EXIF, GPS, XMP, and colour profile metadata are stripped during conversion. The
+          output PNG contains only pixel data. This is good for privacy but means descriptive
+          metadata is lost.
+        </p>
+      </details>
+
+      <details>
+        <summary>Can I resize the image during conversion?</summary>
+        <p>
+          Yes. Choose an Image Size option to cap the longest edge at 3840, 2560, 1920, 1280, or
+          800 pixels. Original Size keeps the native dimensions. Aspect ratio is always preserved.
+        </p>
+      </details>
+
+      <details>
+        <summary>What does Grayscale do?</summary>
+        <p>
+          Grayscale converts each pixel to a single luminance value using the standard formula
+          (0.299 R + 0.587 G + 0.114 B). The alpha channel is preserved. Useful for text-heavy
+          images, logos, and documents where colour adds no information.
+        </p>
+      </details>
+
+      <details>
+        <summary>What does Sepia do?</summary>
+        <p>
+          Sepia applies a warm brown tone on top of the greyscale conversion. It is a stylistic
+          effect, useful for vintage-style assets. The alpha channel is preserved.
+        </p>
+      </details>
+
+      <details>
+        <summary>Why is the PNG larger than the WebP?</summary>
+        <p>
+          WebP typically achieves better compression than PNG for the same visual quality. A PNG
+          can be two to three times larger than the equivalent WebP. This is normal — PNG trades
+          file size for universal compatibility and lossless encoding.
+        </p>
+      </details>
+
+      <details>
+        <summary>Can I convert multiple files at once?</summary>
+        <p>
+          Yes. Drag and drop several WebP files or select them all in the file picker. Each image
+          is converted independently. You can then download everything as a ZIP archive or
+          download them individually.
+        </p>
+      </details>
+
+      <details>
+        <summary>What is the maximum file size?</summary>
+        <p>
+          About 50 MB per image. Beyond that, browser memory and rendering speed become limiting
+          factors. For very large images, resize them first or convert them in a smaller batch.
+        </p>
+      </details>
+
     </section>
   </main>
 
