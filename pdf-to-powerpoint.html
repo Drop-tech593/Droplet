@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PDF to PowerPoint Converter - Droplet</title>
-  <meta name="description" content="Convert PDF pages to PowerPoint (PPTX) slides online for free. 100% client-side, your files never leave your browser.">
+  <title>PDF to PowerPoint Converter Online Free – PDF to PPTX | Droplet</title>
+  <meta name="description" content="Convert PDF pages to PowerPoint (PPTX) slides online for free. Each PDF page becomes a slide image in a standard 16:9 or 4:3 presentation. 100% client-side, private, and free.">
+  <link rel="canonical" href="https://dropletweb.xyz/pdf-to-powerpoint.html">
 
   <!-- Google AdSense -->
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4006702663328202"
@@ -65,6 +66,79 @@
       font-weight: 600;
     }
 
+    /* ============================================================ */
+    /* SEO CONTENT                                                    */
+    /* ============================================================ */
+    .seo-content {
+      max-width: 42rem;
+      margin: 2.5rem auto 1rem;
+      color: #334155;
+      line-height: 1.65;
+    }
+    .seo-content h2 {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #0f172a;
+      margin: 2rem 0 0.5rem;
+    }
+    .seo-content p {
+      margin-bottom: 1rem;
+      font-size: 0.95rem;
+    }
+    .seo-content ul {
+      padding-left: 1.4rem;
+      margin-bottom: 1rem;
+      font-size: 0.95rem;
+    }
+    .seo-content li {
+      margin-bottom: 0.3rem;
+    }
+    .faq-section {
+      max-width: 42rem;
+      margin: 2rem auto;
+    }
+    .faq-section h2 {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #0f172a;
+      text-align: center;
+      margin-bottom: 1.25rem;
+    }
+    .faq-section details {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 0.75rem;
+      padding: 0.75rem 1.25rem;
+      margin-bottom: 0.6rem;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .faq-section summary {
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: #0f172a;
+      cursor: pointer;
+      list-style: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .faq-section summary::-webkit-details-marker { display: none; }
+    .faq-section summary::after {
+      content: "➕";
+      font-size: 0.8rem;
+      color: #94a3b8;
+      transition: transform 0.2s;
+    }
+    .faq-section details[open] summary::after {
+      content: "➖";
+    }
+    .faq-section details p {
+      margin-top: 0.6rem;
+      font-size: 0.9rem;
+      color: #475569;
+      line-height: 1.6;
+    }
+
     /* Dark mode */
     html.dark body { background: #0f172a; color: #e2e8f0; }
     html.dark header { background: #1e293b; border-color: #334155; }
@@ -106,6 +180,11 @@
     html.dark .text-blue-700 { color: #60a5fa !important; }
     html.dark .text-blue-900 { color: #93c5fd !important; }
     html.dark .bg-slate-50 { background: #0f172a !important; }
+    html.dark select {
+      background: #0f172a !important;
+      border-color: #334155 !important;
+      color: #f1f5f9 !important;
+    }
 
     html.dark footer { background: #0f172a !important; border-color: #334155 !important; }
     html.dark footer a { color: #94a3b8; }
@@ -132,6 +211,13 @@
     html.dark .bg-blue-600 { background: #2563eb !important; }
     html.dark .bg-blue-600:hover { background: #1d4ed8 !important; }
     html.dark .shadow-blue-500\/20 { box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.3) !important; }
+
+    html.dark .seo-content { color: #cbd5e1; }
+    html.dark .seo-content h2 { color: #f1f5f9; }
+    html.dark .faq-section h2 { color: #f1f5f9; }
+    html.dark .faq-section details { background: #1e293b; border-color: #334155; }
+    html.dark .faq-section summary { color: #f1f5f9; }
+    html.dark .faq-section details p { color: #94a3b8; }
 
     /* Theme toggle */
     #theme-toggle {
@@ -209,8 +295,8 @@
       <div class="flex items-start gap-3">
         <span class="text-2xl">💡</span>
         <div>
-          <h4 class="font-bold text-sm text-blue-900">Why Convert PDF to PowerPoint?</h4>
-          <p class="text-xs text-blue-700 mt-1">Perfect for turning reports, brochures, or documents into presentation slides. Each PDF page becomes a high-quality slide in a standard 16:9 PowerPoint file that you can edit, annotate, or present directly.</p>
+          <h4 class="font-bold text-sm text-blue-900">How it works — read this first</h4>
+          <p class="text-xs text-blue-700 mt-1">Each PDF page is rendered as a high-resolution image and placed on its own PowerPoint slide. The slides look exactly like the PDF pages, but the text inside is <strong>not editable</strong> — it is a picture. You can still add text boxes, arrows, shapes, and annotations on top of each slide in PowerPoint.</p>
         </div>
       </div>
     </div>
@@ -332,32 +418,222 @@
       </div>
       <div class="bg-white p-4 rounded-xl border border-slate-100 text-center transition-colors duration-200">
         <div class="text-2xl mb-1">📊</div>
-        <h4 class="font-bold text-sm">Editable Slides</h4>
-        <p class="text-xs text-slate-500">Standard PPTX format</p>
+        <h4 class="font-bold text-sm">Standard PPTX</h4>
+        <p class="text-xs text-slate-500">Opens in PowerPoint, Google Slides, Keynote</p>
       </div>
     </div>
 
-    <!-- FAQ Section -->
-    <section class="max-w-2xl mx-auto mt-12">
-      <h2 class="text-xl font-black text-slate-900 text-center mb-6">Frequently Asked Questions</h2>
-      <div class="space-y-3">
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">Is my data safe?</h3>
-          <p class="text-slate-600 text-sm mt-1">Yes! All conversion happens locally in your browser. Your PDF is never uploaded to any server.</p>
-        </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">How are slides generated?</h3>
-          <p class="text-slate-600 text-sm mt-1">Each PDF page is rendered as a high-resolution image and placed on a dedicated PowerPoint slide, preserving the original layout perfectly.</p>
-        </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">Can I edit the text in PowerPoint?</h3>
-          <p class="text-slate-600 text-sm mt-1">The slides contain page images, so text isn't directly editable. You can add text boxes, shapes, or annotations on top of each slide in PowerPoint.</p>
-        </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">Are there file size limits?</h3>
-          <p class="text-slate-600 text-sm mt-1">Most modern browsers handle PDFs up to 100MB. Very large documents with many pages may take longer to process.</p>
-        </div>
-      </div>
+    <!-- ============================================================ -->
+    <!-- SEO CONTENT — How pages become slides, editability, examples  -->
+    <!-- ============================================================ -->
+    <section class="seo-content">
+      <h2>How Each PDF Page Becomes a Slide</h2>
+      <p>
+        The conversion is straightforward. For every page in the PDF, the tool renders that page
+        as a high-resolution image at the quality you selected, then places that image on its own
+        PowerPoint slide. A 12-page PDF produces a 12-slide presentation, in the same order as
+        the original pages.
+      </p>
+      <p>
+        The image is scaled to fit the slide while preserving its aspect ratio. If the PDF page is
+        wider than the slide, it is centred vertically. If the PDF page is taller than the slide,
+        it is centred horizontally. A thin white margin may appear on the sides or top and bottom
+        where the aspect ratios do not match.
+      </p>
+      <p>
+        Each slide has a white background. The PDF page image sits on top of that background at the
+        position calculated to fit. The result is a presentation that looks like the original PDF,
+        slide by slide.
+      </p>
+
+      <h2>What Is Editable and What Is Not</h2>
+      <p>
+        This is the most important thing to understand about this tool. The conversion is
+        <strong>raster-based</strong>, not structural. The PDF page is turned into a picture, and
+        that picture is placed on the slide.
+      </p>
+      <ul>
+        <li><strong>Not editable:</strong> the text inside the page image. You cannot click into a
+            heading and change a word, because the "heading" is just pixels. The same goes for
+            images, tables, and diagrams that were part of the PDF page.</li>
+        <li><strong>Editable:</strong> anything you add on top of the slide in PowerPoint. You can
+            insert text boxes, arrows, shapes, highlights, hyperlinks, and speaker notes. You can
+            also change the slide order, delete slides, duplicate them, or apply a theme.</li>
+        <li><strong>Editable:</strong> the slide size and layout. You choose between 16:9
+            widescreen and 4:3 standard before conversion. Both are real PowerPoint slide
+            dimensions, not custom placeholders.</li>
+      </ul>
+      <p>
+        If you need to edit the text itself, this tool is not the right choice. Use a PDF editor
+        or a dedicated PDF-to-PPTX converter that reconstructs text boxes. That kind of conversion
+        is much harder and usually requires a server-side service or a desktop application.
+      </p>
+
+      <h2>Why the Output Is a Picture, Not Real Text</h2>
+      <p>
+        PDFs store text as positioned glyphs with embedded fonts, not as editable text boxes. To
+        reconstruct that text as editable PowerPoint text runs, you would need to:
+      </p>
+      <ul>
+        <li>Detect every paragraph, heading, and list on every page.</li>
+        <li>Map each one to a PowerPoint text frame with the right font, size, colour, and position.</li>
+        <li>Recreate tables, columns, and images as native PowerPoint objects.</li>
+        <li>Deal with fonts that are embedded in the PDF but not installed on the viewer's machine.</li>
+      </ul>
+      <p>
+        That is a hard problem, and any tool that claims to do it perfectly is overstating what is
+        possible. The raster approach used here is honest: it gives you a slide that looks exactly
+        like the PDF page, and it tells you clearly that the text inside is not editable.
+      </p>
+
+      <h2>Slide Size and Image Quality</h2>
+      <p>
+        Two settings control the output:
+      </p>
+      <ul>
+        <li><strong>Slide size</strong> — 16:9 widescreen is the default and matches modern
+            projectors and screens. 4:3 standard is useful for older equipment or when the source
+            PDF pages are themselves in a 4:3 ratio.</li>
+        <li><strong>Image quality</strong> — Standard (1.5× render scale) produces the smallest
+            file and is fine for screen viewing. High (2×) is the default and looks sharp on most
+            displays. Maximum (3×) produces the largest file but preserves fine detail for print
+            or large-screen projection.</li>
+      </ul>
+
+      <h2>Practical Uses</h2>
+      <p>
+        <strong>Turning a report into a presentation:</strong> Convert the PDF to PPTX, then add
+        title slides, notes, and highlights on top of each page image. The original layout is
+        preserved exactly.
+      </p>
+      <p>
+        <strong>Reviewing a design proof with a client:</strong> Convert the PDF proof to PPTX and
+        annotate each slide with arrows and comments. The client sees the exact artwork.
+      </p>
+      <p>
+        <strong>Archiving a PDF as a slide deck:</strong> If you need the content in a presentation
+        format for consistency with other decks, this gives you a one-page-per-slide copy.
+      </p>
+      <p>
+        <strong>Annotating a scanned document:</strong> Scanned PDFs work exactly the same way —
+        each scanned page becomes a slide image, and you can mark it up in PowerPoint.
+      </p>
+
+      <h2>Privacy — Client-Side Conversion</h2>
+      <p>
+        PDF parsing uses the open-source PDF.js library and PPTX generation uses PptxGenJS. Both run
+        entirely in your browser. Your PDF is read into memory and never transmitted. The only
+        external resources loaded are the libraries themselves from a CDN.
+      </p>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- FAQ SECTION                                                   -->
+    <!-- ============================================================ -->
+    <section class="faq-section">
+      <h2>PDF to PowerPoint Questions</h2>
+
+      <details>
+        <summary>Can I edit the text in the slides after conversion?</summary>
+        <p>
+          No. Each PDF page is converted to an image, so the text inside the image is not editable.
+          You can add new text boxes, shapes, and annotations on top of each slide in PowerPoint,
+          but you cannot change the original text.
+        </p>
+      </details>
+
+      <details>
+        <summary>How many slides will my presentation have?</summary>
+        <p>
+          One slide per PDF page. A 20-page PDF becomes a 20-slide presentation. The slides are in
+          the same order as the PDF pages.
+        </p>
+      </details>
+
+      <details>
+        <summary>What slide sizes are supported?</summary>
+        <p>
+          16:9 widescreen and 4:3 standard. Both are real PowerPoint slide dimensions. Choose the
+          one that matches your projector or your organisation's template.
+        </p>
+      </details>
+
+      <details>
+        <summary>Will the slides look exactly like the PDF?</summary>
+        <p>
+          Each slide contains a high-resolution image of the corresponding PDF page, so it looks
+          very close to the original. If the PDF page's aspect ratio does not match the slide's
+          aspect ratio, a thin white margin appears on the sides or top and bottom.
+        </p>
+      </details>
+
+      <details>
+        <summary>Can I change the image quality?</summary>
+        <p>
+          Yes. Choose Standard, High, or Maximum before converting. Higher quality means a larger
+          file and longer conversion time, but sharper images when projected or printed.
+        </p>
+      </details>
+
+      <details>
+        <summary>Are scanned PDFs supported?</summary>
+        <p>
+          Yes. Scanned PDFs work exactly the same way. Each scanned page becomes a slide image.
+          You can then annotate the slides in PowerPoint.
+        </p>
+      </details>
+
+      <details>
+        <summary>Does the output open in Google Slides or Keynote?</summary>
+        <p>
+          Yes. The output is a standard .pptx file, which opens in Microsoft PowerPoint, Google
+          Slides, Apple Keynote, and LibreOffice Impress.
+        </p>
+      </details>
+
+      <details>
+        <summary>Can I convert a password-protected PDF?</summary>
+        <p>
+          No. The converter can only read PDFs that open without a password. If your PDF requires
+          a password, remove the protection first using a dedicated PDF tool, then convert it here.
+        </p>
+      </details>
+
+      <details>
+        <summary>Why is the file size larger than the original PDF?</summary>
+        <p>
+          Because the output is a set of high-resolution images inside a PPTX container. Images are
+          much larger than the vector text they replace. Choose the Standard quality setting if
+          file size matters.
+        </p>
+      </details>
+
+      <details>
+        <summary>Is my PDF uploaded to a server?</summary>
+        <p>
+          No. All parsing and conversion happen locally in your browser using PDF.js and PptxGenJS.
+          Your file never leaves your device. You can disconnect from the internet after the page
+          loads and the tool will continue to work.
+        </p>
+      </details>
+
+      <details>
+        <summary>Can I add speaker notes to the slides?</summary>
+        <p>
+          Yes, but not in this tool. After downloading the PPTX, open it in PowerPoint and add
+          speaker notes to each slide. The notes are stored separately from the page image and are
+          fully editable.
+        </p>
+      </details>
+
+      <details>
+        <summary>Can I reorder or delete slides after conversion?</summary>
+        <p>
+          Yes. The downloaded PPTX is a normal presentation file. Open it in PowerPoint and use the
+          slide sorter to reorder, duplicate, or delete slides as needed.
+        </p>
+      </details>
+
     </section>
   </main>
 
