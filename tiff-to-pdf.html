@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TIFF to PDF Converter - Droplet</title>
-  <meta name="description" content="Convert TIFF images to PDF online for free. 100% client-side, your files never leave your browser. Supports multi-page TIFF files.">
+  <title>TIFF to PDF Converter Online Free – Convert TIFF Images | Droplet</title>
+  <meta name="description" content="Convert TIFF images to PDF online for free. Handles multi-page TIFF files. Choose page size, quality, and colour mode. 100% client-side, private, and free.">
+  <link rel="canonical" href="https://dropletweb.xyz/tiff-to-pdf">
 
   <!-- ===== GOOGLE ADSENSE ===== -->
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4006702663328202"
@@ -103,6 +104,98 @@
     .badge-converted { background: #d1fae5; color: #065f46; }
     .badge-size { background: #fef3c7; color: #92400e; }
     .badge-multi { background: #fce7f3; color: #9d174d; }
+
+    /* ============================================================ */
+    /* SEO CONTENT                                                    */
+    /* ============================================================ */
+    .seo-content {
+      max-width: 42rem;
+      margin: 2.5rem auto 1rem;
+      color: #334155;
+      line-height: 1.65;
+    }
+    .seo-content h2 {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #0f172a;
+      margin: 2rem 0 0.5rem;
+    }
+    .seo-content p {
+      margin-bottom: 1rem;
+      font-size: 0.95rem;
+    }
+    .seo-content ul {
+      padding-left: 1.4rem;
+      margin-bottom: 1rem;
+      font-size: 0.95rem;
+    }
+    .seo-content li {
+      margin-bottom: 0.3rem;
+    }
+    .seo-content table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 1rem;
+      font-size: 0.9rem;
+    }
+    .seo-content th {
+      background: #f1f5f9;
+      padding: 8px 12px;
+      text-align: left;
+      border: 1px solid #e2e8f0;
+      font-weight: 700;
+      color: #0f172a;
+    }
+    .seo-content td {
+      padding: 8px 12px;
+      border: 1px solid #e2e8f0;
+      color: #475569;
+    }
+    .faq-section {
+      max-width: 42rem;
+      margin: 2rem auto;
+    }
+    .faq-section h2 {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #0f172a;
+      text-align: center;
+      margin-bottom: 1.25rem;
+    }
+    .faq-section details {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 0.75rem;
+      padding: 0.75rem 1.25rem;
+      margin-bottom: 0.6rem;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .faq-section summary {
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: #0f172a;
+      cursor: pointer;
+      list-style: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .faq-section summary::-webkit-details-marker { display: none; }
+    .faq-section summary::after {
+      content: "➕";
+      font-size: 0.8rem;
+      color: #94a3b8;
+      transition: transform 0.2s;
+    }
+    .faq-section details[open] summary::after {
+      content: "➖";
+    }
+    .faq-section details p {
+      margin-top: 0.6rem;
+      font-size: 0.9rem;
+      color: #475569;
+      line-height: 1.6;
+    }
 
     /* ============================================ */
     /* DARK MODE OVERRIDES */
@@ -258,6 +351,14 @@
       background: #3b1e2e;
       color: #f9a8d4;
     }
+    html.dark .seo-content { color: #cbd5e1; }
+    html.dark .seo-content h2 { color: #f1f5f9; }
+    html.dark .seo-content th { background: #1e293b; color: #f1f5f9; border-color: #334155; }
+    html.dark .seo-content td { border-color: #334155; color: #cbd5e1; }
+    html.dark .faq-section h2 { color: #f1f5f9; }
+    html.dark .faq-section details { background: #1e293b; border-color: #334155; }
+    html.dark .faq-section summary { color: #f1f5f9; }
+    html.dark .faq-section details p { color: #94a3b8; }
 
     /* Theme toggle in header */
     #theme-toggle {
@@ -336,17 +437,6 @@
       <p class="text-slate-500 text-sm md:text-base mt-2 max-w-lg mx-auto">
         Convert your TIFF images to PDF format. <strong>100% client-side</strong> — your files never leave your browser.
       </p>
-    </div>
-
-    <!-- What is TIFF Info -->
-    <div class="max-w-2xl mx-auto mb-8 bg-blue-50 border border-blue-200 rounded-xl p-4 transition-colors duration-200">
-      <div class="flex items-start gap-3">
-        <span class="text-2xl">📋</span>
-        <div>
-          <h4 class="font-bold text-sm text-blue-900">What is TIFF?</h4>
-          <p class="text-xs text-blue-700 mt-1">TIFF (Tagged Image File Format) is a high-quality, lossless image format commonly used in photography, scanning, and professional printing. Converting to PDF creates a universally compatible document that preserves image quality.</p>
-        </div>
-      </div>
     </div>
 
     <!-- Conversion Dropzone -->
@@ -493,62 +583,327 @@
       </div>
     </div>
 
-    <!-- TIFF vs PDF Comparison -->
-    <section class="max-w-2xl mx-auto mt-12">
-      <h2 class="text-xl font-black text-slate-900 text-center mb-6">TIFF vs PDF Comparison</h2>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm flex items-center gap-2">
-            <span class="text-xl">📋</span> TIFF
-          </h3>
-          <ul class="text-sm text-slate-600 mt-2 space-y-1">
-            <li>✅ Lossless quality</li>
-            <li>✅ Supports multi-page</li>
-            <li>✅ High color depth</li>
-            <li>❌ Large file size</li>
-            <li>❌ Not universally viewable</li>
-          </ul>
-        </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm flex items-center gap-2">
-            <span class="text-xl">🔵</span> PDF
-          </h3>
-          <ul class="text-sm text-slate-600 mt-2 space-y-1">
-            <li>✅ Universally compatible</li>
-            <li>✅ Smaller file size</li>
-            <li>✅ Supports multi-page</li>
-            <li>✅ Searchable text</li>
-            <li>❌ Potential quality loss</li>
-          </ul>
-        </div>
-      </div>
+    <!-- ============================================================ -->
+    <!-- SEO CONTENT — Multi-page, dimensions, compression, colour     -->
+    <!-- ============================================================ -->
+    <section class="seo-content">
+      <h2>How TIFF to PDF Conversion Works</h2>
+      <p>
+        The converter reads your TIFF file in the browser using the open-source UTIF.js library.
+        It decodes each frame (called an IFD — Image File Directory) inside the TIFF, converts the
+        pixels to RGBA, draws them onto a canvas, and then renders each canvas as a page in the
+        PDF. Everything happens locally on your device.
+      </p>
+      <p>
+        The final PDF is built using html2pdf, which rasterises each canvas and places it on a
+        page at the size you choose.
+      </p>
+
+      <h2>Multi-Page TIFF — One Frame Becomes One PDF Page</h2>
+      <p>
+        A TIFF file can contain more than one image. Each of those images is called a
+        <strong>frame</strong> or a <strong>page</strong>, and each one is stored in its own
+        Image File Directory (IFD) inside the file. Multi-page TIFFs are common in faxes, medical
+        imaging, scanned document archives, and photography.
+      </p>
+      <p>
+        This converter handles multi-page TIFFs natively. The mapping is simple and predictable:
+      </p>
+      <ul>
+        <li>Each frame in the TIFF becomes exactly <strong>one page</strong> in the PDF.</li>
+        <li>A single-frame TIFF produces a one-page PDF.</li>
+        <li>A five-frame TIFF produces a five-page PDF.</li>
+        <li>A fifty-frame TIFF produces a fifty-page PDF.</li>
+      </ul>
+      <p>
+        The page order matches the frame order in the TIFF. Frame 1 becomes page 1, frame 2
+        becomes page 2, and so on. No reordering happens during conversion.
+      </p>
+      <p>
+        When you convert a batch of TIFF files, each file produces one PDF. A two-file batch where
+        the first file has three frames and the second file has one frame produces two PDFs — a
+        three-page PDF and a one-page PDF.
+      </p>
+
+      <h2>Image Dimensions and Page Sizing</h2>
+      <p>
+        TIFF files store each frame's width and height in pixels. The converter reads those
+        dimensions and renders each frame at its native pixel size onto the page.
+      </p>
+      <p>
+        Four page-size options are available:
+      </p>
+      <table>
+        <thead>
+          <tr>
+            <th>Option</th>
+            <th>Behaviour</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>A4 (210 × 297 mm)</td>
+            <td>Frame is centred on an A4 page, scaled to fit within the printable area.</td>
+          </tr>
+          <tr>
+            <td>Letter (8.5 × 11 in)</td>
+            <td>Same behaviour on a US Letter page.</td>
+          </tr>
+          <tr>
+            <td>Legal (8.5 × 14 in)</td>
+            <td>Same behaviour on a US Legal page.</td>
+          </tr>
+          <tr>
+            <td>Fit to Image</td>
+            <td>PDF page is exactly the size of the frame, with no surrounding paper.</td>
+          </tr>
+        </tbody>
+      </table>
+      <p>
+        Aspect ratio is always preserved. A landscape frame stays landscape, a portrait frame
+        stays portrait. If the frame's aspect ratio does not match the page's aspect ratio, white
+        space appears on two sides rather than the image being stretched or cropped.
+      </p>
+      <p>
+        For borderless results, choose <strong>Fit to Image</strong>. This is common when the
+        TIFF already has its own border or when the PDF is intended for digital-only use.
+      </p>
+
+      <h2>Image Quality and Compression</h2>
+      <p>
+        TIFF is usually a lossless format, meaning the original pixel data is stored without any
+        compression artefacts. The PDF format supports both lossless and lossy image data, so the
+        converter must choose how to compress the frames when embedding them.
+      </p>
+      <p>
+        The <strong>Image Quality</strong> setting controls this:
+      </p>
+      <table>
+        <thead>
+          <tr>
+            <th>Setting</th>
+            <th>Rendering Scale</th>
+            <th>Typical Use</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Low (Faster)</td>
+            <td>1×</td>
+            <td>Quick previews, small PDFs for email, thumbnails</td>
+          </tr>
+          <tr>
+            <td>Medium</td>
+            <td>1.5×</td>
+            <td>General use, sharing, archiving — the default</td>
+          </tr>
+          <tr>
+            <td>High (Better Quality)</td>
+            <td>2.5×</td>
+            <td>Printing, detailed scans, archival copies</td>
+          </tr>
+        </tbody>
+      </table>
+      <p>
+        Higher scales produce sharper images at the cost of larger files. JPEG compression is
+        applied at 0.92 quality, which is visually near-lossless for photographs and scans. For
+        text-heavy scanned documents, Medium quality is usually more than enough.
+      </p>
+      <p>
+        Note that the original TIFF's own compression scheme (LZW, ZIP, JPEG-in-TIFF) is
+        discarded during decoding. The output PDF uses JPEG compression regardless of the input
+        method.
+      </p>
+
+      <h2>Colour and Grayscale</h2>
+      <p>
+        Two colour modes are offered:
+      </p>
+      <ul>
+        <li><strong>Colour</strong> — preserves the original RGB channels of each frame. Use
+            this for photographs, colour scans, and any image where colour carries information.</li>
+        <li><strong>Grayscale</strong> — converts each pixel to luminance using the standard
+            formula (0.299 R + 0.587 G + 0.114 B). This reduces file size by roughly 30–50% and
+            is often preferred for text documents, faxes, and line-art scans where colour adds
+            nothing.</li>
+      </ul>
+      <p>
+        Grayscale is applied per pixel, so the output is a true greyscale image, not a colour
+        image with desaturated pixels. This produces cleaner results and smaller files.
+      </p>
+
+      <h2>What Is Preserved and What Is Not</h2>
+      <p>
+        Preserved:
+      </p>
+      <ul>
+        <li>Frame count and order (one frame = one page).</li>
+        <li>Pixel dimensions and aspect ratio of each frame.</li>
+        <li>Full colour data (in colour mode).</li>
+        <li>Alpha channel handling — transparent areas are rendered against white.</li>
+      </ul>
+      <p>
+        Not preserved:
+      </p>
+      <ul>
+        <li><strong>TIFF metadata</strong> — EXIF, GPS coordinates, camera model, and ICC colour
+            profiles are stripped during decoding. The output PDF does not carry them.</li>
+        <li><strong>TIFF-specific colour spaces</strong> — CMYK TIFFs are converted to RGB. Lab
+            TIFFs are converted to RGB. The output is always sRGB-ish.</li>
+        <li><strong>Layer information</strong> — if the TIFF contains layers (rare, but some
+            formats support it), only the flattened composite is used.</li>
+        <li><strong>Annotations or overlays</strong> — non-pixel data attached to the TIFF is not
+            rendered.</li>
+      </ul>
+
+      <h2>Practical Examples</h2>
+      <p>
+        <strong>Converting a fax to PDF:</strong> A fax machine usually produces a single-page or
+        multi-page TIFF at low resolution and monochrome. Upload the TIFF, choose A4, Medium
+        quality, and Grayscale. The result is a small, clean PDF.
+      </p>
+      <p>
+        <strong>Archiving scanned photographs:</strong> A flatbed scanner may produce high-
+        resolution TIFFs, one per photo. Upload them in a batch, choose Fit to Image, High
+        quality, and Colour. Each photo becomes its own PDF at its native dimensions.
+      </p>
+      <p>
+        <strong>Digitising medical or legal records:</strong> Multi-page TIFFs are common in these
+        fields. Upload the file, choose A4, High quality, and Grayscale (if the pages are
+        monochrome text). The multi-page TIFF becomes a multi-page PDF with the same page order.
+      </p>
+      <p>
+        <strong>Preparing images for print:</strong> For print, use A4 or Letter, High quality,
+        and Colour. The PDF preserves the detail at the resolution needed for output.
+      </p>
+      <p>
+        <strong>Reducing file size for email:</strong> Upload the TIFFs, choose A4, Low quality,
+        and Grayscale. A 50 MB TIFF can produce a PDF under 1 MB, small enough to email.
+      </p>
+
+      <h2>Privacy — Client-Side Conversion</h2>
+      <p>
+        TIFF parsing uses the open-source UTIF.js library and PDF generation uses html2pdf. Both
+        run entirely in your browser. Your TIFF files are read into memory and never transmitted.
+        The only external resources loaded are the libraries themselves from a CDN. You can
+        disconnect from the internet after the page loads and the tool will continue to work.
+      </p>
     </section>
 
-    <!-- FAQ Section -->
-    <section class="max-w-2xl mx-auto mt-12">
-      <h2 class="text-xl font-black text-slate-900 text-center mb-6">Frequently Asked Questions</h2>
-      <div class="space-y-3">
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">Is my data safe?</h3>
-          <p class="text-slate-600 text-sm mt-1">Yes! All conversions happen locally in your browser. Your TIFF files are never uploaded to any server and are automatically deleted when you close the page.</p>
-        </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">Why convert TIFF to PDF?</h3>
-          <p class="text-slate-600 text-sm mt-1">PDF is universally compatible, has smaller file sizes, and can be opened on any device without special software. Converting TIFF to PDF makes your documents accessible to everyone.</p>
-        </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">What about multi-page TIFFs?</h3>
-          <p class="text-slate-600 text-sm mt-1">Multi-page TIFF files are fully supported. Each page becomes a separate page in the PDF, preserving the document structure.</p>
-        </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">Will I lose image quality?</h3>
-          <p class="text-slate-600 text-sm mt-1">TIFF is a lossless format, and this converter preserves quality when creating PDFs. Using the "High" quality setting ensures minimal quality loss.</p>
-        </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">Can I convert multiple files at once?</h3>
-          <p class="text-slate-600 text-sm mt-1">Yes! Drag and drop multiple TIFF files or select multiple files using the file picker. Each file will be converted individually, and you can download them all at once as a ZIP file.</p>
-        </div>
-      </div>
+    <!-- ============================================================ -->
+    <!-- FAQ SECTION                                                   -->
+    <!-- ============================================================ -->
+    <section class="faq-section">
+      <h2>TIFF to PDF Questions</h2>
+
+      <details>
+        <summary>Is my data safe?</summary>
+        <p>
+          Yes. All conversion happens locally in your browser using UTIF.js. Your TIFF files are
+          never uploaded to any server. You can disconnect from the internet after the page loads
+          and the tool will continue to work.
+        </p>
+      </details>
+
+      <details>
+        <summary>How does this converter handle multi-page TIFF files?</summary>
+        <p>
+          Each frame (page) inside the TIFF becomes one PDF page. A five-frame TIFF produces a
+          five-page PDF. A single-frame TIFF produces a one-page PDF. Page order matches frame
+          order, and the page count of the output equals the frame count of the input.
+        </p>
+      </details>
+
+      <details>
+        <summary>Will I lose image quality?</summary>
+        <p>
+          The original TIFF is decoded and re-encoded as a JPEG inside the PDF. At High quality,
+          the loss is visually imperceptible for most content. At Low quality, the file is smaller
+          but small text and fine detail may soften. For archival, use High.
+        </p>
+      </details>
+
+      <details>
+        <summary>What page sizes are available?</summary>
+        <p>
+          A4, Letter, Legal, and Fit to Image. The first three place the frame on a standard page
+          with a small margin. Fit to Image makes the PDF page exactly the size of the frame, with
+          no surrounding paper.
+        </p>
+      </details>
+
+      <details>
+        <summary>Can I convert multiple TIFF files at once?</summary>
+        <p>
+          Yes. Drag and drop several TIFF files or select them all in the file picker. Each file
+          produces its own PDF, and multi-page TIFFs produce multi-page PDFs. You can then download
+          everything as a ZIP or individually.
+        </p>
+      </details>
+
+      <details>
+        <summary>Does it support CMYK or Lab TIFFs?</summary>
+        <p>
+          The converter reads RGB values from each frame. CMYK and Lab TIFFs are converted to RGB
+          during decoding. The output PDF is always in RGB colour space. Colours may shift
+          slightly if the original was in a wide-gamut space.
+        </p>
+      </details>
+
+      <details>
+        <summary>What does Grayscale do?</summary>
+        <p>
+          Grayscale converts each pixel to a single luminance value using the standard formula
+          (0.299 R + 0.587 G + 0.114 B). This reduces file size by 30–50% and is often preferred
+          for text-heavy scans and faxes where colour adds no information.
+        </p>
+      </details>
+
+      <details>
+        <summary>Will the PDF preserve the exact pixel dimensions?</summary>
+        <p>
+          Each frame is rendered at its native pixel dimensions multiplied by the quality scale.
+          At Medium quality (1.5×), a 1000×1500 TIFF frame produces a PDF page containing a
+          1500×2250 pixel image. At High (2.5×), it produces 2500×3750 pixels. Choose Fit to Image
+          to keep the PDF page at exactly the frame's natural size.
+        </p>
+      </details>
+
+      <details>
+        <summary>Is the TIFF metadata (GPS, camera model) preserved?</summary>
+        <p>
+          No. TIFF metadata is stripped during decoding. The output PDF does not carry EXIF, GPS
+          coordinates, camera model, capture date, or ICC colour profiles. This is good for privacy
+          but means the original metadata is lost.
+        </p>
+      </details>
+
+      <details>
+        <summary>Can I download all PDFs at once?</summary>
+        <p>
+          Yes. Click "Download All (ZIP)" in the results section. Every converted PDF is packaged
+          into a single ZIP archive generated in your browser using JSZip. Nothing is uploaded.
+        </p>
+      </details>
+
+      <details>
+        <summary>What is the maximum file size?</summary>
+        <p>
+          About 100 MB per TIFF file. Very large multi-page TIFFs with hundreds of frames may be
+          slow to process and use significant memory. For best performance, split very large files
+          into smaller batches.
+        </p>
+      </details>
+
+      <details>
+        <summary>Can I convert other image formats?</summary>
+        <p>
+          The tool accepts any image format the browser can decode — JPG, PNG, WebP, GIF, BMP,
+          and TIFF. The output is always a PDF. For the best multi-page experience, TIFF is the
+          format that natively supports multiple frames in a single file.
+        </p>
+      </details>
+
     </section>
   </main>
 
