@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>XML to JSON Converter - Droplet</title>
-  <meta name="description" content="Convert XML data to JSON online for free. 100% client-side, your files never leave your browser. Supports nested XML and attributes.">
+  <title>XML to JSON Converter Online Free – Convert XML Data | Droplet</title>
+  <meta name="description" content="Convert XML data to JSON online for free. Preserves attributes as _attributes, groups repeated elements into arrays. 100% client-side, private, and free.">
+  <link rel="canonical" href="https://dropletweb.xyz/xml-to-json.html">
 
   <!-- ===== GOOGLE ADSENSE ===== -->
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4006702663328202"
@@ -56,6 +57,135 @@
     .badge-nodes { background: #dbeafe; color: #1e40af; }
     .badge-size { background: #fef3c7; color: #92400e; }
     .badge-attr { background: #d1fae5; color: #065f46; }
+
+    /* ============================================================ */
+    /* SEO CONTENT                                                    */
+    /* ============================================================ */
+    .seo-content {
+      max-width: 42rem;
+      margin: 2.5rem auto 1rem;
+      color: #334155;
+      line-height: 1.65;
+    }
+    .seo-content h2 {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #0f172a;
+      margin: 2rem 0 0.5rem;
+    }
+    .seo-content p {
+      margin-bottom: 1rem;
+      font-size: 0.95rem;
+    }
+    .seo-content ul {
+      padding-left: 1.4rem;
+      margin-bottom: 1rem;
+      font-size: 0.95rem;
+    }
+    .seo-content li {
+      margin-bottom: 0.3rem;
+    }
+    .seo-content pre {
+      background: #1e293b;
+      color: #e2e8f0;
+      padding: 14px 16px;
+      border-radius: 10px;
+      overflow-x: auto;
+      font-size: 12.5px;
+      line-height: 1.6;
+      margin-bottom: 1rem;
+    }
+    .seo-content code {
+      background: #f1f5f9;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.9em;
+      color: #be185d;
+    }
+    .seo-content pre code {
+      background: transparent;
+      color: inherit;
+      padding: 0;
+    }
+    .example-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 1.5rem;
+    }
+    .example-box {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 16px;
+    }
+    .example-box h4 {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #94a3b8;
+      margin: 0 0 10px;
+    }
+    .example-box pre {
+      background: #1e293b;
+      color: #e2e8f0;
+      padding: 12px 14px;
+      border-radius: 8px;
+      font-size: 11.5px;
+      line-height: 1.55;
+      margin: 0;
+      overflow-x: auto;
+    }
+    @media (max-width: 640px) {
+      .example-grid { grid-template-columns: 1fr; }
+    }
+    .faq-section {
+      max-width: 42rem;
+      margin: 2rem auto;
+    }
+    .faq-section h2 {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #0f172a;
+      text-align: center;
+      margin-bottom: 1.25rem;
+    }
+    .faq-section details {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 0.75rem;
+      padding: 0.75rem 1.25rem;
+      margin-bottom: 0.6rem;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .faq-section summary {
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: #0f172a;
+      cursor: pointer;
+      list-style: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .faq-section summary::-webkit-details-marker { display: none; }
+    .faq-section summary::after {
+      content: "➕";
+      font-size: 0.8rem;
+      color: #94a3b8;
+      transition: transform 0.2s;
+    }
+    .faq-section details[open] summary::after {
+      content: "➖";
+    }
+    .faq-section details p {
+      margin-top: 0.6rem;
+      font-size: 0.9rem;
+      color: #475569;
+      line-height: 1.6;
+    }
 
     /* ============================================ */
     /* DARK MODE OVERRIDES */
@@ -262,6 +392,14 @@
     html.dark .shadow-blue-500\/20 {
       box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.3) !important;
     }
+    html.dark .seo-content { color: #cbd5e1; }
+    html.dark .seo-content h2 { color: #f1f5f9; }
+    html.dark .seo-content code { background: #0f172a; color: #f9a8d4; }
+    html.dark .example-box { background: #0f172a; border-color: #334155; }
+    html.dark .faq-section h2 { color: #f1f5f9; }
+    html.dark .faq-section details { background: #1e293b; border-color: #334155; }
+    html.dark .faq-section summary { color: #f1f5f9; }
+    html.dark .faq-section details p { color: #94a3b8; }
 
     /* Theme toggle in header */
     #theme-toggle {
@@ -463,62 +601,362 @@
       </div>
     </div>
 
-    <!-- XML vs JSON Comparison -->
-    <section class="max-w-2xl mx-auto mt-12">
-      <h2 class="text-xl font-black text-slate-900 text-center mb-6">XML vs JSON Comparison</h2>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm flex items-center gap-2">
-            <span class="text-xl">📄</span> XML
-          </h3>
-          <ul class="text-sm text-slate-600 mt-2 space-y-1">
-            <li>✅ Supports attributes</li>
-            <li>✅ Human-readable</li>
-            <li>✅ Widely used in enterprise</li>
-            <li>❌ Verbose syntax</li>
-            <li>❌ Larger file size</li>
-          </ul>
+    <!-- ============================================================ -->
+    <!-- SEO CONTENT — Attributes, child nodes, arrays, malformed XML  -->
+    <!-- ============================================================ -->
+    <section class="seo-content">
+      <h2>How XML Elements Become JSON Keys</h2>
+      <p>
+        XML is a tree of elements. Each element has a tag name and can contain child elements, text
+        content, and attributes. JSON is a tree of key/value pairs. The converter walks the XML tree
+        and produces a matching JSON tree, following a few simple rules.
+      </p>
+      <p>
+        A simple element with only text content becomes a string or number value:
+      </p>
+      <pre><code>&lt;age&gt;30&lt;/age&gt;    →    "age": 30</code></pre>
+      <p>
+        An element with child elements becomes a nested object:
+      </p>
+      <pre><code>&lt;person&gt;
+  &lt;name&gt;Alice&lt;/name&gt;
+  &lt;age&gt;30&lt;/age&gt;
+&lt;/person&gt;
+
+    →
+
+"person": {
+  "name": "Alice",
+  "age": 30
+}</code></pre>
+      <p>
+        The tag name becomes the JSON key, and the element's content becomes the value. Nesting is
+        preserved at every level, so a five-level XML tree produces a five-level JSON tree.
+      </p>
+
+      <h2>Attributes — Stored Under _attributes</h2>
+      <p>
+        XML attributes are stored inside the opening tag, like <code>id="123"</code>. JSON has no
+        equivalent concept, so the converter groups all of an element's attributes into a special
+        object called <code>_attributes</code>. That object sits alongside the element's other keys.
+      </p>
+      <pre><code>&lt;person id="123" role="admin"&gt;
+  &lt;name&gt;Alice&lt;/name&gt;
+&lt;/person&gt;
+
+    →
+
+"person": {
+  "_attributes": {
+    "id": 123,
+    "role": "admin"
+  },
+  "name": "Alice"
+}</code></pre>
+      <p>
+        The underscore prefix is a convention that makes attributes easy to identify and avoids
+        collisions with real child elements. If an element has both an attribute called
+        <code>name</code> and a child element called <code>name</code>, the attribute is inside
+        <code>_attributes.name</code> and the child element is at <code>name</code> — no conflict.
+      </p>
+
+      <h2>Repeated Elements Become Arrays</h2>
+      <p>
+        XML allows multiple sibling elements with the same tag name. For example, a book catalog
+        might have many <code>&lt;book&gt;</code> elements. In JSON, a key can only appear once in an
+        object, so the converter groups repeated siblings into an array.
+      </p>
+      <pre><code>&lt;catalog&gt;
+  &lt;book&gt;A&lt;/book&gt;
+  &lt;book&gt;B&lt;/book&gt;
+  &lt;book&gt;C&lt;/book&gt;
+&lt;/catalog&gt;
+
+    →
+
+"catalog": {
+  "book": ["A", "B", "C"]
+}</code></pre>
+      <p>
+        The rule is simple: if a tag appears once, its value is the single object. If it appears
+        more than once, its value becomes an array of those objects. This is the standard
+        convention used by xml2js and most other XML-to-JSON tools.
+      </p>
+      <p>
+        Note that the converter does <strong>not</strong> force every element into an array. A
+        single <code>&lt;book&gt;</code> produces a single object, not a one-element array. This
+        keeps the output compact and matches how most JSON APIs are structured.
+      </p>
+
+      <h2>Text Content and Mixed Content</h2>
+      <p>
+        If an element has only text content and no children or attributes, the text becomes the
+        value directly. If the text is numeric, it is converted to a number. If it is
+        <code>true</code> or <code>false</code>, it becomes a boolean.
+      </p>
+      <p>
+        Elements with a mix of text and child elements — called <em>mixed content</em> — are the
+        hardest case. XML allows text to be interspersed with child elements in any order. The
+        converter uses the <code>_</code> key to hold the text content when child elements also
+        exist. For example:
+      </p>
+      <pre><code>&lt;p&gt;Hello &lt;b&gt;world&lt;/b&gt;!&lt;/p&gt;
+
+    →
+
+"p": {
+  "_": "Hello !",
+  "b": "world"
+}</code></pre>
+      <p>
+        Mixed content is rare in data-oriented XML but common in documents. If your XML is
+        document-style (HTML-like), expect to see <code>_</code> keys in the output.
+      </p>
+
+      <h2>A Real Example: XML In, JSON Out</h2>
+      <p>
+        Here is a complete example showing how the converter handles a small, realistic document
+        with attributes, nested children, and repeated elements.
+      </p>
+      <div class="example-grid">
+        <div class="example-box">
+          <h4>Input XML</h4>
+          <pre><code>&lt;?xml version="1.0"?&gt;
+&lt;company name="Acme"&gt;
+  &lt;employee id="1"&gt;
+    &lt;name&gt;Alice&lt;/name&gt;
+    &lt;role&gt;Engineer&lt;/role&gt;
+    &lt;active&gt;true&lt;/active&gt;
+  &lt;/employee&gt;
+  &lt;employee id="2"&gt;
+    &lt;name&gt;Bob&lt;/name&gt;
+    &lt;role&gt;Designer&lt;/role&gt;
+    &lt;active&gt;false&lt;/active&gt;
+  &lt;/employee&gt;
+&lt;/company&gt;</code></pre>
         </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm flex items-center gap-2">
-            <span class="text-xl">🔵</span> JSON
-          </h3>
-          <ul class="text-sm text-slate-600 mt-2 space-y-1">
-            <li>✅ Compact syntax</li>
-            <li>✅ Native JavaScript support</li>
-            <li>✅ Smaller file size</li>
-            <li>✅ Faster parsing</li>
-            <li>❌ No built-in attributes</li>
-          </ul>
+        <div class="example-box">
+          <h4>Output JSON</h4>
+          <pre><code>{
+  "company": {
+    "_attributes": {
+      "name": "Acme"
+    },
+    "employee": [
+      {
+        "_attributes": { "id": 1 },
+        "name": "Alice",
+        "role": "Engineer",
+        "active": true
+      },
+      {
+        "_attributes": { "id": 2 },
+        "name": "Bob",
+        "role": "Designer",
+        "active": false
+      }
+    ]
+  }
+}</code></pre>
         </div>
       </div>
+      <p>
+        Notice four things: the root element <code>&lt;company&gt;</code> became the top-level key
+        <code>company</code>; its attribute <code>name</code> is inside <code>_attributes</code>;
+        the two <code>&lt;employee&gt;</code> siblings became an array; and the numeric <code>id</code>
+        attribute and boolean <code>active</code> values were typed as number and boolean rather
+        than as strings.
+      </p>
+
+      <h2>Malformed XML — What Happens</h2>
+      <p>
+        XML is strict. Unlike HTML, it does not tolerate unclosed tags, mismatched tags, or
+        unescaped special characters. The parser will refuse to process malformed XML, and you will
+        see an error message. Some common problems and their fixes:
+      </p>
+      <ul>
+        <li><strong>Unclosed tag</strong> — <code>&lt;name&gt;Alice</code> without a closing
+            <code>&lt;/name&gt;</code>. Add the closing tag.</li>
+        <li><strong>Mismatched tag</strong> — <code>&lt;name&gt;Alice&lt;/nme&gt;</code>. The
+            closing tag must match the opening tag exactly, including case.</li>
+        <li><strong>Unescaped <code>&amp;</code></strong> — <code>&lt;p&gt;A &amp; B&lt;/p&gt;</code>
+            is invalid. Use <code>&amp;amp;</code> instead.</li>
+        <li><strong>Unescaped <code>&lt;</code></strong> — text containing <code>&lt;</code> must
+            use <code>&amp;lt;</code>.</li>
+        <li><strong>Multiple root elements</strong> — <code>&lt;a/&gt;&lt;b/&gt;</code> at the top
+            level. XML must have exactly one root element. Wrap them in a container.</li>
+        <li><strong>Invalid attribute syntax</strong> — <code>&lt;a id=1&gt;</code> without quotes
+            around the value. Attribute values must be quoted.</li>
+      </ul>
+      <p>
+        Unlike some lenient parsers, this tool does not attempt to repair malformed XML. Guessing
+        at the intended structure can silently produce wrong data, so the parser stops and reports
+        the error. Fix the XML and try again.
+      </p>
+
+      <h2>CDATA, Comments, and Processing Instructions</h2>
+      <p>
+        <strong>CDATA sections</strong> (<code>&lt;![CDATA[...]]&gt;</code>) are used to include
+        text that would otherwise need escaping. The parser treats them as ordinary text, so the
+        content of a CDATA block appears as a plain string in the JSON.
+      </p>
+      <p>
+        <strong>Comments</strong> (<code>&lt;!-- ... --&gt;</code>) are stripped during parsing.
+        They do not appear in the JSON output at all, because JSON has no comment syntax.
+      </p>
+      <p>
+        <strong>Processing instructions</strong> and the XML declaration (<code>&lt;?xml ... ?&gt;</code>)
+        are also stripped. They are metadata about the document, not data.
+      </p>
+
+      <h2>Namespaces</h2>
+      <p>
+        XML namespaces, declared with <code>xmlns:</code> attributes, are preserved. An element
+        like <code>&lt;xs:element&gt;</code> appears in the JSON as a key called
+        <code>xs:element</code>. The namespace declarations themselves appear as attributes under
+        <code>_attributes</code> with the literal key <code>xmlns:xs</code>. This preserves the
+        information without imposing any namespace resolution logic.
+      </p>
+
+      <h2>Privacy — Client-Side Conversion</h2>
+      <p>
+        XML parsing uses the open-source xml2js library, which runs entirely in your browser. Your
+        data is read into memory and never transmitted. The only external resources loaded are the
+        libraries themselves from a CDN. You can disconnect from the internet after the page loads
+        and the tool will continue to work.
+      </p>
+
+      <h2>Practical Uses</h2>
+      <p>
+        <strong>Migrating a legacy API response:</strong> Copy the XML response and convert it to
+        JSON for use in a modern JavaScript application.
+      </p>
+      <p>
+        <strong>Reading a configuration file:</strong> Convert XML config files to JSON for easier
+        editing or for feeding into a JSON-based tool.
+      </p>
+      <p>
+        <strong>Inspecting SOAP responses:</strong> SOAP APIs return XML. Convert the response to
+        JSON to see the structure clearly.
+      </p>
+      <p>
+        <strong>Feeding XML data into a JavaScript pipeline:</strong> JSON is native to JavaScript,
+        so converting XML first avoids the need for an XML parser in the target application.
+      </p>
     </section>
 
-    <!-- FAQ Section -->
-    <section class="max-w-2xl mx-auto mt-12">
-      <h2 class="text-xl font-black text-slate-900 text-center mb-6">Frequently Asked Questions</h2>
-      <div class="space-y-3">
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">Is my data safe?</h3>
-          <p class="text-slate-600 text-sm mt-1">Yes! All conversions happen locally in your browser. Your XML data is never uploaded to any server and is automatically deleted when you close the page.</p>
-        </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">What XML features are supported?</h3>
-          <p class="text-slate-600 text-sm mt-1">This converter supports nested XML elements, attributes (preserved as `_attributes`), text content, CDATA sections, and namespaces. Empty elements become empty objects.</p>
-        </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">How are attributes handled?</h3>
-          <p class="text-slate-600 text-sm mt-1">XML attributes are preserved in the JSON output as an `_attributes` object. For example, `<person id="123">` becomes `{"person": {"_attributes": {"id": "123"}}}`.</p>
-        </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">Are there file size limits?</h3>
-          <p class="text-slate-600 text-sm mt-1">Since everything runs locally, limits depend on your device's memory. Most modern browsers handle XML files up to 10MB without issues.</p>
-        </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">What about CDATA sections?</h3>
-          <p class="text-slate-600 text-sm mt-1">CDATA sections are preserved as text content in the JSON output. They are treated as regular text nodes.</p>
-        </div>
-      </div>
+    <!-- ============================================================ -->
+    <!-- FAQ SECTION                                                   -->
+    <!-- ============================================================ -->
+    <section class="faq-section">
+      <h2>XML to JSON Questions</h2>
+
+      <details>
+        <summary>Is my data safe?</summary>
+        <p>
+          Yes. All parsing happens locally in your browser using xml2js. Your XML is never uploaded
+          to any server. You can disconnect from the internet after the page loads and the tool will
+          continue to work.
+        </p>
+      </details>
+
+      <details>
+        <summary>How are XML attributes handled?</summary>
+        <p>
+          Attributes are grouped into a special <code>_attributes</code> object that sits alongside
+          the element's other keys. For example, <code>&lt;person id="123"&gt;</code> becomes
+          <code>{"person": {"_attributes": {"id": 123}}}</code>. The underscore prefix avoids
+          collisions with real child elements.
+        </p>
+      </details>
+
+      <details>
+        <summary>How are repeated elements handled?</summary>
+        <p>
+          When the same tag appears more than once as a sibling, its values are collected into a
+          JSON array. A single occurrence produces a single object, not a one-element array. This
+          matches the convention used by xml2js and most other XML-to-JSON tools.
+        </p>
+      </details>
+
+      <details>
+        <summary>Are numbers and booleans converted?</summary>
+        <p>
+          Yes. Text that looks like a number is stored as a JSON number, and <code>true</code> or
+          <code>false</code> is stored as a JSON boolean. Other text stays as a string.
+        </p>
+      </details>
+
+      <details>
+        <summary>What happens with mixed content (text + child elements)?</summary>
+        <p>
+          When an element contains both text and child elements, the text is stored under a key
+          called <code>_</code>, and the child elements are stored as normal keys. For example,
+          <code>&lt;p&gt;Hello &lt;b&gt;world&lt;/b&gt;!&lt;/p&gt;</code> becomes
+          <code>{"p": {"_": "Hello !", "b": "world"}}</code>.
+        </p>
+      </details>
+
+      <details>
+        <summary>What happens if my XML is malformed?</summary>
+        <p>
+          The parser will refuse to process it and show an error message. Common causes are unclosed
+          tags, mismatched tags, unescaped <code>&amp;</code> or <code>&lt;</code>, multiple root
+          elements, and unquoted attribute values. Fix the XML and try again. The tool does not
+          attempt to repair malformed XML.
+        </p>
+      </details>
+
+      <details>
+        <summary>Are CDATA sections preserved?</summary>
+        <p>
+          Yes. The content of a CDATA block is treated as ordinary text and appears as a plain
+          string in the JSON output. CDATA delimiters themselves are stripped.
+        </p>
+      </details>
+
+      <details>
+        <summary>Are comments preserved?</summary>
+        <p>
+          No. Comments are stripped during parsing because JSON has no comment syntax. If you need
+          to preserve comments, use a different format or store them as separate data.
+        </p>
+      </details>
+
+      <details>
+        <summary>Are XML namespaces supported?</summary>
+        <p>
+          Yes. Prefixed tag names like <code>&lt;xs:element&gt;</code> appear as keys with the
+          prefix intact, for example <code>"xs:element"</code>. Namespace declarations appear as
+          attributes under <code>_attributes</code>. The tool does not resolve namespaces to URIs.
+        </p>
+      </details>
+
+      <details>
+        <summary>Can I convert a SOAP response?</summary>
+        <p>
+          Yes. Copy the raw XML from the SOAP envelope and paste it into the input. The converter
+          will produce JSON with the same structure. Namespaces and attributes are preserved.
+        </p>
+      </details>
+
+      <details>
+        <summary>Can I convert JSON back to XML?</summary>
+        <p>
+          This tool only converts one direction: XML to JSON. For the reverse, use a JSON-to-XML
+          tool or write a small script. The round trip is not always lossless because of the
+          <code>_attributes</code> and <code>_</code> conventions.
+        </p>
+      </details>
+
+      <details>
+        <summary>What is the maximum file size?</summary>
+        <p>
+          About 10 MB. Beyond that, browser memory and rendering speed become limiting factors. For
+          very large XML files, split them into smaller chunks and convert each one.
+        </p>
+      </details>
+
     </section>
   </main>
 
