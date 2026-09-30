@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>PDF to TXT Converter Online Free – Extract Text from PDF | Droplet</title>
-  <meta name="description" content="Extract plain text from PDF files online for free. Embedded text extraction with automatic OCR fallback for scanned pages. 100% client-side, private, and free.">
+  <meta name="description" content="Extract plain text from PDF files online for free. Handles text-based and scanned PDFs with in-browser OCR. 100% client-side, private, and free.">
   <link rel="canonical" href="https://dropletweb.xyz/pdf-to-txt.html">
 
   <!-- ===== GOOGLE ADSENSE ===== -->
@@ -66,19 +66,6 @@
     .file-item .info { flex: 1; }
     .file-item .info .name { font-weight: 600; color: #1e293b; transition: color 0.2s; }
     .file-item .info .size { font-size: 12px; color: #94a3b8; transition: color 0.2s; }
-
-    .ocr-status {
-      font-size: 12px;
-      color: #6b7280;
-      background: #f3f4f6;
-      padding: 8px 12px;
-      border-radius: 6px;
-      margin: 4px 0;
-    }
-    .ocr-status .highlight {
-      color: #2563eb;
-      font-weight: 600;
-    }
 
     /* ============================================================ */
     /* SEO CONTENT                                                    */
@@ -291,13 +278,12 @@
     html.dark .bg-slate-50 {
       background: #0f172a !important;
     }
-    html.dark .ocr-status {
-      background: #1e293b;
-      color: #94a3b8;
-    }
-    html.dark .ocr-status .highlight {
-      color: #60a5fa;
-    }
+    html.dark .seo-content { color: #cbd5e1; }
+    html.dark .seo-content h2 { color: #f1f5f9; }
+    html.dark .faq-section h2 { color: #f1f5f9; }
+    html.dark .faq-section details { background: #1e293b; border-color: #334155; }
+    html.dark .faq-section summary { color: #f1f5f9; }
+    html.dark .faq-section details p { color: #94a3b8; }
     
     html.dark footer {
       background: #0f172a !important;
@@ -351,13 +337,6 @@
     html.dark .shadow-blue-500\/20 {
       box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.3) !important;
     }
-
-    html.dark .seo-content { color: #cbd5e1; }
-    html.dark .seo-content h2 { color: #f1f5f9; }
-    html.dark .faq-section h2 { color: #f1f5f9; }
-    html.dark .faq-section details { background: #1e293b; border-color: #334155; }
-    html.dark .faq-section summary { color: #f1f5f9; }
-    html.dark .faq-section details p { color: #94a3b8; }
 
     /* Theme toggle in header */
     #theme-toggle {
@@ -541,152 +520,180 @@
         <p class="text-xs text-slate-500">No sign-up required</p>
       </div>
       <div class="bg-white p-4 rounded-xl border border-slate-100 text-center transition-colors duration-200">
-        <div class="text-2xl mb-1">📝</div>
+        <div class="text-2xl mb-1">🔍</div>
         <h4 class="font-bold text-sm">OCR Fallback</h4>
-        <p class="text-xs text-slate-500">Scanned pages handled automatically</p>
+        <p class="text-xs text-slate-500">Handles scanned PDFs in-browser</p>
       </div>
     </div>
 
     <!-- ============================================================ -->
-    <!-- SEO CONTENT — extraction, order, encoding, OCR, limitations   -->
+    <!-- SEO CONTENT — Extraction, reading order, encoding, OCR        -->
     <!-- ============================================================ -->
     <section class="seo-content">
       <h2>How Text Extraction Works</h2>
       <p>
-        A PDF can contain text in two very different ways. Most PDFs created from Word, Google Docs,
-        or a publishing tool store each character as a positioned glyph with an embedded font — this
-        is called a <strong>text layer</strong>. Scanned PDFs, on the other hand, are just pictures
-        of pages with no text layer at all.
+        A PDF can store text in two fundamentally different ways. Understanding the difference
+        explains most of what you will see in the output.
       </p>
       <p>
-        This tool handles both cases. For each page, it first tries to read the text layer using
-        PDF.js. If the page has enough readable text, that text is used directly. If the page has
-        little or no text layer — which is what happens on scanned pages — the tool automatically
-        falls back to OCR (Optical Character Recognition) using Tesseract.js, which reads the page
-        image and guesses the characters.
+        <strong>Text-based PDFs</strong> (created by Word, Google Docs, LaTeX, or any "Save as PDF"
+        export) contain a real text layer. Each character is stored as a glyph with a position, a
+        font reference, and an encoding. This tool reads that layer directly using PDF.js and
+        joins the characters into words and lines. This is fast and accurate.
       </p>
       <p>
-        The decision is made <strong>per page</strong>, not per document. A PDF that mixes scanned
-        pages with text-based pages will use the text layer where it exists and OCR where it doesn't.
+        <strong>Scanned PDFs</strong> are photographs of paper. There is no text layer — just pixels.
+        To get text out of them, the tool renders each page as an image and runs OCR
+        (Optical Character Recognition) on it. This is slower and less accurate than reading a real
+        text layer, but it is the only way to recover the words.
+      </p>
+
+      <h2>Page-by-Page Decision</h2>
+      <p>
+        The converter does not decide "this whole PDF is scanned" or "this whole PDF is text". It
+        decides <strong>per page</strong>. For each page, it first tries the embedded text layer.
+        If the extracted text looks meaningful — at least 80 characters, 40 letters, and 10 words
+        of real content — it uses that text. Otherwise, it falls back to OCR for that page only.
+      </p>
+      <p>
+        This matters for mixed documents. A contract where page 1 is a typed cover sheet and pages
+        2–5 are scanned signatures will produce page 1 from the text layer and pages 2–5 from OCR.
+        The status message after conversion tells you how many pages came from each source.
       </p>
 
       <h2>Reading Order</h2>
       <p>
-        PDFs do not store text in reading order. They store it in the order the original authoring
-        tool drew each character, which can be back-to-front, column by column, or completely
-        jumbled. PDF.js reads items in their internal order and returns them that way.
+        PDF has no concept of "reading order". It stores each piece of text at an x/y coordinate.
+        When a human reads a page, we understand the visual flow: left to right, top to bottom,
+        columns in order, sidebars excluded. A machine has to infer that flow.
       </p>
       <p>
-        For simple, single-column documents — letters, articles, reports — the internal order is
-        usually close to reading order, so the extracted text reads naturally. For multi-column
-        layouts, text boxes, sidebars, or pages with overlapping elements, the output can be
-        scrambled. Column 1 and column 2 may interleave, or a caption may appear in the middle of
-        a paragraph.
+        This tool uses the order in which PDF.js returns text items, which is usually close to the
+        visual order for simple documents. But it can go wrong:
       </p>
+      <ul>
+        <li><strong>Multi-column layouts</strong> — text from the left column may be interleaved
+            with text from the right column, producing sentences that jump back and forth.</li>
+        <li><strong>Sidebars and callouts</strong> — a sidebar may appear in the middle of the main
+            text instead of at the end of the page.</li>
+        <li><strong>Tables</strong> — cells are read in whatever order they were written to the PDF,
+            which is often not row-by-row.</li>
+        <li><strong>Headers and footers</strong> — these are usually stored last on the page, so
+            they end up at the end of the page text rather than at the top and bottom.</li>
+        <li><strong>Footnotes</strong> — footnote markers appear inline but the footnote text may
+            be grouped with the bottom of the page.</li>
+      </ul>
       <p>
-        This is a limitation of the PDF format, not of the tool. Fixing it requires layout analysis
-        that detects columns and reconstructs reading order — a much harder problem.
+        For a single-column article or a plain report, the reading order is usually correct. For
+        complex layouts, expect to do some manual clean-up.
       </p>
 
-      <h2>Encoding and Character Support</h2>
+      <h2>Encoding and Special Characters</h2>
       <p>
-        PDF.js decodes the text layer and returns JavaScript strings, which are UTF-16 internally.
-        The output TXT file is written as UTF-8. This means accented Latin letters (é, ñ, ü),
-        Greek, Cyrillic, and most CJK characters come through correctly <strong>if</strong> the
-        PDF's text layer stores them properly.
+        PDFs can use several different encodings for text. Most modern PDFs use Unicode, which
+        covers virtually every character in every language. Older PDFs may use custom encodings
+        tied to a specific font.
       </p>
       <p>
-        Problems arise when the PDF uses a font with a non-standard encoding, or when the text
-        layer stores character codes that don't map cleanly to Unicode. In those cases you may see
-        garbled characters, question marks, or missing letters. This is uncommon in modern PDFs
-        but does happen with older or poorly-generated files.
+        When the encoding is Unicode, accented characters, currency symbols, and non-Latin scripts
+        come through correctly. When the encoding is a custom font mapping — common in old PDFs and
+        in PDFs that embed subset fonts — some characters may be replaced with the wrong glyph or
+        with a placeholder like <code>?</code> or <code>■</code>.
+      </p>
+      <p>
+        Ligatures are another common issue. A PDF may store the visual ligature "ﬁ" as a single
+        glyph. Some PDFs also provide the underlying "f" and "i" characters; others do not. When
+        they are missing, "ﬁ" stays as "ﬁ" in the output instead of becoming "fi".
       </p>
 
       <h2>Line Breaks and Whitespace</h2>
       <p>
-        The extractor joins text items with a single space and collapses runs of multiple spaces
-        into one. It preserves paragraph breaks where the PDF's text layer indicates a new line
-        or block, but it does not attempt to reconstruct the visual line breaks you see on the
-        page.
-      </p>
-      <p>
-        In practice, this means:
+        The output preserves line breaks as they appear in the PDF. This is intentional — it makes
+        the text easier to compare against the original — but it means you will often see:
       </p>
       <ul>
-        <li>Wrapped lines within a paragraph become one continuous line in the output.</li>
-        <li>Hard line breaks (like the ones after a heading) are usually preserved.</li>
-        <li>Blank lines between paragraphs are often preserved but not guaranteed.</li>
-        <li>Indentation and leading whitespace are stripped.</li>
+        <li>Hard line breaks in the middle of a sentence, where the PDF wrapped the line.</li>
+        <li>Extra blank lines between paragraphs, or no blank lines at all, depending on how the
+            PDF was authored.</li>
+        <li>Hyphenated words split across lines, like "docu-\nment".</li>
+        <li>Multiple spaces where the PDF used tabs or column alignment.</li>
       </ul>
       <p>
-        If you need exact visual line breaks, use the PDF to Markdown converter, which analyses
-        the position of each text item and reconstructs lines and paragraphs more carefully.
+        A light cleanup pass collapses runs of three or more spaces down to two, and reduces runs
+        of four or more newlines to two. Beyond that, the text is left as-is so you can decide how
+        to reformat it.
       </p>
 
-      <h2>Scanned PDFs and OCR</h2>
+      <h2>Scanned PDFs and OCR — What to Expect</h2>
       <p>
-        When a page has no usable text layer, the tool renders the page as a high-resolution image
-        (3× scale) and runs Tesseract.js on it. Tesseract is a well-known open-source OCR engine
-        that runs entirely in the browser.
+        When a page has no usable text layer, the tool renders it at 3× scale and sends it to
+        Tesseract.js, an OCR engine that runs entirely in your browser. The OCR is trained on
+        English text and works well on clean, high-contrast scans of printed material.
       </p>
       <p>
-        OCR is slower than reading a text layer — typically a few seconds per page — and the
-        accuracy depends on the quality of the scan:
+        OCR quality depends heavily on the source image:
       </p>
       <ul>
-        <li><strong>Clean, high-contrast scans</strong> (300 dpi or higher, straight pages, dark
-            text on white paper) usually come through with good accuracy.</li>
-        <li><strong>Skewed, blurry, or low-contrast scans</strong> produce more errors, especially
-            on numbers, punctuation, and similar-looking letters (l vs 1, O vs 0, rn vs m).</li>
-        <li><strong>Handwriting</strong> is generally not recognised well. Tesseract is trained on
-            printed text.</li>
-        <li><strong>Tables and multi-column layouts</strong> often lose their structure — cells
-            may be read in the wrong order or merged into one line.</li>
+        <li><strong>Good scans</strong> (300 DPI or higher, straight, well-lit, black text on white
+            paper) typically produce 95%+ accurate text.</li>
+        <li><strong>Medium scans</strong> (grey backgrounds, slight skew, moderate resolution)
+            usually produce readable text with some errors that need fixing.</li>
+        <li><strong>Poor scans</strong> (low resolution, heavy skew, handwritten text, faded ink,
+            complex backgrounds) produce text that needs substantial correction.</li>
       </ul>
       <p>
-        OCR runs in English by default. Other languages will produce poor results unless the
-        language model is loaded, which this tool does not currently do.
+        OCR also loses all formatting. Bold, italic, headings, and paragraph structure are gone —
+        you get a stream of words in reading order, with whatever line breaks Tesseract detected.
       </p>
 
-      <h2>What Does Not Survive Extraction</h2>
+      <h2>Real Limitations You Should Know</h2>
       <ul>
-        <li><strong>Formatting</strong> — bold, italic, font size, colour, and alignment are all
-            lost. The output is plain text.</li>
-        <li><strong>Images</strong> — pictures embedded in the PDF are not extracted. If a page
-            has a diagram with captions, the captions come through but the diagram does not.</li>
-        <li><strong>Tables</strong> — table structure is lost. Rows and columns become a stream
-            of text. The PDF to Markdown converter does a better job with simple tables.</li>
-        <li><strong>Hyperlinks</strong> — URLs may appear as text if they were visible in the PDF,
-            but they are not clickable links in the output.</li>
-        <li><strong>Headers and footers</strong> — repeating page headers and footers appear once
-            per page in the output, which can be noisy. You may want to remove them manually.</li>
-        <li><strong>Footnotes</strong> — footnote text usually ends up at the end of each page's
-            extracted text rather than linked to the reference.</li>
+        <li><strong>No layout preservation.</strong> Tables, columns, sidebars, and images are not
+            represented. The output is a flat stream of text.</li>
+        <li><strong>No formatting.</strong> Bold, italic, underline, font size, and colour are all
+            lost. Only the characters survive.</li>
+        <li><strong>No images.</strong> This is a text-only extraction. Embedded images are not
+            saved or described.</li>
+        <li><strong>No hyperlinks.</strong> A link in the PDF becomes its visible text only. The
+            target URL is not preserved as a link.</li>
+        <li><strong>Encrypted PDFs cannot be read.</strong> If the PDF requires a password to open,
+            the tool cannot process it. Remove the password first.</li>
+        <li><strong>OCR is English-only by default.</strong> Other languages will produce poor
+            results because the OCR engine is loaded with the English trained data. The tool does
+            not currently offer language selection.</li>
+        <li><strong>Very large PDFs may be slow.</strong> OCR is computationally heavy. A 100-page
+            scanned document can take several minutes. The progress bar shows where you are.</li>
+        <li><strong>Character accuracy is not guaranteed.</strong> Even on clean text layers,
+            unusual fonts or broken encodings can produce wrong characters. On OCR output, some
+            errors are normal.</li>
       </ul>
-
-      <h2>Practical Uses</h2>
-      <p>
-        <strong>Feeding text into an AI tool:</strong> Extract the text, then paste it into a
-        chatbot or summarizer. TXT is the cleanest format for that.
-      </p>
-      <p>
-        <strong>Searching a document archive:</strong> Extract text from a batch of PDFs and grep
-        across the TXT files to find which documents mention a keyword.
-      </p>
-      <p>
-        <strong>Reusing content in a new document:</strong> Copy the extracted text, paste it into
-        your word processor, and reformat it as needed.
-      </p>
-      <p>
-        <strong>Data processing and analysis:</strong> TXT is easy to parse with scripts. Extract,
-        then run your own analysis.
-      </p>
 
       <h2>Privacy — Client-Side Extraction</h2>
       <p>
-        PDF parsing uses PDF.js and OCR uses Tesseract.js. Both run entirely in your browser. Your
-        PDF is read into memory and never transmitted. The only external resources loaded are the
-        libraries themselves from a CDN.
+        PDF parsing uses the open-source PDF.js library, and OCR uses Tesseract.js. Both run
+        entirely in your browser. Your PDF is read into memory and never transmitted. The only
+        external resources loaded are the libraries themselves from a CDN. After the page has
+        loaded once, you can disconnect from the internet and the tool will continue to work —
+        including OCR.
+      </p>
+
+      <h2>Practical Uses</h2>
+      <p>
+        <strong>Feeding text to an AI tool:</strong> Extract the text from a PDF, copy it, and
+        paste it into a chatbot or summariser. The plain text format is exactly what those tools
+        expect.
+      </p>
+      <p>
+        <strong>Searching a document collection:</strong> Extract text from a folder of PDFs and
+        use your operating system's search to find phrases across all of them.
+      </p>
+      <p>
+        <strong>Recovering text from a scanned contract:</strong> Run OCR on the scan, then fix
+        any errors manually. Faster than retyping the whole document.
+      </p>
+      <p>
+        <strong>Data analysis:</strong> Extract text from reports, then run word frequency,
+        sentiment, or keyword analysis on the plain text.
       </p>
     </section>
 
@@ -697,106 +704,110 @@
       <h2>PDF to TXT Questions</h2>
 
       <details>
-        <summary>How does the tool decide between text extraction and OCR?</summary>
+        <summary>Is my data safe?</summary>
         <p>
-          For each page, it reads the text layer first. If the page has at least about 80
-          characters, 40 letters, and 10 words, that text is considered usable and is used
-          directly. Otherwise the page is treated as scanned and OCR is run on it.
+          Yes. All text extraction and OCR happen locally in your browser. Your PDF is never
+          uploaded to any server. You can disconnect from the internet after the page loads and
+          the tool will continue to work.
         </p>
       </details>
 
       <details>
-        <summary>Why is my extracted text in the wrong order?</summary>
+        <summary>How does the tool handle scanned PDFs?</summary>
         <p>
-          PDFs store text in drawing order, not reading order. Multi-column layouts, sidebars,
-          and text boxes often come out scrambled. This is a limitation of the PDF format itself.
-          For better ordering on structured documents, use the PDF to Markdown converter.
+          Page by page. For each page, the tool first tries the embedded text layer. If the
+          extracted text is too short or too sparse, it renders that page as an image and runs
+          Tesseract.js OCR on it. This means a PDF that mixes typed and scanned pages is handled
+          correctly — each page uses whichever method works for it.
+        </p>
+      </details>
+
+      <details>
+        <summary>Why is the reading order sometimes wrong?</summary>
+        <p>
+          PDF stores text at coordinates, not in reading order. The tool uses the order PDF.js
+          returns text items, which is close to visual order for simple documents but can be wrong
+          for multi-column layouts, sidebars, and tables. There is no reliable way to infer reading
+          order without understanding the layout, which this tool does not attempt.
+        </p>
+      </details>
+
+      <details>
+        <summary>Are special characters and accents preserved?</summary>
+        <p>
+          Usually yes, if the PDF uses Unicode encoding. Older PDFs that use custom font encodings
+          may produce wrong characters or placeholders like <code>?</code> or <code>■</code>. This
+          is a limitation of the source PDF, not the converter.
+        </p>
+      </details>
+
+      <details>
+        <summary>Why are there hard line breaks in the middle of sentences?</summary>
+        <p>
+          Because the PDF wrapped the line at that point, and the converter preserves the line
+          breaks so you can compare the output against the original. If you want flowing paragraphs
+          instead, you can join lines in a text editor after extraction.
         </p>
       </details>
 
       <details>
         <summary>Will formatting like bold and italics be preserved?</summary>
         <p>
-          No. TXT is plain text. Bold, italic, font size, colour, and alignment are all lost. If
-          you need formatting, use the PDF to DOCX converter instead.
+          No. Plain text has no concept of bold or italic. The converter extracts the characters
+          only. If you need formatting, use the PDF to DOCX converter instead, which preserves
+          headings and paragraph structure.
         </p>
       </details>
 
       <details>
-        <summary>Are images and tables included?</summary>
+        <summary>Are images extracted from the PDF?</summary>
         <p>
-          No. Images are not extracted. Tables lose their structure and become a stream of text.
-          For tables with real structure, use the PDF to Markdown converter, which can produce
-          Markdown tables from simple, evenly-spaced tables.
+          No. This is a text-only tool. Images embedded in the PDF are not saved or described.
+          If you need the images, extract them with a dedicated PDF image extractor.
         </p>
       </details>
 
       <details>
-        <summary>How accurate is the OCR for scanned PDFs?</summary>
+        <summary>How accurate is the OCR?</summary>
         <p>
-          It depends on scan quality. Clean, high-contrast, straight scans usually give good
-          results. Skewed, blurry, or low-resolution scans produce more errors, especially on
-          numbers and punctuation. Handwriting is generally not recognised well.
+          On clean, high-contrast scans of printed English text, OCR is typically 95% accurate or
+          better. On low-resolution scans, skewed pages, handwritten text, or complex backgrounds,
+          accuracy drops significantly. Always proofread OCR output before using it.
         </p>
       </details>
 
       <details>
         <summary>Does OCR support languages other than English?</summary>
         <p>
-          No. The tool loads only the English language model for Tesseract. Other languages will
-          produce poor results. If you need multi-language OCR, use a dedicated OCR service.
+          No. The tool loads the English trained data for Tesseract.js. Other languages will
+          produce poor results. Language selection is not currently offered.
         </p>
       </details>
 
       <details>
-        <summary>Why does the extraction take so long on some PDFs?</summary>
+        <summary>Can I convert a password-protected PDF?</summary>
         <p>
-          OCR is the slow part. Reading a text layer is nearly instant, but rendering a page to
-          an image and running Tesseract on it takes a few seconds per page. A 50-page scanned PDF
-          can take a few minutes.
+          No. The tool can only read PDFs that open without a password. If your PDF requires a
+          password, remove the protection first using a dedicated PDF tool, then convert it here.
         </p>
       </details>
 
       <details>
-        <summary>Can I extract text from a password-protected PDF?</summary>
+        <summary>Why is the output so slow for scanned PDFs?</summary>
         <p>
-          No. The tool can only read PDFs that open without a password. Remove the protection
-          first using a dedicated PDF tool, then extract the text here.
+          OCR is computationally heavy. Each page is rendered at high resolution and then analysed
+          by the OCR engine, all in your browser. A 50-page scanned document can take several
+          minutes. The progress bar shows which page is being processed.
         </p>
       </details>
 
       <details>
-        <summary>Are headers and footers included in the output?</summary>
+        <summary>What is the difference between this tool and the PDF to Markdown converter?</summary>
         <p>
-          Yes, they appear once per page in the extracted text because the tool reads every line
-          on every page. You may want to remove them manually after extraction, especially on
-          long documents.
-        </p>
-      </details>
-
-      <details>
-        <summary>What is the maximum PDF size?</summary>
-        <p>
-          About 100 MB. The practical limit depends on your device's memory, since everything runs
-          in the browser. Very long documents or those with many scanned pages may take a long
-          time to process.
-        </p>
-      </details>
-
-      <details>
-        <summary>Is my PDF uploaded to a server?</summary>
-        <p>
-          No. All parsing and OCR happen locally in your browser using PDF.js and Tesseract.js.
-          Your file never leaves your device. You can disconnect from the internet after the page
-          loads and the tool will continue to work.
-        </p>
-      </details>
-
-      <details>
-        <summary>Can I edit the TXT file after downloading?</summary>
-        <p>
-          Yes. The output is a plain <code>.txt</code> file. You can open it in Notepad, TextEdit,
-          VS Code, or any text editor, and edit it freely.
+          This tool produces plain text with no structure — no headings, no lists, no paragraph
+          markers. The PDF to Markdown converter tries to detect headings and lists and produces
+          structured Markdown. If you want structure, use Markdown. If you want raw text, use this
+          tool.
         </p>
       </details>
 
