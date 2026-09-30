@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PDF to Markdown Converter - Droplet</title>
-  <meta name="description" content="Convert PDF files to Markdown (.md) online for free. 100% client-side, your files never leave your browser.">
+  <title>PDF to Markdown Converter Online Free – PDF to MD | Droplet</title>
+  <meta name="description" content="Convert PDF files to Markdown (.md) online for free. Extracts headings, paragraphs, lists, tables, and links. 100% client-side, private, and free.">
+  <link rel="canonical" href="https://dropletweb.xyz/pdf-to-markdown.html">
 
   <!-- Google AdSense -->
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4006702663328202"
@@ -208,6 +209,135 @@
     .stat-badge.amber { background: #fef3c7; color: #92400e; }
     .stat-badge.purple { background: #ede9fe; color: #5b21b6; }
 
+    /* ============================================================ */
+    /* SEO CONTENT                                                    */
+    /* ============================================================ */
+    .seo-content {
+      max-width: 42rem;
+      margin: 2.5rem auto 1rem;
+      color: #334155;
+      line-height: 1.65;
+    }
+    .seo-content h2 {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #0f172a;
+      margin: 2rem 0 0.5rem;
+    }
+    .seo-content p {
+      margin-bottom: 1rem;
+      font-size: 0.95rem;
+    }
+    .seo-content ul {
+      padding-left: 1.4rem;
+      margin-bottom: 1rem;
+      font-size: 0.95rem;
+    }
+    .seo-content li {
+      margin-bottom: 0.3rem;
+    }
+    .seo-content pre {
+      background: #1e293b;
+      color: #e2e8f0;
+      padding: 14px 16px;
+      border-radius: 10px;
+      overflow-x: auto;
+      font-size: 12.5px;
+      line-height: 1.6;
+      margin-bottom: 1rem;
+    }
+    .seo-content code {
+      background: #f1f5f9;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.9em;
+      color: #be185d;
+    }
+    .seo-content pre code {
+      background: transparent;
+      color: inherit;
+      padding: 0;
+    }
+    .example-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 1.5rem;
+    }
+    .example-box {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 16px;
+    }
+    .example-box h4 {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #94a3b8;
+      margin: 0 0 10px;
+    }
+    .example-box pre {
+      background: #1e293b;
+      color: #e2e8f0;
+      padding: 12px 14px;
+      border-radius: 8px;
+      font-size: 12px;
+      line-height: 1.55;
+      margin: 0;
+      overflow-x: auto;
+    }
+    @media (max-width: 640px) {
+      .example-grid { grid-template-columns: 1fr; }
+    }
+    .faq-section {
+      max-width: 42rem;
+      margin: 2rem auto;
+    }
+    .faq-section h2 {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #0f172a;
+      text-align: center;
+      margin-bottom: 1.25rem;
+    }
+    .faq-section details {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 0.75rem;
+      padding: 0.75rem 1.25rem;
+      margin-bottom: 0.6rem;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .faq-section summary {
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: #0f172a;
+      cursor: pointer;
+      list-style: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .faq-section summary::-webkit-details-marker { display: none; }
+    .faq-section summary::after {
+      content: "➕";
+      font-size: 0.8rem;
+      color: #94a3b8;
+      transition: transform 0.2s;
+    }
+    .faq-section details[open] summary::after {
+      content: "➖";
+    }
+    .faq-section details p {
+      margin-top: 0.6rem;
+      font-size: 0.9rem;
+      color: #475569;
+      line-height: 1.6;
+    }
+
     /* Dark mode overrides */
     html.dark body {
       background: #0f172a;
@@ -318,6 +448,14 @@
     html.dark .bg-green-600:hover { background: #047857 !important; }
     html.dark .bg-blue-600 { background: #2563eb !important; }
     html.dark .bg-blue-600:hover { background: #1d4ed8 !important; }
+    html.dark .seo-content { color: #cbd5e1; }
+    html.dark .seo-content h2 { color: #f1f5f9; }
+    html.dark .seo-content code { background: #0f172a; color: #f9a8d4; }
+    html.dark .example-box { background: #0f172a; border-color: #334155; }
+    html.dark .faq-section h2 { color: #f1f5f9; }
+    html.dark .faq-section details { background: #1e293b; border-color: #334155; }
+    html.dark .faq-section summary { color: #f1f5f9; }
+    html.dark .faq-section details p { color: #94a3b8; }
 
     #theme-toggle {
       background: none;
@@ -527,31 +665,282 @@
       </div>
     </div>
 
-    <!-- FAQ -->
-    <section class="max-w-2xl mx-auto mt-12">
-      <h2 class="text-xl font-black text-slate-900 text-center mb-6">Frequently Asked Questions</h2>
-      <div class="space-y-3">
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">Is my data safe?</h3>
-          <p class="text-slate-600 text-sm mt-1">Yes! All conversion happens locally in your browser. Your PDF is never uploaded to any server.</p>
+    <!-- ============================================================ -->
+    <!-- SEO CONTENT — What gets converted, examples, limitations      -->
+    <!-- ============================================================ -->
+    <section class="seo-content">
+      <h2>What Gets Converted</h2>
+      <p>
+        The converter reads each page of the PDF, extracts the text layer, and rebuilds the content
+        as Markdown. Different kinds of content are handled differently:
+      </p>
+      <ul>
+        <li><strong>Headings</strong> — detected by font size. A line whose font is noticeably
+            larger than the body text becomes <code>#</code>, <code>##</code>, or <code>###</code>
+            depending on how much larger it is. The "Auto-detect" mode uses a moderate threshold;
+            "Aggressive" also treats short, title-like lines as headings.</li>
+        <li><strong>Paragraphs</strong> — lines that belong to the same block of text are joined
+            into one paragraph. A new paragraph starts when there is a large vertical gap or when
+            the previous line ends with a period, question mark, or exclamation mark.</li>
+        <li><strong>Lists</strong> — bullet characters (<code>•</code>, <code>·</code>,
+            <code>▪</code>, and similar) and numbered items (<code>1.</code>, <code>2)</code>)
+            are recognised and converted to Markdown list syntax. You can turn list detection off
+            if you want every line to remain a plain paragraph.</li>
+        <li><strong>Links</strong> — any text that looks like a URL becomes a Markdown link. Because
+            PDFs do not store anchor text separately, the URL itself is used as the link text.</li>
+        <li><strong>Code</strong> — inline code is detected when the extracted text uses a monospace
+            font. There is no language detection; code blocks come through as plain text unless the
+            surrounding formatting suggests otherwise.</li>
+        <li><strong>Tables</strong> — simple, evenly spaced tables may be detected and converted to
+            Markdown table syntax. Complex tables (merged cells, nested tables, tables with images)
+            often come through as separate lines of text instead.</li>
+        <li><strong>Horizontal rules</strong> — a line of three or more dashes or underscores is
+            converted to <code>---</code>.</li>
+        <li><strong>Page breaks</strong> — each PDF page is separated by a horizontal rule
+            (<code>---</code>) so you can see where pages begin and end.</li>
+      </ul>
+
+      <h2>A Real Input / Output Example</h2>
+      <p>
+        Here is what a small section of a PDF looks like after conversion. The left side shows the
+        text as it appears in the PDF (with formatting implied); the right side shows the Markdown
+        the converter produces.
+      </p>
+      <div class="example-grid">
+        <div class="example-box">
+          <h4>PDF (visual)</h4>
+          <pre>1. Introduction
+
+This document explains how
+the converter works.
+
+Key features:
+• Fast
+• Private
+• Free
+
+See https://example.com
+for more.</pre>
         </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">What PDF types work best?</h3>
-          <p class="text-slate-600 text-sm mt-1">Text-based PDFs work best. Scanned/image-based PDFs require OCR and may produce limited results.</p>
-        </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">Are images preserved?</h3>
-          <p class="text-slate-600 text-sm mt-1">Currently, this tool extracts text only. Images are not included in the Markdown output.</p>
-        </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">Will headings and formatting be preserved?</h3>
-          <p class="text-slate-600 text-sm mt-1">Yes! The converter tries to detect headings (by font size), lists (bullets and numbers), and paragraphs. You can adjust detection sensitivity in the options.</p>
-        </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">What about tables?</h3>
-          <p class="text-slate-600 text-sm mt-1">Simple tables may be converted to Markdown tables. Complex tables may lose their structure.</p>
+        <div class="example-box">
+          <h4>Markdown (output)</h4>
+          <pre># Introduction
+
+This document explains how
+the converter works.
+
+Key features:
+
+- Fast
+- Private
+- Free
+
+See https://example.com
+for more.</pre>
         </div>
       </div>
+      <p>
+        Notice that the numbered heading became <code># Introduction</code>, the bullet list became
+        <code>-</code> items, and the URL was preserved as-is. The exact result depends on how the
+        PDF was authored — a document that uses real heading styles will convert more cleanly than
+        one that just uses bold text.
+      </p>
+
+      <h2>Scanned PDFs — What Happens</h2>
+      <p>
+        A scanned PDF is a set of images, not text. There is no text layer for the converter to
+        read, so the output will be empty or near-empty. This is not a bug — it is a fundamental
+        limitation of extractive conversion.
+      </p>
+      <p>
+        To turn a scanned PDF into Markdown you need OCR (Optical Character Recognition), which
+        reads the pixels and guesses the characters. That is a separate process and is not
+        performed by this tool. If you have a scanned PDF, run it through an OCR tool first, then
+        convert the resulting text-based PDF here.
+      </p>
+      <p>
+        A quick way to check: open the PDF in your browser and try to select text with your mouse.
+        If you can select it, the PDF has a text layer and will convert. If you cannot, it is a
+        scanned image and needs OCR.
+      </p>
+
+      <h2>What Does Not Survive Conversion</h2>
+      <ul>
+        <li><strong>Images</strong> — this tool extracts text only. Images embedded in the PDF are
+            not included in the Markdown. If you need images, extract them separately.</li>
+        <li><strong>Exact positioning</strong> — PDFs place every character at a precise coordinate.
+            Markdown is a reflowable format. Text that was laid out in columns or wrapped around
+            images will reflow into a single stream.</li>
+        <li><strong>Fonts and colours</strong> — Markdown has no concept of font family or text
+            colour. Bold and italic are detected from font weight and style, but the specific font
+            and colour are lost.</li>
+        <li><strong>Tables with merged cells</strong> — Markdown tables do not support merged cells.
+            These come through as plain text.</li>
+        <li><strong>Headers and footers</strong> — repeating page headers and footers are included
+            in the output because the converter reads every line. You may need to remove them
+            manually after conversion.</li>
+        <li><strong>Footnotes</strong> — footnote text usually appears at the bottom of the page in
+            the output rather than as linked references.</li>
+      </ul>
+
+      <h2>Options — Heading and List Detection</h2>
+      <p>
+        Two settings control the output:
+      </p>
+      <ul>
+        <li><strong>Heading detection</strong> — "Auto-detect" is the default and works well on most
+            documents. "Plain text" disables heading detection entirely, producing paragraphs only.
+            "Aggressive" also treats short, title-like lines as level-3 headings, which is useful
+            for documents that use bold text instead of larger font sizes for headings.</li>
+        <li><strong>List detection</strong> — "Auto-detect" recognises bullets and numbered items.
+            "Plain text" leaves every line as a paragraph. Turn list detection off if your PDF
+            uses dashes or numbers as part of normal prose rather than as list markers.</li>
+      </ul>
+
+      <h2>Privacy — Client-Side Conversion</h2>
+      <p>
+        PDF parsing uses the open-source PDF.js library, which runs entirely in your browser. Your
+        PDF is read into memory and never transmitted. The only external resources loaded are the
+        libraries themselves from a CDN.
+      </p>
+
+      <h2>Practical Examples</h2>
+      <p>
+        <strong>Converting documentation for a wiki:</strong> Load the PDF, run the conversion, and
+        paste the Markdown into your wiki editor. Headings and lists carry over; images need to be
+        added separately.
+      </p>
+      <p>
+        <strong>Extracting a README from a PDF spec:</strong> Use Aggressive heading detection if
+        the spec uses bold text rather than large fonts for its section titles. Turn list detection
+        off if the spec uses numbered paragraphs that are not really lists.
+      </p>
+      <p>
+        <strong>Preparing notes for a note-taking app:</strong> Convert the PDF to Markdown and
+        import the .md file into Obsidian, Notion, or Logseq. The heading structure becomes the
+        outline.
+      </p>
+      <p>
+        <strong>Version-controlling a document:</strong> Markdown is plain text, so it works with
+        Git. Convert once, then track changes as diffs.
+      </p>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- FAQ SECTION                                                   -->
+    <!-- ============================================================ -->
+    <section class="faq-section">
+      <h2>PDF to Markdown Questions</h2>
+
+      <details>
+        <summary>Will the Markdown look exactly like the PDF?</summary>
+        <p>
+          No. Markdown is a reflowable format. Headings, paragraphs, and lists keep their structure,
+          but exact line breaks, column layouts, and font choices are lost. For a pixel-perfect copy,
+          use the original PDF.
+        </p>
+      </details>
+
+      <details>
+        <summary>Are images preserved in the Markdown?</summary>
+        <p>
+          No. This tool extracts text only. Images embedded in the PDF are not included in the
+          output. You would need to extract them separately and add them to the Markdown manually.
+        </p>
+      </details>
+
+      <details>
+        <summary>Why is my scanned PDF producing empty output?</summary>
+        <p>
+          A scanned PDF contains images, not text. There is no text layer for the converter to read.
+          You need OCR (Optical Character Recognition) to turn the scanned images into text first.
+          This tool does not perform OCR.
+        </p>
+      </details>
+
+      <details>
+        <summary>Are tables converted to Markdown tables?</summary>
+        <p>
+          Simple, evenly spaced tables may be detected and converted to Markdown table syntax.
+          Complex tables — with merged cells, nested tables, or images inside cells — usually come
+          through as separate lines of text. Markdown tables do not support merged cells, so those
+          cannot be represented accurately.
+        </p>
+      </details>
+
+      <details>
+        <summary>How are headings detected?</summary>
+        <p>
+          Headings are detected by font size. A line whose font is noticeably larger than the body
+          text becomes a heading. "Auto-detect" uses a moderate threshold; "Aggressive" also treats
+          short, title-like lines as level-3 headings. If your PDF uses bold text instead of larger
+          fonts for headings, try the Aggressive mode.
+        </p>
+      </details>
+
+      <details>
+        <summary>How are links handled?</summary>
+        <p>
+          Any text that looks like a URL becomes a Markdown link. Because PDFs do not store anchor
+          text separately, the URL itself is used as the link text. If the PDF had a hyperlink with
+          custom text, the extracted text will show the visible label but the URL may not be
+          preserved as a link.
+        </p>
+      </details>
+
+      <details>
+        <summary>Does the converter preserve code blocks?</summary>
+        <p>
+          Inline code is detected when the PDF uses a monospace font. Code blocks are not
+          specifically detected — they come through as plain text unless the surrounding formatting
+          suggests a block. There is no language detection.
+        </p>
+      </details>
+
+      <details>
+        <summary>What happens to headers and footers?</summary>
+        <p>
+          Repeating page headers and footers are included in the output because the converter reads
+          every line on every page. After conversion you may want to remove them manually. There is
+          no automatic detection of running headers and footers.
+        </p>
+      </details>
+
+      <details>
+        <summary>Can I convert a password-protected PDF?</summary>
+        <p>
+          No. The converter can only read PDFs that open without a password. If your PDF requires a
+          password, remove the protection first using a dedicated PDF tool, then convert it here.
+        </p>
+      </details>
+
+      <details>
+        <summary>Is my PDF uploaded to a server?</summary>
+        <p>
+          No. All parsing and conversion happen locally in your browser using PDF.js. Your file never
+          leaves your device. You can disconnect from the internet after the page loads and the tool
+          will continue to work.
+        </p>
+      </details>
+
+      <details>
+        <summary>What is the difference between this tool and the PDF to TXT converter?</summary>
+        <p>
+          This tool produces Markdown with heading markers, list syntax, and paragraph structure.
+          The PDF to TXT converter produces plain text with no formatting. If you want the structure
+          preserved, use this tool. If you only need the raw words, TXT is simpler.
+        </p>
+      </details>
+
+      <details>
+        <summary>Can I edit the Markdown after downloading?</summary>
+        <p>
+          Yes. The output is a plain <code>.md</code> file. You can open it in any text editor, paste
+          it into a note-taking app, or commit it to a Git repository. Markdown is designed to be
+          edited by hand.
+        </p>
+      </details>
+
     </section>
   </main>
 
