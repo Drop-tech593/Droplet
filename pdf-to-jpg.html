@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PDF to JPG Converter - Droplet</title>
-  <meta name="description" content="Extract pages from PDF and convert to JPG images online for free. 100% client-side, your files never leave your browser.">
+  <title>PDF to JPG Converter Online Free – Extract PDF Pages as Images | Droplet</title>
+  <meta name="description" content="Extract pages from PDF and convert to JPG images online for free. Choose quality, resolution, colour mode. Download individually or as ZIP. 100% client-side, private, and free.">
+  <link rel="canonical" href="https://dropletweb.xyz/pdf-to-jpg.html">
 
   <!-- Google AdSense -->
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4006702663328202"
@@ -100,6 +101,98 @@
     .badge-converted { background: #d1fae5; color: #065f46; }
     .badge-size { background: #fef3c7; color: #92400e; }
     .badge-pages { background: #fce7f3; color: #9d174d; }
+
+    /* ============================================================ */
+    /* SEO CONTENT                                                    */
+    /* ============================================================ */
+    .seo-content {
+      max-width: 42rem;
+      margin: 2.5rem auto 1rem;
+      color: #334155;
+      line-height: 1.65;
+    }
+    .seo-content h2 {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #0f172a;
+      margin: 2rem 0 0.5rem;
+    }
+    .seo-content p {
+      margin-bottom: 1rem;
+      font-size: 0.95rem;
+    }
+    .seo-content ul {
+      padding-left: 1.4rem;
+      margin-bottom: 1rem;
+      font-size: 0.95rem;
+    }
+    .seo-content li {
+      margin-bottom: 0.3rem;
+    }
+    .seo-content table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 1rem;
+      font-size: 0.9rem;
+    }
+    .seo-content th {
+      background: #f1f5f9;
+      padding: 8px 12px;
+      text-align: left;
+      border: 1px solid #e2e8f0;
+      font-weight: 700;
+      color: #0f172a;
+    }
+    .seo-content td {
+      padding: 8px 12px;
+      border: 1px solid #e2e8f0;
+      color: #475569;
+    }
+    .faq-section {
+      max-width: 42rem;
+      margin: 2rem auto;
+    }
+    .faq-section h2 {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #0f172a;
+      text-align: center;
+      margin-bottom: 1.25rem;
+    }
+    .faq-section details {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 0.75rem;
+      padding: 0.75rem 1.25rem;
+      margin-bottom: 0.6rem;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .faq-section summary {
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: #0f172a;
+      cursor: pointer;
+      list-style: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .faq-section summary::-webkit-details-marker { display: none; }
+    .faq-section summary::after {
+      content: "➕";
+      font-size: 0.8rem;
+      color: #94a3b8;
+      transition: transform 0.2s;
+    }
+    .faq-section details[open] summary::after {
+      content: "➖";
+    }
+    .faq-section details p {
+      margin-top: 0.6rem;
+      font-size: 0.9rem;
+      color: #475569;
+      line-height: 1.6;
+    }
 
     /* ============================================ */
     /* DARK MODE OVERRIDES */
@@ -255,6 +348,14 @@
       background: #3b1e2e;
       color: #f9a8d4;
     }
+    html.dark .seo-content { color: #cbd5e1; }
+    html.dark .seo-content h2 { color: #f1f5f9; }
+    html.dark .seo-content th { background: #1e293b; color: #f1f5f9; border-color: #334155; }
+    html.dark .seo-content td { border-color: #334155; color: #cbd5e1; }
+    html.dark .faq-section h2 { color: #f1f5f9; }
+    html.dark .faq-section details { background: #1e293b; border-color: #334155; }
+    html.dark .faq-section summary { color: #f1f5f9; }
+    html.dark .faq-section details p { color: #94a3b8; }
 
     /* Theme toggle in header */
     #theme-toggle {
@@ -472,7 +573,7 @@
       <div class="bg-white p-4 rounded-xl border border-slate-100 text-center transition-colors duration-200">
         <div class="text-2xl mb-1">📄</div>
         <h4 class="font-bold text-sm">Page Extraction</h4>
-        <p class="text-xs text-slate-500">Extract all pages as images</p>
+        <p class="text-xs text-slate-500">Every page becomes a JPG</p>
       </div>
       <div class="bg-white p-4 rounded-xl border border-slate-100 text-center transition-colors duration-200">
         <div class="text-2xl mb-1">⚡</div>
@@ -481,31 +582,333 @@
       </div>
     </div>
 
-    <!-- FAQ Section -->
-    <section class="max-w-2xl mx-auto mt-12">
-      <h2 class="text-xl font-black text-slate-900 text-center mb-6">Frequently Asked Questions</h2>
-      <div class="space-y-3">
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">Is my data safe?</h3>
-          <p class="text-slate-600 text-sm mt-1">Yes! All conversions happen locally in your browser. Your PDF is never uploaded to any server and is automatically deleted when you close the page.</p>
-        </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">Why convert PDF to JPG?</h3>
-          <p class="text-slate-600 text-sm mt-1">Converting PDF to JPG allows you to extract individual pages as images. This is useful for sharing specific pages, creating thumbnails, or using PDF content in presentations and documents.</p>
-        </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">Will I lose image quality?</h3>
-          <p class="text-slate-600 text-sm mt-1">JPG is a lossy format, so some quality is lost during conversion. Using the "Maximum" quality setting preserves as much detail as possible. For highest quality, consider using the PDF to PNG converter instead.</p>
-        </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">What about scanned PDFs?</h3>
-          <p class="text-slate-600 text-sm mt-1">Scanned PDFs work perfectly! Each page is rendered as an image, preserving the exact appearance of the scanned document.</p>
-        </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">Are there file size limits?</h3>
-          <p class="text-slate-600 text-sm mt-1">Since everything runs locally, limits depend on your device's memory. Most modern browsers handle PDFs up to 100MB without issues. Very large files may take longer to process.</p>
-        </div>
-      </div>
+    <!-- ============================================================ -->
+    <!-- SEO CONTENT — Page-to-image, quality, resolution, ZIP export  -->
+    <!-- ============================================================ -->
+    <section class="seo-content">
+      <h2>How Page-to-Image Conversion Works</h2>
+      <p>
+        The converter reads your PDF with PDF.js, renders each page onto a canvas at the resolution
+        you choose, and exports the canvas as a JPEG image. A 12-page PDF produces 12 JPG files,
+        one per page, in the same order as the original document.
+      </p>
+      <p>
+        This is a <strong>rasterisation</strong> process. The PDF's original content — text, vector
+        graphics, images — is drawn onto a pixel grid at a specific scale. Once rendered, the
+        output is a flat image. Text in the JPG is no longer selectable, and vector lines become
+        pixels.
+      </p>
+      <p>
+        The advantage of rasterisation is fidelity: the JPG looks exactly like the PDF page, with
+        every font, image, and layout element preserved. The disadvantage is that the output is a
+        picture, not a document. It cannot be searched, edited, or scaled indefinitely without
+        loss of quality.
+      </p>
+
+      <h2>JPG Quality — What the Slider Does</h2>
+      <p>
+        JPEG is a lossy compression format. When you save an image as JPG, the encoder discards
+        some visual information to reduce file size. The quality setting controls how much is
+        discarded.
+      </p>
+      <table>
+        <thead>
+          <tr>
+            <th>Setting</th>
+            <th>Quality Value</th>
+            <th>Typical Use</th>
+            <th>Typical File Size</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>High (Smaller)</td>
+            <td>0.70</td>
+            <td>Email attachments, quick previews, web thumbnails</td>
+            <td>~100–200 KB per page</td>
+          </tr>
+          <tr>
+            <td>Very High</td>
+            <td>0.85</td>
+            <td>General use, sharing on messaging apps, archiving</td>
+            <td>~250–500 KB per page</td>
+          </tr>
+          <tr>
+            <td>Maximum (Larger)</td>
+            <td>0.95</td>
+            <td>Printing, detailed graphics, further editing</td>
+            <td>~500 KB–1.5 MB per page</td>
+          </tr>
+        </tbody>
+      </table>
+      <p>
+        At 0.95 the difference from the original is usually invisible to the eye. At 0.70 you may
+        notice slight blurring around sharp text edges and faint banding in gradient areas. For
+        documents that will be printed or zoomed in, use the Maximum setting.
+      </p>
+
+      <h2>Resolution — What "Image Size" Controls</h2>
+      <p>
+        Resolution determines how many pixels wide and tall the output image is. Higher resolution
+        means more detail, but also a larger file. The "Image Size" setting caps the longest edge
+        of the rendered page.
+      </p>
+      <table>
+        <thead>
+          <tr>
+            <th>Setting</th>
+            <th>Longest Edge</th>
+            <th>Best For</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Original Size</td>
+            <td>Page's native resolution</td>
+            <td>Maximum detail — no downscaling applied</td>
+          </tr>
+          <tr>
+            <td>4K (3840px)</td>
+            <td>3840 pixels</td>
+            <td>Large displays, printing, high-DPI screens</td>
+          </tr>
+          <tr>
+            <td>HD (1920px)</td>
+            <td>1920 pixels</td>
+            <td>Standard laptop and desktop displays</td>
+          </tr>
+          <tr>
+            <td>HD Ready (1280px)</td>
+            <td>1280 pixels</td>
+            <td>Web embedding, presentations</td>
+          </tr>
+          <tr>
+            <td>Web (800px)</td>
+            <td>800 pixels</td>
+            <td>Thumbnails, previews, mobile screens</td>
+          </tr>
+        </tbody>
+      </table>
+      <p>
+        A standard A4 page (210 × 297 mm) rendered at 1920 px on the long edge produces an image
+        roughly 1358 × 1920 pixels. At 3840 px it is roughly 2717 × 3840 pixels. Original Size
+        renders at the page's natural scale with no downscaling, which can produce very large
+        files for high-resolution PDFs.
+      </p>
+
+      <h2>Colour Mode</h2>
+      <p>
+        Two colour modes are available. <strong>Color</strong> preserves the original colours of
+        the page. <strong>Grayscale</strong> converts everything to shades of grey, which reduces
+        file size by roughly 20–40% and is often preferred for text-heavy documents where colour
+        adds no information.
+      </p>
+      <p>
+        Grayscale is applied at render time, so the output JPG is a true greyscale image rather
+        than a colour image with desaturated pixels. This is more efficient and produces cleaner
+        output.
+      </p>
+
+      <h2>Multiple Pages — Naming and Order</h2>
+      <p>
+        Each page produces one JPG with a predictable filename. If your PDF is called
+        <code>report.pdf</code>, the outputs are:
+      </p>
+      <ul>
+        <li><code>report_page_001.jpg</code></li>
+        <li><code>report_page_002.jpg</code></li>
+        <li><code>report_page_003.jpg</code></li>
+        <li>… and so on.</li>
+      </ul>
+      <p>
+        The three-digit zero-padding means the files sort correctly in any file manager, even for
+        documents with more than 100 pages. The page number in the filename always matches the
+        page number in the original PDF.
+      </p>
+      <p>
+        Output order is always the same as the PDF's page order. If you need a different order,
+        rename the files after downloading.
+      </p>
+
+      <h2>Downloading — Individual Files vs. ZIP</h2>
+      <p>
+        Two download options are offered:
+      </p>
+      <ul>
+        <li><strong>Download Individual</strong> — each JPG downloads as a separate file. Your
+            browser may ask permission to download multiple files. There is a 300 ms delay between
+            each download to prevent the browser from blocking them.</li>
+        <li><strong>Download All (ZIP)</strong> — all JPGs are packaged into a single ZIP archive
+            named after the original PDF, for example <code>report_images.zip</code>. This is
+            usually the faster and cleaner option for multi-page documents.</li>
+      </ul>
+      <p>
+        The ZIP is generated in your browser using JSZip. Nothing is uploaded. For a single-page
+        PDF, the ZIP option downloads the JPG directly rather than wrapping it in an archive.
+      </p>
+
+      <h2>A Worked Example</h2>
+      <p>
+        Take a 3-page PDF called <code>invoice_packet.pdf</code> at 8.5 × 11 inches (Letter size).
+        With settings <strong>Very High quality</strong>, <strong>HD (1920px)</strong>, and
+        <strong>Color</strong>, the conversion produces:
+      </p>
+      <ul>
+        <li><code>invoice_packet_page_001.jpg</code> — 1483 × 1920 px, ~340 KB</li>
+        <li><code>invoice_packet_page_002.jpg</code> — 1483 × 1920 px, ~410 KB</li>
+        <li><code>invoice_packet_page_003.jpg</code> — 1483 × 1920 px, ~295 KB</li>
+      </ul>
+      <p>
+        The total output is about 1 MB, which fits comfortably in an email attachment. If you
+        needed to print these pages at 300 DPI, you would choose <strong>4K</strong> and
+        <strong>Maximum</strong> instead, which would produce files roughly 4× larger.
+      </p>
+
+      <h2>Scanned PDFs — Perfect Match</h2>
+      <p>
+        Scanned PDFs work exceptionally well with this tool. A scanned PDF is already a set of page
+        images — the converter simply renders them at the chosen resolution and exports them as
+        JPG. There is no loss of fidelity because the source is already raster.
+      </p>
+      <p>
+        This makes the tool useful for extracting individual pages from a scanned book, sending a
+        signed contract page as an image, or converting a scanned receipt into a format that can
+        be attached to an expense report.
+      </p>
+
+      <h2>What Is Not Preserved</h2>
+      <ul>
+        <li><strong>Selectable text.</strong> The output is an image. You cannot select or search
+            text within the JPG. If you need searchable text, use the PDF to TXT converter instead.</li>
+        <li><strong>Hyperlinks.</strong> Clickable links in the PDF are rendered as visible text
+            but are not clickable in the JPG.</li>
+        <li><strong>Form fields.</strong> Interactive form fields become flat pixels. They cannot
+            be filled in the output.</li>
+        <li><strong>Metadata.</strong> The output JPG does not inherit the PDF's metadata, and no
+            EXIF data is written. GPS location, camera model, and other tags are absent.</li>
+      </ul>
+
+      <h2>Privacy — Client-Side Rendering</h2>
+      <p>
+        PDF parsing uses the open-source PDF.js library and ZIP generation uses JSZip. Both run
+        entirely in your browser. Your PDF is read into memory and never transmitted. The only
+        external resources loaded are the libraries themselves from a CDN. You can disconnect from
+        the internet after the page loads and the tool will continue to work.
+      </p>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- FAQ SECTION                                                   -->
+    <!-- ============================================================ -->
+    <section class="faq-section">
+      <h2>PDF to JPG Questions</h2>
+
+      <details>
+        <summary>Is my data safe?</summary>
+        <p>
+          Yes. All conversion happens locally in your browser using PDF.js. Your PDF is never
+          uploaded to any server. You can disconnect from the internet after the page loads and
+          the tool will continue to work.
+        </p>
+      </details>
+
+      <details>
+        <summary>How does the conversion work?</summary>
+        <p>
+          Each PDF page is rendered onto an HTML canvas at the resolution you choose, then exported
+          as a JPEG image. A 10-page PDF produces 10 JPG files, one per page, in page order.
+        </p>
+      </details>
+
+      <details>
+        <summary>What JPG quality should I choose?</summary>
+        <p>
+          Very High (0.85) is the default and works well for most uses — sharing, archiving, and
+          general viewing. Choose Maximum (0.95) if you plan to print or edit the images further.
+          Choose High (0.70) if file size matters more than detail, for example when emailing.
+        </p>
+      </details>
+
+      <details>
+        <summary>What does "Image Size" control?</summary>
+        <p>
+          It caps the longest edge of the rendered page in pixels. HD (1920px) is a good default
+          for screen viewing. 4K (3840px) is for printing or large displays. Web (800px) produces
+          small files suitable for thumbnails. Original Size renders at the page's natural scale
+          with no downscaling.
+        </p>
+      </details>
+
+      <details>
+        <summary>Can I convert a scanned PDF to JPG?</summary>
+        <p>
+          Yes, and it works very well because a scanned PDF is already a set of page images. The
+          output JPG looks exactly like the scanned page — no additional quality loss beyond the
+          JPEG compression you choose.
+        </p>
+      </details>
+
+      <details>
+        <summary>Will I lose image quality?</summary>
+        <p>
+          JPEG is a lossy format, so some quality is lost at every quality setting except the
+          theoretical maximum. At Very High and Maximum, the loss is imperceptible for most
+          documents. At High (0.70), you may notice slight blurring around sharp text edges.
+        </p>
+      </details>
+
+      <details>
+        <summary>Can I download all pages as a ZIP?</summary>
+        <p>
+          Yes. Click "Download All (ZIP)" in the results section. All pages are packaged into a
+          single ZIP file named after the original PDF. The ZIP is created in your browser using
+          JSZip — nothing is uploaded.
+        </p>
+      </details>
+
+      <details>
+        <summary>Can I download individual pages?</summary>
+        <p>
+          Yes. Click "Download Individual" or use the individual download links in the results
+          section. There is a short delay between each download to prevent the browser from
+          blocking them as a suspicious multiple-download action.
+        </p>
+      </details>
+
+      <details>
+        <summary>What is the maximum file size?</summary>
+        <p>
+          About 100 MB. The practical limit depends on your device's memory and the number of
+          pages. Very large PDFs with hundreds of pages may take a while and use significant
+          memory.
+        </p>
+      </details>
+
+      <details>
+        <summary>Can I convert a password-protected PDF?</summary>
+        <p>
+          No. The tool can only read PDFs that open without a password. If your PDF requires a
+          password, remove the protection first using a dedicated PDF tool, then convert it here.
+        </p>
+      </details>
+
+      <details>
+        <summary>What colour mode should I use?</summary>
+        <p>
+          Color preserves the original appearance. Grayscale reduces file size by 20–40% and is
+          often better for text-heavy documents. For photos, charts, or anything where colour
+          carries information, use Color.
+        </p>
+      </details>
+
+      <details>
+        <summary>Can I convert just one page?</summary>
+        <p>
+          Not directly with this tool — it converts every page. If you only need one page, use the
+          Split PDF tool first to isolate that page, then convert the one-page PDF here.
+        </p>
+      </details>
+
     </section>
   </main>
 
