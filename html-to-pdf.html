@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>HTML to PDF Converter - Droplet</title>
-  <meta name="description" content="Convert HTML files, code, or web pages to PDF online for free. 100% client-side, your files never leave your browser.">
+  <title>HTML to PDF Converter Online Free – Convert HTML to PDF | Droplet</title>
+  <meta name="description" content="Convert HTML files, code, or web pages to PDF online for free. Preserves layout, fonts, and CSS styling. 100% client-side, private, and free.">
+  <link rel="canonical" href="https://dropletweb.xyz/html-to-pdf.html">
 
   <!-- Google AdSense -->
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4006702663328202"
@@ -128,6 +129,87 @@
       opacity: 0;
     }
 
+    /* ============================================================ */
+    /* SEO CONTENT                                                    */
+    /* ============================================================ */
+    .seo-content {
+      max-width: 42rem;
+      margin: 2.5rem auto 1rem;
+      color: #334155;
+      line-height: 1.65;
+    }
+    .seo-content h2 {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #0f172a;
+      margin: 2rem 0 0.5rem;
+    }
+    .seo-content p {
+      margin-bottom: 1rem;
+      font-size: 0.95rem;
+    }
+    .seo-content ul {
+      padding-left: 1.4rem;
+      margin-bottom: 1rem;
+      font-size: 0.95rem;
+    }
+    .seo-content li {
+      margin-bottom: 0.3rem;
+    }
+    .seo-content code {
+      background: #f1f5f9;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.9em;
+      color: #be185d;
+    }
+    .faq-section {
+      max-width: 42rem;
+      margin: 2rem auto;
+    }
+    .faq-section h2 {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #0f172a;
+      text-align: center;
+      margin-bottom: 1.25rem;
+    }
+    .faq-section details {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 0.75rem;
+      padding: 0.75rem 1.25rem;
+      margin-bottom: 0.6rem;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .faq-section summary {
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: #0f172a;
+      cursor: pointer;
+      list-style: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .faq-section summary::-webkit-details-marker { display: none; }
+    .faq-section summary::after {
+      content: "➕";
+      font-size: 0.8rem;
+      color: #94a3b8;
+      transition: transform 0.2s;
+    }
+    .faq-section details[open] summary::after {
+      content: "➖";
+    }
+    .faq-section details p {
+      margin-top: 0.6rem;
+      font-size: 0.9rem;
+      color: #475569;
+      line-height: 1.6;
+    }
+
     /* Dark mode overrides */
     html.dark body {
       background: #0f172a;
@@ -214,6 +296,13 @@
     html.dark .bg-slate-50 { background: #0f172a !important; }
     html.dark .bg-slate-100 { background: #334155 !important; }
     html.dark .hover\:bg-slate-200:hover { background: #475569 !important; }
+    html.dark .seo-content { color: #cbd5e1; }
+    html.dark .seo-content h2 { color: #f1f5f9; }
+    html.dark .seo-content code { background: #0f172a; color: #f9a8d4; }
+    html.dark .faq-section h2 { color: #f1f5f9; }
+    html.dark .faq-section details { background: #1e293b; border-color: #334155; }
+    html.dark .faq-section summary { color: #f1f5f9; }
+    html.dark .faq-section details p { color: #94a3b8; }
     html.dark footer {
       background: #0f172a !important;
       border-color: #334155 !important;
@@ -303,8 +392,8 @@
       <div class="flex items-start gap-3">
         <span class="text-2xl">📄</span>
         <div>
-          <h4 class="font-bold text-sm text-blue-900">Why Convert HTML to PDF?</h4>
-          <p class="text-xs text-blue-700 mt-1">PDF preserves the layout, fonts, and formatting of HTML documents. Perfect for saving web pages, invoices, reports, or converting HTML templates into shareable documents.</p>
+          <h4 class="font-bold text-sm text-blue-900">How this conversion works — read this first</h4>
+          <p class="text-xs text-blue-700 mt-1">The tool renders your HTML in a hidden iframe, applies the page size, orientation, and margins you choose, then rasterises the result into a PDF using html2pdf. <strong>This is a print-style conversion, not a browser screenshot.</strong> Inline CSS works well; external resources and JavaScript are limited.</p>
         </div>
       </div>
     </div>
@@ -395,7 +484,7 @@
           </button>
         </div>
         <p class="text-xs text-slate-400 mt-3">
-          ⚠️ Note: Loading from external URLs may be blocked by CORS policies. For best results, upload or paste HTML directly.
+          ⚠️ Note: Loading from external URLs is often blocked by CORS policies. For best results, upload or paste HTML directly.
         </p>
       </div>
     </div>
@@ -513,31 +602,293 @@
       </div>
     </div>
 
-    <!-- ===== FAQ SECTION ===== -->
-    <section class="max-w-2xl mx-auto mt-12">
-      <h2 class="text-xl font-black text-slate-900 text-center mb-6">Frequently Asked Questions</h2>
-      <div class="space-y-3">
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">Is my data safe?</h3>
-          <p class="text-slate-600 text-sm mt-1">Yes! All conversion happens locally in your browser. Your HTML files are never uploaded to any server.</p>
-        </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">What HTML features are supported?</h3>
-          <p class="text-slate-600 text-sm mt-1">Text, images, tables, lists, CSS styling, and most standard HTML elements. External stylesheets and scripts may have limitations.</p>
-        </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">Can I convert a website URL?</h3>
-          <p class="text-slate-600 text-sm mt-1">Yes, but external URLs may be blocked by CORS policies. For best results, save the HTML file first and upload it, or paste the HTML code directly.</p>
-        </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">Will external CSS and images work?</h3>
-          <p class="text-slate-600 text-sm mt-1">Inline styles and embedded images work best. External resources may not load due to security restrictions. Consider embedding styles and images directly in your HTML.</p>
-        </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">What about JavaScript?</h3>
-          <p class="text-slate-600 text-sm mt-1">JavaScript is not executed during conversion for security reasons. Only the static HTML and CSS are rendered.</p>
-        </div>
-      </div>
+    <!-- ============================================================ -->
+    <!-- SEO CONTENT — HTML/CSS support, print styling, JS limits       -->
+    <!-- ============================================================ -->
+    <section class="seo-content">
+      <h2>How HTML to PDF Conversion Works</h2>
+      <p>
+        The converter renders your HTML in a hidden iframe, applies a print stylesheet with the
+        page size, orientation, and margins you choose, then rasterises the result into a PDF
+        using html2pdf. This is a <strong>print-style conversion</strong>, not a browser
+        screenshot — it takes the HTML and CSS as they would appear on paper.
+      </p>
+      <p>
+        The whole process runs in your browser. Your HTML is read into memory, rendered, and
+        written as a PDF. Nothing is uploaded.
+      </p>
+
+      <h2>HTML and CSS Support</h2>
+      <p>
+        The converter supports the same HTML and CSS that your browser does. In practice, this
+        means:
+      </p>
+      <ul>
+        <li><strong>Elements:</strong> headings, paragraphs, lists, tables, images, links, blockquotes, horizontal rules, semantic tags (<code>header</code>, <code>section</code>, <code>article</code>, <code>footer</code>), and most others.</li>
+        <li><strong>Inline CSS:</strong> works fully. Styles in a <code>&lt;style&gt;</code> block in the <code>&lt;head&gt;</code> also work.</li>
+        <li><strong>Fonts:</strong> system fonts (Arial, Georgia, Times, Courier) work everywhere. Web fonts loaded from a CDN work if the CDN is reachable and allows cross-origin loading.</li>
+        <li><strong>Colours and backgrounds:</strong> solid colours, gradients, borders, and border-radius all render. Background images may or may not load depending on their source.</li>
+        <li><strong>Flexbox and Grid:</strong> modern layout modes are supported by the underlying browser engine and render correctly.</li>
+      </ul>
+
+      <h2>Print Styling and @media print</h2>
+      <p>
+        The converter respects <code>@media print</code> rules in your CSS. If your HTML includes
+        a print stylesheet, those rules will apply in the PDF. This is the recommended way to
+        control exactly how the document looks on paper — for example hiding navigation, expanding
+        link URLs, or forcing page breaks.
+      </p>
+      <p>
+        If you do not provide print rules, the screen styles are used as-is. This usually looks
+        fine for simple documents. For complex layouts with sidebars, navigation, or interactive
+        elements, add a print stylesheet to hide or restyle those parts.
+      </p>
+      <p>
+        One useful pattern: hide UI elements with <code>@media print { .no-print { display: none } }</code>,
+        and force page breaks with <code>page-break-before: always</code> or
+        <code>page-break-after: always</code> on specific elements.
+      </p>
+
+      <h2>External Resources and CORS</h2>
+      <p>
+        HTML often references external resources: stylesheets, images, fonts, and scripts. Whether
+        those resources load depends on where they are hosted and how they are configured.
+      </p>
+      <ul>
+        <li><strong>Same-origin resources</strong> generally load. If you paste HTML that
+            references files on your own machine or on a server that allows same-origin access,
+            they will work.</li>
+        <li><strong>Cross-origin resources with CORS headers</strong> load successfully. Many
+            CDNs (Google Fonts, jsDelivr, unpkg, Cloudflare) send the right headers, so
+            stylesheets and fonts from those sources usually work.</li>
+        <li><strong>Cross-origin resources without CORS headers</strong> are blocked by the
+            browser. The PDF will render without those assets — a missing image, an unstyled
+            block, and so on.</li>
+        <li><strong>Resources on the local file system</strong> referenced by relative paths
+            may not resolve when the HTML is rendered in an iframe. Use absolute URLs or inline
+            the content.</li>
+      </ul>
+      <p>
+        The safest approach is to inline everything you can. Put CSS in a <code>&lt;style&gt;</code>
+        block, embed images as data URLs, and avoid remote dependencies where possible. This
+        guarantees the PDF will render exactly as you see it in the preview.
+      </p>
+
+      <h2>JavaScript Limitations</h2>
+      <p>
+        JavaScript is <strong>not executed</strong> during PDF conversion. The iframe is sandboxed
+        without <code>allow-scripts</code>, so any <code>&lt;script&gt;</code> tags in your HTML
+        are ignored. This is a deliberate security measure: running arbitrary scripts from a file
+        you paste would be unsafe.
+      </p>
+      <p>
+        The practical effect is that pages relying on JavaScript to render their content — single
+        page applications, client-side rendered frameworks (React, Vue, Angular), or pages that
+        build the DOM on load — will produce a PDF containing only the static HTML that was
+        present at load time. If the visible content is generated by JavaScript, it will be
+        missing from the PDF.
+      </p>
+      <p>
+        To work around this, save the fully rendered page from your browser (for example using
+        "Save Page As" → "Webpage, Complete") and upload the saved HTML, or paste the rendered
+        HTML directly from the browser's developer tools.
+      </p>
+
+      <h2>Page Sizing, Orientation, and Margins</h2>
+      <p>
+        Four page sizes are offered:
+      </p>
+      <ul>
+        <li><strong>A4</strong> — 210 × 297 mm, standard in most of the world.</li>
+        <li><strong>Letter</strong> — 8.5 × 11 in, standard in the United States and Canada.</li>
+        <li><strong>Legal</strong> — 8.5 × 14 in, used for US legal documents.</li>
+        <li><strong>A3</strong> — 297 × 420 mm, twice the area of A4, useful for posters and wide tables.</li>
+        <li><strong>A5</strong> — 148 × 210 mm, half of A4, useful for booklets and small handouts.</li>
+      </ul>
+      <p>
+        Orientation can be portrait or landscape. Landscape is useful for wide tables and
+        diagrams. Margins range from none (0 mm) to wide (20 mm). The default is 10 mm, which
+        leaves a modest border around the content.
+      </p>
+      <p>
+        Pages break automatically as content flows. You can force breaks with CSS using
+        <code>page-break-before: always</code>, <code>page-break-after: always</code>, or
+        <code>page-break-inside: avoid</code> on elements that should not be split.
+      </p>
+
+      <h2>Quality and File Size</h2>
+      <p>
+        The quality setting controls the JPEG compression of the rasterised page images. Standard
+        (0.7) produces the smallest files and is fine for on-screen reading. High (0.85) is the
+        default and works well for most documents. Maximum (0.95) is best for printing or when
+        the document contains fine detail.
+      </p>
+      <p>
+        Because the PDF is built from rasterised page images, the file size depends mostly on the
+        page count and quality, not on the complexity of the HTML. A 10-page document at Maximum
+        quality can easily be several megabytes.
+      </p>
+
+      <h2>What Is Not Preserved</h2>
+      <ul>
+        <li><strong>Interactivity.</strong> Clickable links render as styled text but are not
+            clickable in the PDF. Form fields, buttons, and other interactive elements are
+            rasterised.</li>
+        <li><strong>Animations and transitions.</strong> CSS animations, transitions, and hover
+            states are captured at their initial state only.</li>
+        <li><strong>Selectable text.</strong> The PDF pages are rasterised images, so text cannot
+            be selected or searched. If you need selectable text, use a PDF library that writes
+            real text runs, or export the document from a word processor.</li>
+        <li><strong>Video and audio.</strong> Media elements are not rendered.</li>
+        <li><strong>Canvas and SVG drawing.</strong> Static SVG usually renders; canvas elements
+            render only if the canvas has already been drawn to before conversion.</li>
+      </ul>
+
+      <h2>Practical Examples</h2>
+      <p>
+        <strong>Saving an invoice template:</strong> Paste the invoice HTML, choose A4, Portrait,
+        Normal margins, High quality. The result is a print-ready invoice PDF.
+      </p>
+      <p>
+        <strong>Archiving a documentation page:</strong> Save the page from your browser, upload
+        the HTML file, choose A4, Portrait, and High quality. Add a print stylesheet to hide the
+        navigation and sidebar.
+      </p>
+      <p>
+        <strong>Producing a wide table report:</strong> Choose A3, Landscape, and Narrow margins.
+        The wide table fits on one page instead of being split awkwardly.
+      </p>
+      <p>
+        <strong>Creating a booklet:</strong> Choose A5, Portrait, and Wide margins. Two A5 pages
+        fit on one A4 sheet when printed double-sided, ready for saddle stitching.
+      </p>
+
+      <h2>Privacy — Client-Side Conversion</h2>
+      <p>
+        Everything runs in your browser. Your HTML is read into memory, rendered in a sandboxed
+        iframe, and written as a PDF by the open-source html2pdf library. Nothing is transmitted.
+        The only external resources loaded are the libraries themselves from a CDN.
+      </p>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- FAQ SECTION                                                   -->
+    <!-- ============================================================ -->
+    <section class="faq-section">
+      <h2>HTML to PDF Questions</h2>
+
+      <details>
+        <summary>Is my data safe?</summary>
+        <p>
+          Yes. All conversion happens locally in your browser. Your HTML is never uploaded to any
+          server. You can disconnect from the internet after the page loads and the tool will
+          continue to work for HTML that does not reference external resources.
+        </p>
+      </details>
+
+      <details>
+        <summary>What HTML features are supported?</summary>
+        <p>
+          The converter supports the same HTML and CSS your browser supports. Headings,
+          paragraphs, lists, tables, images, inline styles, and layout modes like Flexbox and
+          Grid all render. External resources depend on CORS, and JavaScript is not executed.
+        </p>
+      </details>
+
+      <details>
+        <summary>Will external CSS and images load?</summary>
+        <p>
+          It depends on the source. Same-origin resources and cross-origin resources with CORS
+          headers load successfully. Resources without CORS headers are blocked by the browser.
+          The safest approach is to inline CSS in a <code>&lt;style&gt;</code> block and embed
+          images as data URLs.
+        </p>
+      </details>
+
+      <details>
+        <summary>Does JavaScript run during conversion?</summary>
+        <p>
+          No. The iframe is sandboxed without script execution, which prevents arbitrary code
+          from running. Pages that rely on JavaScript to render their content will produce a PDF
+          containing only the static HTML. To work around this, save the fully rendered page from
+          your browser and upload that.
+        </p>
+      </details>
+
+      <details>
+        <summary>Can I convert a website URL directly?</summary>
+        <p>
+          The URL option is available, but it is often blocked by CORS policies — the target
+          server may refuse to let a browser fetch its content from a different origin. For
+          reliable results, save the page to your machine and upload the HTML file, or paste the
+          HTML directly.
+        </p>
+      </details>
+
+      <details>
+        <summary>Does @media print work?</summary>
+        <p>
+          Yes. <code>@media print</code> rules in your CSS are respected during conversion. This
+          is the recommended way to control exactly how the document looks on paper — hide
+          navigation, expand link URLs, or force page breaks.
+        </p>
+      </details>
+
+      <details>
+        <summary>How do I force a page break?</summary>
+        <p>
+          Use CSS on the element that should start a new page:
+          <code>page-break-before: always</code> or <code>page-break-after: always</code>. To
+          prevent an element from being split across pages, use
+          <code>page-break-inside: avoid</code>.
+        </p>
+      </details>
+
+      <details>
+        <summary>Will the text in the PDF be selectable?</summary>
+        <p>
+          No. The PDF pages are rasterised images, so text cannot be selected or searched. This
+          is inherent to the rasterisation approach used by html2pdf. If you need selectable
+          text, use a PDF library that writes real text runs, or export from a word processor.
+        </p>
+      </details>
+
+      <details>
+        <summary>Are links preserved in the PDF?</summary>
+        <p>
+          Links render as styled text (usually blue and underlined) but are not clickable in the
+          PDF. The URL is visible as text but not as an interactive link. If you need clickable
+          links, use a PDF library that supports link annotations.
+        </p>
+      </details>
+
+      <details>
+        <summary>What page sizes are available?</summary>
+        <p>
+          A4, Letter, Legal, A3, and A5. Each can be used in portrait or landscape orientation.
+          Margins range from none to 20 mm. A3 is useful for wide tables and posters. A5 is
+          useful for booklets.
+        </p>
+      </details>
+
+      <details>
+        <summary>Why is my PDF file so large?</summary>
+        <p>
+          Because the PDF is built from rasterised page images. Each page is rendered at high
+          resolution and compressed as JPEG. A 10-page document at Maximum quality can be several
+          megabytes. Choose Standard quality to reduce the file size.
+        </p>
+      </details>
+
+      <details>
+        <summary>Can I convert multiple HTML files at once?</summary>
+        <p>
+          Not in a single batch. The converter processes one HTML document at a time. To combine
+          several HTML documents into one PDF, convert each one and then use the Merge PDF tool
+          to combine the results.
+        </p>
+      </details>
+
     </section>
   </main>
 
@@ -793,26 +1144,25 @@
       }
       
       try {
-        statusMessage('Loading from URL...');
+        console.log('Loading from URL:', url);
         
         const response = await fetch(url);
         if (!response.ok) throw new Error('Failed to fetch URL');
         
         const html = await response.text();
         currentHtml = html;
-        currentFileName = new URL(url).hostname || 'webpage';
+        try {
+          currentFileName = new URL(url).hostname || 'webpage';
+        } catch (e) {
+          currentFileName = 'webpage';
+        }
         
         updateVisibility();
-        statusMessage('✅ Loaded successfully!');
+        console.log('✅ Loaded successfully!');
       } catch (error) {
         console.error('URL load error:', error);
-        alert('Could not load the URL. This is often due to CORS restrictions. Please try uploading the file or pasting the HTML directly.\n\nError: ' + error.message);
+        alert('Could not load the URL. This is often due to CORS restrictions. Please try uploading the file or pasting the HTML directly.\\n\\nError: ' + error.message);
       }
-    }
-
-    function statusMessage(msg) {
-      // Show a temporary status message
-      console.log(msg);
     }
 
     // ============================================
