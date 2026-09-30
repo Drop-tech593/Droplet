@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PowerPoint to PDF Converter - Droplet</title>
-  <meta name="description" content="Convert PowerPoint presentations (PPTX) to PDF online for free. 100% client-side, your files never leave your browser.">
+  <title>PowerPoint to PDF Converter Online Free – PPTX to PDF | Droplet</title>
+  <meta name="description" content="Convert PowerPoint presentations (PPTX) to PDF online for free. Each slide becomes a PDF page. 100% client-side, private, and free.">
+  <link rel="canonical" href="https://dropletweb.xyz/powerpoint-to-pdf.html">
 
   <!-- ===== GOOGLE ADSENSE ===== -->
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4006702663328202"
@@ -172,6 +173,79 @@
     .stat-badge.amber { background: #fef3c7; color: #92400e; }
     .stat-badge.purple { background: #ede9fe; color: #5b21b6; }
 
+    /* ============================================================ */
+    /* SEO CONTENT                                                    */
+    /* ============================================================ */
+    .seo-content {
+      max-width: 42rem;
+      margin: 2.5rem auto 1rem;
+      color: #334155;
+      line-height: 1.65;
+    }
+    .seo-content h2 {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #0f172a;
+      margin: 2rem 0 0.5rem;
+    }
+    .seo-content p {
+      margin-bottom: 1rem;
+      font-size: 0.95rem;
+    }
+    .seo-content ul {
+      padding-left: 1.4rem;
+      margin-bottom: 1rem;
+      font-size: 0.95rem;
+    }
+    .seo-content li {
+      margin-bottom: 0.3rem;
+    }
+    .faq-section {
+      max-width: 42rem;
+      margin: 2rem auto;
+    }
+    .faq-section h2 {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #0f172a;
+      text-align: center;
+      margin-bottom: 1.25rem;
+    }
+    .faq-section details {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 0.75rem;
+      padding: 0.75rem 1.25rem;
+      margin-bottom: 0.6rem;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .faq-section summary {
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: #0f172a;
+      cursor: pointer;
+      list-style: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .faq-section summary::-webkit-details-marker { display: none; }
+    .faq-section summary::after {
+      content: "➕";
+      font-size: 0.8rem;
+      color: #94a3b8;
+      transition: transform 0.2s;
+    }
+    .faq-section details[open] summary::after {
+      content: "➖";
+    }
+    .faq-section details p {
+      margin-top: 0.6rem;
+      font-size: 0.9rem;
+      color: #475569;
+      line-height: 1.6;
+    }
+
     /* Dark mode overrides */
     html.dark body {
       background: #0f172a;
@@ -284,6 +358,12 @@
     html.dark .bg-green-600:hover { background: #047857 !important; }
     html.dark .bg-blue-600 { background: #2563eb !important; }
     html.dark .bg-blue-600:hover { background: #1d4ed8 !important; }
+    html.dark .seo-content { color: #cbd5e1; }
+    html.dark .seo-content h2 { color: #f1f5f9; }
+    html.dark .faq-section h2 { color: #f1f5f9; }
+    html.dark .faq-section details { background: #1e293b; border-color: #334155; }
+    html.dark .faq-section summary { color: #f1f5f9; }
+    html.dark .faq-section details p { color: #94a3b8; }
 
     #theme-toggle {
       background: none;
@@ -351,8 +431,8 @@
       <div class="flex items-start gap-3">
         <span class="text-2xl">📽️</span>
         <div>
-          <h4 class="font-bold text-sm text-blue-900">Why Convert PowerPoint to PDF?</h4>
-          <p class="text-xs text-blue-700 mt-1">PDFs preserve slide layouts across all devices, prevent accidental editing, and are easier to share. Perfect for presentations, handouts, and reports.</p>
+          <h4 class="font-bold text-sm text-blue-900">How this works — read this first</h4>
+          <p class="text-xs text-blue-700 mt-1">The tool reads the <strong>text content</strong> of each slide (titles, bullet points, body text), rebuilds it as a styled page, and exports the result as a PDF. <strong>Animations, transitions, embedded video, and speaker notes are not carried over.</strong> This is an extract-and-rebuild converter, not a pixel-perfect renderer.</p>
         </div>
       </div>
     </div>
@@ -508,7 +588,7 @@
       </div>
       <div class="bg-white p-4 rounded-xl border border-slate-100 text-center transition-colors duration-200">
         <div class="text-2xl mb-1">📊</div>
-        <h4 class="font-bold text-sm">Slide Preservation</h4>
+        <h4 class="font-bold text-sm">One Slide Per Page</h4>
         <p class="text-xs text-slate-500">Each slide becomes a PDF page</p>
       </div>
       <div class="bg-white p-4 rounded-xl border border-slate-100 text-center transition-colors duration-200">
@@ -518,31 +598,238 @@
       </div>
     </div>
 
-    <!-- FAQ -->
-    <section class="max-w-2xl mx-auto mt-12">
-      <h2 class="text-xl font-black text-slate-900 text-center mb-6">Frequently Asked Questions</h2>
-      <div class="space-y-3">
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">Is my data safe?</h3>
-          <p class="text-slate-600 text-sm mt-1">Yes! All conversion happens locally in your browser. Your PowerPoint files are never uploaded to any server.</p>
-        </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">Will animations be preserved?</h3>
-          <p class="text-slate-600 text-sm mt-1">PDF is a static format. Animations, transitions, and interactive elements are not preserved. Each slide becomes a static page in the PDF.</p>
-        </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">What about fonts and images?</h3>
-          <p class="text-slate-600 text-sm mt-1">Text, images, and basic formatting are preserved. For best results, use standard fonts. Custom fonts may be substituted if not embedded.</p>
-        </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">What file formats are supported?</h3>
-          <p class="text-slate-600 text-sm mt-1">Currently supports .PPTX (PowerPoint 2007 and later). Legacy .PPT files may work but are not guaranteed.</p>
-        </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">Are there file size limits?</h3>
-          <p class="text-slate-600 text-sm mt-1">Since everything runs locally, limits depend on your device's memory. Most modern browsers handle presentations up to 100MB without issues.</p>
-        </div>
-      </div>
+    <!-- ============================================================ -->
+    <!-- SEO CONTENT — Slides, dimensions, fonts, images, limitations  -->
+    <!-- ============================================================ -->
+    <section class="seo-content">
+      <h2>How Slides Become PDF Pages</h2>
+      <p>
+        The converter opens the PPTX file, reads each slide's XML, and extracts the text content
+        — titles, bullet points, and body paragraphs. It then rebuilds that content as a styled
+        HTML page and exports the whole set as a PDF, one slide per page.
+      </p>
+      <p>
+        The rebuilt page is not a pixel-perfect copy of the original slide. It has its own clean
+        layout: a title at the top, a divider line, then the body text below. This is by design —
+        it produces a readable, consistent PDF even when the original slide had overlapping text
+        boxes, complex positioning, or themed backgrounds.
+      </p>
+
+      <h2>Page Dimensions and Orientation</h2>
+      <p>
+        Two page formats are available:
+      </p>
+      <ul>
+        <li><strong>16:9 widescreen</strong> — 297 mm × 167 mm. Matches modern projectors and
+            screens, and is the default for most PowerPoint presentations created after 2013.</li>
+        <li><strong>4:3 standard</strong> — 254 mm × 190.5 mm. Matches older projectors and
+            presentations created before the widescreen transition.</li>
+      </ul>
+      <p>
+        You can also choose <strong>Landscape</strong> or <strong>Portrait</strong> orientation.
+        Landscape is the default and matches the shape of a presentation slide. Portrait rotates
+        the page 90 degrees, which is useful for handouts that will be printed and bound on the
+        short edge.
+      </p>
+
+      <h2>Fonts</h2>
+      <p>
+        The output PDF uses Arial (or Helvetica as a fallback), a standard sans-serif font that is
+        available on every platform. The original slide's font family is <strong>not</strong>
+        preserved. If the PPTX used Calibri, Roboto, Montserrat, or a custom corporate font, the
+        PDF will render the text in Arial instead.
+      </p>
+      <p>
+        Font size is normalised: titles are set at 24 pt and body text at 14 pt, regardless of the
+        original sizes. This keeps the output consistent across slides but means a slide that used
+        very large or very small text will look different in the PDF.
+      </p>
+
+      <h2>Images</h2>
+      <p>
+        Images embedded in the slides are <strong>not</strong> extracted or placed in the PDF.
+        The current version reads text only. If your presentation relies on charts, diagrams,
+        logos, or photos, they will be missing from the output PDF. To include them, you would
+        need to convert the presentation in a tool that renders each slide as an image, or add
+        the visuals to the PDF manually afterwards.
+      </p>
+
+      <h2>Speaker Notes</h2>
+      <p>
+        Speaker notes are not included in the PDF. Notes live in a separate part of the PPTX
+        (the notesSlide XML files) and the converter does not read them. If your notes are
+        important for the audience, print them separately or copy them into a handout document.
+      </p>
+
+      <h2>Animations and Transitions — What Happens</h2>
+      <p>
+        This is the most important limitation to understand. PDF is a static, print-oriented
+        format. It has no concept of timed reveals, motion, or slide-to-slide transitions.
+        So:
+      </p>
+      <ul>
+        <li><strong>Animations are dropped.</strong> If a bullet point was set to appear on click,
+            it will simply appear on the PDF page as normal text. If a shape was set to fly in,
+            it will just be part of the page (or missing, if it was an image).</li>
+        <li><strong>Transitions are dropped.</strong> Any fade, push, wipe, or morph between slides
+            is lost. Each slide is a standalone page in the PDF with no transition between pages.</li>
+        <li><strong>Embedded video and audio are dropped.</strong> PDF supports embedded media in
+            some readers, but this converter does not extract or re-embed it.</li>
+        <li><strong>Hyperlinks are dropped.</strong> Clickable links inside the presentation are
+            not preserved as clickable links in the PDF.</li>
+      </ul>
+      <p>
+        If you need the animations to be visible in the output, PDF is the wrong target format.
+        Export to video (MP4) or keep the original PPTX. PDF is for sharing a static view of the
+        content.
+      </p>
+
+      <h2>Legacy .PPT Files</h2>
+      <p>
+        Older PowerPoint files with the <code>.ppt</code> extension use a binary format that is
+        very different from the modern <code>.pptx</code> ZIP-based format. This converter does
+        not fully parse <code>.ppt</code> files. If you upload one, you will see a placeholder
+        slide explaining that you need to re-save the file as <code>.pptx</code> in PowerPoint
+        first. The conversion itself requires the modern format.
+      </p>
+
+      <h2>Practical Uses</h2>
+      <p>
+        <strong>Creating a text-only handout:</strong> Convert the presentation, print the PDF,
+        and hand it out. The clean layout is easier to read than a slide screenshot.
+      </p>
+      <p>
+        <strong>Archiving the text of a deck:</strong> If you need to preserve the wording but
+        not the visuals, this produces a searchable, copyable PDF.
+      </p>
+      <p>
+        <strong>Extracting content for documentation:</strong> Convert to PDF, then copy the text
+        into a manual, wiki, or spec document. The layout is already clean.
+      </p>
+
+      <h2>Privacy — Client-Side Conversion</h2>
+      <p>
+        PPTX parsing uses the open-source JSZip library and PDF generation uses html2pdf. Both
+        run entirely in your browser. Your presentation is read into memory and never transmitted.
+        The only external resources loaded are the libraries themselves from a CDN.
+      </p>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- FAQ SECTION                                                   -->
+    <!-- ============================================================ -->
+    <section class="faq-section">
+      <h2>PowerPoint to PDF Questions</h2>
+
+      <details>
+        <summary>Will my slides look exactly like the original?</summary>
+        <p>
+          No. The converter extracts the text content and rebuilds it in a clean, consistent
+          layout. Titles, bullet points, and body text are preserved, but the original fonts,
+          colours, backgrounds, images, and exact positioning are not. The output is a readable
+          text-oriented PDF, not a pixel-perfect copy.
+        </p>
+      </details>
+
+      <details>
+        <summary>Are animations and transitions preserved?</summary>
+        <p>
+          No. PDF is a static format with no concept of animation or transition. All motion is
+          dropped. If a bullet point was set to appear on click, it appears normally on the PDF
+          page. If a slide had a fade-in transition, the PDF page simply follows the previous one.
+        </p>
+      </details>
+
+      <details>
+        <summary>Are images and charts included in the PDF?</summary>
+        <p>
+          No. The current version reads text only. Images, charts, diagrams, and logos embedded
+          in the slides are not extracted or placed in the output PDF. This is a text-extraction
+          converter, not a slide renderer.
+        </p>
+      </details>
+
+      <details>
+        <summary>Are speaker notes included?</summary>
+        <p>
+          No. Speaker notes are stored separately in the PPTX file and are not read by this
+          converter. If your notes matter for the audience, print them separately or copy them
+          into a handout document.
+        </p>
+      </details>
+
+      <details>
+        <summary>What page size does the PDF use?</summary>
+        <p>
+          16:9 widescreen (297 mm × 167 mm) or 4:3 standard (254 mm × 190.5 mm). You can also
+          choose landscape or portrait orientation. Landscape is the default and matches the
+          shape of a presentation slide.
+        </p>
+      </details>
+
+      <details>
+        <summary>Are the original fonts preserved?</summary>
+        <p>
+          No. The output uses Arial (or Helvetica as a fallback) for all text. This is a standard
+          font available on every platform. If your presentation used a custom corporate font, it
+          will be substituted.
+        </p>
+      </details>
+
+      <details>
+        <summary>Can I edit the PDF after conversion?</summary>
+        <p>
+          The PDF contains real text, so you can select and copy it. To edit the content, use a
+          PDF editor. To change the layout, fonts, or add images back in, edit the original PPTX
+          and convert again.
+        </p>
+      </details>
+
+      <details>
+        <summary>Does the tool support legacy .PPT files?</summary>
+        <p>
+          Only partially. Legacy <code>.ppt</code> files use a binary format that is not fully
+          parsed. You will see a placeholder slide asking you to re-save the file as
+          <code>.pptx</code> in PowerPoint first.
+        </p>
+      </details>
+
+      <details>
+        <summary>Is my PowerPoint uploaded to a server?</summary>
+        <p>
+          No. All parsing and PDF generation happen locally in your browser using JSZip and
+          html2pdf. Your file never leaves your device. You can disconnect from the internet
+          after the page loads and the tool will continue to work.
+        </p>
+      </details>
+
+      <details>
+        <summary>Can I convert a password-protected PPTX?</summary>
+        <p>
+          No. The converter can only read PPTX files that open without a password. If your
+          presentation requires a password, remove the protection first using PowerPoint, then
+          convert it here.
+        </p>
+      </details>
+
+      <details>
+        <summary>What is the maximum file size?</summary>
+        <p>
+          About 100 MB. The practical limit depends on your device's memory, since everything
+          runs in the browser. Very large presentations with hundreds of slides may take longer
+          to process.
+        </p>
+      </details>
+
+      <details>
+        <summary>Why is the output so different from my slides?</summary>
+        <p>
+          Because this is a text-extraction converter, not a slide renderer. It reads the words
+          on each slide and rebuilds them in a clean layout. If you need a visual copy of the
+          slides, use PowerPoint's own "Save as PDF" feature or a slide-rendering tool instead.
+        </p>
+      </details>
+
     </section>
   </main>
 
