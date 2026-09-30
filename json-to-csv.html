@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>JSON to CSV Converter - Droplet</title>
-  <meta name="description" content="Convert JSON data to CSV online for free. 100% client-side, your files never leave your browser. Supports nested JSON and arrays.">
+  <title>JSON to CSV Converter Online Free – Convert JSON to Excel | Droplet</title>
+  <meta name="description" content="Convert JSON data to CSV online for free. Handles arrays, objects, and nested JSON. Flattens dot-notation keys. 100% client-side, private, and free.">
+  <link rel="canonical" href="https://dropletweb.xyz/json-to-csv.html">
 
   <!-- Google AdSense -->
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4006702663328202"
@@ -68,6 +69,135 @@
     .badge-rows { background: #dbeafe; color: #1e40af; }
     .badge-cols { background: #d1fae5; color: #065f46; }
     .badge-size { background: #fef3c7; color: #92400e; }
+
+    /* ============================================================ */
+    /* SEO CONTENT                                                    */
+    /* ============================================================ */
+    .seo-content {
+      max-width: 42rem;
+      margin: 2.5rem auto 1rem;
+      color: #334155;
+      line-height: 1.65;
+    }
+    .seo-content h2 {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #0f172a;
+      margin: 2rem 0 0.5rem;
+    }
+    .seo-content p {
+      margin-bottom: 1rem;
+      font-size: 0.95rem;
+    }
+    .seo-content ul {
+      padding-left: 1.4rem;
+      margin-bottom: 1rem;
+      font-size: 0.95rem;
+    }
+    .seo-content li {
+      margin-bottom: 0.3rem;
+    }
+    .seo-content pre {
+      background: #1e293b;
+      color: #e2e8f0;
+      padding: 14px 16px;
+      border-radius: 10px;
+      overflow-x: auto;
+      font-size: 12.5px;
+      line-height: 1.6;
+      margin-bottom: 1rem;
+    }
+    .seo-content code {
+      background: #f1f5f9;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.9em;
+      color: #be185d;
+    }
+    .seo-content pre code {
+      background: transparent;
+      color: inherit;
+      padding: 0;
+    }
+    .example-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 1.5rem;
+    }
+    .example-box {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 16px;
+    }
+    .example-box h4 {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #94a3b8;
+      margin: 0 0 10px;
+    }
+    .example-box pre {
+      background: #1e293b;
+      color: #e2e8f0;
+      padding: 12px 14px;
+      border-radius: 8px;
+      font-size: 11.5px;
+      line-height: 1.55;
+      margin: 0;
+      overflow-x: auto;
+    }
+    @media (max-width: 640px) {
+      .example-grid { grid-template-columns: 1fr; }
+    }
+    .faq-section {
+      max-width: 42rem;
+      margin: 2rem auto;
+    }
+    .faq-section h2 {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #0f172a;
+      text-align: center;
+      margin-bottom: 1.25rem;
+    }
+    .faq-section details {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 0.75rem;
+      padding: 0.75rem 1.25rem;
+      margin-bottom: 0.6rem;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .faq-section summary {
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: #0f172a;
+      cursor: pointer;
+      list-style: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .faq-section summary::-webkit-details-marker { display: none; }
+    .faq-section summary::after {
+      content: "➕";
+      font-size: 0.8rem;
+      color: #94a3b8;
+      transition: transform 0.2s;
+    }
+    .faq-section details[open] summary::after {
+      content: "➖";
+    }
+    .faq-section details p {
+      margin-top: 0.6rem;
+      font-size: 0.9rem;
+      color: #475569;
+      line-height: 1.6;
+    }
 
     /* Dark mode overrides */
     html.dark body {
@@ -225,6 +355,14 @@
     html.dark .border-slate-300 {
       border-color: #475569 !important;
     }
+    html.dark .seo-content { color: #cbd5e1; }
+    html.dark .seo-content h2 { color: #f1f5f9; }
+    html.dark .seo-content code { background: #0f172a; color: #f9a8d4; }
+    html.dark .example-box { background: #0f172a; border-color: #334155; }
+    html.dark .faq-section h2 { color: #f1f5f9; }
+    html.dark .faq-section details { background: #1e293b; border-color: #334155; }
+    html.dark .faq-section summary { color: #f1f5f9; }
+    html.dark .faq-section details p { color: #94a3b8; }
 
     /* Theme toggle in header */
     #theme-toggle {
@@ -426,31 +564,311 @@
       </div>
     </div>
 
-    <!-- FAQ Section -->
-    <section class="max-w-2xl mx-auto mt-12">
-      <h2 class="text-xl font-black text-slate-900 text-center mb-6">Frequently Asked Questions</h2>
-      <div class="space-y-3">
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">Is my data safe?</h3>
-          <p class="text-slate-600 text-sm mt-1">Yes! All conversions happen locally in your browser. Your JSON data is never uploaded to any server and is automatically deleted when you close the page.</p>
+    <!-- ============================================================ -->
+    <!-- SEO CONTENT — Objects, arrays, nesting, headers, escaping     -->
+    <!-- ============================================================ -->
+    <section class="seo-content">
+      <h2>What JSON Structures Are Supported</h2>
+      <p>
+        JSON can represent data in several shapes. The converter handles the three most common ones
+        and produces sensible CSV for each:
+      </p>
+      <ul>
+        <li><strong>Array of objects</strong> — the most common API response shape. Each object
+            becomes one CSV row. Every unique key across all objects becomes a column.</li>
+        <li><strong>Single object</strong> — produces a CSV with one data row. Each key becomes
+            a column.</li>
+        <li><strong>Array of primitives</strong> — for example <code>[1, 2, 3]</code> or
+            <code>["a", "b"]</code>. Produces a single-column CSV with the header
+            <code>value</code>.</li>
+      </ul>
+      <p>
+        Top-level structures that are not one of these — for example a top-level number or string —
+        also produce a single-column CSV with the header <code>value</code>.
+      </p>
+
+      <h2>Nested Objects and Dot-Notation Flattening</h2>
+      <p>
+        CSV is a flat format: every row has the same set of columns. JSON, however, can nest
+        objects inside objects. The converter resolves this by <strong>flattening</strong> nested
+        objects into dot-notation keys.
+      </p>
+      <p>
+        For example, this JSON:
+      </p>
+      <pre><code>{
+  "name": "Alice",
+  "address": {
+    "city": "London",
+    "zip": "SW1A"
+  }
+}</code></pre>
+      <p>
+        becomes two columns: <code>name</code> and <code>address.city</code> and
+        <code>address.zip</code>. The dot in the column name mirrors the JSON path. This is the
+        standard approach used by most JSON-to-CSV tools and it keeps the hierarchy readable.
+      </p>
+      <p>
+        Flattening goes as deep as the JSON goes. A five-level nested object produces columns with
+        four dots in them.
+      </p>
+
+      <h2>Arrays Inside Objects</h2>
+      <p>
+        Arrays are handled differently from nested objects. An array inside an object — for example
+        <code>{"tags": ["red", "blue"]}</code> — is <strong>not</strong> flattened into separate
+        columns, because the number of items can vary from row to row. Instead, the entire array
+        is serialised as a JSON string and placed in a single cell.
+      </p>
+      <p>
+        So <code>{"tags": ["red", "blue"]}</code> becomes one cell containing the literal text
+        <code>["red","blue"]</code>. In a spreadsheet, that cell will show the brackets and quotes.
+        If you want each tag in its own column, you would need to restructure the JSON before
+        converting, or post-process the CSV.
+      </p>
+
+      <h2>Headers and Column Order</h2>
+      <p>
+        The header row is built from the union of all keys across all objects. If the first object
+        has keys <code>name</code> and <code>age</code>, and the second object has keys
+        <code>name</code>, <code>age</code>, and <code>email</code>, the CSV will have three
+        columns: <code>name</code>, <code>age</code>, <code>email</code>.
+      </p>
+      <p>
+        Column order follows the order in which keys are first encountered. Keys from the first
+        object appear first, then any new keys from later objects are appended. If you need a
+        specific column order, sort the data in a JSON editor before converting.
+      </p>
+      <p>
+        Missing values are rendered as empty cells. If the second object has no <code>email</code>
+        key, the email cell for that row is blank — not the string "undefined" or "null".
+      </p>
+
+      <h2>Escaping and Quoting</h2>
+      <p>
+        CSV has simple rules that become tricky when data contains commas, quotes, or newlines.
+        The converter uses PapaParse, which follows RFC 4180 and handles these correctly:
+      </p>
+      <ul>
+        <li><strong>Commas inside a value</strong> — the cell is wrapped in double quotes:
+            <code>"Smith, John"</code>.</li>
+        <li><strong>Double quotes inside a value</strong> — the quote is doubled and the cell is
+            wrapped: <code>"He said ""hello"""</code>.</li>
+        <li><strong>Newlines inside a value</strong> — the cell is wrapped in double quotes and the
+            newline is preserved inside the quotes.</li>
+        <li><strong>Leading and trailing whitespace</strong> — preserved inside quotes.</li>
+      </ul>
+      <p>
+        All values are quoted by default, which is safe and works everywhere. Some spreadsheet
+        tools prefer minimal quoting — if you need that, adjust the CSV after download.
+      </p>
+
+      <h2>Malformed JSON — How It's Handled</h2>
+      <p>
+        JSON is strict. A missing comma, a trailing comma, a single-quoted string, or an unquoted
+        key will cause the parser to fail. The converter does not attempt to repair malformed JSON,
+        because guessing at the intended structure can silently produce wrong data.
+      </p>
+      <p>
+        When parsing fails, you will see an alert with the error message from the JSON parser.
+        Common errors and their causes:
+      </p>
+      <ul>
+        <li><strong>"Unexpected token"</strong> — usually a missing comma between objects, or a
+            trailing comma after the last item.</li>
+        <li><strong>"Unexpected end of JSON input"</strong> — a missing closing brace or bracket.</li>
+        <li><strong>"Unexpected token ' in JSON"</strong> — single quotes used instead of double
+            quotes. JSON requires double quotes for both keys and string values.</li>
+        <li><strong>"Unexpected token ,"</strong> — a trailing comma inside an object or array.</li>
+      </ul>
+      <p>
+        The fix is always to correct the JSON. If your data comes from a source that produces
+        "JSON-like" output (JavaScript object literals, Python dicts), you will need to convert it
+        to valid JSON first.
+      </p>
+
+      <h2>A Real Example: JSON In, CSV Out</h2>
+      <p>
+        Here is a small realistic example showing exactly what the converter produces.
+      </p>
+      <div class="example-grid">
+        <div class="example-box">
+          <h4>Input JSON</h4>
+          <pre><code>[
+  {
+    "id": 1,
+    "name": "Alice",
+    "address": {
+      "city": "London",
+      "zip": "SW1A"
+    },
+    "tags": ["vip", "new"]
+  },
+  {
+    "id": 2,
+    "name": "Bob",
+    "address": {
+      "city": "Paris",
+      "zip": "75001"
+    },
+    "tags": ["returning"]
+  }
+]</code></pre>
         </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">What JSON structures are supported?</h3>
-          <p class="text-slate-600 text-sm mt-1">This converter supports arrays of objects (most common), single objects, and nested objects. For nested objects, keys are flattened using dot notation (e.g., "user.name").</p>
-        </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">What about nested JSON?</h3>
-          <p class="text-slate-600 text-sm mt-1">Nested JSON objects are automatically flattened. For example, `{"user": {"name": "John", "age": 30}}` becomes columns `user.name` and `user.age`.</p>
-        </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">Can I convert JSON from APIs?</h3>
-          <p class="text-slate-600 text-sm mt-1">Yes! Simply paste the API response JSON into the textarea and click convert. The tool will handle arrays, objects, and nested structures.</p>
-        </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">Are there file size limits?</h3>
-          <p class="text-slate-600 text-sm mt-1">Since everything runs locally, limits depend on your device's memory. Most modern browsers handle JSON files up to 10MB without issues.</p>
+        <div class="example-box">
+          <h4>Output CSV</h4>
+          <pre><code>"id","name","address.city","address.zip","tags"
+"1","Alice","London","SW1A","[""vip"",""new""]"
+"2","Bob","Paris","75001","[""returning""]"</code></pre>
         </div>
       </div>
+      <p>
+        Notice four things: the nested <code>address</code> object became two columns with dotted
+        names; the <code>tags</code> array stayed as a single cell containing serialised JSON; all
+        values are quoted; and the inner quotes in <code>tags</code> were doubled to escape them.
+      </p>
+
+      <h2>Privacy — Client-Side Conversion</h2>
+      <p>
+        JSON parsing uses the browser's built-in <code>JSON.parse</code> and CSV generation uses
+        the open-source PapaParse library. Both run entirely in your browser. Your data is read
+        into memory and never transmitted. The only external resources loaded are the libraries
+        themselves from a CDN.
+      </p>
+
+      <h2>Practical Uses</h2>
+      <p>
+        <strong>Exporting an API response to a spreadsheet:</strong> Copy the JSON from your API
+        client, paste it in, and download the CSV. Open in Excel or Google Sheets.
+      </p>
+      <p>
+        <strong>Analysing logs:</strong> If your application writes JSON-formatted log lines, wrap
+        them in an array and convert to CSV for pivoting and charting.
+      </p>
+      <p>
+        <strong>Cleaning data before import:</strong> Convert JSON to CSV, edit in a spreadsheet,
+        and re-import to your target system as CSV.
+      </p>
+      <p>
+        <strong>Preparing data for reporting tools:</strong> Many BI tools accept CSV but not JSON.
+        This gives you a quick conversion path.
+      </p>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- FAQ SECTION                                                   -->
+    <!-- ============================================================ -->
+    <section class="faq-section">
+      <h2>JSON to CSV Questions</h2>
+
+      <details>
+        <summary>Is my data safe?</summary>
+        <p>
+          Yes. All conversion happens locally in your browser using JavaScript. Your JSON data is
+          never uploaded to any server. You can disconnect from the internet after the page loads
+          and the tool will continue to work.
+        </p>
+      </details>
+
+      <details>
+        <summary>What JSON structures are supported?</summary>
+        <p>
+          Arrays of objects (most common), single objects, and arrays of primitive values. Objects
+          can be nested to any depth. Arrays inside objects are serialised as JSON strings rather
+          than expanded into columns.
+        </p>
+      </details>
+
+      <details>
+        <summary>How is nested JSON handled?</summary>
+        <p>
+          Nested objects are flattened into dot-notation keys. For example
+          <code>{"user":{"name":"Alice"}}</code> becomes a column called
+          <code>user.name</code>. Nested arrays, however, are kept as serialised JSON inside a
+          single cell because their length can vary per row.
+        </p>
+      </details>
+
+      <details>
+        <summary>What happens to missing keys in some objects?</summary>
+        <p>
+          The header row is the union of all keys across all objects. Any object that lacks a key
+          gets an empty cell in that column. Missing values are blank — not "undefined", "null",
+          or any other placeholder.
+        </p>
+      </details>
+
+      <details>
+        <summary>How are commas and quotes inside values handled?</summary>
+        <p>
+          Following RFC 4180. Commas inside a value cause the cell to be wrapped in double quotes.
+          Double quotes inside a value are doubled and the cell is wrapped. Newlines are preserved
+          inside quoted cells. This makes the CSV safe to open in any spreadsheet application.
+        </p>
+      </details>
+
+      <details>
+        <summary>What happens if my JSON is malformed?</summary>
+        <p>
+          The converter will refuse to process it and show an error message from the JSON parser.
+          The tool does not attempt to repair malformed JSON, because guessing at the intended
+          structure can silently produce wrong data. Fix the JSON and try again.
+        </p>
+      </details>
+
+      <details>
+        <summary>Can I convert JSON from an API?</summary>
+        <p>
+          Yes. Copy the JSON response from your API client, paste it into the text area, and
+          convert. The tool handles arrays of objects, single objects, and deeply nested data.
+        </p>
+      </details>
+
+      <details>
+        <summary>Why does my array column look like [\"a\",\"b\"]?</summary>
+        <p>
+          Arrays inside objects are serialised as JSON strings rather than expanded into separate
+          columns. This is because CSV rows must have a fixed number of columns, and arrays can
+          have varying length. If you need each array item in its own column, restructure the JSON
+          before converting.
+        </p>
+      </details>
+
+      <details>
+        <summary>Can I choose the column order?</summary>
+        <p>
+          Not directly. Column order follows the order in which keys first appear across the
+          objects. If you need a specific order, sort the keys in your JSON before converting, or
+          reorder the columns in your spreadsheet after opening the CSV.
+        </p>
+      </details>
+
+      <details>
+        <summary>What is the maximum file size?</summary>
+        <p>
+          About 10 MB. Beyond that, browser memory and rendering speed become the limiting factors.
+          For very large datasets, split the JSON into smaller files and convert each one.
+        </p>
+      </details>
+
+      <details>
+        <summary>Can I convert CSV back to JSON?</summary>
+        <p>
+          This tool only converts one direction: JSON to CSV. For the reverse, use a CSV-to-JSON
+          tool or a spreadsheet export feature.
+        </p>
+      </details>
+
+      <details>
+        <summary>Are numbers and booleans preserved correctly?</summary>
+        <p>
+          Yes. Numbers stay as numbers in the CSV, and booleans become the strings "true" and
+          "false". When you open the CSV in a spreadsheet, numbers are parsed as numbers and
+          booleans are treated as text. If you need booleans rendered as 1/0 or Yes/No, edit the
+          CSV after download.
+        </p>
+      </details>
+
     </section>
   </main>
 
