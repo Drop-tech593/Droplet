@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PDF to PDF/A Converter - Droplet</title>
-  <meta name="description" content="Convert PDF to PDF/A archival format online for free. 100% client-side, your files never leave your browser. Preserves documents for long-term storage.">
+  <title>PDF to Archival PDF Converter – Long-Term Storage | Droplet</title>
+  <meta name="description" content="Create a flat, self-contained archival PDF from any PDF. Preserves the visual appearance for long-term viewing. 100% client-side, private, and free.">
+  <link rel="canonical" href="https://dropletweb.xyz/pdf-to-pdfa">
 
   <!-- Google AdSense -->
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4006702663328202"
@@ -57,9 +58,101 @@
       font-size: 10px;
       font-weight: 600;
     }
-    .badge-a1 { background: #dbeafe; color: #1e40af; }
-    .badge-a2 { background: #d1fae5; color: #065f46; }
-    .badge-a3 { background: #fef3c7; color: #92400e; }
+    .badge-archival { background: #dbeafe; color: #1e40af; }
+    .badge-flat { background: #d1fae5; color: #065f46; }
+    .badge-warn { background: #fef3c7; color: #92400e; }
+
+    /* ============================================================ */
+    /* SEO CONTENT                                                    */
+    /* ============================================================ */
+    .seo-content {
+      max-width: 42rem;
+      margin: 2.5rem auto 1rem;
+      color: #334155;
+      line-height: 1.65;
+    }
+    .seo-content h2 {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #0f172a;
+      margin: 2rem 0 0.5rem;
+    }
+    .seo-content p {
+      margin-bottom: 1rem;
+      font-size: 0.95rem;
+    }
+    .seo-content ul {
+      padding-left: 1.4rem;
+      margin-bottom: 1rem;
+      font-size: 0.95rem;
+    }
+    .seo-content li {
+      margin-bottom: 0.3rem;
+    }
+    .seo-content table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 1rem;
+      font-size: 0.9rem;
+    }
+    .seo-content th {
+      background: #f1f5f9;
+      padding: 8px 12px;
+      text-align: left;
+      border: 1px solid #e2e8f0;
+      font-weight: 700;
+      color: #0f172a;
+    }
+    .seo-content td {
+      padding: 8px 12px;
+      border: 1px solid #e2e8f0;
+      color: #475569;
+    }
+    .faq-section {
+      max-width: 42rem;
+      margin: 2rem auto;
+    }
+    .faq-section h2 {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #0f172a;
+      text-align: center;
+      margin-bottom: 1.25rem;
+    }
+    .faq-section details {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 0.75rem;
+      padding: 0.75rem 1.25rem;
+      margin-bottom: 0.6rem;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .faq-section summary {
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: #0f172a;
+      cursor: pointer;
+      list-style: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .faq-section summary::-webkit-details-marker { display: none; }
+    .faq-section summary::after {
+      content: "➕";
+      font-size: 0.8rem;
+      color: #94a3b8;
+      transition: transform 0.2s;
+    }
+    .faq-section details[open] summary::after {
+      content: "➖";
+    }
+    .faq-section details p {
+      margin-top: 0.6rem;
+      font-size: 0.9rem;
+      color: #475569;
+      line-height: 1.6;
+    }
 
     /* ===== DARK MODE ===== */
     html.dark body {
@@ -134,10 +227,23 @@
     html.dark .text-blue-900 { color: #93c5fd !important; }
     html.dark .bg-slate-50 { background: #0f172a !important; }
     html.dark .bg-slate-100 { background: #334155 !important; }
+    html.dark .bg-amber-50 { background: #3b2e1e !important; }
+    html.dark .border-amber-200 { border-color: #78350f !important; }
+    html.dark .text-amber-900 { color: #fcd34d !important; }
+    html.dark .text-amber-700 { color: #fbbf24 !important; }
 
-    html.dark .badge-a1 { background: #1e3a5f; color: #93c5fd; }
-    html.dark .badge-a2 { background: #064e3b; color: #6ee7b7; }
-    html.dark .badge-a3 { background: #78350f; color: #fcd34d; }
+    html.dark .badge-archival { background: #1e3a5f; color: #93c5fd; }
+    html.dark .badge-flat { background: #064e3b; color: #6ee7b7; }
+    html.dark .badge-warn { background: #78350f; color: #fcd34d; }
+
+    html.dark .seo-content { color: #cbd5e1; }
+    html.dark .seo-content h2 { color: #f1f5f9; }
+    html.dark .seo-content th { background: #1e293b; color: #f1f5f9; border-color: #334155; }
+    html.dark .seo-content td { border-color: #334155; color: #cbd5e1; }
+    html.dark .faq-section h2 { color: #f1f5f9; }
+    html.dark .faq-section details { background: #1e293b; border-color: #334155; }
+    html.dark .faq-section summary { color: #f1f5f9; }
+    html.dark .faq-section details p { color: #94a3b8; }
 
     html.dark footer {
       background: #0f172a !important;
@@ -207,7 +313,7 @@
   <!-- Main Content -->
   <main class="max-w-4xl mx-auto px-4 py-8 md:py-12 flex-grow w-full">
 
-    <!-- Back Button (prominent & visible) -->
+    <!-- Back Button -->
     <div class="max-w-2xl mx-auto mb-4 flex justify-start">
       <a href="/" class="back-home-btn inline-flex items-center gap-2 bg-white hover:bg-slate-50 border border-slate-200 shadow-sm rounded-full px-5 py-2.5 text-sm font-medium text-slate-700 transition-all hover:shadow-md hover:border-slate-300 active:scale-95">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -222,19 +328,21 @@
       <div class="inline-block p-3 bg-blue-50 rounded-2xl mb-4 transition-colors duration-200">
         <span class="text-4xl">📄</span>
       </div>
-      <h1 class="text-3xl md:text-4xl font-black text-slate-900 tracking-tight">PDF to PDF/A Converter</h1>
+      <h1 class="text-3xl md:text-4xl font-black text-slate-900 tracking-tight">PDF to Archival PDF Converter</h1>
       <p class="text-slate-500 text-sm md:text-base mt-2 max-w-lg mx-auto">
-        Convert your PDFs to PDF/A archival format. <strong>100% client-side</strong> — your files never leave your browser.
+        Create a flat, self-contained archival PDF from any PDF. <strong>100% client-side</strong> — your files never leave your browser.
       </p>
     </div>
 
-    <!-- What is PDF/A Info -->
-    <div class="max-w-2xl mx-auto mb-8 bg-blue-50 border border-blue-200 rounded-xl p-4 transition-colors duration-200">
+    <!-- Honest Notice -->
+    <div class="max-w-2xl mx-auto mb-8 bg-amber-50 border border-amber-200 rounded-xl p-4 transition-colors duration-200">
       <div class="flex items-start gap-3">
-        <span class="text-2xl">📋</span>
+        <span class="text-2xl">⚠️</span>
         <div>
-          <h4 class="font-bold text-sm text-blue-900">What is PDF/A?</h4>
-          <p class="text-xs text-blue-700 mt-1">PDF/A is an ISO-standardized version of PDF designed for long-term archiving. It ensures documents will look the same and be readable decades from now. Perfect for legal documents, academic papers, and historical records.</p>
+          <h4 class="font-bold text-sm text-amber-900">Please read: this is not standards-compliant PDF/A</h4>
+          <p class="text-xs text-amber-700 mt-1">
+            True PDF/A (ISO 19005) requires specific XMP metadata declaring the conformance level, embedded fonts, device-independent colour spaces, and a PDF/A output intent. A browser-only converter cannot reliably produce all of that. What this tool produces is an <strong>archival-style PDF</strong>: a flat, self-contained PDF where each page is preserved as a high-quality image. It opens everywhere, has no external dependencies, and is suitable for long-term viewing. But it will <strong>not</strong> pass a PDF/A validator such as veraPDF or Adobe Preflight.
+          </p>
         </div>
       </div>
     </div>
@@ -269,29 +377,30 @@
         <button onclick="clearFile()" class="text-slate-400 hover:text-red-500 transition-colors">✕</button>
       </div>
 
-      <!-- PDF/A Options -->
+      <!-- Options -->
       <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-slate-50 rounded-lg transition-colors duration-200">
         <div>
-          <label class="block text-xs font-medium text-slate-700 mb-1">📋 PDF/A Version</label>
-          <select id="pdfaVersion" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white transition-colors duration-200">
-            <option value="a1b">PDF/A-1b (Most compatible)</option>
-            <option value="a1a">PDF/A-1a (Accessible)</option>
-            <option value="a2b">PDF/A-2b (Supports JPEG 2000)</option>
-            <option value="a3b">PDF/A-3b (Supports embedded files)</option>
+          <label class="block text-xs font-medium text-slate-700 mb-1">🎨 Colour Mode</label>
+          <select id="colorSpace" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white transition-colors duration-200">
+            <option value="rgb">RGB (original colours)</option>
+            <option value="gray">Grayscale (smaller files)</option>
           </select>
+          <p class="text-[10px] text-slate-400 mt-1">Grayscale reduces file size but loses colour information.</p>
         </div>
         <div>
-          <label class="block text-xs font-medium text-slate-700 mb-1">🎨 Color Space</label>
-          <select id="colorSpace" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white transition-colors duration-200">
-            <option value="rgb">RGB (Color)</option>
-            <option value="gray">Grayscale (B&W)</option>
+          <label class="block text-xs font-medium text-slate-700 mb-1">✨ Image Quality</label>
+          <select id="imageQuality" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white transition-colors duration-200">
+            <option value="0.7">Standard (smaller file)</option>
+            <option value="0.85" selected>High (balanced)</option>
+            <option value="0.95">Maximum (largest file)</option>
           </select>
+          <p class="text-[10px] text-slate-400 mt-1">Controls JPEG compression of each rasterised page.</p>
         </div>
       </div>
 
       <div class="mt-4 flex flex-wrap gap-3">
-        <button onclick="convertPDFtoPDFA()" id="convertBtn" class="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-xl transition-all active:scale-95 shadow-md shadow-green-500/20">
-          🔄 Convert to PDF/A
+        <button onclick="convertPDFtoArchival()" id="convertBtn" class="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-xl transition-all active:scale-95 shadow-md shadow-green-500/20">
+          🔄 Create Archival PDF
         </button>
         <button onclick="clearFile()" class="px-4 py-3 border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors text-sm">
           Change File
@@ -316,16 +425,17 @@
       <div class="flex items-center justify-between mb-4">
         <div>
           <div class="text-4xl mb-1">✅</div>
-          <h3 class="font-bold text-slate-900">Conversion Complete!</h3>
-          <p class="text-sm text-slate-600">Your PDF/A document is ready to download.</p>
+          <h3 class="font-bold text-slate-900">Archival PDF Created</h3>
+          <p class="text-sm text-slate-600">Your flat, self-contained PDF is ready to download.</p>
           <div class="mt-2 flex flex-wrap gap-2">
-            <span id="versionBadge" class="info-badge badge-a1">PDF/A-1b</span>
-            <span id="colorBadge" class="info-badge" style="background:#f3e8ff; color:#6b21a5;">RGB</span>
+            <span id="flatBadge" class="info-badge badge-flat">Flat PDF</span>
+            <span id="colorBadge" class="info-badge badge-archival">RGB</span>
+            <span id="notPdfaBadge" class="info-badge badge-warn">Not PDF/A certified</span>
           </div>
         </div>
         <div class="flex flex-wrap gap-2">
-          <a id="downloadLink" href="#" download="converted.pdf" class="bg-green-600 hover:bg-green-700 text-white font-bold px-4 py-2 rounded-lg text-sm transition-all shadow-md shadow-green-500/20">
-            📥 Download PDF/A
+          <a id="downloadLink" href="#" download="archival.pdf" class="bg-green-600 hover:bg-green-700 text-white font-bold px-4 py-2 rounded-lg text-sm transition-all shadow-md shadow-green-500/20">
+            📥 Download PDF
           </a>
         </div>
       </div>
@@ -356,77 +466,265 @@
         <p class="text-xs text-slate-500">Your files never leave your browser</p>
       </div>
       <div class="bg-white p-4 rounded-xl border border-slate-100 text-center transition-colors duration-200">
-        <div class="text-2xl mb-1">⏳</div>
-        <h4 class="font-bold text-sm">Long-Term Archival</h4>
-        <p class="text-xs text-slate-500">ISO-standardized preservation format</p>
+        <div class="text-2xl mb-1">📦</div>
+        <h4 class="font-bold text-sm">Self-Contained</h4>
+        <p class="text-xs text-slate-500">No external dependencies</p>
       </div>
       <div class="bg-white p-4 rounded-xl border border-slate-100 text-center transition-colors duration-200">
-        <div class="text-2xl mb-1">🌐</div>
-        <h4 class="font-bold text-sm">Universal Compatibility</h4>
-        <p class="text-xs text-slate-500">Readable for decades to come</p>
+        <div class="text-2xl mb-1">👁️</div>
+        <h4 class="font-bold text-sm">Stable Appearance</h4>
+        <p class="text-xs text-slate-500">Renders the same everywhere</p>
       </div>
     </div>
 
-    <!-- PDF/A Version Comparison -->
-    <section class="max-w-2xl mx-auto mt-12">
-      <h2 class="text-xl font-black text-slate-900 text-center mb-6">PDF/A Versions Explained</h2>
-      <div class="space-y-3">
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm flex items-center gap-2">
-            <span class="info-badge badge-a1">PDF/A-1b</span>
-            <span class="text-xs font-normal text-slate-500">Most Compatible</span>
-          </h3>
-          <p class="text-slate-600 text-sm mt-1">Uses JPEG 2000 compression. Ensures documents look identical across all viewers. Ideal for long-term archiving.</p>
-        </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm flex items-center gap-2">
-            <span class="info-badge badge-a1">PDF/A-1a</span>
-            <span class="text-xs font-normal text-slate-500">Accessible</span>
-          </h3>
-          <p class="text-slate-600 text-sm mt-1">Same as 1b but includes accessibility features like logical structure and tagged content. Better for screen readers.</p>
-        </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm flex items-center gap-2">
-            <span class="info-badge badge-a2">PDF/A-2b</span>
-            <span class="text-xs font-normal text-slate-500">Advanced Features</span>
-          </h3>
-          <p class="text-slate-600 text-sm mt-1">Supports JPEG 2000, layers, and transparency. Better for documents with high-quality images.</p>
-        </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm flex items-center gap-2">
-            <span class="info-badge badge-a3">PDF/A-3b</span>
-            <span class="text-xs font-normal text-slate-500">Embedded Files</span>
-          </h3>
-          <p class="text-slate-600 text-sm mt-1">Supports embedding any file type (XML, CAD, spreadsheets) alongside the PDF content. Best for complex documents.</p>
-        </div>
-      </div>
+    <!-- ============================================================ -->
+    <!-- SEO CONTENT — Honest explanation                              -->
+    <!-- ============================================================ -->
+    <section class="seo-content">
+      <h2>What This Tool Actually Produces</h2>
+      <p>
+        This converter reads your PDF, renders each page as a high-resolution image at the
+        quality setting you choose, and writes those images into a new PDF. The result is a
+        <strong>flat, self-contained PDF</strong>: every page is a single full-page image, and
+        the file carries no external fonts, no scripts, no forms, no encryption, and no links to
+        outside resources.
+      </p>
+      <p>
+        That makes it stable. Any PDF reader on any platform will display it identically, because
+        there is nothing to interpret beyond embedded JPEG images. It will still look the same
+        in twenty years, as long as the reader can display a JPEG.
+      </p>
+      <p>
+        What it is <strong>not</strong> is standards-compliant PDF/A. The sections below explain
+        the difference honestly.
+      </p>
+
+      <h2>What PDF/A Actually Requires</h2>
+      <p>
+        PDF/A is an ISO standard (ISO 19005) with multiple parts. Every part imposes specific
+        requirements. A PDF that claims to be PDF/A-1b, PDF/A-2b, or PDF/A-3b must satisfy all of
+        the following:
+      </p>
+      <ul>
+        <li><strong>XMP metadata</strong> in the document catalog declaring the PDF/A part and
+            conformance level (for example <code>pdfaid:part = 2</code> and
+            <code>pdfaid:conformance = B</code>).</li>
+        <li><strong>Embedded fonts</strong> for every glyph used in the document, subsetted,
+            with correct licencing flags. No font may be referenced by name only.</li>
+        <li><strong>Device-independent colour</strong>. Every colour space in the file must be
+            CalRGB, CalGray, Lab, ICCBased, or an Indexed / Separation variant built on one of
+            those. DeviceRGB and DeviceCMYK are not allowed.</li>
+        <li><strong>A PDF/A output intent</strong>: an ICC profile describing the intended
+            rendering, referenced from the document catalog.</li>
+        <li><strong>No encryption, no JavaScript, no audio or video, no external references.</strong></li>
+        <li><strong>For PDF/A-2 and PDF/A-3:</strong> additional conformance around transparency,
+            JPEG 2000, and (for PDF/A-3) embedded files.</li>
+      </ul>
+      <p>
+        Producing a file that passes all of these checks requires either a server-side tool like
+        Ghostscript, or a JavaScript library that writes PDF/A structures directly and embeds a
+        valid ICC profile and XMP packet. The library used by this page, <code>html2pdf</code>,
+        does neither. It wraps rasterised pages into a generic PDF container.
+      </p>
+
+      <h2>What Droplet Does Not Do</h2>
+      <ul>
+        <li><strong>It does not embed fonts.</strong> Fonts are not used at all. Every page is a
+            JPEG image, and images have no font dependency.</li>
+        <li><strong>It does not write PDF/A XMP metadata.</strong> The output has no
+            <code>pdfaid:part</code> or <code>pdfaid:conformance</code> declaration.</li>
+        <li><strong>It does not declare an output intent.</strong> There is no ICC profile in the
+            document catalog.</li>
+        <li><strong>It does not guarantee device-independent colour.</strong> JPEG colour is
+            stored as YCbCr derived from sRGB, which is device-dependent under the PDF/A rules.</li>
+        <li><strong>It does not preserve selectable text.</strong> Text becomes part of the page
+            image and is no longer searchable or selectable.</li>
+        <li><strong>It does not preserve metadata, bookmarks, or links.</strong> All of that is
+            lost when the page is rendered to an image.</li>
+      </ul>
+
+      <h2>Why It Still Might Be Useful</h2>
+      <p>
+        Despite not being PDF/A, the output has real value in several situations:
+      </p>
+      <ul>
+        <li><strong>Locking the visual appearance of a document.</strong> If a PDF uses custom
+            fonts that may not be available on the recipient's machine, flattening to images
+            guarantees the document looks identical everywhere.</li>
+        <li><strong>Removing metadata before sharing.</strong> EXIF, XMP, bookmarks, annotations,
+            and embedded files are all stripped. The output contains only page images.</li>
+        <li><strong>Creating a self-contained copy.</strong> The output has no external
+            dependencies. It does not reference remote images, web fonts, or linked files.</li>
+        <li><strong>Reducing complexity.</strong> A PDF that used interactive forms, JavaScript,
+            or embedded video becomes a simple image-based document.</li>
+      </ul>
+
+      <h2>How to Produce Real PDF/A</h2>
+      <p>
+        If you need a genuinely PDF/A-compliant file, you have to use a tool that implements the
+        standard. Reliable options include:
+      </p>
+      <ul>
+        <li><strong>Ghostscript</strong> with the <code>pdfa</code> or <code>PDFA_def.ps</code>
+            output device. Command line, produces true PDF/A.</li>
+        <li><strong>Adobe Acrobat Pro</strong> with the Preflight tool. Choose "Convert to
+            PDF/A-1b" or "PDF/A-2b".</li>
+        <li><strong>LibreOffice Draw</strong> with the "Export as PDF" dialog, choosing PDF/A-2b
+            in the PDF/A options.</li>
+        <li><strong>veraPDF</strong> to validate a candidate PDF/A file. If it fails validation,
+            it is not PDF/A regardless of its name.</li>
+      </ul>
+      <p>
+        For documents that must be archived under a legal or regulatory requirement, use a
+        validated PDF/A tool and check the output against veraPDF before submitting it. Do not
+        rely on a browser-only converter for a compliance-critical workflow.
+      </p>
+
+      <h2>Practical Uses of the Archival PDF</h2>
+      <p>
+        <strong>Locking a signed contract to its exact appearance:</strong> Convert the signed
+        PDF into a flat archival copy so no font substitution or layout shift can occur on the
+        recipient's machine.
+      </p>
+      <p>
+        <strong>Producing a redacted copy:</strong> Convert to images and the underlying text
+        layer is removed entirely. Useful when the text is not needed but the visual appearance
+        is.
+      </p>
+      <p>
+        <strong>Reducing a complex PDF for email:</strong> Choose Grayscale and Standard quality
+        to produce a small file that preserves the visual content but drops all interactive and
+        metadata overhead.
+      </p>
+      <p>
+        <strong>Creating a stable preview copy:</strong> When sending a design mockup or document
+        preview to someone who may not have the original fonts, a flat archival copy guarantees
+        the preview matches what you see.
+      </p>
+
+      <h2>Privacy — Client-Side Conversion</h2>
+      <p>
+        The PDF is parsed with PDF.js, rendered onto canvases, and encoded with html2pdf. All of
+        that happens in your browser. Nothing is uploaded. The only external resources loaded
+        are the libraries themselves from a CDN.
+      </p>
     </section>
 
-    <!-- FAQ Section -->
-    <section class="max-w-2xl mx-auto mt-12">
-      <h2 class="text-xl font-black text-slate-900 text-center mb-6">Frequently Asked Questions</h2>
-      <div class="space-y-3">
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">Is my data safe?</h3>
-          <p class="text-slate-600 text-sm mt-1">Yes! All conversions happen locally in your browser. Your PDF is never uploaded to any server and is automatically deleted when you close the page.</p>
-        </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">What is PDF/A and why use it?</h3>
-          <p class="text-slate-600 text-sm mt-1">PDF/A is an ISO-standardized version of PDF designed for long-term archiving. It ensures documents will look the same and be readable decades from now, making it ideal for legal documents, academic papers, and historical records.</p>
-        </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">Which PDF/A version should I choose?</h3>
-          <p class="text-slate-600 text-sm mt-1">For most documents, PDF/A-1b is the most compatible choice. Use PDF/A-1a if you need accessibility features. For documents with high-quality images, choose PDF/A-2b. For documents with embedded files, choose PDF/A-3b.</p>
-        </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">Will my formatting be preserved?</h3>
-          <p class="text-slate-600 text-sm mt-1">Yes! PDF/A ensures all fonts, images, and formatting are embedded and preserved. Unlike regular PDFs, all resources are self-contained, ensuring the document looks the same everywhere.</p>
-        </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">Are there file size limits?</h3>
-          <p class="text-slate-600 text-sm mt-1">Since everything runs locally, limits depend on your device's memory. Most modern browsers handle PDFs up to 50MB without issues.</p>
-        </div>
-      </div>
+    <!-- ============================================================ -->
+    <!-- FAQ SECTION                                                   -->
+    <!-- ============================================================ -->
+    <section class="faq-section">
+      <h2>Archival PDF Questions</h2>
+
+      <details>
+        <summary>Is this output actually PDF/A compliant?</summary>
+        <p>
+          No. The output is a flat, self-contained PDF where each page is an image, but it does
+          not carry the XMP metadata, embedded fonts, output intent, or device-independent colour
+          required by the PDF/A standard. It will not pass a veraPDF or Adobe Preflight PDF/A
+          validation. For real PDF/A, use Ghostscript, Acrobat Pro, or another validated tool.
+        </p>
+      </details>
+
+      <details>
+        <summary>Why not call it PDF/A if it looks like a PDF/A file?</summary>
+        <p>
+          Because "PDF/A" is a well-defined technical standard, not a general description. A file
+          that fails validation is not PDF/A, even if it looks like one. Claiming otherwise would
+          mislead users who need compliance for legal, regulatory, or archival purposes.
+        </p>
+      </details>
+
+      <details>
+        <summary>What is the output good for, then?</summary>
+        <p>
+          It is useful when you need a stable, self-contained copy of a PDF that looks the same
+          on every device. It strips metadata, links, forms, JavaScript, and embedded files, and
+          replaces them with page images. It is a good choice for reducing complexity, locking
+          the visual appearance, or producing a redacted copy.
+        </p>
+      </details>
+
+      <details>
+        <summary>What does "flat PDF" mean?</summary>
+        <p>
+          A flat PDF has no interactive elements. There are no form fields, no links, no
+          annotations, no scripts. Every page is essentially an image. This makes the file
+          predictable across readers but removes the ability to select or search the text.
+        </p>
+      </details>
+
+      <details>
+        <summary>Are fonts embedded in the output?</summary>
+        <p>
+          Fonts are not used. Every page is rendered to an image before the PDF is written, so
+          there is no font dependency at all. The visual appearance of the original fonts is
+          preserved as pixels, but the fonts themselves are not present in the output.
+        </p>
+      </details>
+
+      <details>
+        <summary>Is the text in the output selectable?</summary>
+        <p>
+          No. Once a page is rasterised, the text becomes part of the image. You cannot select,
+          copy, or search it. If you need selectable text, keep the original PDF or use the PDF
+          to TXT converter.
+        </p>
+      </details>
+
+      <details>
+        <summary>What metadata is preserved?</summary>
+        <p>
+          None of the original metadata is preserved. EXIF, XMP, document title, author,
+          bookmarks, annotations, and embedded files are all discarded. The output contains only
+          the page images and basic dimensions.
+        </p>
+      </details>
+
+      <details>
+        <summary>Can I choose between colour and grayscale?</summary>
+        <p>
+          Yes. RGB preserves the original colours. Grayscale converts each page to shades of grey
+          and reduces file size by roughly 30–50%. Use Grayscale for text-heavy documents where
+          colour adds no information.
+        </p>
+      </details>
+
+      <details>
+        <summary>What quality setting should I use?</summary>
+        <p>
+          High (0.85) is the default and works for most documents. Use Standard (0.7) if file
+          size matters more than detail. Use Maximum (0.95) if the document will be printed or
+          contains fine detail such as technical drawings.
+        </p>
+      </details>
+
+      <details>
+        <summary>Why is the output larger than the original?</summary>
+        <p>
+          Because each page is stored as a full-page JPEG image. Vector text and line art take
+          very little space in a normal PDF, but the equivalent raster image is much larger. This
+          is the trade-off for a flat, self-contained file.
+        </p>
+      </details>
+
+      <details>
+        <summary>Can I convert a password-protected PDF?</summary>
+        <p>
+          No. Remove the password first with a dedicated tool, then convert the unlocked file
+          here.
+        </p>
+      </details>
+
+      <details>
+        <summary>How do I actually produce real PDF/A?</summary>
+        <p>
+          Use a validated tool: Ghostscript with the PDF/A device, Adobe Acrobat Pro's Preflight
+          tool, or LibreOffice's PDF/A export. Always verify the output with veraPDF, which is a
+          free PDF/A validator, before submitting it to a compliance-critical workflow.
+        </p>
+      </details>
+
     </section>
   </main>
 
@@ -497,12 +795,11 @@
     const downloadLink = document.getElementById('downloadLink');
     const pdfPreviewContent = document.getElementById('pdfPreviewContent');
     const previewPages = document.getElementById('previewPages');
-    const versionBadge = document.getElementById('versionBadge');
     const colorBadge = document.getElementById('colorBadge');
 
     // Options
-    const pdfaVersion = document.getElementById('pdfaVersion');
     const colorSpace = document.getElementById('colorSpace');
+    const imageQuality = document.getElementById('imageQuality');
 
     // Set PDF.js worker
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
@@ -541,13 +838,11 @@
     });
 
     function handleFile(file) {
-      // Validate file type
       if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
         alert('Please select a valid PDF file.');
         return;
       }
 
-      // Validate file size (50MB limit)
       if (file.size > 50 * 1024 * 1024) {
         alert('File is too large. Please use a PDF under 50MB.');
         return;
@@ -561,9 +856,8 @@
       resultSection.classList.add('hidden');
       progressContainer.classList.add('hidden');
       convertBtn.disabled = false;
-      convertBtn.textContent = '🔄 Convert to PDF/A';
+      convertBtn.textContent = '🔄 Create Archival PDF';
 
-      // Get page count and preview
       getPageInfo(file);
     }
 
@@ -574,7 +868,6 @@
         const totalPages = pdf.numPages;
         pageCount.textContent = `📄 ${totalPages} pages`;
 
-        // Generate preview of first 3 pages
         let previewHtml = '';
         const maxPages = Math.min(3, totalPages);
         for (let i = 1; i <= maxPages; i++) {
@@ -596,7 +889,6 @@
           `;
         }
 
-        // Store for later use
         pdfPages = [];
         for (let i = 1; i <= totalPages; i++) {
           const page = await pdf.getPage(i);
@@ -613,7 +905,6 @@
           });
         }
 
-        // Show preview
         pdfPreviewContent.innerHTML = previewHtml || '<p class="text-slate-400 text-center">No preview available</p>';
 
       } catch (error) {
@@ -642,19 +933,17 @@
     }
 
     // Main Conversion Function
-    async function convertPDFtoPDFA() {
+    async function convertPDFtoArchival() {
       if (!currentFile) {
         alert('Please select a PDF file first.');
         return;
       }
 
-      // Check if libraries are available
       if (typeof html2pdf === 'undefined') {
         alert('PDF library not loaded. Please refresh the page and try again.');
         return;
       }
 
-      // Show progress
       progressContainer.classList.remove('hidden');
       resultSection.classList.add('hidden');
       convertBtn.disabled = true;
@@ -668,32 +957,15 @@
         const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
         const totalPages = pdf.numPages;
 
-        // Get options
-        const version = pdfaVersion.value;
         const color = colorSpace.value;
-        const versionLabels = {
-          'a1b': 'PDF/A-1b',
-          'a1a': 'PDF/A-1a',
-          'a2b': 'PDF/A-2b',
-          'a3b': 'PDF/A-3b'
-        };
-        const colorLabels = {
-          'rgb': 'RGB',
-          'gray': 'Grayscale'
-        };
+        const quality = parseFloat(imageQuality.value);
 
-        // Update badges
-        versionBadge.textContent = versionLabels[version] || 'PDF/A-1b';
-        versionBadge.className = `info-badge ${version === 'a1b' || version === 'a1a' ? 'badge-a1' : version === 'a2b' ? 'badge-a2' : 'badge-a3'}`;
-        colorBadge.textContent = colorLabels[color] || 'RGB';
-        colorBadge.style.background = color === 'gray' ? '#f1f5f9' : '#f3e8ff';
-        colorBadge.style.color = color === 'gray' ? '#475569' : '#6b21a5';
+        colorBadge.textContent = color === 'gray' ? 'Grayscale' : 'RGB';
 
         progressBar.style.width = '30%';
         progressText.textContent = '30%';
-        statusText.textContent = `Processing ${totalPages} pages...`;
+        statusText.textContent = `Rendering ${totalPages} pages...`;
 
-        // Render each page to canvas with PDF/A compliance
         let allPagesHtml = '';
         const scale = 1.5;
 
@@ -701,47 +973,39 @@
           const page = await pdf.getPage(i);
           const viewport = page.getViewport({ scale: scale });
 
-          // Create canvas
           const canvas = document.createElement('canvas');
           canvas.width = viewport.width;
           canvas.height = viewport.height;
           const context = canvas.getContext('2d');
 
-          // Apply color filter if grayscale
           if (color === 'gray') {
             context.filter = 'grayscale(100%)';
           }
 
           await page.render({ canvasContext: context, viewport: viewport }).promise;
-          const imgData = canvas.toDataURL('image/jpeg', 0.95);
+          const imgData = canvas.toDataURL('image/jpeg', quality);
 
           allPagesHtml += `
-            <div style="page-break-after: always; margin: 0; padding: 0;">
-              <img src="${imgData}" style="width: 100%; height: auto; display: block;">
-              <p style="font-size: 8px; color: #999; text-align: center; margin: 4px 0; font-family: Arial, sans-serif;">
-                Page ${i} of ${totalPages} • PDF/A Compliant
-              </p>
+            <div class="page-container">
+              <img src="${imgData}" alt="Page ${i}">
             </div>
           `;
 
-          // Update progress
           const progress = Math.round((i / totalPages) * 50) + 30;
           progressBar.style.width = progress + '%';
           progressText.textContent = progress + '%';
-          statusText.textContent = `Processing page ${i} of ${totalPages}...`;
+          statusText.textContent = `Rendering page ${i} of ${totalPages}...`;
         }
 
         progressBar.style.width = '85%';
         progressText.textContent = '85%';
-        statusText.textContent = 'Generating PDF/A...';
+        statusText.textContent = 'Assembling archival PDF...';
 
-        // Build PDF/A compliant HTML document
-        const pdfaHtml = `
+        const archivalHtml = `
           <!DOCTYPE html>
           <html>
           <head>
             <meta charset="UTF-8">
-            <meta name="PDF/A" content="Version: ${versionLabels[version]}; Color: ${colorLabels[color]}">
             <style>
               @page { 
                 size: A4; 
@@ -751,22 +1015,16 @@
                 * { 
                   -webkit-print-color-adjust: exact !important; 
                   print-color-adjust: exact !important;
-                  color-adjust: exact !important;
                 }
-                .page-break { 
+                .page-container { 
                   page-break-after: always; 
                   break-after: page;
-                }
-                img { 
-                  max-width: 100%; 
-                  height: auto; 
                 }
               }
               body {
                 margin: 0;
                 padding: 0;
                 background: white;
-                font-family: Arial, sans-serif;
               }
               .page-container {
                 margin: 0;
@@ -778,29 +1036,16 @@
                 height: auto;
                 display: block;
               }
-              .page-footer {
-                font-size: 8px;
-                color: #999;
-                text-align: center;
-                margin: 4px 0;
-                font-family: Arial, sans-serif;
-              }
             </style>
           </head>
           <body>
-            <div style="padding: 0; margin: 0;">
-              ${allPagesHtml}
-            </div>
-            <div style="text-align: center; font-size: 9px; color: #999; font-family: Arial, sans-serif; margin-top: 20px; padding: 10px; border-top: 1px solid #eee;">
-              <p>PDF/A-${version.toUpperCase()} ${colorLabels[color]} • Converted by Droplet • ${new Date().toLocaleDateString()}</p>
-            </div>
+            ${allPagesHtml}
           </body>
           </html>
         `;
 
-        // Create temporary container
         const tempContainer = document.createElement('div');
-        tempContainer.innerHTML = pdfaHtml;
+        tempContainer.innerHTML = archivalHtml;
         tempContainer.style.position = 'fixed';
         tempContainer.style.left = '-9999px';
         tempContainer.style.top = '0';
@@ -813,11 +1058,10 @@
         progressText.textContent = '95%';
         statusText.textContent = 'Finalizing...';
 
-        // Generate PDF/A compliant PDF
         const opt = {
           margin: 0,
-          filename: 'converted.pdf',
-          image: { type: 'jpeg', quality: 0.95 },
+          filename: 'archival.pdf',
+          image: { type: 'jpeg', quality: quality },
           html2canvas: {
             scale: 2,
             useCORS: true,
@@ -833,28 +1077,25 @@
           pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
         };
 
-        const pdf = await html2pdf()
+        const pdfBlob = await html2pdf()
           .set(opt)
           .from(tempContainer)
           .outputPdf('blob');
 
-        // Clean up
         document.body.removeChild(tempContainer);
 
         progressBar.style.width = '100%';
         progressText.textContent = '100%';
-        statusText.textContent = '✅ Conversion complete!';
+        statusText.textContent = '✅ Archival PDF created!';
 
-        // Show result
         setTimeout(() => {
-          const url = URL.createObjectURL(pdf);
+          const url = URL.createObjectURL(pdfBlob);
           downloadLink.href = url;
           const baseName = currentFile.name.replace(/\.pdf$/i, '');
-          downloadLink.download = baseName + '_PDFA.pdf';
+          downloadLink.download = baseName + '_archival.pdf';
           resultSection.classList.remove('hidden');
           previewPages.textContent = `📄 ${totalPages} pages`;
 
-          // Show preview of first page from the result
           const previewDiv = document.createElement('div');
           previewDiv.innerHTML = allPagesHtml;
           const firstImg = previewDiv.querySelector('img');
@@ -862,13 +1103,13 @@
             pdfPreviewContent.innerHTML = `
               <div style="text-align: center;">
                 <img src="${firstImg.src}" style="max-width: 100%; border: 1px solid #e2e8f0; border-radius: 4px;">
-                <p style="font-size: 9px; color: #999; margin-top: 4px;">Preview of first page • ${totalPages} total pages</p>
+                <p style="font-size: 9px; color: #999; margin-top: 4px;">Preview of page 1 • ${totalPages} total pages</p>
               </div>
             `;
           }
 
           convertBtn.disabled = false;
-          convertBtn.textContent = '🔄 Convert to PDF/A';
+          convertBtn.textContent = '🔄 Create Archival PDF';
           progressContainer.classList.add('hidden');
         }, 500);
 
@@ -876,15 +1117,14 @@
         console.error('Conversion error:', error);
         statusText.textContent = '❌ Conversion failed: ' + error.message;
         convertBtn.disabled = false;
-        convertBtn.textContent = '🔄 Convert to PDF/A';
+        convertBtn.textContent = '🔄 Create Archival PDF';
         alert('Conversion failed. Please try again or use a different PDF file.\n\nError: ' + error.message);
       }
     }
 
-    // Keyboard shortcut: Enter to convert
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' && !fileInfo.classList.contains('hidden') && !convertBtn.disabled) {
-        convertPDFtoPDFA();
+        convertPDFtoArchival();
       }
     });
   </script>
