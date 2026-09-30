@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PDF to TXT Converter - Droplet</title>
-  <meta name="description" content="Extract plain text from PDF files online for free. 100% client-side, your files never leave your browser. Convert PDF to TXT instantly.">
+  <title>PDF to TXT Converter Online Free – Extract Text from PDF | Droplet</title>
+  <meta name="description" content="Extract plain text from PDF files online for free. Embedded text extraction with automatic OCR fallback for scanned pages. 100% client-side, private, and free.">
+  <link rel="canonical" href="https://dropletweb.xyz/pdf-to-txt.html">
 
   <!-- ===== GOOGLE ADSENSE ===== -->
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4006702663328202"
@@ -77,6 +78,79 @@
     .ocr-status .highlight {
       color: #2563eb;
       font-weight: 600;
+    }
+
+    /* ============================================================ */
+    /* SEO CONTENT                                                    */
+    /* ============================================================ */
+    .seo-content {
+      max-width: 42rem;
+      margin: 2.5rem auto 1rem;
+      color: #334155;
+      line-height: 1.65;
+    }
+    .seo-content h2 {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #0f172a;
+      margin: 2rem 0 0.5rem;
+    }
+    .seo-content p {
+      margin-bottom: 1rem;
+      font-size: 0.95rem;
+    }
+    .seo-content ul {
+      padding-left: 1.4rem;
+      margin-bottom: 1rem;
+      font-size: 0.95rem;
+    }
+    .seo-content li {
+      margin-bottom: 0.3rem;
+    }
+    .faq-section {
+      max-width: 42rem;
+      margin: 2rem auto;
+    }
+    .faq-section h2 {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #0f172a;
+      text-align: center;
+      margin-bottom: 1.25rem;
+    }
+    .faq-section details {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 0.75rem;
+      padding: 0.75rem 1.25rem;
+      margin-bottom: 0.6rem;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .faq-section summary {
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: #0f172a;
+      cursor: pointer;
+      list-style: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .faq-section summary::-webkit-details-marker { display: none; }
+    .faq-section summary::after {
+      content: "➕";
+      font-size: 0.8rem;
+      color: #94a3b8;
+      transition: transform 0.2s;
+    }
+    .faq-section details[open] summary::after {
+      content: "➖";
+    }
+    .faq-section details p {
+      margin-top: 0.6rem;
+      font-size: 0.9rem;
+      color: #475569;
+      line-height: 1.6;
     }
 
     /* Dark mode overrides */
@@ -278,6 +352,13 @@
       box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.3) !important;
     }
 
+    html.dark .seo-content { color: #cbd5e1; }
+    html.dark .seo-content h2 { color: #f1f5f9; }
+    html.dark .faq-section h2 { color: #f1f5f9; }
+    html.dark .faq-section details { background: #1e293b; border-color: #334155; }
+    html.dark .faq-section summary { color: #f1f5f9; }
+    html.dark .faq-section details p { color: #94a3b8; }
+
     /* Theme toggle in header */
     #theme-toggle {
       background: none;
@@ -461,36 +542,264 @@
       </div>
       <div class="bg-white p-4 rounded-xl border border-slate-100 text-center transition-colors duration-200">
         <div class="text-2xl mb-1">📝</div>
-        <h4 class="font-bold text-sm">Plain Text Output</h4>
-        <p class="text-xs text-slate-500">Clean, editable text extraction</p>
+        <h4 class="font-bold text-sm">OCR Fallback</h4>
+        <p class="text-xs text-slate-500">Scanned pages handled automatically</p>
       </div>
     </div>
 
-    <!-- FAQ Section -->
-    <section class="max-w-2xl mx-auto mt-12">
-      <h2 class="text-xl font-black text-slate-900 text-center mb-6">Frequently Asked Questions</h2>
-      <div class="space-y-3">
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">Is my data safe?</h3>
-          <p class="text-slate-600 text-sm mt-1">Yes! All text extraction happens locally in your browser. Your PDF is never uploaded to any server.</p>
-        </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">What about scanned PDFs?</h3>
-          <p class="text-slate-600 text-sm mt-1">This tool automatically detects scanned/image-based PDFs and uses Tesseract.js OCR to extract text, all within your browser. No server uploads required.</p>
-        </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">Will formatting be preserved?</h3>
-          <p class="text-slate-600 text-sm mt-1">This tool extracts plain text only. Formatting like bold, italics, and fonts are not preserved. If you need formatted text, use the PDF to DOCX converter instead.</p>
-        </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">Are there file size limits?</h3>
-          <p class="text-slate-600 text-sm mt-1">Since everything runs locally, limits depend on your device's memory. Most modern browsers handle PDFs up to 100MB without issues.</p>
-        </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">How does the OCR work?</h3>
-          <p class="text-slate-600 text-sm mt-1">If no text is found, the PDF pages are rendered as images and processed by Tesseract.js OCR. All processing stays in your browser. OCR may take longer for large documents.</p>
-        </div>
-      </div>
+    <!-- ============================================================ -->
+    <!-- SEO CONTENT — extraction, order, encoding, OCR, limitations   -->
+    <!-- ============================================================ -->
+    <section class="seo-content">
+      <h2>How Text Extraction Works</h2>
+      <p>
+        A PDF can contain text in two very different ways. Most PDFs created from Word, Google Docs,
+        or a publishing tool store each character as a positioned glyph with an embedded font — this
+        is called a <strong>text layer</strong>. Scanned PDFs, on the other hand, are just pictures
+        of pages with no text layer at all.
+      </p>
+      <p>
+        This tool handles both cases. For each page, it first tries to read the text layer using
+        PDF.js. If the page has enough readable text, that text is used directly. If the page has
+        little or no text layer — which is what happens on scanned pages — the tool automatically
+        falls back to OCR (Optical Character Recognition) using Tesseract.js, which reads the page
+        image and guesses the characters.
+      </p>
+      <p>
+        The decision is made <strong>per page</strong>, not per document. A PDF that mixes scanned
+        pages with text-based pages will use the text layer where it exists and OCR where it doesn't.
+      </p>
+
+      <h2>Reading Order</h2>
+      <p>
+        PDFs do not store text in reading order. They store it in the order the original authoring
+        tool drew each character, which can be back-to-front, column by column, or completely
+        jumbled. PDF.js reads items in their internal order and returns them that way.
+      </p>
+      <p>
+        For simple, single-column documents — letters, articles, reports — the internal order is
+        usually close to reading order, so the extracted text reads naturally. For multi-column
+        layouts, text boxes, sidebars, or pages with overlapping elements, the output can be
+        scrambled. Column 1 and column 2 may interleave, or a caption may appear in the middle of
+        a paragraph.
+      </p>
+      <p>
+        This is a limitation of the PDF format, not of the tool. Fixing it requires layout analysis
+        that detects columns and reconstructs reading order — a much harder problem.
+      </p>
+
+      <h2>Encoding and Character Support</h2>
+      <p>
+        PDF.js decodes the text layer and returns JavaScript strings, which are UTF-16 internally.
+        The output TXT file is written as UTF-8. This means accented Latin letters (é, ñ, ü),
+        Greek, Cyrillic, and most CJK characters come through correctly <strong>if</strong> the
+        PDF's text layer stores them properly.
+      </p>
+      <p>
+        Problems arise when the PDF uses a font with a non-standard encoding, or when the text
+        layer stores character codes that don't map cleanly to Unicode. In those cases you may see
+        garbled characters, question marks, or missing letters. This is uncommon in modern PDFs
+        but does happen with older or poorly-generated files.
+      </p>
+
+      <h2>Line Breaks and Whitespace</h2>
+      <p>
+        The extractor joins text items with a single space and collapses runs of multiple spaces
+        into one. It preserves paragraph breaks where the PDF's text layer indicates a new line
+        or block, but it does not attempt to reconstruct the visual line breaks you see on the
+        page.
+      </p>
+      <p>
+        In practice, this means:
+      </p>
+      <ul>
+        <li>Wrapped lines within a paragraph become one continuous line in the output.</li>
+        <li>Hard line breaks (like the ones after a heading) are usually preserved.</li>
+        <li>Blank lines between paragraphs are often preserved but not guaranteed.</li>
+        <li>Indentation and leading whitespace are stripped.</li>
+      </ul>
+      <p>
+        If you need exact visual line breaks, use the PDF to Markdown converter, which analyses
+        the position of each text item and reconstructs lines and paragraphs more carefully.
+      </p>
+
+      <h2>Scanned PDFs and OCR</h2>
+      <p>
+        When a page has no usable text layer, the tool renders the page as a high-resolution image
+        (3× scale) and runs Tesseract.js on it. Tesseract is a well-known open-source OCR engine
+        that runs entirely in the browser.
+      </p>
+      <p>
+        OCR is slower than reading a text layer — typically a few seconds per page — and the
+        accuracy depends on the quality of the scan:
+      </p>
+      <ul>
+        <li><strong>Clean, high-contrast scans</strong> (300 dpi or higher, straight pages, dark
+            text on white paper) usually come through with good accuracy.</li>
+        <li><strong>Skewed, blurry, or low-contrast scans</strong> produce more errors, especially
+            on numbers, punctuation, and similar-looking letters (l vs 1, O vs 0, rn vs m).</li>
+        <li><strong>Handwriting</strong> is generally not recognised well. Tesseract is trained on
+            printed text.</li>
+        <li><strong>Tables and multi-column layouts</strong> often lose their structure — cells
+            may be read in the wrong order or merged into one line.</li>
+      </ul>
+      <p>
+        OCR runs in English by default. Other languages will produce poor results unless the
+        language model is loaded, which this tool does not currently do.
+      </p>
+
+      <h2>What Does Not Survive Extraction</h2>
+      <ul>
+        <li><strong>Formatting</strong> — bold, italic, font size, colour, and alignment are all
+            lost. The output is plain text.</li>
+        <li><strong>Images</strong> — pictures embedded in the PDF are not extracted. If a page
+            has a diagram with captions, the captions come through but the diagram does not.</li>
+        <li><strong>Tables</strong> — table structure is lost. Rows and columns become a stream
+            of text. The PDF to Markdown converter does a better job with simple tables.</li>
+        <li><strong>Hyperlinks</strong> — URLs may appear as text if they were visible in the PDF,
+            but they are not clickable links in the output.</li>
+        <li><strong>Headers and footers</strong> — repeating page headers and footers appear once
+            per page in the output, which can be noisy. You may want to remove them manually.</li>
+        <li><strong>Footnotes</strong> — footnote text usually ends up at the end of each page's
+            extracted text rather than linked to the reference.</li>
+      </ul>
+
+      <h2>Practical Uses</h2>
+      <p>
+        <strong>Feeding text into an AI tool:</strong> Extract the text, then paste it into a
+        chatbot or summarizer. TXT is the cleanest format for that.
+      </p>
+      <p>
+        <strong>Searching a document archive:</strong> Extract text from a batch of PDFs and grep
+        across the TXT files to find which documents mention a keyword.
+      </p>
+      <p>
+        <strong>Reusing content in a new document:</strong> Copy the extracted text, paste it into
+        your word processor, and reformat it as needed.
+      </p>
+      <p>
+        <strong>Data processing and analysis:</strong> TXT is easy to parse with scripts. Extract,
+        then run your own analysis.
+      </p>
+
+      <h2>Privacy — Client-Side Extraction</h2>
+      <p>
+        PDF parsing uses PDF.js and OCR uses Tesseract.js. Both run entirely in your browser. Your
+        PDF is read into memory and never transmitted. The only external resources loaded are the
+        libraries themselves from a CDN.
+      </p>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- FAQ SECTION                                                   -->
+    <!-- ============================================================ -->
+    <section class="faq-section">
+      <h2>PDF to TXT Questions</h2>
+
+      <details>
+        <summary>How does the tool decide between text extraction and OCR?</summary>
+        <p>
+          For each page, it reads the text layer first. If the page has at least about 80
+          characters, 40 letters, and 10 words, that text is considered usable and is used
+          directly. Otherwise the page is treated as scanned and OCR is run on it.
+        </p>
+      </details>
+
+      <details>
+        <summary>Why is my extracted text in the wrong order?</summary>
+        <p>
+          PDFs store text in drawing order, not reading order. Multi-column layouts, sidebars,
+          and text boxes often come out scrambled. This is a limitation of the PDF format itself.
+          For better ordering on structured documents, use the PDF to Markdown converter.
+        </p>
+      </details>
+
+      <details>
+        <summary>Will formatting like bold and italics be preserved?</summary>
+        <p>
+          No. TXT is plain text. Bold, italic, font size, colour, and alignment are all lost. If
+          you need formatting, use the PDF to DOCX converter instead.
+        </p>
+      </details>
+
+      <details>
+        <summary>Are images and tables included?</summary>
+        <p>
+          No. Images are not extracted. Tables lose their structure and become a stream of text.
+          For tables with real structure, use the PDF to Markdown converter, which can produce
+          Markdown tables from simple, evenly-spaced tables.
+        </p>
+      </details>
+
+      <details>
+        <summary>How accurate is the OCR for scanned PDFs?</summary>
+        <p>
+          It depends on scan quality. Clean, high-contrast, straight scans usually give good
+          results. Skewed, blurry, or low-resolution scans produce more errors, especially on
+          numbers and punctuation. Handwriting is generally not recognised well.
+        </p>
+      </details>
+
+      <details>
+        <summary>Does OCR support languages other than English?</summary>
+        <p>
+          No. The tool loads only the English language model for Tesseract. Other languages will
+          produce poor results. If you need multi-language OCR, use a dedicated OCR service.
+        </p>
+      </details>
+
+      <details>
+        <summary>Why does the extraction take so long on some PDFs?</summary>
+        <p>
+          OCR is the slow part. Reading a text layer is nearly instant, but rendering a page to
+          an image and running Tesseract on it takes a few seconds per page. A 50-page scanned PDF
+          can take a few minutes.
+        </p>
+      </details>
+
+      <details>
+        <summary>Can I extract text from a password-protected PDF?</summary>
+        <p>
+          No. The tool can only read PDFs that open without a password. Remove the protection
+          first using a dedicated PDF tool, then extract the text here.
+        </p>
+      </details>
+
+      <details>
+        <summary>Are headers and footers included in the output?</summary>
+        <p>
+          Yes, they appear once per page in the extracted text because the tool reads every line
+          on every page. You may want to remove them manually after extraction, especially on
+          long documents.
+        </p>
+      </details>
+
+      <details>
+        <summary>What is the maximum PDF size?</summary>
+        <p>
+          About 100 MB. The practical limit depends on your device's memory, since everything runs
+          in the browser. Very long documents or those with many scanned pages may take a long
+          time to process.
+        </p>
+      </details>
+
+      <details>
+        <summary>Is my PDF uploaded to a server?</summary>
+        <p>
+          No. All parsing and OCR happen locally in your browser using PDF.js and Tesseract.js.
+          Your file never leaves your device. You can disconnect from the internet after the page
+          loads and the tool will continue to work.
+        </p>
+      </details>
+
+      <details>
+        <summary>Can I edit the TXT file after downloading?</summary>
+        <p>
+          Yes. The output is a plain <code>.txt</code> file. You can open it in Notepad, TextEdit,
+          VS Code, or any text editor, and edit it freely.
+        </p>
+      </details>
+
     </section>
   </main>
 
