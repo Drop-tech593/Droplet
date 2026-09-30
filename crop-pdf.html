@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Crop PDF - Droplet</title>
-<meta name="description" content="Crop PDF pages and images in your browser. Drag corners, reorder pages, download as PDF or image. 100% client-side.">
+<title>Crop PDF Online Free – Crop PDF Pages & Images | Droplet</title>
+<meta name="description" content="Crop PDF pages and images in your browser. Drag handles, reorder pages, rotate, and download as PDF or image. 100% client-side, private, and free.">
 
 <!-- ============================================================ -->
 <!-- FLASH FIX: inline, before <body>, runs before first paint    -->
@@ -712,6 +712,96 @@
   }
   html.dark .crop-handle:hover { background: #dbeafe; }
   html.dark .crop-handle:active { background: #bfdbfe; }
+
+  /* ============================================================ */
+  /* SEO CONTENT — Watermark/How-to + FAQ                          */
+  /* ============================================================ */
+  .seo-content {
+    max-width: 42rem;
+    margin: 2.5rem auto 1rem;
+    padding: 0 16px;
+    color: #334155;
+    line-height: 1.65;
+  }
+  .seo-content h1 {
+    font-size: 1.6rem;
+    font-weight: 900;
+    color: #0f172a;
+    letter-spacing: -0.02em;
+    margin: 0 0 1rem;
+    line-height: 1.25;
+  }
+  .seo-content h2 {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 2rem 0 0.5rem;
+  }
+  .seo-content p {
+    margin-bottom: 1rem;
+    font-size: 0.95rem;
+  }
+  .seo-content ul {
+    padding-left: 1.4rem;
+    margin-bottom: 1rem;
+    font-size: 0.95rem;
+  }
+  .seo-content li {
+    margin-bottom: 0.3rem;
+  }
+  .faq-section {
+    max-width: 42rem;
+    margin: 2rem auto;
+    padding: 0 16px;
+  }
+  .faq-section h2 {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: #0f172a;
+    text-align: center;
+    margin-bottom: 1.25rem;
+  }
+  .faq-section details {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.75rem;
+    padding: 0.75rem 1.25rem;
+    margin-bottom: 0.6rem;
+    transition: background 0.2s, border-color 0.2s;
+  }
+  .faq-section summary {
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: #0f172a;
+    cursor: pointer;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .faq-section summary::-webkit-details-marker { display: none; }
+  .faq-section summary::after {
+    content: "➕";
+    font-size: 0.8rem;
+    color: #94a3b8;
+    transition: transform 0.2s;
+  }
+  .faq-section details[open] summary::after {
+    content: "➖";
+  }
+  .faq-section details p {
+    margin-top: 0.6rem;
+    font-size: 0.9rem;
+    color: #475569;
+    line-height: 1.6;
+  }
+  html.dark .seo-content { color: #cbd5e1; }
+  html.dark .seo-content h1 { color: #f1f5f9; }
+  html.dark .seo-content h2 { color: #f1f5f9; }
+  html.dark .faq-section h2 { color: #f1f5f9; }
+  html.dark .faq-section details { background: #1e293b; border-color: #334155; }
+  html.dark .faq-section summary { color: #f1f5f9; }
+  html.dark .faq-section details p { color: #94a3b8; }
 </style>
 </head>
 <body>
@@ -867,6 +957,236 @@
 
 <!-- Toast -->
 <div class="toast" id="toast"></div>
+
+<!-- ============================================================ -->
+<!-- SEO / ADSENSE FRIENDLY CONTENT — Crop PDF guide + FAQ        -->
+<!-- ============================================================ -->
+<main class="seo-content">
+
+  <h1>Crop PDF Pages and Images Online — Free, Private, No Sign-Up</h1>
+  <p>
+    Cropping a PDF or image means removing unwanted margins, white space, or content from the edges
+    of a page. This tool lets you crop every page of a PDF individually, rotate pages, reorder them,
+    and download the result as a new PDF or as separate image files. Everything runs in your browser —
+    your files are never uploaded to a server.
+  </p>
+
+  <h2>How Visual Cropping Works</h2>
+  <p>
+    When you open a page in the crop editor, the full page is rendered onto a dark stage. A bright
+    blue rectangle is drawn over it — this is your <strong>crop box</strong>. Only the area inside the
+    rectangle will be kept. Everything outside it is dimmed and will be removed when you apply the crop.
+  </p>
+  <p>
+    The crop box has <strong>eight round handles</strong>: four at the corners and four at the midpoints
+    of each edge. Drag any handle to resize that edge or corner. To move the entire crop rectangle
+    without resizing it, drag from inside the box. A magnifier appears near your cursor while dragging
+    so you can line up the crop precisely, even on a small screen.
+  </p>
+
+  <h2>Draggable Handles and the Move-Inside Area</h2>
+  <p>
+    The eight handles are the primary way to resize the crop. Each one is tied to a specific edge:
+  </p>
+  <ul>
+    <li><strong>Corner handles</strong> (top-left, top-right, bottom-left, bottom-right) resize two edges at once — width and height.</li>
+    <li><strong>Edge handles</strong> (top-centre, middle-left, middle-right, bottom-centre) resize only one edge.</li>
+    <li><strong>Drag inside the box</strong> to move the whole crop rectangle without changing its size.</li>
+  </ul>
+  <p>
+    The interior of the crop box has a small invisible margin around it, which makes it easier to grab
+    and drag on touch screens without accidentally hitting a handle.
+  </p>
+
+  <h2>Page-Specific Cropping</h2>
+  <p>
+    Each page in a PDF can have its own crop. When you open the crop editor and adjust the crop box,
+    that crop is applied only to the page you are viewing. Click another page in the thumbnail strip
+    at the bottom (or in the page grid) to crop it separately with its own crop rectangle.
+  </p>
+  <p>
+    This matters because PDFs often mix portrait and landscape pages, or pages with different margins.
+    A single crop that works for one page may cut off content on another. Page-specific cropping lets
+    you handle each page on its own terms.
+  </p>
+
+  <h2>Applying a Crop to Multiple Pages</h2>
+  <p>
+    If you want the same crop on several pages, the quickest approach is:
+  </p>
+  <ul>
+    <li>Crop the first page and click <strong>Done</strong> to return to the page grid.</li>
+    <li>Open the next page you want to crop, and use the <strong>Full Page</strong> or <strong>Reset Crop</strong> button if needed, then drag the handles to match the same crop area.</li>
+    <li>Repeat for each page.</li>
+  </ul>
+  <p>
+    There is no automatic “apply to all pages” button because PDF pages often have different
+    dimensions. Cropping all pages with the same pixel rectangle would cut content differently on
+    each page. Manual per-page cropping keeps the result predictable.
+  </p>
+
+  <h2>What Cropping Actually Changes</h2>
+  <p>
+    Cropping removes the pixels outside the crop box. The kept pixels are re-encoded into a new
+    image or PDF page. This means:
+  </p>
+  <ul>
+    <li>The output page size changes to match the crop dimensions.</li>
+    <li>Content outside the crop is permanently gone — it is not hidden, it is removed.</li>
+    <li>Text in a cropped PDF becomes part of the image, not selectable text. If you need to keep
+        selectable text, use a PDF editor that supports vector cropping instead of raster cropping.</li>
+    <li>File size usually drops because fewer pixels are stored, though re-encoding can sometimes
+        increase size if the original was heavily compressed.</li>
+  </ul>
+
+  <h2>Output Dimensions and Quality</h2>
+  <p>
+    The crop dimensions are whatever rectangle you draw. The output resolution depends on the
+    quality setting you choose before download:
+  </p>
+  <ul>
+    <li><strong>Small</strong> — longest edge capped at 1200px, JPEG quality 0.65. Best for email or web.</li>
+    <li><strong>Recommended</strong> — longest edge capped at 2000px, JPEG quality 0.85. Good balance of size and clarity.</li>
+    <li><strong>High</strong> — longest edge capped at 3000px, JPEG quality 0.95. Best for printing or archival.</li>
+  </ul>
+  <p>
+    When exporting to PDF, each cropped page is embedded as a JPEG at the chosen quality. When
+    exporting to PNG, the image is lossless but larger. WEBP and JPG use lossy compression.
+  </p>
+
+  <h2>PDF and Image Support</h2>
+  <p>
+    You can load a single PDF and crop each of its pages, or load one or more images (JPG, PNG, WEBP,
+    GIF, BMP, HEIC) and crop each one. You can also mix PDFs and images in the same session — for
+    example, crop a PDF, then add a JPG and crop that too. All pages appear together in the page grid
+    and are exported in the order you arrange them.
+  </p>
+
+  <h2>Privacy — Your Files Stay on Your Device</h2>
+  <p>
+    PDF parsing, page rendering, cropping, and exporting all happen locally in your browser using
+    JavaScript. Your files are never uploaded. The only external resources loaded are the open-source
+    PDF.js and pdf-lib libraries, which run entirely client-side. You can disconnect from the internet
+    after the page loads and the tool will still work.
+  </p>
+
+  <h2>Practical Examples</h2>
+  <p>
+    <strong>Removing white margins from a scanned document:</strong> Open the PDF, crop each page to
+    the edge of the text block, and export as PDF. The result is a tighter document that is easier to
+    read on a phone.
+  </p>
+  <p>
+    <strong>Extracting a diagram from a larger page:</strong> Load the PDF, crop one page down to just
+    the diagram, and export as PNG. The diagram becomes a standalone image you can embed elsewhere.
+  </p>
+  <p>
+    <strong>Fixing a crooked scan:</strong> Rotate the page 90° at a time until it is upright, then
+    crop away the black scanner edges.
+  </p>
+  <p>
+    <strong>Preparing images for a website:</strong> Load a batch of photos, crop each to a consistent
+    aspect ratio, set quality to “Small”, and export as JPG. The images come out web-ready.
+  </p>
+
+</main>
+
+<section class="faq-section">
+  <h2>Crop PDF Questions</h2>
+
+  <details>
+    <summary>How do I crop a PDF without uploading it to a server?</summary>
+    <p>
+      Open this page in your browser, drop your PDF onto the upload area, and crop each page using the
+      visual editor. The file is read into your browser's memory and never sent anywhere. The only
+      external files loaded are the PDF.js and pdf-lib libraries, which run locally.
+    </p>
+  </details>
+
+  <details>
+    <summary>Can I crop different pages of a PDF differently?</summary>
+    <p>
+      Yes. Each page has its own crop rectangle. Open a page in the crop editor, adjust the crop box,
+      and click Done. Then open another page and set a different crop. The crops are stored per page
+      and applied independently when you export.
+    </p>
+  </details>
+
+  <details>
+    <summary>Is there a way to apply the same crop to all pages at once?</summary>
+    <p>
+      There is no automatic “apply to all” button because PDF pages often have different dimensions,
+      so the same pixel rectangle would crop different content on each page. The safest approach is
+      to crop each page manually. You can use the “Full Page” button as a starting point and then
+      adjust the handles to match across pages.
+    </p>
+  </details>
+
+  <details>
+    <summary>Does cropping a PDF keep the text selectable?</summary>
+    <p>
+      No. This tool rasterizes each PDF page — it renders the page to an image, then crops that image.
+      The resulting PDF contains images, not selectable text. If you need to keep selectable text,
+      use a PDF editor that supports vector cropping (such as Adobe Acrobat or a command-line tool
+      like qpdf or pdftk).
+    </p>
+  </details>
+
+  <details>
+    <summary>What happens to the file size after cropping?</summary>
+    <p>
+      Cropping removes pixels, so the output usually gets smaller. However, because the page is
+      re-encoded as a JPEG (or PNG/WEBP), the final size depends on the quality setting. Choosing
+      “Small” quality produces the smallest files. Choosing “High” quality can sometimes produce a
+      file larger than the original if the original was heavily compressed.
+    </p>
+  </details>
+
+  <details>
+    <summary>Can I crop an image and keep it as PNG?</summary>
+    <p>
+      Yes. In the page grid, set “Export as” to PNG, then click Download. Each page is exported as a
+      separate PNG file. PNG is lossless, so no quality is lost during export, but the file will be
+      larger than an equivalent JPG or WEBP.
+    </p>
+  </details>
+
+  <details>
+    <summary>How do I rotate a page before cropping?</summary>
+    <p>
+      Open the page in the crop editor and use the “Rotate Left” and “Rotate Right” buttons in the
+      strip below the canvas. Rotation is applied before cropping, so the crop rectangle works on the
+      rotated view. Click Done to save the rotation and crop together.
+    </p>
+  </details>
+
+  <details>
+    <summary>Can I reorder the pages after cropping?</summary>
+    <p>
+      Yes. In the page grid, drag any page card to a new position. The order of the cards determines
+      the order in the exported PDF or the numbering of exported images.
+    </p>
+  </details>
+
+  <details>
+    <summary>What image formats can I crop?</summary>
+    <p>
+      You can load JPG, JPEG, PNG, WEBP, GIF, BMP, HEIC, and HEIF files. The browser's built-in image
+      decoder handles the loading. For HEIC files, support depends on your browser — Safari supports
+      HEIC natively, while Chrome and Firefox may not.
+    </p>
+  </details>
+
+  <details>
+    <summary>Does cropping remove metadata like EXIF?</summary>
+    <p>
+      Yes. When an image is cropped, the pixels are redrawn onto a new canvas, and the export process
+      creates a fresh file without the original EXIF metadata (GPS location, camera model, capture
+      date, etc.). This is good for privacy but means you lose that information.
+    </p>
+  </details>
+
+</section>
 
 <script>
 'use strict';
