@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TXT to PDF Converter - Droplet</title>
-  <meta name="description" content="Convert plain text files to PDF online for free. 100% client-side, your files never leave your browser. Turn TXT to PDF instantly.">
+  <title>TXT to PDF Converter Online Free – Convert Text to PDF | Droplet</title>
+  <meta name="description" content="Convert plain text files to PDF online for free. Choose page size, font size, line spacing, and title page. 100% client-side, private, and free.">
+  <link rel="canonical" href="https://dropletweb.xyz/txt-to-pdf.html">
 
   <!-- ===== GOOGLE ADSENSE ===== -->
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4006702663328202"
@@ -99,6 +100,98 @@
       margin: 20px 0;
     }
 
+    /* ============================================================ */
+    /* SEO CONTENT                                                    */
+    /* ============================================================ */
+    .seo-content {
+      max-width: 42rem;
+      margin: 2.5rem auto 1rem;
+      color: #334155;
+      line-height: 1.65;
+    }
+    .seo-content h2 {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #0f172a;
+      margin: 2rem 0 0.5rem;
+    }
+    .seo-content p {
+      margin-bottom: 1rem;
+      font-size: 0.95rem;
+    }
+    .seo-content ul {
+      padding-left: 1.4rem;
+      margin-bottom: 1rem;
+      font-size: 0.95rem;
+    }
+    .seo-content li {
+      margin-bottom: 0.3rem;
+    }
+    .seo-content table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 1rem;
+      font-size: 0.9rem;
+    }
+    .seo-content th {
+      background: #f1f5f9;
+      padding: 8px 12px;
+      text-align: left;
+      border: 1px solid #e2e8f0;
+      font-weight: 700;
+      color: #0f172a;
+    }
+    .seo-content td {
+      padding: 8px 12px;
+      border: 1px solid #e2e8f0;
+      color: #475569;
+    }
+    .faq-section {
+      max-width: 42rem;
+      margin: 2rem auto;
+    }
+    .faq-section h2 {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #0f172a;
+      text-align: center;
+      margin-bottom: 1.25rem;
+    }
+    .faq-section details {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 0.75rem;
+      padding: 0.75rem 1.25rem;
+      margin-bottom: 0.6rem;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .faq-section summary {
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: #0f172a;
+      cursor: pointer;
+      list-style: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .faq-section summary::-webkit-details-marker { display: none; }
+    .faq-section summary::after {
+      content: "➕";
+      font-size: 0.8rem;
+      color: #94a3b8;
+      transition: transform 0.2s;
+    }
+    .faq-section details[open] summary::after {
+      content: "➖";
+    }
+    .faq-section details p {
+      margin-top: 0.6rem;
+      font-size: 0.9rem;
+      color: #475569;
+      line-height: 1.6;
+    }
+
     /* ===== DARK MODE ===== */
     html.dark body {
       background: #0f172a;
@@ -184,6 +277,14 @@
     html.dark .text-blue-700 { color: #60a5fa !important; }
     html.dark .text-blue-900 { color: #93c5fd !important; }
     html.dark .bg-slate-50 { background: #0f172a !important; }
+    html.dark .seo-content { color: #cbd5e1; }
+    html.dark .seo-content h2 { color: #f1f5f9; }
+    html.dark .seo-content th { background: #1e293b; color: #f1f5f9; border-color: #334155; }
+    html.dark .seo-content td { border-color: #334155; color: #cbd5e1; }
+    html.dark .faq-section h2 { color: #f1f5f9; }
+    html.dark .faq-section details { background: #1e293b; border-color: #334155; }
+    html.dark .faq-section summary { color: #f1f5f9; }
+    html.dark .faq-section details p { color: #94a3b8; }
 
     html.dark footer {
       background: #0f172a !important;
@@ -399,70 +500,357 @@
       </div>
     </div>
 
-    <!-- Options Section -->
-    <div id="optionsSection" class="max-w-2xl mx-auto mt-8 bg-white rounded-xl shadow-sm border border-slate-200 p-6 transition-colors duration-200">
-      <h3 class="font-bold text-slate-900 text-sm mb-4">⚙️ PDF Options</h3>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <label class="block text-xs font-medium text-slate-700 mb-1">📏 Page Size</label>
-          <select id="pageSize" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-200">
-            <option value="a4">A4 (210 × 297 mm)</option>
-            <option value="letter">Letter (8.5 × 11 in)</option>
-            <option value="legal">Legal (8.5 × 14 in)</option>
-          </select>
-        </div>
-        <div>
-          <label class="block text-xs font-medium text-slate-700 mb-1">🔤 Font Size</label>
-          <select id="fontSize" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-200">
-            <option value="10">10 pt</option>
-            <option value="11" selected>11 pt</option>
-            <option value="12">12 pt</option>
-            <option value="14">14 pt</option>
-          </select>
-        </div>
-        <div>
-          <label class="block text-xs font-medium text-slate-700 mb-1">📐 Line Spacing</label>
-          <select id="lineSpacing" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-200">
-            <option value="1.5">1.5</option>
-            <option value="1.8" selected>1.8</option>
-            <option value="2.0">2.0</option>
-          </select>
-        </div>
-        <div>
-          <label class="block text-xs font-medium text-slate-700 mb-1">📄 Include Title Page</label>
-          <select id="includeTitle" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-200">
-            <option value="yes" selected>Yes</option>
-            <option value="no">No</option>
-          </select>
-        </div>
-      </div>
-    </div>
+    <!-- ============================================================ -->
+    <!-- SEO CONTENT — Fonts, page size, margins, wrapping, Unicode    -->
+    <!-- ============================================================ -->
+    <section class="seo-content">
+      <h2>What the Converter Does</h2>
+      <p>
+        The tool reads your plain text file, parses its structure line by line, and renders it as a
+        styled document that is then written out as a PDF. It detects headings, paragraphs, and
+        simple lists, and applies consistent typography and spacing so the output looks like a
+        professionally typeset document rather than a raw text dump.
+      </p>
+      <p>
+        Everything happens in your browser. Your text file is read into memory, formatted, rendered
+        on a canvas, and written as a PDF. Nothing is uploaded.
+      </p>
 
-    <!-- FAQ Section -->
-    <section class="max-w-2xl mx-auto mt-12">
-      <h2 class="text-xl font-black text-slate-900 text-center mb-6">Frequently Asked Questions</h2>
-      <div class="space-y-3">
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">Is my data safe?</h3>
-          <p class="text-slate-600 text-sm mt-1">Yes! All conversions happen locally in your browser. Your text file is never uploaded to any server and is automatically deleted when you close the page.</p>
-        </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">Can I customize the PDF?</h3>
-          <p class="text-slate-600 text-sm mt-1">Yes! You can choose page size (A4, Letter, Legal), font size (10-14pt), line spacing (1.5-2.0), and whether to include a title page.</p>
-        </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">What about special characters?</h3>
-          <p class="text-slate-600 text-sm mt-1">The converter supports UTF-8 encoding, so special characters, accents, and non-Latin scripts should display correctly.</p>
-        </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">Are there file size limits?</h3>
-          <p class="text-slate-600 text-sm mt-1">Since everything runs locally, limits depend on your device's memory. Most modern browsers handle text files up to 10MB without issues.</p>
-        </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">How does the conversion work?</h3>
-          <p class="text-slate-600 text-sm mt-1">The text is read, formatted with proper fonts and margins, and rendered as HTML. Then html2pdf.js converts it to a downloadable PDF file. All processing stays in your browser.</p>
-        </div>
-      </div>
+      <h2>Fonts</h2>
+      <p>
+        The PDF uses Georgia, a classic serif typeface designed for readability in long-form
+        documents. Georgia is a web-safe font available on every platform, so the output renders
+        consistently in Adobe Reader, Preview, Chrome, and every other PDF viewer.
+      </p>
+      <p>
+        Serif fonts are the traditional choice for body text in books, reports, and letters because
+        the small strokes on each letter help the eye move smoothly along lines of text. If your
+        source was a technical manual that used a monospace font, the PDF will render it in Georgia
+        — the layout will be readable but the "typewriter" feel will be lost.
+      </p>
+      <p>
+        Font size is controlled by the "Font Size" option. Options are 10 pt, 11 pt, 12 pt, and
+        14 pt. The default is 11 pt, which matches the body text size used in most business
+        documents and books.
+      </p>
+
+      <h2>Page Size</h2>
+      <p>
+        Three page sizes are offered, matching the standards used around the world:
+      </p>
+      <table>
+        <thead>
+          <tr>
+            <th>Option</th>
+            <th>Dimensions</th>
+            <th>Region</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>A4</td>
+            <td>210 × 297 mm</td>
+            <td>Most of the world (Europe, Asia, Africa, Oceania)</td>
+          </tr>
+          <tr>
+            <td>Letter</td>
+            <td>8.5 × 11 in</td>
+            <td>United States, Canada, Mexico, Philippines</td>
+          </tr>
+          <tr>
+            <td>Legal</td>
+            <td>8.5 × 14 in</td>
+            <td>US legal documents, contracts, court filings</td>
+          </tr>
+        </tbody>
+      </table>
+      <p>
+        The default is A4. If you are producing a document for a US audience or a legal filing,
+        switch to Letter or Legal respectively. Page size affects pagination, so a long document
+        will produce different page counts on different sizes.
+      </p>
+
+      <h2>Margins</h2>
+      <p>
+        Margins are set to 20 mm top and bottom, and 25 mm left and right. This is slightly wider
+        than the defaults in most word processors, which gives the page a more open, readable feel.
+        Text blocks are centred within the printable area.
+      </p>
+      <p>
+        Margins are fixed in this version. They match the proportions used by most academic and
+        business documents. If you need tighter margins — for example to fit more text on a page —
+        the PDF can be edited after download in a PDF editor.
+      </p>
+
+      <h2>Text Wrapping and Line Breaks</h2>
+      <p>
+        Plain text files use hard line breaks to separate lines. When the converter builds the PDF,
+        it re-flows those lines into paragraphs. A new paragraph begins when a blank line appears
+        in the source or when a line is detected as a heading or list item. Within a paragraph,
+        text wraps naturally to fill the page width.
+      </p>
+      <p>
+        This means the output does not preserve the exact line breaks from the source file. If the
+        original text had a hard break in the middle of a sentence — common in files exported from
+        old systems — the converter joins it back into a single flowing sentence.
+      </p>
+      <p>
+        Text is justified, meaning both the left and right edges of each paragraph line up. This
+        produces clean, uniform blocks of text. If you prefer ragged-right text, you would need to
+        edit the PDF afterwards.
+      </p>
+
+      <h2>Pagination</h2>
+      <p>
+        Pages are generated automatically as the content grows. There is no manual page-break
+        control in this version. The renderer breaks the document where it runs out of space, and
+        continues on the next page.
+      </p>
+      <p>
+        Because the page-break positions depend on the font size, line spacing, and page size you
+        choose, the same text file can produce different pagination with different settings. A
+        12 pt A4 document will have more pages than the same text at 10 pt A4. For predictable
+        pagination, choose your settings before generating the PDF and keep them consistent.
+      </p>
+      <p>
+        The "avoid-all" page-break mode is used, which prevents the renderer from splitting a
+        paragraph across two pages when possible. If a paragraph is longer than a full page, it
+        will still break, but most normal paragraphs stay intact.
+      </p>
+
+      <h2>Line Spacing</h2>
+      <p>
+        Three line-spacing options are available: 1.5, 1.8, and 2.0. The default is 1.8, which is
+        slightly airier than the 1.5 used by many word processors. Wider spacing makes long
+        documents easier to read, especially on screen. Narrower spacing fits more text per page.
+      </p>
+      <p>
+        Line spacing is a multiplier on the font size. At 11 pt with 1.8 spacing, the distance
+        between baselines is about 19.8 pt, which produces roughly 35 lines per A4 page with the
+        default margins.
+      </p>
+
+      <h2>Unicode and Character Encoding</h2>
+      <p>
+        Text files can be saved in several encodings. The converter assumes UTF-8, which is the
+        modern standard and covers virtually every character in every written language — Latin
+        letters with accents, Greek, Cyrillic, Arabic, Hebrew, Chinese, Japanese, Korean, and the
+        full range of emoji.
+      </p>
+      <p>
+        If your file is saved as UTF-8, non-English text and special characters will render
+        correctly. If your file uses a legacy encoding like Windows-1252 or ISO-8859-1, characters
+        outside the basic ASCII range may appear garbled. To fix this, open the file in a text
+        editor, save it as UTF-8, and try again.
+      </p>
+      <p>
+        Two common encoding pitfalls to watch for:
+      </p>
+      <ul>
+        <li><strong>Byte order mark (BOM)</strong> — a UTF-8 BOM at the start of the file appears
+            as an invisible character. Some editors add it automatically. If your first line looks
+            strange, remove the BOM.</li>
+        <li><strong>Smart quotes and em-dashes</strong> — a UTF-8 file can contain curly quotes
+            (" " ' ') and em-dashes (—), which render correctly. A non-UTF-8 file with these
+            characters will show mojibake like <code>â€™</code>.</li>
+      </ul>
+
+      <h2>Heading Detection</h2>
+      <p>
+        The converter applies a few simple heuristics to detect headings:
+      </p>
+      <ul>
+        <li>Lines that are entirely uppercase and longer than three characters become headings.</li>
+        <li>Lines followed by a row of equals signs (<code>====</code>) or hyphens
+            (<code>----</code>) become headings, and the underline row is removed.</li>
+        <li>Markdown-style headings (<code>#</code>, <code>##</code>, <code>###</code>) are
+            recognised and converted to level 1, 2, and 3 headings.</li>
+      </ul>
+      <p>
+        Simple list items starting with <code>-</code>, <code>*</code>, or a number followed by a
+        period are converted to bulleted or numbered lists.
+      </p>
+      <p>
+        There is no manual heading control. If a line is detected as a heading that you wanted as
+        body text, or vice versa, you would need to edit the PDF afterwards.
+      </p>
+
+      <h2>Output Controls — What Each Setting Does</h2>
+      <p>
+        Four settings control the output:
+      </p>
+      <table>
+        <thead>
+          <tr>
+            <th>Setting</th>
+            <th>Options</th>
+            <th>Effect</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Page size</td>
+            <td>A4, Letter, Legal</td>
+            <td>Changes page dimensions and pagination</td>
+          </tr>
+          <tr>
+            <td>Font size</td>
+            <td>10, 11, 12, 14 pt</td>
+            <td>Changes body text size and page count</td>
+          </tr>
+          <tr>
+            <td>Line spacing</td>
+            <td>1.5, 1.8, 2.0</td>
+            <td>Changes vertical rhythm and page count</td>
+          </tr>
+          <tr>
+            <td>Title page</td>
+            <td>Yes, No</td>
+            <td>Adds a cover page with the filename as the title</td>
+          </tr>
+        </tbody>
+      </table>
+      <p>
+        When the title page is enabled, the first page of the PDF is a cover showing the filename
+        without its extension as the title, the full filename as a subtitle, and the conversion
+        date. The body of the document starts on page 2. This is useful for reports and letters,
+        but unnecessary for quick conversions.
+      </p>
+
+      <h2>What Is Not Preserved</h2>
+      <ul>
+        <li><strong>Original line breaks</strong> — hard line breaks are joined into paragraphs.</li>
+        <li><strong>Original fonts</strong> — everything is rendered in Georgia.</li>
+        <li><strong>Tabs and column alignment</strong> — tabs become spaces, and columns do not
+            align. If your file has tabular data, it will appear as a single stream of text.</li>
+        <li><strong>Unicode emoji</strong> — some PDF viewers do not render emoji even if the PDF
+            contains them. Simple emoji work; complex ones may appear as placeholder boxes.</li>
+        <li><strong>Hyperlinks</strong> — URLs appear as plain text, not clickable links.</li>
+      </ul>
+
+      <h2>Privacy — Client-Side Conversion</h2>
+      <p>
+        Text reading uses the browser's built-in <code>File.text()</code> API, and PDF generation
+        uses the open-source html2pdf library. Both run entirely in your browser. Your text is
+        never transmitted. The only external resources loaded are the libraries themselves from a
+        CDN.
+      </p>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- FAQ SECTION                                                   -->
+    <!-- ============================================================ -->
+    <section class="faq-section">
+      <h2>TXT to PDF Questions</h2>
+
+      <details>
+        <summary>Is my data safe?</summary>
+        <p>
+          Yes. All conversion happens locally in your browser. Your text file is never uploaded to
+          any server. You can disconnect from the internet after the page loads and the tool will
+          continue to work.
+        </p>
+      </details>
+
+      <details>
+        <summary>Can I customize the PDF?</summary>
+        <p>
+          Yes. You can choose the page size (A4, Letter, Legal), font size (10–14 pt), line spacing
+          (1.5, 1.8, 2.0), and whether to include a title page. The preview updates automatically
+          as you change settings.
+        </p>
+      </details>
+
+      <details>
+        <summary>What font does the PDF use?</summary>
+        <p>
+          Georgia, a classic serif typeface available on every platform. Serif fonts are the
+          traditional choice for body text in books and reports because they are easier to read in
+          long passages. Font size is controlled by the Font Size option.
+        </p>
+      </details>
+
+      <details>
+        <summary>What page size should I choose?</summary>
+        <p>
+          A4 is standard in most of the world. Letter is standard in the United States, Canada, and
+          a few other countries. Legal is used for US legal documents. If you are unsure, A4 is a
+          safe default.
+        </p>
+      </details>
+
+      <details>
+        <summary>Will my line breaks be preserved?</summary>
+        <p>
+          No. The converter joins lines into flowing paragraphs and re-wraps the text to fill the
+          page width. This produces a cleaner, more readable document. If you need the exact
+          original line breaks, PDF is not the right format — use a plain text viewer instead.
+        </p>
+      </details>
+
+      <details>
+        <summary>How does pagination work?</summary>
+        <p>
+          Pages are generated automatically as the content grows. There is no manual page-break
+          control. The renderer tries to avoid splitting a paragraph across two pages, but very
+          long paragraphs will still break.
+        </p>
+      </details>
+
+      <details>
+        <summary>Does it support Unicode and non-English text?</summary>
+        <p>
+          Yes, as long as your file is saved as UTF-8. Non-English scripts, accents, and emoji will
+          render correctly. If your file uses an older encoding like Windows-1252, save it as UTF-8
+          first.
+        </p>
+      </details>
+
+      <details>
+        <summary>Will headings and lists be detected?</summary>
+        <p>
+          Simple heuristics are applied. All-uppercase lines become headings. Lines underlined with
+          equals signs or hyphens become headings. Markdown-style headings (<code>#</code>,
+          <code>##</code>, <code>###</code>) are recognised. Lines starting with <code>-</code>,
+          <code>*</code>, or a number followed by a period become list items.
+        </p>
+      </details>
+
+      <details>
+        <summary>What does the title page contain?</summary>
+        <p>
+          The title page shows the filename without its extension as the title, the full filename
+          as a subtitle, the conversion date, and a small "Converted by Droplet" footer. The body
+          of the document starts on page 2. Title page is optional.
+        </p>
+      </details>
+
+      <details>
+        <summary>Are tabs and column alignment preserved?</summary>
+        <p>
+          No. Tabs become spaces, and column alignment is not preserved. If your file contains
+          tabular data, it will appear as a single stream of text. For tables, use a different
+          converter that handles structured data, such as the CSV-to-PDF or DOCX-to-PDF tools.
+        </p>
+      </details>
+
+      <details>
+        <summary>Can I convert a password-protected file?</summary>
+        <p>
+          Plain text files cannot be password-protected in the way PDFs can. If your text is inside
+          an encrypted archive (ZIP, RAR), extract it first, then upload the .txt file here.
+        </p>
+      </details>
+
+      <details>
+        <summary>What is the maximum file size?</summary>
+        <p>
+          About 10 MB. Beyond that, browser memory and rendering speed become limiting factors.
+          A 10 MB text file contains roughly 10 million characters — around 1.5 million words —
+          which is far more than a normal document.
+        </p>
+      </details>
+
     </section>
   </main>
 
