@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PDF Forms - Droplet</title>
-  <meta name="description" content="Fill, create, and edit PDF forms online for free. 100% client-side, your files never leave your browser.">
+  <title>Fill and Add Form Fields to PDF Online Free – Droplet</title>
+  <meta name="description" content="Add text fields, checkboxes, radio buttons, dropdowns, dates, and signature placeholders to any PDF. Fill existing forms or create new fields. 100% client-side, private, and free.">
+  <link rel="canonical" href="https://dropletweb.xyz/pdf-forms.html">
 
   <!-- Google AdSense -->
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4006702663328202"
@@ -222,6 +223,79 @@
       overflow-y: auto;
     }
 
+    /* ============================================================ */
+    /* SEO CONTENT                                                    */
+    /* ============================================================ */
+    .seo-content {
+      max-width: 42rem;
+      margin: 2.5rem auto 1rem;
+      color: #334155;
+      line-height: 1.65;
+    }
+    .seo-content h2 {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #0f172a;
+      margin: 2rem 0 0.5rem;
+    }
+    .seo-content p {
+      margin-bottom: 1rem;
+      font-size: 0.95rem;
+    }
+    .seo-content ul {
+      padding-left: 1.4rem;
+      margin-bottom: 1rem;
+      font-size: 0.95rem;
+    }
+    .seo-content li {
+      margin-bottom: 0.3rem;
+    }
+    .faq-section {
+      max-width: 42rem;
+      margin: 2rem auto;
+    }
+    .faq-section h2 {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #0f172a;
+      text-align: center;
+      margin-bottom: 1.25rem;
+    }
+    .faq-section details {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 0.75rem;
+      padding: 0.75rem 1.25rem;
+      margin-bottom: 0.6rem;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .faq-section summary {
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: #0f172a;
+      cursor: pointer;
+      list-style: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .faq-section summary::-webkit-details-marker { display: none; }
+    .faq-section summary::after {
+      content: "➕";
+      font-size: 0.8rem;
+      color: #94a3b8;
+      transition: transform 0.2s;
+    }
+    .faq-section details[open] summary::after {
+      content: "➖";
+    }
+    .faq-section details p {
+      margin-top: 0.6rem;
+      font-size: 0.9rem;
+      color: #475569;
+      line-height: 1.6;
+    }
+
     /* Dark mode overrides */
     html.dark body {
       background: #0f172a;
@@ -348,6 +422,12 @@
       color: #f1f5f9;
     }
     html.dark .field-modal label { color: #e2e8f0; }
+    html.dark .seo-content { color: #cbd5e1; }
+    html.dark .seo-content h2 { color: #f1f5f9; }
+    html.dark .faq-section h2 { color: #f1f5f9; }
+    html.dark .faq-section details { background: #1e293b; border-color: #334155; }
+    html.dark .faq-section summary { color: #f1f5f9; }
+    html.dark .faq-section details p { color: #94a3b8; }
 
     #theme-toggle {
       background: none;
@@ -406,7 +486,7 @@
       </div>
       <h1 class="text-3xl md:text-4xl font-black text-slate-900 tracking-tight">PDF Forms</h1>
       <p class="text-slate-500 text-sm md:text-base mt-2 max-w-lg mx-auto">
-        Fill, create, and edit PDF forms. <strong>100% client-side</strong> — your files never leave your browser.
+        Add form fields to any PDF, then fill them in and export. <strong>100% client-side</strong> — your files never leave your browser.
       </p>
     </div>
 
@@ -415,8 +495,8 @@
       <div class="flex items-start gap-3">
         <span class="text-2xl">📝</span>
         <div>
-          <h4 class="font-bold text-sm text-blue-900">About PDF Forms</h4>
-          <p class="text-xs text-blue-700 mt-1">Upload a PDF and add interactive form fields like text inputs, checkboxes, dropdowns, and signatures. Fill existing forms or create new ones from scratch.</p>
+          <h4 class="font-bold text-sm text-blue-900">What this tool does</h4>
+          <p class="text-xs text-blue-700 mt-1">You can place new form fields on top of any PDF — text inputs, checkboxes, radio buttons, dropdowns, date fields, and signature placeholders. Fill them in, then export the PDF with the values rendered on top. This is not an AcroForm editor: it does not read or write native PDF form fields.</p>
         </div>
       </div>
     </div>
@@ -571,8 +651,8 @@
       </div>
       <div class="bg-white p-4 rounded-xl border border-slate-100 text-center transition-colors duration-200">
         <div class="text-2xl mb-1">📝</div>
-        <h4 class="font-bold text-sm">Interactive Fields</h4>
-        <p class="text-xs text-slate-500">Text, checkboxes, dropdowns, dates</p>
+        <h4 class="font-bold text-sm">Six Field Types</h4>
+        <p class="text-xs text-slate-500">Text, checkbox, radio, dropdown, date, signature</p>
       </div>
       <div class="bg-white p-4 rounded-xl border border-slate-100 text-center transition-colors duration-200">
         <div class="text-2xl mb-1">⚡</div>
@@ -581,27 +661,235 @@
       </div>
     </div>
 
-    <!-- FAQ -->
-    <section class="max-w-3xl mx-auto mt-12">
-      <h2 class="text-xl font-black text-slate-900 text-center mb-6">Frequently Asked Questions</h2>
-      <div class="space-y-3">
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">How do I use PDF Forms?</h3>
-          <p class="text-slate-600 text-sm mt-1">Upload a PDF, then click any field type in the toolbar to add a form field. Drag fields to reposition, click to configure them, and export when done.</p>
-        </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">Can I fill existing PDF forms?</h3>
-          <p class="text-slate-600 text-sm mt-1">Yes! If your PDF has interactive form fields, they will be detected and you can fill them. You can also add new fields on top of any PDF.</p>
-        </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">Is my data safe?</h3>
-          <p class="text-slate-600 text-sm mt-1">Absolutely. All processing happens locally in your browser. Your PDF and form data never leave your device.</p>
-        </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">What field types are supported?</h3>
-          <p class="text-slate-600 text-sm mt-1">Text inputs, checkboxes, radio buttons, dropdowns, date pickers, and signature fields.</p>
-        </div>
-      </div>
+    <!-- ============================================================ -->
+    <!-- SEO CONTENT — Field types, filling vs creating, export        -->
+    <!-- ============================================================ -->
+    <section class="seo-content">
+      <h2>Supported Field Types</h2>
+      <p>
+        You can place six different kinds of fields on top of any page in your PDF:
+      </p>
+      <ul>
+        <li><strong>Text input</strong> — a single-line box for names, addresses, account numbers,
+            or any short answer. Default size is 200×32 pixels; you can resize it in the editor.</li>
+        <li><strong>Checkbox</strong> — a small box that toggles between checked and unchecked.
+            Useful for “I agree” statements and multi-select lists.</li>
+        <li><strong>Radio button</strong> — a round selector for mutually exclusive choices. Each
+            radio is independent in this tool, so place one per option and label them clearly.</li>
+        <li><strong>Dropdown</strong> — a select-style field with a list of options that you define
+            in the editor. Options are entered one per line.</li>
+        <li><strong>Date field</strong> — a text field labelled for date entry. You type the date
+            yourself; there is no calendar popup.</li>
+        <li><strong>Signature placeholder</strong> — a wider box with a cursive font for typing a
+            name as a signature. This is a visual placeholder, not a cryptographic signature.</li>
+      </ul>
+
+      <h2>Filling an Existing PDF Form vs. Creating New Fields</h2>
+      <p>
+        This tool does <strong>not</strong> read or write native PDF AcroForm fields. If your PDF
+        was created with a real form (the kind you can tab through in Adobe Reader), those fields
+        are not detected or editable here.
+      </p>
+      <p>
+        Instead, the tool works visually. You place new fields on top of the rendered page at the
+        positions where you want them. This is the right approach for:
+      </p>
+      <ul>
+        <li>Flat PDFs (scans, exports, print-to-PDF) that have no interactive fields.</li>
+        <li>Forms that were never created as AcroForms in the first place.</li>
+        <li>Adding extra fields — like a signature line or a date stamp — to a form that already
+            has some fields.</li>
+        <li>Building a fillable overlay on top of any PDF, regardless of how it was made.</li>
+      </ul>
+      <p>
+        Because the fields are visual overlays, they behave like annotations. They do not become
+        part of the PDF's form structure, and they are not tab-navigable in a reader. They are,
+        however, fully visible and printable in the exported PDF.
+      </p>
+
+      <h2>Placing and Moving Fields</h2>
+      <p>
+        Click any field type in the toolbar to add a field. It appears in the centre of the
+        current page and opens an editor where you can set the label, value, width, height, and
+        (for dropdowns) the option list.
+      </p>
+      <p>
+        Once placed, you can drag a field to reposition it anywhere on the page. Click a field
+        again to reopen the editor and change its properties. The field list on the right shows
+        every field in the document; clicking an entry selects it and jumps to its page.
+      </p>
+
+      <h2>Multi-Page Documents</h2>
+      <p>
+        Each field is assigned to the page where you created it. When you navigate between pages
+        with the arrow buttons, only the fields for the current page are shown. Fields on other
+        pages remain stored and are rendered in the export.
+      </p>
+      <p>
+        If you move a field and later change the page, the field stays with its original page.
+        To move a field to a different page, delete it and recreate it on the target page.
+      </p>
+
+      <h2>Export — What the Output PDF Contains</h2>
+      <p>
+        When you click Export, the tool renders every page of the source PDF at high resolution
+        and draws each field on top as a coloured rectangle with the label or value inside. The
+        result is a new PDF where the fields are visible exactly where you placed them, styled
+        consistently with the preview.
+      </p>
+      <p>
+        The exported PDF is <strong>flat</strong>. The fields are drawn as content, not as
+        interactive widgets. Anyone opening the file will see the filled values, but they cannot
+        click into the fields and change them. This is the right behaviour for a completed form
+        that you want to send as a final copy.
+      </p>
+      <p>
+        If you need the recipient to be able to fill the form themselves, export without values,
+        or use a dedicated AcroForm authoring tool instead.
+      </p>
+
+      <h2>Privacy — Everything Runs Locally</h2>
+      <p>
+        PDF rendering uses the open-source PDF.js library and PDF generation uses html2pdf, both
+        of which run entirely in your browser. Your PDF is read into memory and never transmitted.
+        The only external resources loaded are the libraries themselves from a CDN.
+      </p>
+
+      <h2>Practical Examples</h2>
+      <p>
+        <strong>Adding a signature line to a scanned contract:</strong> Load the scanned PDF,
+        navigate to the signature page, add a Signature field near the bottom, type the signer's
+        name, and export.
+      </p>
+      <p>
+        <strong>Creating a simple order form from a plain PDF:</strong> Add text fields for name,
+        address, and quantity, a dropdown for product selection, and a checkbox for terms
+        acceptance. Export when done.
+      </p>
+      <p>
+        <strong>Stamping a date on every page of a report:</strong> Add a Date field to page 1,
+        navigate to the next page, add another Date field, and repeat. Each page gets its own
+        date placeholder.
+      </p>
+      <p>
+        <strong>Adding radio-style choices to a questionnaire:</strong> Place one radio field per
+        option in a row, label each one, and leave them unchecked for the recipient to complete
+        on paper or in the exported PDF.
+      </p>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- FAQ SECTION                                                   -->
+    <!-- ============================================================ -->
+    <section class="faq-section">
+      <h2>PDF Forms Questions</h2>
+
+      <details>
+        <summary>Does this tool read existing PDF form fields?</summary>
+        <p>
+          No. This tool does not detect or edit native AcroForm fields. It places new fields as
+          visual overlays on top of the rendered page. If your PDF has interactive fields, they
+          will appear in the background image but cannot be filled here.
+        </p>
+      </details>
+
+      <details>
+        <summary>Are the exported fields interactive?</summary>
+        <p>
+          No. The exported PDF is flat. Fields are drawn as visible content with their values, but
+          they cannot be clicked or edited in a PDF reader. This is intentional — it makes the
+          exported file a finished copy rather than an editable form.
+        </p>
+      </details>
+
+      <details>
+        <summary>What field types are supported?</summary>
+        <p>
+          Six types: text input, checkbox, radio button, dropdown, date field, and signature
+          placeholder. Dropdown options are defined by you in the field editor. Signature is a
+          visual placeholder, not a cryptographic signature.
+        </p>
+      </details>
+
+      <details>
+        <summary>Can I add fields to a scanned PDF?</summary>
+        <p>
+          Yes. Scanned PDFs work well because the tool operates on the rendered image. You place
+          fields visually over the scan, fill them in, and export. The scan itself is unchanged.
+        </p>
+      </details>
+
+      <details>
+        <summary>Can I move a field to a different page?</summary>
+        <p>
+          Not directly. Fields are assigned to the page where they were created. To move a field
+          to another page, delete it and recreate it on the target page.
+        </p>
+      </details>
+
+      <details>
+        <summary>Is there a limit to how many fields I can add?</summary>
+        <p>
+          There is no hard limit. Performance depends on the number of pages and the total number
+          of fields. For most everyday documents, dozens of fields work smoothly. Very large
+          documents with hundreds of fields may take longer to export.
+        </p>
+      </details>
+
+      <details>
+        <summary>Does the export preserve the original PDF quality?</summary>
+        <p>
+          The tool renders each page at 2× scale and embeds it as a high-quality JPEG. For
+          text-heavy documents the result looks identical at normal reading sizes. For documents
+          with very fine vector line work, there may be slight softening compared to the original.
+        </p>
+      </details>
+
+      <details>
+        <summary>Can I clear all fields and start over?</summary>
+        <p>
+          Yes. Click “Clear All Fields” in the field panel to remove every field at once. The
+          source PDF stays loaded, so you can start placing new fields immediately.
+        </p>
+      </details>
+
+      <details>
+        <summary>Can I use this to sign a PDF?</summary>
+        <p>
+          You can add a signature placeholder and type a name into it. The signature appears in a
+          cursive font in the exported PDF. This is a visual signature, not a digital signature.
+          For legally binding digital signatures, use a dedicated e-signature service.
+        </p>
+      </details>
+
+      <details>
+        <summary>Is my PDF uploaded to a server?</summary>
+        <p>
+          No. All rendering, field placement, filling, and export happen locally in your browser.
+          Your file never leaves your device. You can disconnect from the internet after the page
+          loads and the tool will continue to work.
+        </p>
+      </details>
+
+      <details>
+        <summary>Why is the exported file a flat PDF instead of a fillable form?</summary>
+        <p>
+          Creating a real fillable form requires writing AcroForm structures into the PDF, which
+          is a different operation from drawing visible content. This tool focuses on the visual
+          overlay approach because it works with any PDF — including scans and flat exports that
+          have no existing form structure.
+        </p>
+      </details>
+
+      <details>
+        <summary>Can I edit the exported PDF afterwards?</summary>
+        <p>
+          The exported PDF is a normal PDF file. You can open it in any reader or editor. However,
+          the fields are drawn as content, so you cannot click into them and change the values.
+          To change a value, go back to this tool, adjust the field, and export again.
+        </p>
+      </details>
+
     </section>
   </main>
 
