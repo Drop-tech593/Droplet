@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SVG to PNG Converter - Droplet</title>
-  <meta name="description" content="Convert SVG vector graphics to PNG images online for free. 100% client-side, your files never leave your browser. Supports batch conversion.">
+  <title>SVG to PNG Converter Online Free – Convert SVG Vector Graphics | Droplet</title>
+  <meta name="description" content="Convert SVG vector graphics to PNG images online for free. Choose output resolution, background, and quality. 100% client-side, private, and free.">
+  <link rel="canonical" href="https://dropletweb.xyz/svg-to-png">
 
   <!-- ===== GOOGLE ADSENSE ===== -->
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4006702663328202"
@@ -99,6 +100,98 @@
     .badge-converted { background: #d1fae5; color: #065f46; }
     .badge-size { background: #fef3c7; color: #92400e; }
     .badge-svg { background: #fce7f3; color: #9d174d; }
+
+    /* ============================================================ */
+    /* SEO CONTENT                                                    */
+    /* ============================================================ */
+    .seo-content {
+      max-width: 42rem;
+      margin: 2.5rem auto 1rem;
+      color: #334155;
+      line-height: 1.65;
+    }
+    .seo-content h2 {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #0f172a;
+      margin: 2rem 0 0.5rem;
+    }
+    .seo-content p {
+      margin-bottom: 1rem;
+      font-size: 0.95rem;
+    }
+    .seo-content ul {
+      padding-left: 1.4rem;
+      margin-bottom: 1rem;
+      font-size: 0.95rem;
+    }
+    .seo-content li {
+      margin-bottom: 0.3rem;
+    }
+    .seo-content table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 1rem;
+      font-size: 0.9rem;
+    }
+    .seo-content th {
+      background: #f1f5f9;
+      padding: 8px 12px;
+      text-align: left;
+      border: 1px solid #e2e8f0;
+      font-weight: 700;
+      color: #0f172a;
+    }
+    .seo-content td {
+      padding: 8px 12px;
+      border: 1px solid #e2e8f0;
+      color: #475569;
+    }
+    .faq-section {
+      max-width: 42rem;
+      margin: 2rem auto;
+    }
+    .faq-section h2 {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #0f172a;
+      text-align: center;
+      margin-bottom: 1.25rem;
+    }
+    .faq-section details {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 0.75rem;
+      padding: 0.75rem 1.25rem;
+      margin-bottom: 0.6rem;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .faq-section summary {
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: #0f172a;
+      cursor: pointer;
+      list-style: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .faq-section summary::-webkit-details-marker { display: none; }
+    .faq-section summary::after {
+      content: "➕";
+      font-size: 0.8rem;
+      color: #94a3b8;
+      transition: transform 0.2s;
+    }
+    .faq-section details[open] summary::after {
+      content: "➖";
+    }
+    .faq-section details p {
+      margin-top: 0.6rem;
+      font-size: 0.9rem;
+      color: #475569;
+      line-height: 1.6;
+    }
 
     /* Dark mode overrides */
     html.dark body {
@@ -246,6 +339,14 @@
       background: #3b1e2e;
       color: #f9a8d4;
     }
+    html.dark .seo-content { color: #cbd5e1; }
+    html.dark .seo-content h2 { color: #f1f5f9; }
+    html.dark .seo-content th { background: #1e293b; color: #f1f5f9; border-color: #334155; }
+    html.dark .seo-content td { border-color: #334155; color: #cbd5e1; }
+    html.dark .faq-section h2 { color: #f1f5f9; }
+    html.dark .faq-section details { background: #1e293b; border-color: #334155; }
+    html.dark .faq-section summary { color: #f1f5f9; }
+    html.dark .faq-section details p { color: #94a3b8; }
 
     /* Theme toggle in header */
     #theme-toggle {
@@ -331,8 +432,8 @@
       <div class="flex items-start gap-3">
         <span class="text-2xl">🎨</span>
         <div>
-          <h4 class="font-bold text-sm text-blue-900">What is SVG?</h4>
-          <p class="text-xs text-blue-700 mt-1">SVG (Scalable Vector Graphics) is an XML-based vector image format that scales infinitely without losing quality. Converting to PNG creates a raster image that's universally compatible with all devices and platforms.</p>
+          <h4 class="font-bold text-sm text-blue-900">How this conversion works — read this first</h4>
+          <p class="text-xs text-blue-700 mt-1">The converter reads the SVG's vector instructions, asks the browser to render them at the resolution you choose, draws the result onto a canvas, and writes the canvas out as a PNG. <strong>Vector information is lost in the output.</strong> The PNG is a fixed-resolution raster image.</p>
         </div>
       </div>
     </div>
@@ -366,7 +467,7 @@
         <button onclick="clearFiles()" class="text-slate-400 hover:text-red-500 transition-colors">✕</button>
       </div>
 
-      <!-- PNG Options - Improved -->
+      <!-- PNG Options -->
       <div class="mt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 p-4 bg-slate-50 rounded-lg transition-colors duration-200">
         <div>
           <label class="block text-xs font-medium text-slate-700 mb-1">📏 PNG Size</label>
@@ -433,7 +534,7 @@
         <p id="statusText" class="text-xs text-slate-400 mt-2 text-center">Initializing...</p>
       </div>
 
-      <!-- Image Preview - Improved -->
+      <!-- Image Preview -->
       <div id="previewContainer" class="hidden mt-4 border-t border-slate-200 pt-4">
         <div class="flex items-center justify-between mb-2">
           <h4 class="font-bold text-sm text-slate-700">🖼️ SVG Preview</h4>
@@ -498,62 +599,364 @@
       </div>
     </div>
 
-    <!-- SVG vs PNG Comparison -->
-    <section class="max-w-2xl mx-auto mt-12">
-      <h2 class="text-xl font-black text-slate-900 text-center mb-6">SVG vs PNG Comparison</h2>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm flex items-center gap-2">
-            <span class="text-xl">📐</span> SVG
-          </h3>
-          <ul class="text-sm text-slate-600 mt-2 space-y-1">
-            <li>✅ Infinite scalability</li>
-            <li>✅ Small file size</li>
-            <li>✅ Editable in code</li>
-            <li>✅ Supports animation</li>
-            <li>❌ Not all browsers support</li>
-          </ul>
-        </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm flex items-center gap-2">
-            <span class="text-xl">🔵</span> PNG
-          </h3>
-          <ul class="text-sm text-slate-600 mt-2 space-y-1">
-            <li>✅ Universal compatibility</li>
-            <li>✅ Fixed resolution</li>
-            <li>✅ Supports transparency</li>
-            <li>✅ Great for web</li>
-            <li>❌ Larger file size</li>
-          </ul>
-        </div>
-      </div>
+    <!-- ============================================================ -->
+    <!-- SEO CONTENT — Vector-to-raster, resolution, fonts, unsupported -->
+    <!-- ============================================================ -->
+    <section class="seo-content">
+      <h2>How Vector to Raster Conversion Works</h2>
+      <p>
+        SVG and PNG are fundamentally different kinds of image. SVG is <strong>vector</strong>:
+        it describes shapes mathematically — a circle is stored as "centre point and radius",
+        a line as "start and end coordinates". PNG is <strong>raster</strong>: it describes an
+        image as a grid of coloured pixels, each with a specific position and colour value.
+      </p>
+      <p>
+        Converting from vector to raster means asking the browser to render the SVG at a
+        specific pixel size and then capturing the resulting pixels. The browser walks the
+        SVG's shape instructions, calculates which pixels each shape covers, applies colours
+        and strokes, and produces a bitmap. That bitmap is then encoded as PNG.
+      </p>
+      <p>
+        This process is one-way. Once the SVG is rasterised, the vector information — the
+        circles, lines, curves, and text as mathematical objects — is gone. The PNG only knows
+        about pixels. You cannot convert a PNG back to an SVG and recover the original shapes.
+      </p>
+
+      <h2>Resolution and Output Dimensions</h2>
+      <p>
+        The most important choice when converting SVG to PNG is the output resolution. Because
+        the source is vector, the browser can render it at any size — small, large, or huge —
+        and the result will be equally sharp. This is the whole point of vector graphics.
+      </p>
+      <p>
+        The PNG Size option controls the output dimensions:
+      </p>
+      <table>
+        <thead>
+          <tr>
+            <th>Option</th>
+            <th>Output Size</th>
+            <th>Best For</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Original Size</td>
+            <td>The SVG's declared width and height</td>
+            <td>Quick previews, when the SVG's natural size is correct</td>
+          </tr>
+          <tr>
+            <td>2x</td>
+            <td>Twice the original dimensions</td>
+            <td>Retina displays, high-DPI screens</td>
+          </tr>
+          <tr>
+            <td>3x</td>
+            <td>Three times the original dimensions</td>
+            <td>Printing, very high-DPI displays</td>
+          </tr>
+          <tr>
+            <td>Fit Width: 800px</td>
+            <td>Scaled so the width is 800 pixels</td>
+            <td>Web assets, thumbnails</td>
+          </tr>
+          <tr>
+            <td>Fit Width: 1920px</td>
+            <td>Scaled so the width is 1920 pixels</td>
+            <td>HD screens, hero images</td>
+          </tr>
+          <tr>
+            <td>Fit Width: 2560px</td>
+            <td>Scaled so the width is 2560 pixels</td>
+            <td>4K displays, large format</td>
+          </tr>
+          <tr>
+            <td>Custom Size</td>
+            <td>Exact width and height in pixels</td>
+            <td>Specific requirements, icon sets, embedded layouts</td>
+          </tr>
+        </tbody>
+      </table>
+      <p>
+        When using Fit Width or Custom Size, the aspect ratio is preserved unless you enter
+        both a width and a height in Custom Size — in which case the SVG is stretched to
+        exactly those dimensions.
+      </p>
+
+      <h2>Transparency</h2>
+      <p>
+        SVG and PNG both support an alpha channel. When the SVG has no background fill (which
+        is the default for most SVG files), the areas outside its shapes are transparent. In
+        the PNG output, those areas remain transparent when the Background option is set to
+        "Transparent".
+      </p>
+      <p>
+        The Background option lets you override this:
+      </p>
+      <ul>
+        <li><strong>Transparent</strong> — the alpha channel is preserved. Areas outside the
+            SVG's shapes are see-through. This is the right choice for logos, icons, and any
+            asset that will be placed over a coloured surface.</li>
+        <li><strong>White / Black / Light Gray / Light Blue</strong> — the transparent areas are
+            filled with the chosen solid colour before rendering.</li>
+        <li><strong>Custom Color</strong> — pick any colour from the colour picker.</li>
+      </ul>
+      <p>
+        Note that some SVGs declare their own background as a filled rectangle (for example
+        <code>&lt;rect width="100%" height="100%" fill="#ffffff"/&gt;</code>). If that
+        rectangle is present, the SVG is not actually transparent, and the Background option
+        will not change the result. To remove such a rectangle, edit the SVG before converting.
+      </p>
+
+      <h2>Scaling and Sharpness</h2>
+      <p>
+        Because SVG is vector, scaling it up before rasterisation produces a sharp result at
+        the target size. The browser recalculates every shape at the new resolution rather
+        than resampling an existing bitmap. A logo rendered at 2560 pixels wide from an SVG
+        is genuinely 2560 pixels of detail — not an upscaled 400-pixel image.
+      </p>
+      <p>
+        This is the primary reason to convert SVG to PNG rather than to JPG or to another
+        raster format from a screenshot. The converter is producing new pixels from the
+        vector data, at whatever size you ask for.
+      </p>
+      <p>
+        The practical limit is memory. Rendering a very large canvas — 8000 × 8000 pixels or
+        more — can exceed browser memory on lower-end devices. If you need extremely large
+        output, render in sections or use a desktop vector editor.
+      </p>
+
+      <h2>Embedded Fonts in SVG</h2>
+      <p>
+        SVG files often contain text elements. The text is rendered using a font, and the
+        font may be:
+      </p>
+      <ul>
+        <li><strong>Referenced by name</strong> — for example <code>font-family="Arial"</code>.
+            The browser uses the named font if it is installed on the system, and falls back
+            to a similar font if it is not.</li>
+        <li><strong>Referenced by a web font link</strong> — the SVG includes an
+            <code>@font-face</code> rule pointing to a font file on a CDN. Whether it loads
+            depends on CORS and network access.</li>
+        <li><strong>Embedded as base64 data</strong> — the font is fully contained inside the
+            SVG. This is rare because it makes the SVG much larger, but it guarantees the
+            text renders exactly as intended.</li>
+      </ul>
+      <p>
+        The practical effect: if the SVG references a font that is not installed on your
+        system and is not embedded, the text will render in a fallback font. The output PNG
+        will show the text in that fallback font, which may shift letter widths and change
+        the overall layout slightly. This is a browser-level behaviour, not something the
+        converter controls.
+      </p>
+      <p>
+        If the SVG is critical and uses a non-standard font, the safest approach is to convert
+        the text to paths in a vector editor before exporting the SVG. Once the text is paths,
+        it renders identically everywhere.
+      </p>
+
+      <h2>Unsupported SVG Features</h2>
+      <p>
+        The converter relies on the browser's SVG renderer. Most features are supported, but
+        some are not:
+      </p>
+      <ul>
+        <li><strong>External resources</strong> — an SVG that references an external image via
+            <code>&lt;image href="https://..."&gt;</code> may fail if the resource is blocked
+            by CORS or is not reachable. Inline images (data URLs) always work.</li>
+        <li><strong>External stylesheets</strong> — an SVG that links to a CSS file via
+            <code>&lt;link rel="stylesheet"&gt;</code> may not load the stylesheet, resulting
+            in unstyled output.</li>
+        <li><strong>Scripts inside the SVG</strong> — <code>&lt;script&gt;</code> tags are not
+            executed. The SVG is treated as a static image.</li>
+        <li><strong>Animations</strong> — SMIL animations and CSS animations inside the SVG
+            are not captured. The browser renders the initial state, which is what the PNG
+            will contain.</li>
+        <li><strong>Filters and blend modes</strong> — most SVG filters (Gaussian blur, drop
+            shadow, colour matrix) are supported, but very complex filter chains may render
+            differently in different browsers.</li>
+        <li><strong>Foreign objects</strong> — <code>&lt;foreignObject&gt;</code> elements,
+            which embed HTML inside an SVG, may render inconsistently across browsers.</li>
+      </ul>
+      <p>
+        If your SVG relies on one of these features, the safest approach is to open the SVG
+        in a browser, take a screenshot of how it renders, and use that as a reference when
+        reviewing the converted PNG.
+      </p>
+
+      <h2>What Is Preserved and What Is Not</h2>
+      <p>
+        Preserved:
+      </p>
+      <ul>
+        <li>All shapes and paths, rendered at the chosen resolution.</li>
+        <li>Colours and strokes.</li>
+        <li>The alpha channel, when the Background option is Transparent.</li>
+        <li>Text, rendered in the font the browser selects.</li>
+      </ul>
+      <p>
+        Not preserved:
+      </p>
+      <ul>
+        <li>Vector information — the PNG is a fixed-resolution bitmap.</li>
+        <li>Any metadata attached to the SVG file.</li>
+        <li>Animation timing, if the SVG contained animations.</li>
+        <li>Interactivity — clickable SVG links are not preserved in the PNG.</li>
+      </ul>
+
+      <h2>Practical Examples</h2>
+      <p>
+        <strong>Exporting a logo for a website:</strong> Load the SVG logo, choose Fit Width
+        800px, Background Transparent, Very High quality. The output PNG drops directly into
+        the site header and is sharp on every display.
+      </p>
+      <p>
+        <strong>Creating a favicon:</strong> Load the SVG icon, choose Custom Size with 32 × 32
+        or 64 × 64 pixels, Background Transparent. The output is a small PNG suitable for use
+        as a favicon.
+      </p>
+      <p>
+        <strong>Printing an SVG illustration:</strong> Load the SVG, choose 3x or Fit Width
+        2560px, Background White, Maximum quality. The output is a high-resolution PNG
+        suitable for print.
+      </p>
+      <p>
+        <strong>Converting an icon set:</strong> Load multiple SVGs at once, choose Custom Size
+        with 256 × 256 pixels, Background Transparent. Download the batch as a ZIP for use in
+        a design system.
+      </p>
+      <p>
+        <strong>Embedding an SVG chart in a document:</strong> Load the SVG chart, choose
+        Fit Width 1920px, Background White, Very High quality. The result is a crisp chart
+        suitable for inclusion in a report or slide deck.
+      </p>
+
+      <h2>Privacy — Client-Side Conversion</h2>
+      <p>
+        The SVG is rendered by the browser's built-in renderer, drawn onto a canvas, and
+        encoded as a PNG. Nothing is uploaded. The only external resources loaded are the
+        libraries themselves from a CDN. You can disconnect from the internet after the page
+        loads and the tool will continue to work for files that do not reference remote
+        resources.
+      </p>
     </section>
 
-    <!-- FAQ Section -->
-    <section class="max-w-2xl mx-auto mt-12">
-      <h2 class="text-xl font-black text-slate-900 text-center mb-6">Frequently Asked Questions</h2>
-      <div class="space-y-3">
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">Is my data safe?</h3>
-          <p class="text-slate-600 text-sm mt-1">Yes! All conversions happen locally in your browser. Your SVG files are never uploaded to any server and are automatically deleted when you close the page.</p>
-        </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">Why convert SVG to PNG?</h3>
-          <p class="text-slate-600 text-sm mt-1">PNG is universally compatible and can be viewed on any device without special software. Converting SVG to PNG is useful for sharing graphics with users who don't have SVG viewers, or for using in applications that only support raster images.</p>
-        </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">Will I lose quality?</h3>
-          <p class="text-slate-600 text-sm mt-1">SVG is a vector format that scales infinitely. When converting to PNG, you can choose the output size. For best results, export at the size you need. You can also export at 2x or 3x for retina displays.</p>
-        </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">Can I convert multiple files at once?</h3>
-          <p class="text-slate-600 text-sm mt-1">Yes! Drag and drop multiple SVG files or select multiple files using the file picker. Each file will be converted individually, and you can download them all at once as a ZIP file.</p>
-        </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">What about transparency?</h3>
-          <p class="text-slate-600 text-sm mt-1">PNG supports transparency. If your SVG has transparent areas, they will be preserved when you select the "Transparent" background option. You can also choose a solid background if needed.</p>
-        </div>
-      </div>
+    <!-- ============================================================ -->
+    <!-- FAQ SECTION                                                   -->
+    <!-- ============================================================ -->
+    <section class="faq-section">
+      <h2>SVG to PNG Questions</h2>
+
+      <details>
+        <summary>Is my data safe?</summary>
+        <p>
+          Yes. All conversion happens locally in your browser. Your SVG files are never
+          uploaded to any server. You can disconnect from the internet after the page loads
+          and the tool will continue to work for SVGs that do not reference remote resources.
+        </p>
+      </details>
+
+      <details>
+        <summary>Why convert SVG to PNG?</summary>
+        <p>
+          PNG is universally supported and displays identically on every device. Some older
+          platforms, email clients, and design tools cannot open SVG directly. Converting to
+          PNG produces a fixed-resolution image that works everywhere.
+        </p>
+      </details>
+
+      <details>
+        <summary>Will I lose quality?</summary>
+        <p>
+          The PNG is rendered from the SVG's vector data at the resolution you choose, so the
+          output is as sharp as the target size allows. There is no "quality loss" in the
+          JPEG sense, but the vector information is gone — the PNG cannot be scaled up again
+          without becoming pixelated.
+        </p>
+      </details>
+
+      <details>
+        <summary>What resolution should I choose?</summary>
+        <p>
+          For web use at normal size, Fit Width 800px is usually enough. For retina displays,
+          use 2x or Fit Width 1920px. For print, use 3x or Fit Width 2560px, or a custom size
+          matching your print DPI. Choose Original Size when the SVG's declared dimensions are
+          already correct.
+        </p>
+      </details>
+
+      <details>
+        <summary>Is transparency preserved?</summary>
+        <p>
+          Yes, when the Background option is set to Transparent. Areas outside the SVG's
+          shapes stay transparent in the PNG. If the SVG itself contains a full-page
+          background rectangle, the output will not be transparent regardless of the setting.
+        </p>
+      </details>
+
+      <details>
+        <summary>Will my text render correctly?</summary>
+        <p>
+          Text is rendered in whatever font the browser selects. If the SVG references a font
+          that is installed on your system or embedded in the SVG, the text renders exactly.
+          If not, a fallback font is used, which may shift the layout. Convert text to paths
+          in a vector editor for guaranteed fidelity.
+        </p>
+      </details>
+
+      <details>
+        <summary>Are external images in the SVG loaded?</summary>
+        <p>
+          Only if CORS allows it and the resource is reachable. Inline images (data URLs) always
+          work. External URLs may fail. For the most reliable result, inline all resources into
+          the SVG before converting.
+        </p>
+      </details>
+
+      <details>
+        <summary>Are animations and scripts in the SVG preserved?</summary>
+        <p>
+          No. The SVG is treated as a static image. Animations and scripts are not executed, and
+          the browser renders only the initial state of the SVG. The PNG captures that single
+          frame.
+        </p>
+      </details>
+
+      <details>
+        <summary>Can I convert multiple SVG files at once?</summary>
+        <p>
+          Yes. Drag and drop several SVG files or select them all in the file picker. Each file
+          is converted with the same options. You can then download everything as a ZIP archive
+          or download them individually.
+        </p>
+      </details>
+
+      <details>
+        <summary>Can I set a custom background colour?</summary>
+        <p>
+          Yes. Choose "Custom Color" in the Background dropdown and pick any colour. The
+          transparent areas of the SVG will be filled with that colour in the PNG.
+        </p>
+      </details>
+
+      <details>
+        <summary>Can I use this for icons and favicons?</summary>
+        <p>
+          Yes. Choose Custom Size and enter the exact pixel dimensions you need — for example
+          32 × 32 for a favicon. Set Background to Transparent so the icon blends with any
+          surface.
+        </p>
+      </details>
+
+      <details>
+        <summary>What is the maximum file size?</summary>
+        <p>
+          About 10 MB per SVG. This is generous because SVGs are text files and rarely exceed
+          a few hundred kilobytes. If your SVG is larger, it likely contains embedded raster
+          images; consider flattening it first.
+        </p>
+      </details>
+
     </section>
   </main>
 
