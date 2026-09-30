@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>WebP to JPG Converter - Droplet</title>
-  <meta name="description" content="Convert WebP images to JPG online for free. 100% client-side, your files never leave your browser. Supports batch conversion.">
+  <title>WebP to JPG Converter Online Free – Convert WebP Images | Droplet</title>
+  <meta name="description" content="Convert WebP images to JPG online for free. Handles transparency by filling with white, offers quality control. 100% client-side, private, and free.">
+  <link rel="canonical" href="https://dropletweb.xyz/webp-to-jpg">
 
   <!-- ===== GOOGLE ADSENSE ===== -->
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4006702663328202"
@@ -85,6 +86,98 @@
     .badge-images { background: #dbeafe; color: #1e40af; }
     .badge-converted { background: #d1fae5; color: #065f46; }
     .badge-size { background: #fef3c7; color: #92400e; }
+
+    /* ============================================================ */
+    /* SEO CONTENT                                                    */
+    /* ============================================================ */
+    .seo-content {
+      max-width: 42rem;
+      margin: 2.5rem auto 1rem;
+      color: #334155;
+      line-height: 1.65;
+    }
+    .seo-content h2 {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #0f172a;
+      margin: 2rem 0 0.5rem;
+    }
+    .seo-content p {
+      margin-bottom: 1rem;
+      font-size: 0.95rem;
+    }
+    .seo-content ul {
+      padding-left: 1.4rem;
+      margin-bottom: 1rem;
+      font-size: 0.95rem;
+    }
+    .seo-content li {
+      margin-bottom: 0.3rem;
+    }
+    .seo-content table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 1rem;
+      font-size: 0.9rem;
+    }
+    .seo-content th {
+      background: #f1f5f9;
+      padding: 8px 12px;
+      text-align: left;
+      border: 1px solid #e2e8f0;
+      font-weight: 700;
+      color: #0f172a;
+    }
+    .seo-content td {
+      padding: 8px 12px;
+      border: 1px solid #e2e8f0;
+      color: #475569;
+    }
+    .faq-section {
+      max-width: 42rem;
+      margin: 2rem auto;
+    }
+    .faq-section h2 {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #0f172a;
+      text-align: center;
+      margin-bottom: 1.25rem;
+    }
+    .faq-section details {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 0.75rem;
+      padding: 0.75rem 1.25rem;
+      margin-bottom: 0.6rem;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .faq-section summary {
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: #0f172a;
+      cursor: pointer;
+      list-style: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .faq-section summary::-webkit-details-marker { display: none; }
+    .faq-section summary::after {
+      content: "➕";
+      font-size: 0.8rem;
+      color: #94a3b8;
+      transition: transform 0.2s;
+    }
+    .faq-section details[open] summary::after {
+      content: "➖";
+    }
+    .faq-section details p {
+      margin-top: 0.6rem;
+      font-size: 0.9rem;
+      color: #475569;
+      line-height: 1.6;
+    }
 
     /* ============================================ */
     /* DARK MODE OVERRIDES */
@@ -236,6 +329,14 @@
     html.dark .image-grid .image-card:hover {
       border-color: #3b82f6;
     }
+    html.dark .seo-content { color: #cbd5e1; }
+    html.dark .seo-content h2 { color: #f1f5f9; }
+    html.dark .seo-content th { background: #1e293b; color: #f1f5f9; border-color: #334155; }
+    html.dark .seo-content td { border-color: #334155; color: #cbd5e1; }
+    html.dark .faq-section h2 { color: #f1f5f9; }
+    html.dark .faq-section details { background: #1e293b; border-color: #334155; }
+    html.dark .faq-section summary { color: #f1f5f9; }
+    html.dark .faq-section details p { color: #94a3b8; }
 
     /* Theme toggle in header */
     #theme-toggle {
@@ -321,8 +422,8 @@
       <div class="flex items-start gap-3">
         <span class="text-2xl">🖼️</span>
         <div>
-          <h4 class="font-bold text-sm text-blue-900">What is WebP?</h4>
-          <p class="text-xs text-blue-700 mt-1">WebP is a modern image format developed by Google that offers superior compression compared to JPG and PNG. However, not all devices and platforms support WebP. Converting to JPG ensures universal compatibility.</p>
+          <h4 class="font-bold text-sm text-blue-900">What this tool does — read this first</h4>
+          <p class="text-xs text-blue-700 mt-1">The converter decodes your WebP file with the browser's built-in decoder, draws it onto a canvas, and writes the result out as a JPG. <strong>JPEG does not support transparency.</strong> Any transparent areas in the source WebP are filled with solid white before the JPG is written.</p>
         </div>
       </div>
     </div>
@@ -471,62 +572,306 @@
       </div>
     </div>
 
-    <!-- WebP vs JPG Comparison -->
-    <section class="max-w-2xl mx-auto mt-12">
-      <h2 class="text-xl font-black text-slate-900 text-center mb-6">WebP vs JPG Comparison</h2>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm flex items-center gap-2">
-            <span class="text-xl">🟢</span> WebP
-          </h3>
-          <ul class="text-sm text-slate-600 mt-2 space-y-1">
-            <li>✅ Smaller file size (up to 30% less than JPG)</li>
-            <li>✅ Supports transparency (alpha channel)</li>
-            <li>✅ Supports animation</li>
-            <li>❌ Limited browser/device support</li>
-            <li>❌ Not compatible with older software</li>
-          </ul>
-        </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm flex items-center gap-2">
-            <span class="text-xl">🔵</span> JPG
-          </h3>
-          <ul class="text-sm text-slate-600 mt-2 space-y-1">
-            <li>✅ Universal compatibility</li>
-            <li>✅ Supported everywhere</li>
-            <li>✅ Great for photos and realistic images</li>
-            <li>❌ Larger file size than WebP</li>
-            <li>❌ No transparency support</li>
-          </ul>
-        </div>
-      </div>
+    <!-- ============================================================ -->
+    <!-- SEO CONTENT — Transparency, quality, file size                -->
+    <!-- ============================================================ -->
+    <section class="seo-content">
+      <h2>How WebP to JPG Conversion Works</h2>
+      <p>
+        The converter hands your WebP file to the browser's built-in WebP decoder, reads the
+        decoded pixels, draws them onto an HTML canvas, and then encodes the canvas as a JPEG.
+        This is a decode-then-re-encode pipeline, and it runs entirely on your device.
+      </p>
+      <p>
+        Everything happens locally. Your file is never uploaded, and the output is written
+        straight to your device through a Blob URL.
+      </p>
+
+      <h2>The Transparency Problem — JPEG Has No Alpha Channel</h2>
+      <p>
+        This is the most important thing to understand about converting WebP to JPG.
+        <strong>WebP supports transparency. JPEG does not.</strong> There is no alpha channel
+        in a JPEG file, and the format has no mechanism for expressing "this pixel is partially
+        or fully see-through".
+      </p>
+      <p>
+        When a WebP image has transparent areas — the background of a logo, the cut-out edge of
+        a product photo, the shadow around a sticker — those pixels cannot be carried into the
+        JPG as-is. They must be replaced with something. The two options are:
+      </p>
+      <ul>
+        <li><strong>Fill with a solid colour.</strong> Every transparent pixel is replaced with
+            that colour. This is what this converter does.</li>
+        <li><strong>Leave them undefined.</strong> The JPEG encoder would either write black
+            or garbage. This is not useful.</li>
+      </ul>
+
+      <h2>What Background Does Droplet Use?</h2>
+      <p>
+        Droplet fills every transparent pixel with <strong>solid white (#FFFFFF)</strong> before
+        the JPEG is encoded. This is the same convention used by every mainstream image editor
+        (Photoshop, GIMP, Affinity Photo) when flattening a transparent layer for JPEG export.
+      </p>
+      <p>
+        The practical effect: if your WebP logo has a transparent background, the resulting JPG
+        logo will have a white background. If your WebP product photo has a transparent
+        background, the JPG will show a white background behind the product.
+      </p>
+      <p>
+        There is no option to change the fill colour in this version. If you need a different
+        background — black, a brand colour, a photo — you would need to composite the WebP onto
+        that background in an image editor before converting.
+      </p>
+      <p>
+        If you <strong>must</strong> keep transparency, choose the PNG option in the Output
+        Format dropdown. PNG supports an alpha channel and preserves transparent pixels exactly.
+      </p>
+
+      <h2>When Transparency Does Not Matter</h2>
+      <p>
+        Most WebP photos in the wild are fully opaque. A photograph taken by a camera does not
+        have transparency, and neither does a screenshot of a webpage or a saved chart. For
+        these files, the transparency issue is irrelevant — every pixel already has a colour, and
+        the JPG output looks exactly like the source.
+      </p>
+      <p>
+        The transparency problem only matters for images that were specifically authored with
+        transparency: logos, icons, stickers, cut-out product shots, graphics on a design canvas.
+      </p>
+
+      <h2>Quality Control — What the Setting Actually Does</h2>
+      <p>
+        JPEG is a lossy format. Every time an image is saved as JPEG, the encoder discards some
+        visual information to reduce file size. The quality setting controls how aggressive that
+        discard is.
+      </p>
+      <table>
+        <thead>
+          <tr>
+            <th>Setting</th>
+            <th>Quality Value</th>
+            <th>Typical Use</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>High (Smaller)</td>
+            <td>0.70</td>
+            <td>Email attachments, quick previews, thumbnails, mobile screens</td>
+          </tr>
+          <tr>
+            <td>Very High</td>
+            <td>0.85</td>
+            <td>General use, sharing, archiving — the default</td>
+          </tr>
+          <tr>
+            <td>Maximum (Larger)</td>
+            <td>0.95</td>
+            <td>Printing, detailed photos, further editing</td>
+          </tr>
+        </tbody>
+      </table>
+      <p>
+        At 0.95, the difference from the original is usually invisible to the eye. At 0.70, you
+        may notice slight blurring around sharp edges, faint banding in smooth gradients, and
+        softening of fine text. For photos viewed at normal size, 0.85 is a good balance.
+      </p>
+      <p>
+        Note that re-encoding an image that was already a lossy WebP introduces a second
+        generation of lossy compression. WebP lossy artefacts and JPEG lossy artefacts do not
+        cancel out — they compound. For the best result, use Maximum quality when the source was
+        already lossy.
+      </p>
+
+      <h2>File Size Differences</h2>
+      <p>
+        WebP and JPEG are both lossy formats with similar compression technology, but WebP
+        generally achieves smaller files at the same visual quality. Typical comparisons:
+      </p>
+      <ul>
+        <li><strong>WebP to JPG at the same quality level:</strong> the JPG is usually 20–40%
+            larger.</li>
+        <li><strong>WebP to JPG at the maximum quality:</strong> the JPG can be 2–3× larger.</li>
+        <li><strong>Lossless WebP to JPG:</strong> the JPG will usually be much smaller, because
+            JPEG is lossy and discards information while lossless WebP preserves everything.</li>
+      </ul>
+      <p>
+        The practical implication: converting your WebP library to JPG will increase your total
+        storage footprint. The trade-off is universal compatibility. If file size matters more
+        than compatibility, keep the WebP files. If compatibility matters more, use JPG and
+        accept the larger size.
+      </p>
+
+      <h2>Resolution and Image Dimensions</h2>
+      <p>
+        The output JPG uses the source dimensions by default. A 1920 × 1080 WebP becomes a
+        1920 × 1080 JPG. Aspect ratio is always preserved.
+      </p>
+      <p>
+        The Image Size option caps the longest edge at 1920, 1280, or 800 pixels. Original Size
+        keeps the native resolution. When downscaling, the browser uses high-quality
+        interpolation.
+      </p>
+
+      <h2>Metadata</h2>
+      <p>
+        WebP files can carry EXIF and XMP metadata: camera model, GPS coordinates, capture date,
+        editing history. This converter <strong>does not preserve</strong> any of it. The
+        decoded pixels are drawn onto a canvas, and the JPEG encoder writes no EXIF or XMP
+        chunks. The output is a clean JPG with pixel data only.
+      </p>
+      <p>
+        This is good for privacy — a photo shared online will not leak its GPS location — but it
+        means any descriptive metadata attached to the original is lost.
+      </p>
+
+      <h2>Practical Examples</h2>
+      <p>
+        <strong>Converting a WebP photo for a print service:</strong> Upload the WebP, choose
+        Original Size, Maximum quality, and JPG. Since photos have no transparency, the white
+        fill does not apply. The output is accepted by any print service.
+      </p>
+      <p>
+        <strong>Converting a WebP logo for an old CMS:</strong> Upload the WebP logo, choose
+        Original Size, Very High quality, and JPG. The transparent background becomes white. If
+        the logo will be placed on a coloured background, it will show a white box around it —
+        in that case, use PNG instead.
+      </p>
+      <p>
+        <strong>Reducing size for email:</strong> Upload the WebP photos, choose 1280px, High
+        quality. The output is a small JPG suitable for email attachments.
+      </p>
+      <p>
+        <strong>Converting a screenshot for a documentation platform:</strong> Upload the WebP
+        screenshot, choose Original Size, Very High quality, JPG. Screenshots are usually
+        opaque, so no background fill is applied.
+      </p>
+      <p>
+        <strong>Converting a transparent icon where the white fill is acceptable:</strong> Upload
+        the WebP icon, choose Original Size, Maximum quality, JPG. The icon appears on a white
+        square. Use this when the icon will be placed on a white surface anyway.
+      </p>
+
+      <h2>Privacy — Client-Side Conversion</h2>
+      <p>
+        The WebP is decoded by the browser's built-in decoder, rendered onto a canvas, and
+        written out as a JPG. Nothing is uploaded. The only external resources loaded are the
+        libraries themselves from a CDN. You can disconnect from the internet after the page
+        loads and the tool will continue to work for files already loaded.
+      </p>
     </section>
 
-    <!-- FAQ Section -->
-    <section class="max-w-2xl mx-auto mt-12">
-      <h2 class="text-xl font-black text-slate-900 text-center mb-6">Frequently Asked Questions</h2>
-      <div class="space-y-3">
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">Is my data safe?</h3>
-          <p class="text-slate-600 text-sm mt-1">Yes! All conversions happen locally in your browser. Your WebP files are never uploaded to any server and are automatically deleted when you close the page.</p>
-        </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">Why convert WebP to JPG?</h3>
-          <p class="text-slate-600 text-sm mt-1">WebP is great for web use but isn't supported by all devices, software, or older operating systems. Converting to JPG ensures your images can be opened anywhere, shared easily, and uploaded to any platform.</p>
-        </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">Will I lose image quality?</h3>
-          <p class="text-slate-600 text-sm mt-1">JPG is a lossy format, so some quality is lost during conversion. Using the "Maximum" quality setting preserves as much detail as possible. The "Very High" setting offers a good balance of quality and file size.</p>
-        </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">What about transparency?</h3>
-          <p class="text-slate-600 text-sm mt-1">JPG doesn't support transparency. If your WebP image has a transparent background, it will be converted to a white background in JPG. Consider using PNG format if you need transparency.</p>
-        </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">Can I convert multiple files at once?</h3>
-          <p class="text-slate-600 text-sm mt-1">Yes! Drag and drop multiple WebP files or select multiple files using the file picker. Each image will be converted individually, and you can download them all at once as a ZIP file.</p>
-        </div>
-      </div>
+    <!-- ============================================================ -->
+    <!-- FAQ SECTION                                                   -->
+    <!-- ============================================================ -->
+    <section class="faq-section">
+      <h2>WebP to JPG Questions</h2>
+
+      <details>
+        <summary>Is my data safe?</summary>
+        <p>
+          Yes. All conversion happens locally in your browser. Your WebP files are never uploaded
+          to any server. You can disconnect from the internet after the page loads and the tool
+          will continue to work.
+        </p>
+      </details>
+
+      <details>
+        <summary>Why convert WebP to JPG?</summary>
+        <p>
+          WebP is a modern format with excellent compression, but it is not yet supported by all
+          devices, operating systems, and applications. JPG is universally supported and works
+          everywhere — email clients, office software, print services, and legacy systems.
+        </p>
+      </details>
+
+      <details>
+        <summary>Will I lose image quality?</summary>
+        <p>
+          JPEG is a lossy format, so some quality is lost. At the Very High setting (0.85), the
+          loss is imperceptible for most images. At Maximum (0.95), the loss is minimal. At High
+          (0.70), you may notice slight softening around sharp edges and in fine text.
+        </p>
+      </details>
+
+      <details>
+        <summary>What happens to transparent areas in my WebP?</summary>
+        <p>
+          JPEG does not support transparency, so transparent pixels cannot be preserved. Droplet
+          fills every transparent pixel with solid white (#FFFFFF) before encoding the JPG. If
+          your WebP logo had a transparent background, the output JPG will have a white background.
+        </p>
+      </details>
+
+      <details>
+        <summary>Can I choose a different background colour for transparency?</summary>
+        <p>
+          Not in this version. The fill colour is fixed at white. If you need a different
+          background — black, a brand colour, or a photo — composite the WebP onto that background
+          in an image editor before converting.
+        </p>
+      </details>
+
+      <details>
+        <summary>How do I keep transparency?</summary>
+        <p>
+          Choose the PNG option in the Output Format dropdown. PNG supports an alpha channel and
+          preserves transparent pixels exactly. The trade-off is a larger file size than JPG.
+        </p>
+      </details>
+
+      <details>
+        <summary>Will the JPG be larger or smaller than the WebP?</summary>
+        <p>
+          Usually larger. At the same visual quality, a JPG is typically 20–40% larger than the
+          equivalent WebP. At Maximum quality, the JPG can be 2–3× larger. If the source was a
+          lossless WebP, the JPG will usually be much smaller because JPEG is lossy.
+        </p>
+      </details>
+
+      <details>
+        <summary>Which quality setting should I use?</summary>
+        <p>
+          Very High (0.85) is the default and works well for most uses. Choose Maximum (0.95)
+          if you plan to print or edit the JPG further. Choose High (0.70) if file size matters
+          more than detail, for example when emailing.
+        </p>
+      </details>
+
+      <details>
+        <summary>Does re-encoding an already-lossy WebP cause extra quality loss?</summary>
+        <p>
+          Yes. A lossy WebP has already discarded some information, and JPEG discards more. The
+          two rounds of lossy compression compound. For the best result, use Maximum quality when
+          the source was already lossy.
+        </p>
+      </details>
+
+      <details>
+        <summary>Are metadata like GPS and camera info preserved?</summary>
+        <p>
+          No. EXIF, XMP, and container metadata are stripped during conversion. The canvas API
+          works with pixels only, and the JPEG encoder writes no metadata chunks. This is good
+          for privacy but means descriptive metadata is lost.
+        </p>
+      </details>
+
+      <details>
+        <summary>Can I resize the image during conversion?</summary>
+        <p>
+          Yes. Choose an Image Size option to cap the longest edge at 1920, 1280, or 800 pixels.
+          Original Size keeps the native resolution. Aspect ratio is always preserved.
+        </p>
+      </details>
+
+      <details>
+        <summary>What is the maximum file size?</summary>
+        <p>
+          About 50 MB per image. Beyond that, browser memory and rendering speed become limiting
+          factors. For very large images, resize them first or convert them in a smaller batch.
+        </p>
+      </details>
+
     </section>
   </main>
 
@@ -640,7 +985,6 @@
 
       for (let i = 0; i < fileList.length; i++) {
         const file = fileList[i];
-        // Check if WebP or other image
         const isWebP = file.type === 'image/webp' || file.name.toLowerCase().endsWith('.webp');
         const isImage = file.type.startsWith('image/');
         
@@ -663,7 +1007,6 @@
         alert(`${invalidCount} file(s) were skipped due to size limits or invalid format.`);
       }
 
-      // Add files to the list
       files = validFiles;
       fileCount.textContent = `${files.length} file(s)`;
       totalSizeEl.textContent = `Total: ${(totalSize / 1024 / 1024).toFixed(2)} MB`;
@@ -676,7 +1019,6 @@
       convertBtn.disabled = false;
       convertBtn.textContent = '🔄 Convert All';
 
-      // Show previews
       showPreviews();
     }
 
@@ -737,7 +1079,6 @@
         return;
       }
 
-      // Show progress
       progressContainer.classList.remove('hidden');
       resultSection.classList.add('hidden');
       convertBtn.disabled = true;
@@ -756,20 +1097,17 @@
           const file = files[i];
           statusText.textContent = `Converting ${i + 1} of ${files.length}: ${file.name}`;
 
-          // Update progress
           const progress = Math.round(((i) / files.length) * 80) + 10;
           progressBar.style.width = progress + '%';
           progressText.textContent = progress + '%';
 
           try {
-            // Load the image
             const img = await createImageBitmap(file);
             const canvas = document.createElement('canvas');
             
             let width = img.width;
             let height = img.height;
             
-            // Resize if needed
             if (size !== 'original') {
               const maxSize = parseInt(size);
               if (width > height) {
@@ -789,7 +1127,6 @@
             canvas.height = height;
             const ctx = canvas.getContext('2d');
             
-            // If output format is WebP, preserve transparency if needed
             const mimeType = format === 'jpg' ? 'image/jpeg' : format === 'png' ? 'image/png' : 'image/webp';
             
             // For JPG, fill white background (JPG doesn't support transparency)
@@ -804,12 +1141,10 @@
               canvas.toBlob(resolve, mimeType, quality);
             });
 
-            // Generate filename
             const baseName = file.name.replace(/\.(webp|WEBP)$/, '');
             const ext = format === 'jpg' ? 'jpg' : format;
             const fileName = `${baseName}.${ext}`;
 
-            // Store converted file
             convertedFiles.push({
               blob: blob,
               name: fileName,
@@ -820,7 +1155,6 @@
 
           } catch (err) {
             console.error(`Error converting ${file.name}:`, err);
-            // Add error placeholder
             const errorMsg = `Failed to convert ${file.name}`;
             const textBlob = new Blob([errorMsg], { type: 'text/plain' });
             convertedFiles.push({
@@ -834,12 +1168,10 @@
           }
         }
 
-        // Update progress
         progressBar.style.width = '100%';
         progressText.textContent = '100%';
         statusText.textContent = '✅ Conversion complete!';
 
-        // Show results
         setTimeout(() => {
           showResults();
           convertBtn.disabled = false;
@@ -864,7 +1196,6 @@
       const totalBytes = convertedFiles.reduce((sum, f) => sum + f.size, 0);
       totalSizeBadge.textContent = `${(totalBytes / 1024 / 1024).toFixed(2)} MB`;
 
-      // Show download links
       downloadLinksContainer.innerHTML = '';
       convertedFiles.forEach((f, idx) => {
         if (!f.error) {
@@ -887,7 +1218,6 @@
         return;
       }
 
-      // Check if there's only one file
       if (convertedFiles.length === 1) {
         const f = convertedFiles[0];
         if (!f.error) {
@@ -901,7 +1231,6 @@
         return;
       }
 
-      // For multiple files, use JSZip if available
       if (typeof JSZip !== 'undefined') {
         const zip = new JSZip();
         convertedFiles.forEach(f => {
@@ -921,7 +1250,6 @@
           URL.revokeObjectURL(url);
         });
       } else {
-        // Fallback: download each file individually
         downloadAllIndividual();
       }
     }
@@ -941,7 +1269,6 @@
       });
     }
 
-    // Keyboard shortcut: Enter to convert
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' && !fileInfo.classList.contains('hidden') && !convertBtn.disabled) {
         convertWebPtoJPG();
