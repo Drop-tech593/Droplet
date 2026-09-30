@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AVIF to PNG Converter - Droplet</title>
-  <meta name="description" content="Convert AVIF images to PNG online for free. 100% client-side, your files never leave your browser. Supports batch conversion.">
+  <title>AVIF to PNG Converter Online Free – Convert AVIF Images | Droplet</title>
+  <meta name="description" content="Convert AVIF images to PNG online for free. Handles transparency, preserves quality. 100% client-side, private, and free.">
+  <link rel="canonical" href="https://dropletweb.xyz/avif-to-png">
 
   <!-- Google AdSense -->
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4006702663328202"
@@ -85,6 +86,98 @@
     .badge-images { background: #dbeafe; color: #1e40af; }
     .badge-converted { background: #d1fae5; color: #065f46; }
     .badge-size { background: #fef3c7; color: #92400e; }
+
+    /* ============================================================ */
+    /* SEO CONTENT                                                    */
+    /* ============================================================ */
+    .seo-content {
+      max-width: 42rem;
+      margin: 2.5rem auto 1rem;
+      color: #334155;
+      line-height: 1.65;
+    }
+    .seo-content h2 {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #0f172a;
+      margin: 2rem 0 0.5rem;
+    }
+    .seo-content p {
+      margin-bottom: 1rem;
+      font-size: 0.95rem;
+    }
+    .seo-content ul {
+      padding-left: 1.4rem;
+      margin-bottom: 1rem;
+      font-size: 0.95rem;
+    }
+    .seo-content li {
+      margin-bottom: 0.3rem;
+    }
+    .seo-content table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 1rem;
+      font-size: 0.9rem;
+    }
+    .seo-content th {
+      background: #f1f5f9;
+      padding: 8px 12px;
+      text-align: left;
+      border: 1px solid #e2e8f0;
+      font-weight: 700;
+      color: #0f172a;
+    }
+    .seo-content td {
+      padding: 8px 12px;
+      border: 1px solid #e2e8f0;
+      color: #475569;
+    }
+    .faq-section {
+      max-width: 42rem;
+      margin: 2rem auto;
+    }
+    .faq-section h2 {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #0f172a;
+      text-align: center;
+      margin-bottom: 1.25rem;
+    }
+    .faq-section details {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 0.75rem;
+      padding: 0.75rem 1.25rem;
+      margin-bottom: 0.6rem;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .faq-section summary {
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: #0f172a;
+      cursor: pointer;
+      list-style: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .faq-section summary::-webkit-details-marker { display: none; }
+    .faq-section summary::after {
+      content: "➕";
+      font-size: 0.8rem;
+      color: #94a3b8;
+      transition: transform 0.2s;
+    }
+    .faq-section details[open] summary::after {
+      content: "➖";
+    }
+    .faq-section details p {
+      margin-top: 0.6rem;
+      font-size: 0.9rem;
+      color: #475569;
+      line-height: 1.6;
+    }
 
     /* ============================================ */
     /* DARK MODE OVERRIDES */
@@ -236,6 +329,14 @@
     html.dark .image-grid .image-card:hover {
       border-color: #3b82f6;
     }
+    html.dark .seo-content { color: #cbd5e1; }
+    html.dark .seo-content h2 { color: #f1f5f9; }
+    html.dark .seo-content th { background: #1e293b; color: #f1f5f9; border-color: #334155; }
+    html.dark .seo-content td { border-color: #334155; color: #cbd5e1; }
+    html.dark .faq-section h2 { color: #f1f5f9; }
+    html.dark .faq-section details { background: #1e293b; border-color: #334155; }
+    html.dark .faq-section summary { color: #f1f5f9; }
+    html.dark .faq-section details p { color: #94a3b8; }
 
     /* Theme toggle in header */
     #theme-toggle {
@@ -321,8 +422,8 @@
       <div class="flex items-start gap-3">
         <span class="text-2xl">🚀</span>
         <div>
-          <h4 class="font-bold text-sm text-blue-900">What is AVIF?</h4>
-          <p class="text-xs text-blue-700 mt-1">AVIF (AV1 Image File Format) is a modern, next-generation image format that offers superior compression compared to JPG, PNG, and WebP. However, not all devices and platforms support AVIF yet. Converting to PNG ensures universal compatibility and lossless quality.</p>
+          <h4 class="font-bold text-sm text-blue-900">What this tool does — read this first</h4>
+          <p class="text-xs text-blue-700 mt-1">The converter decodes your AVIF file with the browser's built-in image decoder, draws it onto a canvas, and writes the result out in the format you choose. Everything runs locally. The output is decoded to 8-bit sRGB, so wide-gamut and HDR content is tone-mapped to standard dynamic range.</p>
         </div>
       </div>
     </div>
@@ -471,62 +572,313 @@
       </div>
     </div>
 
-    <!-- AVIF vs PNG Comparison -->
-    <section class="max-w-2xl mx-auto mt-12">
-      <h2 class="text-xl font-black text-slate-900 text-center mb-6">AVIF vs PNG Comparison</h2>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm flex items-center gap-2">
-            <span class="text-xl">🚀</span> AVIF
-          </h3>
-          <ul class="text-sm text-slate-600 mt-2 space-y-1">
-            <li>✅ Superior compression (up to 50% smaller than WebP)</li>
-            <li>✅ Supports HDR and wide color gamut</li>
-            <li>✅ Supports transparency</li>
-            <li>✅ Next-generation format</li>
-            <li>❌ Limited browser/device support</li>
-          </ul>
-        </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm flex items-center gap-2">
-            <span class="text-xl">🔵</span> PNG
-          </h3>
-          <ul class="text-sm text-slate-600 mt-2 space-y-1">
-            <li>✅ Universal compatibility</li>
-            <li>✅ Lossless quality</li>
-            <li>✅ Supports transparency</li>
-            <li>✅ Supported everywhere</li>
-            <li>❌ Larger file size than AVIF</li>
-          </ul>
-        </div>
-      </div>
+    <!-- ============================================================ -->
+    <!-- SEO CONTENT — Transparency, bit depth, colour profiles        -->
+    <!-- ============================================================ -->
+    <section class="seo-content">
+      <h2>How AVIF to PNG Conversion Works</h2>
+      <p>
+        The converter hands your AVIF file to the browser's built-in AVIF decoder, reads the
+        decoded pixels, draws them onto an HTML canvas, and then re-encodes the canvas in the
+        output format you chose. This is a decode-and-re-encode pipeline, not a simple file rename.
+      </p>
+      <p>
+        Everything runs locally. Your file is never uploaded, and the output is written straight
+        to your device through a Blob URL. The only network request made is to load the libraries
+        that power the page.
+      </p>
+
+      <h2>Transparency</h2>
+      <p>
+        AVIF supports an alpha channel, and so does PNG. When the input AVIF has transparent
+        areas, the alpha channel is preserved in the output PNG. A logo with a transparent
+        background remains transparent after conversion.
+      </p>
+      <p>
+        This behaviour is inherent to the canvas pipeline — the browser keeps the alpha channel
+        when drawing the image, and PNG has a native alpha channel to write it out. No special
+        option is required.
+      </p>
+      <p>
+        If your source AVIF has a solid background (no transparency), the output PNG will also
+        be fully opaque. There is no way to introduce transparency from a fully opaque source.
+      </p>
+
+      <h2>Bit Depth and HDR Limitations</h2>
+      <p>
+        AVIF is capable of storing 10-bit and 12-bit colour, and it can carry HDR metadata for
+        high dynamic range displays. This is one of its key advantages over JPG and WebP.
+      </p>
+      <p>
+        However, the browser's canvas API works in <strong>8-bit sRGB</strong>. When the AVIF
+        decoder outputs a 10-bit or 12-bit image, the canvas flattens it to 8 bits per channel
+        before the conversion can proceed. This means:
+      </p>
+      <ul>
+        <li><strong>HDR content is tone-mapped</strong> to standard dynamic range. Highlights
+            that were above 1.0 in HDR will appear clipped at the maximum sRGB value.</li>
+        <li><strong>10-bit gradients are reduced</strong> to 8-bit precision. Banding that was
+            not visible in the original may appear in smooth gradients after conversion.</li>
+        <li><strong>Wide-gamut colours are clipped</strong> to the sRGB gamut. Rec. 2020 and
+            Display P3 primaries that fall outside sRGB will be mapped to the nearest in-gamut
+            colour, usually with some loss of saturation.</li>
+      </ul>
+      <p>
+        If you need to preserve 10-bit precision or HDR metadata, PNG is not the right output
+        format. Use a tool that supports 16-bit PNG output and HDR-aware colour management.
+      </p>
+
+      <h2>Colour Profiles and Colour Management</h2>
+      <p>
+        AVIF files can carry an embedded ICC profile or declare a colour space in their
+        container metadata. Common colour spaces for AVIF include sRGB, Display P3, and Rec.
+        2020.
+      </p>
+      <p>
+        The browser's decoder applies the file's declared colour space to interpret the pixel
+        values, then the canvas draws them in its working space, which is sRGB. As a result:
+      </p>
+      <ul>
+        <li><strong>sRGB AVIF files</strong> pass through unchanged. This is the most common
+            case, since most AVIF content is authored in sRGB.</li>
+        <li><strong>Display P3 AVIF files</strong> are converted to sRGB. Colours inside the
+            sRGB gamut look the same; colours outside are clipped toward the boundary.</li>
+        <li><strong>Rec. 2020 AVIF files</strong> are converted to sRGB with visible saturation
+            loss for highly saturated colours.</li>
+      </ul>
+      <p>
+        The output PNG does not carry any embedded ICC profile. It is treated as sRGB by default
+        by every consumer of the file. This is the safest choice because sRGB is universally
+        understood, but it does mean that any wide-gamut information in the source is lost.
+      </p>
+
+      <h2>Browser Decoding — What Depends on Your Browser</h2>
+      <p>
+        This tool does not implement its own AVIF decoder. It relies entirely on the browser's
+        built-in decoder. That has three practical consequences:
+      </p>
+      <ul>
+        <li><strong>Modern browsers decode AVIF natively.</strong> Chrome 85+, Firefox 92+,
+            Safari 16.4+, and Edge 121+ all include AVIF decoders. On these browsers, the tool
+            works directly.</li>
+        <li><strong>Older browsers cannot decode AVIF.</strong> If the browser does not include
+            an AVIF decoder, the file will fail to load and the conversion will not proceed.
+            You will see an error message in the results panel.</li>
+        <li><strong>Decoding behaviour varies slightly between browsers.</strong> Different
+            browser versions handle HDR tone mapping, gamut mapping, and edge cases in the AVIF
+            spec differently. The same file may produce slightly different pixel values in
+            Chrome vs Safari.</li>
+      </ul>
+      <p>
+        This is why the tool is honest about its dependencies. It is not a standalone decoder;
+        it is a client-side wrapper around the browser's decoder plus a re-encoder. For most
+        sRGB 8-bit AVIF content, the result is essentially identical to the source. For HDR or
+        wide-gamut content, the browser's tone mapping determines the output.
+      </p>
+
+      <h2>Metadata — What Gets Stripped and Why</h2>
+      <p>
+        AVIF files can carry a substantial amount of metadata: EXIF (camera make, model, GPS
+        coordinates, capture date), XMP (editing history, keywords, ratings), and container
+        metadata (colour profile, HDR signalling, alpha premultiplied flag).
+      </p>
+      <p>
+        During conversion, all of this metadata is discarded. Here is why:
+      </p>
+      <ul>
+        <li><strong>The canvas has no metadata API.</strong> When the browser draws an image
+            onto a canvas, only pixels are transferred. Metadata attached to the source image
+            does not survive.</li>
+        <li><strong>The PNG encoder writes only pixel data plus basic dimensions.</strong> The
+            Blob produced by <code>canvas.toBlob()</code> contains no EXIF or XMP chunks.</li>
+        <li><strong>Privacy is a benefit.</strong> Stripping GPS coordinates and camera
+            information makes it safer to share converted images publicly.</li>
+      </ul>
+      <p>
+        If you need to preserve metadata, you would need a dedicated tool that reads the AVIF
+        container, extracts metadata, and re-embeds it in the PNG. That is outside the scope of
+        a browser-only converter.
+      </p>
+
+      <h2>Resolution and Image Dimensions</h2>
+      <p>
+        The output image uses the source dimensions by default. A 1920 × 1080 AVIF becomes a
+        1920 × 1080 PNG. Aspect ratio is always preserved.
+      </p>
+      <p>
+        The Image Size option caps the longest edge at 3840, 1920, 1280, or 800 pixels. When
+        downscaling is applied, the browser uses high-quality interpolation. Original Size keeps
+        the native resolution with no resampling.
+      </p>
+
+      <h2>What Is Preserved and What Is Not</h2>
+      <p>
+        Preserved:
+      </p>
+      <ul>
+        <li>Pixel values in 8-bit sRGB (subject to the tone-mapping and gamut-mapping described
+            above).</li>
+        <li>The alpha channel, when the source has transparency.</li>
+        <li>Image dimensions and aspect ratio (unless downscaled).</li>
+      </ul>
+      <p>
+        Not preserved:
+      </p>
+      <ul>
+        <li>EXIF, XMP, and container metadata.</li>
+        <li>HDR metadata and 10-bit / 12-bit precision.</li>
+        <li>Embedded ICC colour profiles.</li>
+        <li>Any animation (AVIF supports image sequences; only the first frame is converted).</li>
+      </ul>
+
+      <h2>Practical Examples</h2>
+      <p>
+        <strong>Converting a downloaded AVIF photo to PNG for editing:</strong> Upload the AVIF,
+        choose Original Size and Colour. The PNG opens in any editor and is treated as sRGB.
+      </p>
+      <p>
+        <strong>Preparing an AVIF logo for use on a website:</strong> Upload the AVIF, choose
+        Original Size. Transparency is preserved and the PNG embeds cleanly on any background.
+      </p>
+      <p>
+        <strong>Converting AVIF screenshots for a documentation tool:</strong> Upload the AVIFs,
+        choose HD (1920px) and Colour. The output PNGs are accepted by every documentation
+        platform.
+      </p>
+      <p>
+        <strong>Reducing size for email:</strong> Upload the AVIFs, choose Web (800px), and set
+        the Output Format to JPG. The result is a small, universally compatible file.
+      </p>
+      <p>
+        <strong>Producing grayscale thumbnails:</strong> Upload the AVIFs, choose Web (800px),
+        Grayscale, and PNG. The output is a small, lossless thumbnail suitable for contact
+        sheets and previews.
+      </p>
+
+      <h2>Privacy — Client-Side Conversion</h2>
+      <p>
+        The AVIF is decoded by the browser's built-in decoder, rendered onto a canvas, and
+        written out as a fresh file. Nothing is uploaded. The only external resources loaded
+        are the libraries themselves from a CDN. You can disconnect from the internet after the
+        page loads and the tool will continue to work for already-loaded files.
+      </p>
     </section>
 
-    <!-- FAQ Section -->
-    <section class="max-w-2xl mx-auto mt-12">
-      <h2 class="text-xl font-black text-slate-900 text-center mb-6">Frequently Asked Questions</h2>
-      <div class="space-y-3">
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">Is my data safe?</h3>
-          <p class="text-slate-600 text-sm mt-1">Yes! All conversions happen locally in your browser. Your AVIF files are never uploaded to any server and are automatically deleted when you close the page.</p>
-        </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">Why convert AVIF to PNG?</h3>
-          <p class="text-slate-600 text-sm mt-1">AVIF is a modern format with excellent compression, but it's not yet supported by all devices and platforms. PNG is universally supported and offers lossless quality, making it ideal for sharing, printing, or editing.</p>
-        </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">Will I lose image quality?</h3>
-          <p class="text-slate-600 text-sm mt-1">PNG is a lossless format, so no quality is lost during conversion. The converted image will be an exact pixel-perfect representation of your original AVIF image.</p>
-        </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">What browsers support AVIF?</h3>
-          <p class="text-slate-600 text-sm mt-1">AVIF is supported in Chrome 85+, Firefox 92+, Safari 16.4+, and Edge 121+. Older browsers may not display AVIF images, which is why converting to PNG is often necessary.</p>
-        </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">Can I convert multiple files at once?</h3>
-          <p class="text-slate-600 text-sm mt-1">Yes! Drag and drop multiple AVIF files or select multiple files using the file picker. Each image will be converted individually, and you can download them all at once as a ZIP file.</p>
-        </div>
-      </div>
+    <!-- ============================================================ -->
+    <!-- FAQ SECTION                                                   -->
+    <!-- ============================================================ -->
+    <section class="faq-section">
+      <h2>AVIF to PNG Questions</h2>
+
+      <details>
+        <summary>Is my data safe?</summary>
+        <p>
+          Yes. All conversion happens locally in your browser. Your AVIF files are never uploaded
+          to any server. You can disconnect from the internet after the page loads and the tool
+          will continue to work for files that are already loaded.
+        </p>
+      </details>
+
+      <details>
+        <summary>Why convert AVIF to PNG?</summary>
+        <p>
+          AVIF is a modern format with excellent compression, but it is not yet supported by all
+          devices, applications, and platforms. PNG is universally supported and offers lossless
+          quality, making it ideal for sharing, editing, and printing.
+        </p>
+      </details>
+
+      <details>
+        <summary>Will I lose image quality?</summary>
+        <p>
+          The pixel data is preserved as closely as the browser's decoder allows. For 8-bit sRGB
+          AVIF content, the PNG is essentially pixel-identical. For 10-bit, HDR, or wide-gamut
+          AVIF content, the browser tone-maps and gamut-maps to 8-bit sRGB, which does involve
+          some loss of detail and colour.
+        </p>
+      </details>
+
+      <details>
+        <summary>Is transparency preserved?</summary>
+        <p>
+          Yes. AVIF and PNG both support an alpha channel, and the canvas pipeline preserves it.
+          Transparent areas of the source AVIF stay transparent in the output PNG.
+        </p>
+      </details>
+
+      <details>
+        <summary>What about 10-bit and HDR AVIF files?</summary>
+        <p>
+          The browser's canvas works in 8-bit sRGB. When the AVIF decoder outputs 10-bit or HDR
+          content, the canvas flattens it to 8 bits and tone-maps HDR values into the standard
+          sRGB range. Highlights that were above 1.0 in HDR will be clipped. If you need to
+          preserve HDR, use a tool that supports 16-bit PNG output and HDR colour management.
+        </p>
+      </details>
+
+      <details>
+        <summary>What happens to wide-gamut colour spaces?</summary>
+        <p>
+          Display P3 and Rec. 2020 AVIF files are converted to sRGB. Colours inside the sRGB
+          gamut look the same; colours outside are clipped toward the sRGB boundary. The output
+          PNG carries no ICC profile and is treated as sRGB.
+        </p>
+      </details>
+
+      <details>
+        <summary>Are metadata like GPS and camera info preserved?</summary>
+        <p>
+          No. EXIF, XMP, and container metadata are all stripped during conversion. The canvas
+          API works with pixels only, and the PNG encoder writes no metadata chunks. This is
+          good for privacy but means descriptive metadata is lost.
+        </p>
+      </details>
+
+      <details>
+        <summary>Why does my browser refuse to load the AVIF?</summary>
+        <p>
+          The tool relies on the browser's built-in AVIF decoder. Chrome 85+, Firefox 92+,
+          Safari 16.4+, and Edge 121+ include AVIF support. Older browsers do not, and the file
+          will fail to load. Update your browser or use a different one.
+        </p>
+      </details>
+
+      <details>
+        <summary>Can I convert animated AVIF files?</summary>
+        <p>
+          The first frame of an animated AVIF is converted. Subsequent frames and the animation
+          timing are not preserved, because the canvas pipeline captures only the frame that
+          the browser renders on load. For animation conversion, use a dedicated animated-image
+          tool.
+        </p>
+      </details>
+
+      <details>
+        <summary>Can I resize the image during conversion?</summary>
+        <p>
+          Yes. Choose an Image Size option to cap the longest edge at 3840, 1920, 1280, or 800
+          pixels. Original Size keeps the native resolution. Aspect ratio is always preserved.
+        </p>
+      </details>
+
+      <details>
+        <summary>What other output formats are available?</summary>
+        <p>
+          In addition to PNG, the tool can output JPG and WebP. JPG produces smaller files but
+          does not support transparency. WebP supports transparency and produces smaller files
+          than PNG, but is less universally supported than PNG.
+        </p>
+      </details>
+
+      <details>
+        <summary>Can I convert multiple files at once?</summary>
+        <p>
+          Yes. Drag and drop several AVIF files or select them all in the file picker. Each
+          file is converted independently. You can then download everything as a ZIP archive
+          or download them individually.
+        </p>
+      </details>
+
     </section>
   </main>
 
@@ -640,7 +992,6 @@
 
       for (let i = 0; i < fileList.length; i++) {
         const file = fileList[i];
-        // Check if AVIF or other image
         const isAVIF = file.type === 'image/avif' || file.name.toLowerCase().endsWith('.avif');
         const isImage = file.type.startsWith('image/');
         
@@ -663,7 +1014,6 @@
         alert(`${invalidCount} file(s) were skipped due to size limits or invalid format.`);
       }
 
-      // Add files to the list
       files = validFiles;
       fileCount.textContent = `${files.length} file(s)`;
       totalSizeEl.textContent = `Total: ${(totalSize / 1024 / 1024).toFixed(2)} MB`;
@@ -676,7 +1026,6 @@
       convertBtn.disabled = false;
       convertBtn.textContent = '🔄 Convert All';
 
-      // Show previews
       showPreviews();
     }
 
@@ -737,7 +1086,6 @@
         return;
       }
 
-      // Show progress
       progressContainer.classList.remove('hidden');
       resultSection.classList.add('hidden');
       convertBtn.disabled = true;
@@ -756,20 +1104,17 @@
           const file = files[i];
           statusText.textContent = `Converting ${i + 1} of ${files.length}: ${file.name}`;
 
-          // Update progress
           const progress = Math.round(((i) / files.length) * 80) + 10;
           progressBar.style.width = progress + '%';
           progressText.textContent = progress + '%';
 
           try {
-            // Load the image
             const img = await createImageBitmap(file);
             const canvas = document.createElement('canvas');
             
             let width = img.width;
             let height = img.height;
             
-            // Resize if needed
             if (size !== 'original') {
               const maxSize = parseInt(size);
               if (width > height) {
@@ -789,14 +1134,12 @@
             canvas.height = height;
             const ctx = canvas.getContext('2d');
             
-            // Apply grayscale if selected
             if (color === 'grayscale') {
               ctx.filter = 'grayscale(100%)';
             }
             
             ctx.drawImage(img, 0, 0, width, height);
             
-            // Determine output format and quality
             const mimeType = format === 'png' ? 'image/png' : format === 'jpg' ? 'image/jpeg' : 'image/webp';
             const quality = format === 'jpg' ? 0.92 : format === 'webp' ? 0.92 : undefined;
             
@@ -804,12 +1147,10 @@
               canvas.toBlob(resolve, mimeType, quality);
             });
 
-            // Generate filename with dropletweb prefix
             const baseName = file.name.replace(/\.(avif|AVIF)$/, '');
             const ext = format === 'png' ? 'png' : format === 'jpg' ? 'jpg' : 'webp';
             const fileName = `dropletweb-${baseName}.${ext}`;
 
-            // Store converted file
             convertedFiles.push({
               blob: blob,
               name: fileName,
@@ -820,7 +1161,6 @@
 
           } catch (err) {
             console.error(`Error converting ${file.name}:`, err);
-            // Try fallback: use Image object instead of createImageBitmap
             try {
               const img = new Image();
               const url = URL.createObjectURL(file);
@@ -895,12 +1235,10 @@
           }
         }
 
-        // Update progress
         progressBar.style.width = '100%';
         progressText.textContent = '100%';
         statusText.textContent = '✅ Conversion complete!';
 
-        // Show results
         setTimeout(() => {
           showResults();
           convertBtn.disabled = false;
@@ -925,7 +1263,6 @@
       const totalBytes = convertedFiles.reduce((sum, f) => sum + f.size, 0);
       totalSizeBadge.textContent = `${(totalBytes / 1024 / 1024).toFixed(2)} MB`;
 
-      // Show download links
       downloadLinksContainer.innerHTML = '';
       convertedFiles.forEach((f, idx) => {
         if (!f.error) {
@@ -948,7 +1285,6 @@
         return;
       }
 
-      // Check if there's only one file
       if (convertedFiles.length === 1) {
         const f = convertedFiles[0];
         if (!f.error) {
@@ -962,7 +1298,6 @@
         return;
       }
 
-      // For multiple files, use JSZip if available
       if (typeof JSZip !== 'undefined') {
         const zip = new JSZip();
         convertedFiles.forEach(f => {
@@ -981,7 +1316,6 @@
           URL.revokeObjectURL(url);
         });
       } else {
-        // Fallback: download each file individually
         downloadAllIndividual();
       }
     }
@@ -1001,7 +1335,6 @@
       });
     }
 
-    // Keyboard shortcut: Enter to convert
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' && !fileInfo.classList.contains('hidden') && !convertBtn.disabled) {
         convertAVIFtoPNG();
