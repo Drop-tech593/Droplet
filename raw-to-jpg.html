@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RAW to JPG Converter - Droplet</title>
-  <meta name="description" content="Convert RAW camera files to JPG online for free. 100% client-side, your files never leave your browser. Supports multiple RAW formats.">
+  <title>RAW to JPG Converter Online Free – Convert Camera RAW Files | Droplet</title>
+  <meta name="description" content="Convert camera RAW files to JPG online for free. Handles TIFF-based RAW formats (DNG and some others). 100% client-side, private, and free.">
+  <link rel="canonical" href="https://dropletweb.xyz/raw-to-jpg">
 
   <!-- ===== GOOGLE ADSENSE ===== -->
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4006702663328202"
@@ -13,7 +14,7 @@
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
 
-  <!-- UTIF.js for RAW/ TIFF parsing -->
+  <!-- UTIF.js for TIFF-based RAW parsing -->
   <script src="https://cdn.jsdelivr.net/npm/utif@3.1.0/UTIF.min.js"></script>
 
   <!-- JSZip for bulk download -->
@@ -89,6 +90,98 @@
     .badge-converted { background: #d1fae5; color: #065f46; }
     .badge-size { background: #fef3c7; color: #92400e; }
     .badge-raw { background: #fce7f3; color: #9d174d; }
+
+    /* ============================================================ */
+    /* SEO CONTENT                                                    */
+    /* ============================================================ */
+    .seo-content {
+      max-width: 42rem;
+      margin: 2.5rem auto 1rem;
+      color: #334155;
+      line-height: 1.65;
+    }
+    .seo-content h2 {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #0f172a;
+      margin: 2rem 0 0.5rem;
+    }
+    .seo-content p {
+      margin-bottom: 1rem;
+      font-size: 0.95rem;
+    }
+    .seo-content ul {
+      padding-left: 1.4rem;
+      margin-bottom: 1rem;
+      font-size: 0.95rem;
+    }
+    .seo-content li {
+      margin-bottom: 0.3rem;
+    }
+    .seo-content table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 1rem;
+      font-size: 0.9rem;
+    }
+    .seo-content th {
+      background: #f1f5f9;
+      padding: 8px 12px;
+      text-align: left;
+      border: 1px solid #e2e8f0;
+      font-weight: 700;
+      color: #0f172a;
+    }
+    .seo-content td {
+      padding: 8px 12px;
+      border: 1px solid #e2e8f0;
+      color: #475569;
+    }
+    .faq-section {
+      max-width: 42rem;
+      margin: 2rem auto;
+    }
+    .faq-section h2 {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #0f172a;
+      text-align: center;
+      margin-bottom: 1.25rem;
+    }
+    .faq-section details {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 0.75rem;
+      padding: 0.75rem 1.25rem;
+      margin-bottom: 0.6rem;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .faq-section summary {
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: #0f172a;
+      cursor: pointer;
+      list-style: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .faq-section summary::-webkit-details-marker { display: none; }
+    .faq-section summary::after {
+      content: "➕";
+      font-size: 0.8rem;
+      color: #94a3b8;
+      transition: transform 0.2s;
+    }
+    .faq-section details[open] summary::after {
+      content: "➖";
+    }
+    .faq-section details p {
+      margin-top: 0.6rem;
+      font-size: 0.9rem;
+      color: #475569;
+      line-height: 1.6;
+    }
 
     /* ============================================ */
     /* DARK MODE OVERRIDES */
@@ -196,6 +289,18 @@
     html.dark .text-blue-700 {
       color: #60a5fa !important;
     }
+    html.dark .bg-amber-50 {
+      background: #3b2e1e !important;
+    }
+    html.dark .border-amber-200 {
+      border-color: #78350f !important;
+    }
+    html.dark .text-amber-900 {
+      color: #fcd34d !important;
+    }
+    html.dark .text-amber-700 {
+      color: #fbbf24 !important;
+    }
     html.dark footer {
       background: #0f172a !important;
       border-color: #334155 !important;
@@ -247,6 +352,14 @@
       background: #3b1e2e;
       color: #f9a8d4;
     }
+    html.dark .seo-content { color: #cbd5e1; }
+    html.dark .seo-content h2 { color: #f1f5f9; }
+    html.dark .seo-content th { background: #1e293b; color: #f1f5f9; border-color: #334155; }
+    html.dark .seo-content td { border-color: #334155; color: #cbd5e1; }
+    html.dark .faq-section h2 { color: #f1f5f9; }
+    html.dark .faq-section details { background: #1e293b; border-color: #334155; }
+    html.dark .faq-section summary { color: #f1f5f9; }
+    html.dark .faq-section details p { color: #94a3b8; }
 
     /* Theme toggle in header */
     #theme-toggle {
@@ -327,39 +440,15 @@
       </p>
     </div>
 
-    <!-- What is RAW Info -->
-    <div class="max-w-2xl mx-auto mb-8 bg-blue-50 border border-blue-200 rounded-xl p-4 transition-colors duration-200">
+    <!-- Honest Notice -->
+    <div class="max-w-2xl mx-auto mb-8 bg-amber-50 border border-amber-200 rounded-xl p-4 transition-colors duration-200">
       <div class="flex items-start gap-3">
-        <span class="text-2xl">📷</span>
+        <span class="text-2xl">⚠️</span>
         <div>
-          <h4 class="font-bold text-sm text-blue-900">What is RAW?</h4>
-          <p class="text-xs text-blue-700 mt-1">RAW is a file format that contains unprocessed, minimally processed data from a digital camera's image sensor. It preserves all image data, offering maximum flexibility for editing. Converting to JPG creates a universally compatible, compressed image for sharing and printing.</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- Supported RAW Formats -->
-    <div class="max-w-2xl mx-auto mb-8 bg-white border border-slate-200 rounded-xl p-4 transition-colors duration-200">
-      <div class="flex items-start gap-3">
-        <span class="text-xl">📋</span>
-        <div>
-          <h4 class="font-bold text-sm text-slate-900">Supported RAW Formats</h4>
-          <div class="flex flex-wrap gap-1 mt-1">
-            <span class="text-xs bg-slate-100 px-2 py-1 rounded">.CR2 (Canon)</span>
-            <span class="text-xs bg-slate-100 px-2 py-1 rounded">.CR3 (Canon)</span>
-            <span class="text-xs bg-slate-100 px-2 py-1 rounded">.NEF (Nikon)</span>
-            <span class="text-xs bg-slate-100 px-2 py-1 rounded">.ARW (Sony)</span>
-            <span class="text-xs bg-slate-100 px-2 py-1 rounded">.DNG (Adobe)</span>
-            <span class="text-xs bg-slate-100 px-2 py-1 rounded">.ORF (Olympus)</span>
-            <span class="text-xs bg-slate-100 px-2 py-1 rounded">.RW2 (Panasonic)</span>
-            <span class="text-xs bg-slate-100 px-2 py-1 rounded">.PEF (Pentax)</span>
-            <span class="text-xs bg-slate-100 px-2 py-1 rounded">.RAF (Fujifilm)</span>
-            <span class="text-xs bg-slate-100 px-2 py-1 rounded">.SR2 (Sony)</span>
-            <span class="text-xs bg-slate-100 px-2 py-1 rounded">.KDC (Kodak)</span>
-            <span class="text-xs bg-slate-100 px-2 py-1 rounded">.DCR (Kodak)</span>
-            <span class="text-xs bg-slate-100 px-2 py-1 rounded">.MEF (Mamiya)</span>
-            <span class="text-xs bg-slate-100 px-2 py-1 rounded">.IIQ (Phase One)</span>
-          </div>
+          <h4 class="font-bold text-sm text-amber-900">Please read: RAW support is limited</h4>
+          <p class="text-xs text-amber-700 mt-1">
+            This tool uses the open-source UTIF.js library, which decodes <strong>TIFF-based</strong> containers. It works reliably on <strong>DNG</strong> files (Adobe's open RAW format) and on some older TIFF-based RAW formats. It does <strong>not</strong> decode Canon CR2/CR3, Nikon NEF, Sony ARW, Fuji RAF, or most modern camera RAW files — those require a full raw-demosaic pipeline (dcraw, LibRaw, or similar) that a browser-only tool cannot provide. If your RAW file cannot be decoded here, convert it to DNG or JPG using your camera manufacturer's software first.
+          </p>
         </div>
       </div>
     </div>
@@ -499,8 +588,8 @@
       </div>
       <div class="bg-white p-4 rounded-xl border border-slate-100 text-center transition-colors duration-200">
         <div class="text-2xl mb-1">📷</div>
-        <h4 class="font-bold text-sm">Multiple Formats</h4>
-        <p class="text-xs text-slate-500">Supports all major RAW formats</p>
+        <h4 class="font-bold text-sm">TIFF-Based RAW</h4>
+        <p class="text-xs text-slate-500">DNG and similar formats</p>
       </div>
       <div class="bg-white p-4 rounded-xl border border-slate-100 text-center transition-colors duration-200">
         <div class="text-2xl mb-1">⚡</div>
@@ -509,64 +598,352 @@
       </div>
     </div>
 
-    <!-- RAW vs JPG Comparison -->
-    <section class="max-w-2xl mx-auto mt-12">
-      <h2 class="text-xl font-black text-slate-900 text-center mb-6">RAW vs JPG Comparison</h2>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm flex items-center gap-2">
-            <span class="text-xl">📷</span> RAW
-          </h3>
-          <ul class="text-sm text-slate-600 mt-2 space-y-1">
-            <li>✅ Uncompressed image data</li>
-            <li>✅ Maximum editing flexibility</li>
-            <li>✅ No quality loss</li>
-            <li>✅ Wide dynamic range</li>
-            <li>❌ Large file size</li>
-            <li>❌ Requires special software</li>
-          </ul>
-        </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm flex items-center gap-2">
-            <span class="text-xl">🔵</span> JPG
-          </h3>
-          <ul class="text-sm text-slate-600 mt-2 space-y-1">
-            <li>✅ Universally compatible</li>
-            <li>✅ Small file size</li>
-            <li>✅ Ready to share/print</li>
-            <li>✅ Supported everywhere</li>
-            <li>❌ Lossy compression</li>
-            <li>❌ Limited editing flexibility</li>
-          </ul>
-        </div>
-      </div>
+    <!-- ============================================================ -->
+    <!-- SEO CONTENT — Real details about RAW to JPG                    -->
+    <!-- ============================================================ -->
+    <section class="seo-content">
+      <h2>Which RAW Formats Are Actually Supported</h2>
+      <p>
+        RAW is not a single format. Every camera manufacturer uses its own container: Canon has
+        CR2 and CR3, Nikon has NEF, Sony has ARW, Fujifilm has RAF, Panasonic has RW2, Olympus
+        has ORF, Pentax has PEF, and so on. Underneath, some are TIFF-based (DNG, NEF, CR2 in
+        their older forms) and some are entirely proprietary.
+      </p>
+      <p>
+        This tool uses UTIF.js, which decodes TIFF-based containers. In practice, that means:
+      </p>
+      <table>
+        <thead>
+          <tr>
+            <th>Format</th>
+            <th>Support</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>DNG (Adobe Digital Negative)</td>
+            <td><strong>Reliable</strong></td>
+            <td>TIFF-based, well-supported by UTIF.js. Recommended input format.</td>
+          </tr>
+          <tr>
+            <td>NEF (Nikon)</td>
+            <td>Sometimes</td>
+            <td>TIFF-based container, but the embedded image may be decoded instead of the raw mosaic.</td>
+          </tr>
+          <tr>
+            <td>CR2 (Canon, older)</td>
+            <td>Sometimes</td>
+            <td>TIFF-based; the tool may extract the embedded JPEG preview, not the raw data.</td>
+          </tr>
+          <tr>
+            <td>ARW (Sony)</td>
+            <td>Unreliable</td>
+            <td>Proprietary; the embedded preview may or may not decode.</td>
+          </tr>
+          <tr>
+            <td>CR3 (Canon, newer)</td>
+            <td>No</td>
+            <td>Newer ISO base media container, not TIFF. Not supported.</td>
+          </tr>
+          <tr>
+            <td>RAF (Fujifilm)</td>
+            <td>No</td>
+            <td>Proprietary container with two raw channels. Not supported.</td>
+          </tr>
+          <tr>
+            <td>ORF, RW2, PEF, IIQ, others</td>
+            <td>Variable</td>
+            <td>Depends on whether the container is TIFF-based and how the pixels are stored.</td>
+          </tr>
+        </tbody>
+      </table>
+      <p>
+        If your file cannot be decoded, the most reliable fix is to convert it to DNG in your
+        camera manufacturer's software (Canon DPP, Nikon NX Studio, Sony Imaging Edge, Adobe
+        DNG Converter, etc.) and then upload the DNG here. DNG is Adobe's open format and is
+        designed for exactly this kind of interchange.
+      </p>
+
+      <h2>Colour Processing — What Happens to Your Raw Data</h2>
+      <p>
+        A camera RAW file does not contain an RGB image. It contains a single-channel mosaic of
+        pixel values, where each pixel records only one of R, G, or B — a layout called a Bayer
+        filter array. Turning that mosaic into a viewable image requires:
+      </p>
+      <ul>
+        <li><strong>Demosaicing</strong> — reconstructing three colour channels per pixel by
+            interpolating the values around it.</li>
+        <li><strong>White balance</strong> — applying the camera's colour temperature and tint
+            multipliers to correct the grey point.</li>
+        <li><strong>Colour matrix</strong> — mapping the sensor's colour response to the sRGB
+            working space using a matrix stored in the RAW metadata.</li>
+        <li><strong>Tone curve</strong> — mapping the linear sensor values to a display-referred
+            range, since sensors are linear but human vision is not.</li>
+        <li><strong>Gamma correction</strong> — applying the sRGB transfer curve for display.</li>
+      </ul>
+      <p>
+        <strong>This tool does none of those steps.</strong> UTIF.js, the library used here,
+        performs a rough decode of the TIFF structure and produces pixel data without a full
+        raw pipeline. That means:
+      </p>
+      <ul>
+        <li>Colours may look flat, green-tinted, or otherwise wrong compared to your camera's JPG.</li>
+        <li>Brightness and contrast may be off, because the sensor data is linear and no tone curve is applied.</li>
+        <li>The result will not match what you see in Lightroom, Capture One, or your camera's preview.</li>
+      </ul>
+      <p>
+        If you need accurate colour from a RAW file, use a real raw processor: Lightroom, Capture
+        One, RawTherapee, Darktable, or the manufacturer's own software. This tool is a
+        best-effort browser-based conversion, not a substitute for a proper raw editor.
+      </p>
+
+      <h2>Orientation</h2>
+      <p>
+        Cameras record the orientation of the shot (portrait, landscape, upside-down) in the RAW
+        metadata, and image viewers rotate the photo to match when they display it. This tool
+        does <strong>not</strong> apply that rotation. If your camera was held sideways when
+        the photo was taken, the JPG may appear rotated 90° from how you expect it.
+      </p>
+      <p>
+        To fix it: rotate the JPG afterwards in any image viewer or editor, or set the image
+        orientation in your camera before shooting. There is no orientation option in this tool
+        because the tool does not read the orientation tag reliably across all RAW formats.
+      </p>
+
+      <h2>EXIF — Preserved or Lost?</h2>
+      <p>
+        <strong>All EXIF metadata is lost in the conversion.</strong> The output JPG contains
+        only pixel data. The following are not carried over:
+      </p>
+      <ul>
+        <li>Camera make and model</li>
+        <li>Lens information</li>
+        <li>Exposure settings (shutter speed, aperture, ISO)</li>
+        <li>GPS coordinates</li>
+        <li>Capture timestamp</li>
+        <li>White balance as recorded by the camera</li>
+        <li>Colour space tag</li>
+        <li>Orientation tag</li>
+      </ul>
+      <p>
+        The reason is technical: the decoded pixels are drawn onto a canvas, and the browser's
+        JPEG encoder does not write EXIF data. To retain EXIF you need a tool that reads the
+        RAW's metadata block and re-embeds it in the JPEG, which is outside what a browser can
+        reliably do.
+      </p>
+      <p>
+        This has a privacy upside. Sharing a converted JPG will not leak your camera model or
+        GPS location. If you specifically want to publish a photo without metadata, this is a
+        convenient side effect.
+      </p>
+
+      <h2>JPEG Quality Control</h2>
+      <p>
+        JPEG is a lossy format. Every save discards some information to reduce file size. The
+        quality setting controls how much is discarded:
+      </p>
+      <table>
+        <thead>
+          <tr>
+            <th>Setting</th>
+            <th>Quality Value</th>
+            <th>Typical Use</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>High (Smaller)</td>
+            <td>0.70</td>
+            <td>Email attachments, quick previews, mobile uploads</td>
+          </tr>
+          <tr>
+            <td>Very High</td>
+            <td>0.85</td>
+            <td>General use, sharing, printing — the default</td>
+          </tr>
+          <tr>
+            <td>Maximum (Larger)</td>
+            <td>0.95</td>
+            <td>Printing at large sizes, archival JPG copies</td>
+          </tr>
+        </tbody>
+      </table>
+      <p>
+        Because the RAW data is lossy-compressed on export as JPEG, and because the browser's
+        decode pipeline is already approximate, use Maximum (0.95) when the file will be edited
+        further or printed. Use Very High (0.85) for general sharing.
+      </p>
+
+      <h2>Real Limitations You Should Know</h2>
+      <ul>
+        <li><strong>Not all RAW formats decode.</strong> Only TIFF-based containers are handled.
+            CR3, RAF, and most proprietary formats will fail.</li>
+        <li><strong>No raw demosaicing.</strong> The output is not a proper raw development; it
+            is whatever UTIF.js can extract.</li>
+        <li><strong>Colours will differ from your camera's JPG.</strong> No white balance, no
+            colour matrix, no tone curve.</li>
+        <li><strong>EXIF is stripped.</strong> Camera settings, GPS, and capture date are not
+            carried over.</li>
+        <li><strong>Orientation is not applied.</strong> Portrait shots may appear rotated.</li>
+        <li><strong>Selectable text is not relevant here</strong> — RAW files contain no text,
+            but note that the output is a plain image, not a document.</li>
+        <li><strong>Quality is not recoverable.</strong> Once converted to JPG, the raw data
+            cannot be recovered from the output. Keep the original RAW file if you may want to
+            re-edit later.</li>
+      </ul>
+
+      <h2>Practical Examples</h2>
+      <p>
+        <strong>Converting DNG photos from a phone:</strong> Some Android phones and iPhones
+        (with third-party apps) shoot DNG. Upload those DNG files here. They decode reliably
+        because DNG is TIFF-based.
+      </p>
+      <p>
+        <strong>Extracting a preview from a NEF or CR2:</strong> If the file contains an
+        embedded full-size JPEG preview, UTIF.js may extract it. The output will be a JPG that
+        matches the camera's preview but not the full raw data.
+      </p>
+      <p>
+        <strong>Quick share of a raw file that Lightroom cannot open on the recipient's machine:</strong>
+        Convert to DNG first using Adobe DNG Converter, then upload here to produce a JPG the
+        recipient can view immediately.
+      </p>
+      <p>
+        <strong>Preparing a thumbnail for a catalog:</strong> Upload DNG files, choose Web (800px),
+        Very High quality. The output is a small JPG suitable for a contact sheet.
+      </p>
+      <p>
+        <strong>Producing a grayscale version of a raw file:</strong> Upload the DNG, choose
+        Grayscale and Maximum quality. The result is a monochrome JPG. This is not a proper
+        black-and-white conversion from raw channels; it is a simple desaturation of the decoded
+        image.
+      </p>
+
+      <h2>Privacy — Client-Side Conversion</h2>
+      <p>
+        The RAW file is decoded by UTIF.js in the browser, drawn onto a canvas, and encoded as
+        a JPG. Nothing is uploaded. The only external resources loaded are the libraries
+        themselves from a CDN. You can disconnect from the internet after the page loads and
+        the tool will continue to work for files that are already loaded.
+      </p>
     </section>
 
-    <!-- FAQ Section -->
-    <section class="max-w-2xl mx-auto mt-12">
-      <h2 class="text-xl font-black text-slate-900 text-center mb-6">Frequently Asked Questions</h2>
-      <div class="space-y-3">
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">Is my data safe?</h3>
-          <p class="text-slate-600 text-sm mt-1">Yes! All conversions happen locally in your browser. Your RAW files are never uploaded to any server and are automatically deleted when you close the page.</p>
-        </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">What RAW formats are supported?</h3>
-          <p class="text-slate-600 text-sm mt-1">We support most major RAW formats including CR2, CR3 (Canon), NEF (Nikon), ARW (Sony), DNG (Adobe), ORF (Olympus), RW2 (Panasonic), PEF (Pentax), RAF (Fujifilm), and more.</p>
-        </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">Will I lose image quality?</h3>
-          <p class="text-slate-600 text-sm mt-1">JPG is a lossy format, so some quality is lost during conversion. However, using the "Maximum" quality setting preserves as much detail as possible. For archival purposes, consider keeping your original RAW files.</p>
-        </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">Can I convert multiple files at once?</h3>
-          <p class="text-slate-600 text-sm mt-1">Yes! Drag and drop multiple RAW files or select multiple files using the file picker. Each image will be converted individually, and you can download them all at once as a ZIP file.</p>
-        </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-100 transition-colors duration-200">
-          <h3 class="font-bold text-slate-900 text-sm">Why convert RAW to JPG?</h3>
-          <p class="text-slate-600 text-sm mt-1">JPG is universally compatible, has smaller file sizes, and is ready to share, print, or upload to websites. Converting from RAW to JPG makes your photos accessible to everyone without special software.</p>
-        </div>
-      </div>
+    <!-- ============================================================ -->
+    <!-- FAQ SECTION                                                   -->
+    <!-- ============================================================ -->
+    <section class="faq-section">
+      <h2>RAW to JPG Questions</h2>
+
+      <details>
+        <summary>Which RAW formats actually work?</summary>
+        <p>
+          DNG (Adobe's open format) works reliably. Some TIFF-based formats like NEF and CR2
+          may work if the embedded preview can be decoded. CR3, RAF, and most modern proprietary
+          formats do not work because they are not TIFF-based and require a full raw pipeline.
+          If a file fails, convert it to DNG first.
+        </p>
+      </details>
+
+      <details>
+        <summary>Will my colours match the camera's JPG?</summary>
+        <p>
+          No. This tool does not perform demosaicing, white balance, colour matrix mapping, or
+          tone curve application. The output colours will look different from what your camera
+          produces. Use a real raw processor if colour accuracy matters.
+        </p>
+      </details>
+
+      <details>
+        <summary>Is EXIF data preserved?</summary>
+        <p>
+          No. Camera model, lens, exposure settings, ISO, GPS coordinates, and capture date are
+          all stripped during conversion. The output JPG contains pixel data only. This is good
+          for privacy but means the descriptive metadata is lost.
+        </p>
+      </details>
+
+      <details>
+        <summary>Is orientation applied?</summary>
+        <p>
+          No. The orientation tag is not read, so portrait photos may appear rotated 90° from
+          how you expect. Rotate the JPG afterwards in any image viewer if needed.
+        </p>
+      </details>
+
+      <details>
+        <summary>What quality setting should I use?</summary>
+        <p>
+          Very High (0.85) is the default and works for sharing and general use. Use Maximum
+          (0.95) if the JPG will be edited further or printed at large sizes. Use High (0.70)
+          if file size matters more than detail.
+        </p>
+      </details>
+
+      <details>
+        <summary>Can I recover the raw data from the JPG?</summary>
+        <p>
+          No. Once the RAW is converted to JPG, the original sensor data is gone. The JPG
+          contains a compressed 8-bit image, not the 12-bit or 14-bit sensor mosaic. Keep the
+          original RAW file if you may want to re-edit later.
+        </p>
+      </details>
+
+      <details>
+        <summary>Why is the output JPG sometimes smaller than expected?</summary>
+        <p>
+          If UTIF.js extracted an embedded preview image rather than the full raw data, the
+          output dimensions may match the preview resolution (often 1600×1200 or similar) rather
+          than the camera's full sensor resolution. This is a limitation of the decoder.
+        </p>
+      </details>
+
+      <details>
+        <summary>Is my data safe?</summary>
+        <p>
+          Yes. All decoding and encoding happens locally in your browser using UTIF.js. Your
+          RAW files are never uploaded to any server. You can disconnect from the internet
+          after the page loads and the tool will continue to work.
+        </p>
+      </details>
+
+      <details>
+        <summary>How do I convert a CR3, RAF, or other unsupported RAW?</summary>
+        <p>
+          Convert it to DNG first using Adobe DNG Converter (free), or to JPG using your
+          camera manufacturer's software (Canon DPP, Nikon NX Studio, Sony Imaging Edge,
+          Fujifilm X Raw Studio, etc.). Then upload the DNG or JPG here if you still need to
+          re-process it.
+        </p>
+      </details>
+
+      <details>
+        <summary>Does this tool support batch conversion?</summary>
+        <p>
+          Yes. Drag and drop several RAW files or select them all in the file picker. Each
+          file is converted independently with the same settings. You can then download
+          everything as a ZIP archive or download them individually.
+        </p>
+      </details>
+
+      <details>
+        <summary>What is the maximum file size?</summary>
+        <p>
+          About 100 MB per RAW file. RAW files are large — a full-frame 45 MP RAW can be
+          50–80 MB — so this limit is generous. Very large files may take a moment to decode.
+        </p>
+      </details>
+
+      <details>
+        <summary>Why does my raw file fail to convert?</summary>
+        <p>
+          The most common reason is that the file is not a TIFF-based container, so UTIF.js
+          cannot parse it. CR3, RAF, and many newer RAW formats fall into this category. The
+          fix is to convert the file to DNG or JPG using another tool, then upload the
+          converted file here.
+        </p>
+      </details>
+
     </section>
   </main>
 
@@ -707,7 +1084,6 @@
         alert(`${invalidCount} file(s) were skipped due to size limits or invalid format.`);
       }
 
-      // Add files to the list
       files = validFiles;
       fileCount.textContent = `${files.length} file(s)`;
       totalSizeEl.textContent = `Total: ${(totalSize / 1024 / 1024).toFixed(2)} MB`;
@@ -720,7 +1096,6 @@
       convertBtn.disabled = false;
       convertBtn.textContent = '🔄 Convert All';
 
-      // Show previews
       showPreviews();
     }
 
@@ -783,7 +1158,6 @@
         return;
       }
 
-      // Show progress
       progressContainer.classList.remove('hidden');
       resultSection.classList.add('hidden');
       convertBtn.disabled = true;
@@ -805,7 +1179,6 @@
           
           statusText.textContent = `Processing ${i + 1} of ${files.length}: ${file.name}`;
 
-          // Update progress
           const progress = Math.round(((i) / files.length) * 80) + 10;
           progressBar.style.width = progress + '%';
           progressText.textContent = progress + '%';
@@ -814,7 +1187,6 @@
             let img;
             let width, height;
 
-            // For RAW files, try using UTIF.js
             if (isRAW) {
               try {
                 const arrayBuffer = await file.arrayBuffer();
@@ -824,7 +1196,6 @@
                 width = ifds[0].width;
                 height = ifds[0].height;
                 
-                // Create canvas from RGBA data
                 const canvas = document.createElement('canvas');
                 canvas.width = width;
                 canvas.height = height;
@@ -835,19 +1206,16 @@
                 img = canvas;
               } catch (rawErr) {
                 console.warn('UTIF decoding failed, falling back to Image:', rawErr);
-                // Fall back to Image object
                 img = await loadImage(file);
                 width = img.width;
                 height = img.height;
               }
             } else {
-              // For non-RAW images, use Image
               img = await loadImage(file);
               width = img.width;
               height = img.height;
             }
 
-            // Resize if needed
             if (size !== 'original') {
               const maxSize = parseInt(size);
               if (width > height) {
@@ -863,33 +1231,24 @@
               }
             }
 
-            // Create final canvas
             const canvas = document.createElement('canvas');
             canvas.width = width;
             canvas.height = height;
             const ctx = canvas.getContext('2d');
 
-            // Apply grayscale if selected
             if (color === 'grayscale') {
               ctx.filter = 'grayscale(100%)';
             }
 
-            // Draw the image
-            if (img instanceof HTMLCanvasElement) {
-              ctx.drawImage(img, 0, 0, width, height);
-            } else {
-              ctx.drawImage(img, 0, 0, width, height);
-            }
+            ctx.drawImage(img, 0, 0, width, height);
 
             const blob = await new Promise(resolve => {
               canvas.toBlob(resolve, 'image/jpeg', quality);
             });
 
-            // Generate filename
             const baseName = file.name.replace(/\.[^.]+$/, '');
             const fileName = `${baseName}.jpg`;
 
-            // Store converted file
             convertedFiles.push({
               blob: blob,
               name: fileName,
@@ -900,7 +1259,6 @@
 
           } catch (err) {
             console.error(`Error converting ${file.name}:`, err);
-            // Try fallback using Image
             try {
               const img = await loadImage(file);
               let width = img.width;
@@ -962,12 +1320,10 @@
           }
         }
 
-        // Update progress
         progressBar.style.width = '100%';
         progressText.textContent = '100%';
         statusText.textContent = '✅ Conversion complete!';
 
-        // Show results
         setTimeout(() => {
           showResults();
           convertBtn.disabled = false;
@@ -984,7 +1340,6 @@
       }
     }
 
-    // Helper function to load an image
     function loadImage(file) {
       return new Promise((resolve, reject) => {
         const img = new Image();
@@ -1006,7 +1361,6 @@
       const totalBytes = convertedFiles.reduce((sum, f) => sum + f.size, 0);
       totalSizeBadge.textContent = `${(totalBytes / 1024 / 1024).toFixed(2)} MB`;
 
-      // Show RAW badge if any RAW files were converted
       const hasRAW = files.some(f => {
         const ext = f.name.split('.').pop().toLowerCase();
         return rawExtensions.includes(ext);
@@ -1017,7 +1371,6 @@
         rawBadge.classList.add('hidden');
       }
 
-      // Show download links
       downloadLinksContainer.innerHTML = '';
       convertedFiles.forEach((f, idx) => {
         if (!f.error) {
@@ -1040,7 +1393,6 @@
         return;
       }
 
-      // Check if there's only one file
       if (convertedFiles.length === 1) {
         const f = convertedFiles[0];
         if (!f.error) {
@@ -1054,7 +1406,6 @@
         return;
       }
 
-      // For multiple files, use JSZip if available
       if (typeof JSZip !== 'undefined') {
         const zip = new JSZip();
         convertedFiles.forEach(f => {
@@ -1074,7 +1425,6 @@
           URL.revokeObjectURL(url);
         });
       } else {
-        // Fallback: download each file individually
         downloadAllIndividual();
       }
     }
@@ -1094,7 +1444,6 @@
       });
     }
 
-    // Keyboard shortcut: Enter to convert
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' && !fileInfo.classList.contains('hidden') && !convertBtn.disabled) {
         convertRAWtoJPG();
