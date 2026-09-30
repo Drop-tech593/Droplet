@@ -6,6 +6,7 @@
 <title>Add Watermark to PDF & Images – Free Online Tool | Droplet</title>
 <meta name="description" content="Add text or image watermarks to PDFs and images in your browser. Adjust position, opacity, rotation, and tiling. 100% client-side, private, and free.">
 <meta name="theme-color" content="#ffffff">
+<link rel="canonical" href="https://dropletweb.xyz/add-watermark">
 
 <!-- Prevent flash of light theme on reload -->
 <script>
@@ -33,8 +34,7 @@
     margin: 0;
     padding: 0;
     width: 100%;
-    height: 100%;
-    overflow: hidden;
+    min-height: 100%;
   }
   body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -51,11 +51,9 @@
   /* ============================================================ */
   .app {
     width: 100vw;
-    height: 100vh;
-    height: 100dvh;
+    min-height: 100vh;
     display: grid;
     grid-template-rows: 56px minmax(0, 1fr);
-    overflow: hidden;
   }
   .app-header {
     padding: 0 12px;
@@ -79,7 +77,7 @@
     min-width: 0;
     min-height: 0;
     width: 100%;
-    height: 100%;
+    height: calc(100vh - 56px);
     overflow: hidden;
   }
 
@@ -627,13 +625,6 @@
   }
 
   /* ============================================================ */
-  /* MOBILE TOGGLE BAR (PDF only)                                  */
-  /* ============================================================ */
-  .mobile-toggle-bar {
-    display: none;
-  }
-
-  /* ============================================================ */
   /* PROCESSING / TOAST                                            */
   /* ============================================================ */
   #processingOverlay {
@@ -724,65 +715,23 @@
   }
 
   /* ============================================================ */
-  /* PHONE (≤ 640px) — OPTIMIZED FOR MOBILE USE                    */
+  /* PHONE (≤ 640px)                                               */
   /* ============================================================ */
   @media (max-width: 640px) {
-
-    /* --- Header: compact, wrap file name --- */
-    .app-header {
-      padding: 0 8px;
-      gap: 6px;
-      height: 52px;
-    }
-    .app {
-      grid-template-rows: 52px minmax(0, 1fr);
-    }
+    .app-header { padding: 0 8px; gap: 6px; height: 52px; }
+    .app { grid-template-rows: 52px minmax(0, 1fr); }
     .app-header .logo-link img { height: 24px; }
     .app-header .logo-link .logo-text { font-size: 13px; }
-    .app-header .title {
-      font-size: 12px;
-      max-width: 70px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-    .file-label {
-      font-size: 10px;
-      max-width: 70px;
-    }
-    .header-btn {
-      padding: 8px 8px;
-      font-size: 11px;
-      min-height: 38px;
-    }
+    .app-header .title { font-size: 12px; max-width: 70px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .file-label { font-size: 10px; max-width: 70px; }
+    .header-btn { padding: 8px 8px; font-size: 11px; min-height: 38px; }
     .header-btn.strong { padding: 8px 10px; }
-    #theme-toggle {
-      min-width: 36px;
-      min-height: 38px;
-      font-size: 1.1rem;
-    }
+    #theme-toggle { min-width: 36px; min-height: 38px; font-size: 1.1rem; }
 
-    /* --- Editor: preview on top, panel below, with toggle --- */
-    .editor {
-      grid-template-columns: 1fr;
-      grid-template-rows: minmax(0, 1fr) auto;
-    }
-    .editor.image-source {
-      grid-template-columns: 1fr;
-      grid-template-rows: minmax(0, 1fr) auto;
-    }
-
-    /* Hide PDF thumbnails on phone (space is too valuable) */
-    .sidebar-left {
-      display: none;
-    }
-
-    /* Preview takes full width, less padding */
-    .preview-area {
-      padding: 10px;
-    }
-
-    /* Right sidebar becomes a bottom sheet-style panel */
+    .editor { grid-template-columns: 1fr; grid-template-rows: minmax(0, 1fr) auto; }
+    .editor.image-source { grid-template-columns: 1fr; grid-template-rows: minmax(0, 1fr) auto; }
+    .sidebar-left { display: none; }
+    .preview-area { padding: 10px; }
     .sidebar-right {
       max-height: 50vh;
       max-height: 50dvh;
@@ -795,156 +744,39 @@
       box-shadow: 0 -6px 20px rgba(0,0,0,0.08);
       gap: 12px;
     }
-
-    /* Smaller section gaps on phone */
-    .panel-section {
-      gap: 8px;
-    }
-
-    /* Type tabs — bigger touch target */
-    .type-tab {
-      padding: 11px 8px;
-      font-size: 13px;
-      min-height: 44px;
-    }
-
-    /* Preset grid — 2 columns fits nicely */
-    .preset-grid {
-      gap: 6px;
-    }
-    .preset-chip {
-      padding: 10px 6px;
-      font-size: 10.5px;
-      min-height: 42px;
-    }
-
-    /* Fields — larger touch targets */
-    .field input[type="text"],
-    .field select {
-      padding: 11px 12px;
-      font-size: 15px;
-      min-height: 46px;
-    }
-    .field input[type="range"] {
-      height: 32px;
-    }
-    .field label {
-      font-size: 12px;
-    }
-
-    /* Sliders: easier to grab */
-    input[type="range"] {
-      height: 32px;
-    }
-
-    /* Style buttons bigger */
-    .style-btn {
-      width: 48px;
-      height: 46px;
-      font-size: 16px;
-    }
-
-    /* Layout buttons */
-    .layout-btn {
-      padding: 12px 10px;
-      font-size: 13px;
-      min-height: 46px;
-    }
-
-    /* Position grid — bigger, 3 columns still fine */
-    .pos-grid {
-      gap: 6px;
-    }
-    .pos-btn {
-      padding: 14px 4px;
-      font-size: 11px;
-      min-height: 46px;
-    }
-
-    /* Page select radio rows */
-    .page-select label {
-      font-size: 15px;
-      min-height: 44px;
-    }
-    .page-select input[type="radio"] {
-      width: 20px;
-      height: 20px;
-    }
-    .page-select input[type="text"] {
-      padding: 11px 12px;
-      font-size: 15px;
-      min-height: 46px;
-    }
-
-    /* Color row */
-    .color-swatch {
-      width: 48px;
-      height: 46px;
-    }
-    .color-hex {
-      padding: 11px 10px;
-      font-size: 14px;
-      min-height: 46px;
-    }
-
-    /* Image upload btn */
-    .image-upload-btn {
-      padding: 14px 12px;
-      font-size: 14px;
-      min-height: 48px;
-    }
-
-    /* Dividers */
-    .divider {
-      margin: 4px 0;
-    }
-
-    /* Upload screen */
-    #screen-upload {
-      padding: 20px 14px;
-    }
+    .panel-section { gap: 8px; }
+    .type-tab { padding: 11px 8px; font-size: 13px; min-height: 44px; }
+    .preset-grid { gap: 6px; }
+    .preset-chip { padding: 10px 6px; font-size: 10.5px; min-height: 42px; }
+    .field input[type="text"], .field select { padding: 11px 12px; font-size: 15px; min-height: 46px; }
+    .field input[type="range"] { height: 32px; }
+    .field label { font-size: 12px; }
+    .style-btn { width: 48px; height: 46px; font-size: 16px; }
+    .layout-btn { padding: 12px 10px; font-size: 13px; min-height: 46px; }
+    .pos-grid { gap: 6px; }
+    .pos-btn { padding: 14px 4px; font-size: 11px; min-height: 46px; }
+    .page-select label { font-size: 15px; min-height: 44px; }
+    .page-select input[type="radio"] { width: 20px; height: 20px; }
+    .page-select input[type="text"] { padding: 11px 12px; font-size: 15px; min-height: 46px; }
+    .color-swatch { width: 48px; height: 46px; }
+    .color-hex { padding: 11px 10px; font-size: 14px; min-height: 46px; }
+    .image-upload-btn { padding: 14px 12px; font-size: 14px; min-height: 48px; }
+    .divider { margin: 4px 0; }
+    #screen-upload { padding: 20px 14px; }
     #screen-upload .big-icon { font-size: 44px; }
     #screen-upload h1 { font-size: 20px; }
     #screen-upload p { font-size: 13px; }
-    .upload-dropzone {
-      padding: 28px 16px;
-      border-radius: 16px;
-    }
-
-    /* Toast */
-    .toast {
-      font-size: 13px;
-      padding: 12px 18px;
-    }
-
-    /* Processing card */
-    .processing-card {
-      padding: 24px 20px;
-    }
+    .upload-dropzone { padding: 28px 16px; border-radius: 16px; }
+    .toast { font-size: 13px; padding: 12px 18px; }
+    .processing-card { padding: 24px 20px; }
   }
 
-  /* ============================================================ */
-  /* VERY SMALL PHONES (≤ 380px)                                   */
-  /* ============================================================ */
   @media (max-width: 380px) {
     .app-header .logo-link .logo-text { display: none; }
     .app-header .title { font-size: 11px; }
     .header-btn { padding: 7px 6px; font-size: 10.5px; }
     .preset-chip { font-size: 10px; padding: 9px 4px; }
     .pos-btn { font-size: 10px; }
-  }
-
-  /* ============================================================ */
-  /* LANDSCAPE PHONE — give preview more height                    */
-  /* ============================================================ */
-  @media (max-width: 900px) and (orientation: landscape) and (max-height: 500px) {
-    .sidebar-right {
-      max-height: 60vh;
-      max-height: 60dvh;
-    }
-    .preview-area {
-      padding: 8px;
-    }
   }
 
   /* ============================================================ */
@@ -1071,6 +903,96 @@
   html.dark #screen-upload h1 { color: #f1f5f9; }
   html.dark #screen-upload p { color: #94a3b8; }
   html.dark #screen-upload .sub { color: #64748b; }
+
+  /* ============================================================ */
+  /* SEO CONTENT                                                   */
+  /* ============================================================ */
+  .seo-content {
+    max-width: 42rem;
+    margin: 2.5rem auto 1rem;
+    padding: 0 20px;
+    color: #334155;
+    line-height: 1.65;
+  }
+  .seo-content h1 {
+    font-size: 1.6rem;
+    font-weight: 900;
+    color: #0f172a;
+    letter-spacing: -0.02em;
+    margin: 0 0 1rem;
+    line-height: 1.25;
+  }
+  .seo-content h2 {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 2rem 0 0.5rem;
+  }
+  .seo-content p {
+    margin-bottom: 1rem;
+    font-size: 0.95rem;
+  }
+  .seo-content ul {
+    padding-left: 1.4rem;
+    margin-bottom: 1rem;
+    font-size: 0.95rem;
+  }
+  .seo-content li {
+    margin-bottom: 0.3rem;
+  }
+  .faq-section {
+    max-width: 42rem;
+    margin: 2rem auto;
+    padding: 0 20px;
+  }
+  .faq-section h2 {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: #0f172a;
+    text-align: center;
+    margin-bottom: 1.25rem;
+  }
+  .faq-section details {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.75rem;
+    padding: 0.75rem 1.25rem;
+    margin-bottom: 0.6rem;
+    transition: background 0.2s, border-color 0.2s;
+  }
+  .faq-section summary {
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: #0f172a;
+    cursor: pointer;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .faq-section summary::-webkit-details-marker { display: none; }
+  .faq-section summary::after {
+    content: "➕";
+    font-size: 0.8rem;
+    color: #94a3b8;
+    transition: transform 0.2s;
+  }
+  .faq-section details[open] summary::after {
+    content: "➖";
+  }
+  .faq-section details p {
+    margin-top: 0.6rem;
+    font-size: 0.9rem;
+    color: #475569;
+    line-height: 1.6;
+  }
+  html.dark .seo-content { color: #cbd5e1; }
+  html.dark .seo-content h1 { color: #f1f5f9; }
+  html.dark .seo-content h2 { color: #f1f5f9; }
+  html.dark .faq-section h2 { color: #f1f5f9; }
+  html.dark .faq-section details { background: #1e293b; border-color: #334155; }
+  html.dark .faq-section summary { color: #f1f5f9; }
+  html.dark .faq-section details p { color: #94a3b8; }
 </style>
 </head>
 <body>
@@ -1264,175 +1186,259 @@
 <div class="toast" id="toast"></div>
 
 <!-- ============================================================ -->
-<!-- SEO / AD-SENSE FRIENDLY CONTENT: WATERMARK GUIDE + FAQ        -->
+<!-- SEO CONTENT — Watermark guide + FAQ                          -->
 <!-- ============================================================ -->
-<main style="max-width: 900px; margin: 2rem auto 3rem; padding: 0 20px; font-family: inherit; color: #1e293b;">
+<main class="seo-content">
 
-  <section style="background: #fff; border-radius: 20px; padding: 28px 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.04); margin-bottom: 2rem;">
-    <h1 style="font-size: 1.8rem; font-weight: 900; letter-spacing: -0.02em; margin-bottom: 0.5rem;">How to Add a Watermark to PDFs and Images</h1>
-    <p style="color: #475569; font-size: 1rem; line-height: 1.7; margin-bottom: 1rem;">
-      Watermarking is the practice of overlaying text or an image onto a document or photo to communicate ownership, confidentiality, or status. This tool lets you add watermarks entirely in your browser — no uploads, no sign-up, no software installation.
-    </p>
-    <p style="color: #475569; font-size: 1rem; line-height: 1.7;">
-      Whether you're marking a contract as "DRAFT", placing a logo on a photography portfolio, or adding "CONFIDENTIAL" to internal reports, the process is the same: choose your file, pick a watermark type, adjust its appearance, and export.
-    </p>
-  </section>
+  <h1>Add a Watermark to PDFs and Images — Free, Private, No Sign-Up</h1>
+  <p>
+    A watermark is a visible mark placed on top of a document or image to communicate ownership,
+    confidentiality, or status. This tool lets you add a text watermark, an image watermark, or
+    both to any PDF or image file, entirely in your browser. Nothing is uploaded, nothing is
+    logged, and nothing is stored.
+  </p>
+  <p>
+    Whether you are marking a contract as "DRAFT", placing a logo on a photography portfolio, or
+    adding "CONFIDENTIAL" to internal reports, the workflow is the same: choose a file, pick the
+    watermark type, adjust its appearance, and export.
+  </p>
 
-  <section style="background: #fff; border-radius: 20px; padding: 28px 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.04); margin-bottom: 2rem;">
-    <h2 style="font-size: 1.4rem; font-weight: 800; margin-bottom: 0.75rem;">Text vs. Image Watermarks</h2>
-    <p style="color: #475569; font-size: 1rem; line-height: 1.7; margin-bottom: 1rem;">
-      There are two fundamental types of watermarks, each suited to different goals.
-    </p>
-    <p style="color: #475569; font-size: 1rem; line-height: 1.7; margin-bottom: 0.75rem;">
-      <strong>Text watermarks</strong> are made from characters — words like "CONFIDENTIAL", "SAMPLE", "DO NOT COPY", or a company name. They are lightweight, easy to read, and perfect for legal or status marking. You can adjust the font, size, boldness, italics, colour, opacity, and rotation angle.
-    </p>
-    <p style="color: #475569; font-size: 1rem; line-height: 1.7; margin-bottom: 0.75rem;">
-      <strong>Image watermarks</strong> use a picture — typically a logo, signature, or seal. They are ideal for branding because they carry visual identity. The same positioning, scaling, opacity, and rotation controls apply. For best results, use a PNG with a transparent background.
-    </p>
-    <p style="color: #475569; font-size: 1rem; line-height: 1.7;">
-      Both types can be placed as a single mark (one watermark per page) or repeated in a tiled pattern across the entire surface.
-    </p>
-  </section>
+  <h2>Text vs Image Watermarks</h2>
+  <p>
+    There are two fundamental types of watermarks, and each is suited to different goals.
+  </p>
+  <p>
+    <strong>Text watermarks</strong> are made from characters — words like "CONFIDENTIAL",
+    "SAMPLE", "DO NOT COPY", or a company name. They are lightweight, easy to read, and perfect
+    for legal or status marking. You can adjust the font, size, boldness, italics, colour,
+    opacity, and rotation angle. Common examples include a red diagonal "DRAFT" across a
+    contract, a grey "SAMPLE" across a product photo, or a subtle blue "INTERNAL USE ONLY" on a
+    slide.
+  </p>
+  <p>
+    <strong>Image watermarks</strong> use a picture — typically a logo, signature, or seal. They
+    are ideal for branding because they carry visual identity. The same positioning, scaling,
+    opacity, and rotation controls apply. For best results, use a PNG with a transparent
+    background so the logo blends naturally with the underlying content.
+  </p>
+  <p>
+    Both types can be placed as a single mark (one watermark per page) or repeated in a tiled
+    pattern across the entire surface.
+  </p>
 
-  <section style="background: #fff; border-radius: 20px; padding: 28px 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.04); margin-bottom: 2rem;">
-    <h2 style="font-size: 1.4rem; font-weight: 800; margin-bottom: 0.75rem;">Position, Opacity, Rotation, and Repeating Watermarks</h2>
-    <p style="color: #475569; font-size: 1rem; line-height: 1.7; margin-bottom: 0.75rem;">
-      <strong>Position:</strong> Place the watermark in any of the nine preset anchor points — top-left, top-centre, top-right, middle-left, centre, middle-right, bottom-left, bottom-centre, or bottom-right. You can also drag the watermark freely on the preview canvas to fine-tune its exact location.
-    </p>
-    <p style="color: #475569; font-size: 1rem; line-height: 1.7; margin-bottom: 0.75rem;">
-      <strong>Opacity:</strong> Control how transparent the watermark is. A lower opacity (e.g., 15–35%) keeps the underlying content readable while still making the mark visible. Higher opacity (60–100%) is bolder and more prominent.
-    </p>
-    <p style="color: #475569; font-size: 1rem; line-height: 1.7; margin-bottom: 0.75rem;">
-      <strong>Rotation:</strong> Rotate the watermark from -90° to +90°. A diagonal angle (like -45°) is a classic choice for "CONFIDENTIAL" marks because it's harder to crop out and visually distinct.
-    </p>
-    <p style="color: #475569; font-size: 1rem; line-height: 1.7; margin-bottom: 0.75rem;">
-      <strong>Repeating (tiled) watermark:</strong> Instead of a single mark, you can repeat the watermark in a grid pattern that covers the entire page or image. This is often used for highly sensitive documents where any cropping would still leave visible marks. Adjust the spacing slider to control how dense the pattern is.
-    </p>
-    <p style="color: #475569; font-size: 1rem; line-height: 1.7;">
-      <strong>Scale:</strong> The scale slider multiplies the base size of the watermark. For text, it works together with font size. For images, it controls the logo's dimensions relative to the page.
-    </p>
-  </section>
+  <h2>Position, Opacity, Rotation, and Repeating Watermarks</h2>
+  <p>
+    <strong>Position</strong> — Place the watermark in any of the nine preset anchor points:
+    top-left, top-centre, top-right, middle-left, centre, middle-right, bottom-left,
+    bottom-centre, or bottom-right. You can also drag the watermark freely on the preview canvas
+    to fine-tune its exact location.
+  </p>
+  <p>
+    <strong>Opacity</strong> — Control how transparent the watermark is. A lower opacity (for
+    example 15–35%) keeps the underlying content readable while still making the mark visible.
+    Higher opacity (60–100%) is bolder and more prominent. For documents that will be printed,
+    a mid-range opacity of 30–50% works best.
+  </p>
+  <p>
+    <strong>Rotation</strong> — Rotate the watermark from -90° to +90°. A diagonal angle (like
+    -45°) is a classic choice for "CONFIDENTIAL" marks because it is harder to crop out and
+    visually distinct. For a subtle bottom-corner stamp, a rotation of 0° looks cleanest.
+  </p>
+  <p>
+    <strong>Repeating (tiled) watermark</strong> — Instead of a single mark, you can repeat the
+    watermark in a grid pattern that covers the entire page or image. This is often used for
+    highly sensitive documents where any cropping would still leave visible marks. Adjust the
+    spacing slider to control how dense the pattern is. A tight spacing creates a dense mesh;
+    a wide spacing leaves more visible underlying content.
+  </p>
+  <p>
+    <strong>Scale</strong> — The scale slider multiplies the base size of the watermark. For
+    text, it works together with font size. For images, it controls the logo's dimensions
+    relative to the page.
+  </p>
 
-  <section style="background: #fff; border-radius: 20px; padding: 28px 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.04); margin-bottom: 2rem;">
-    <h2 style="font-size: 1.4rem; font-weight: 800; margin-bottom: 0.75rem;">PDF and Image Support — What You Can Watermark</h2>
-    <p style="color: #475569; font-size: 1rem; line-height: 1.7; margin-bottom: 0.75rem;">
-      This tool handles two broad file categories:
-    </p>
-    <ul style="color: #475569; font-size: 1rem; line-height: 1.7; padding-left: 1.5rem; margin-bottom: 0.75rem;">
-      <li style="margin-bottom: 0.3rem;"><strong>PDF documents:</strong> Upload a PDF and every page is rendered as an image. You can apply the watermark to all pages, just the current page, or a custom range (e.g., "1-3, 5, 8-10"). When you export, a new PDF is generated with the watermark burned in.</li>
-      <li style="margin-bottom: 0.3rem;"><strong>Images:</strong> JPG, PNG, WebP, GIF, BMP, and HEIC files are supported. The tool displays the image, lets you position the watermark, and exports a new image file with the watermark applied.</li>
-    </ul>
-    <p style="color: #475569; font-size: 1rem; line-height: 1.7;">
-      For PDFs, the left sidebar shows thumbnails of each page so you can quickly navigate. For images, the thumbnail sidebar is hidden because there's only one canvas.
-    </p>
-  </section>
+  <h2>PDF and Image Support — What You Can Watermark</h2>
+  <p>
+    This tool handles two broad file categories:
+  </p>
+  <ul>
+    <li><strong>PDF documents</strong> — Upload a PDF and every page is rendered as an image.
+        You can apply the watermark to all pages, just the current page, or a custom range
+        (for example "1-3, 5, 8-10"). When you export, a new PDF is generated with the watermark
+        burned in.</li>
+    <li><strong>Images</strong> — JPG, PNG, WebP, GIF, BMP, and HEIC files are supported. The
+        tool displays the image, lets you position the watermark, and exports a new image file
+        with the watermark applied.</li>
+  </ul>
+  <p>
+    For PDFs, the left sidebar shows thumbnails of each page so you can quickly navigate. For
+    images, the thumbnail sidebar is hidden because there is only one canvas.
+  </p>
 
-  <section style="background: #fff; border-radius: 20px; padding: 28px 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.04); margin-bottom: 2rem;">
-    <h2 style="font-size: 1.4rem; font-weight: 800; margin-bottom: 0.75rem;">Practical Examples</h2>
-    <p style="color: #475569; font-size: 1rem; line-height: 1.7; margin-bottom: 0.75rem;">
-      <strong>Marking a contract as DRAFT:</strong> Use a large, bold, grey "DRAFT" text at -30° rotation, 30% opacity, centred on each page. This clearly signals the document is not final without obscuring the text.
-    </p>
-    <p style="color: #475569; font-size: 1rem; line-height: 1.7; margin-bottom: 0.75rem;">
-      <strong>Protecting a photography portfolio:</strong> Upload your logo as an image watermark, place it in the bottom-right corner at 50% opacity, and scale it to about 20% of the image width. This adds branding without distracting from the photo.
-    </p>
-    <p style="color: #475569; font-size: 1rem; line-height: 1.7; margin-bottom: 0.75rem;">
-      <strong>Adding "CONFIDENTIAL" to internal reports:</strong> Choose the red "CONFIDENTIAL" preset, set opacity to 25%, and use the tiled layout with generous spacing. The repeated marks make it obvious that the content is sensitive.
-    </p>
-    <p style="color: #475569; font-size: 1rem; line-height: 1.7;">
-      <strong>Watermarking a single page of a PDF:</strong> Load the PDF, select "Current page" under "Apply to", navigate to the page you want, add the watermark, and export. The other pages remain untouched.
-    </p>
-  </section>
+  <h2>Practical Examples</h2>
+  <p>
+    <strong>Marking a contract as DRAFT:</strong> Use a large, bold, grey "DRAFT" text at -30°
+    rotation, 30% opacity, centred on each page. This clearly signals the document is not final
+    without obscuring the text.
+  </p>
+  <p>
+    <strong>Protecting a photography portfolio:</strong> Upload your logo as an image
+    watermark, place it in the bottom-right corner at 50% opacity, and scale it to about 20% of
+    the image width. This adds branding without distracting from the photo.
+  </p>
+  <p>
+    <strong>Adding "CONFIDENTIAL" to internal reports:</strong> Choose the red "CONFIDENTIAL"
+    preset, set opacity to 25%, and use the tiled layout with generous spacing. The repeated
+    marks make it obvious that the content is sensitive.
+  </p>
+  <p>
+    <strong>Watermarking a single page of a PDF:</strong> Load the PDF, select "Current page"
+    under "Apply to", navigate to the page you want, add the watermark, and export. The other
+    pages remain untouched.
+  </p>
+  <p>
+    <strong>Marking a photo as "SAMPLE" for a client preview:</strong> Use a semi-transparent
+    white "SAMPLE" across the centre of the image at 40% opacity. The client sees the composition
+    but cannot use the image directly.
+  </p>
 
-  <section style="background: #fff; border-radius: 20px; padding: 28px 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.04); margin-bottom: 2rem;">
-    <h2 style="font-size: 1.4rem; font-weight: 800; margin-bottom: 0.75rem;">Privacy — Your Files Stay on Your Device</h2>
-    <p style="color: #475569; font-size: 1rem; line-height: 1.7; margin-bottom: 0.75rem;">
-      All processing happens locally in your browser. When you upload a PDF or image, it is read into memory using JavaScript and never transmitted to any server. The only external resources loaded are the open-source PDF.js and pdf-lib libraries, which run entirely client-side.
-    </p>
-    <p style="color: #475569; font-size: 1rem; line-height: 1.7;">
-      This means your contracts, personal photos, and internal documents never leave your computer or phone. You can even disconnect from the internet after the page loads and the tool will still work.
-    </p>
-  </section>
+  <h2>Privacy — Your Files Stay on Your Device</h2>
+  <p>
+    All processing happens locally in your browser. When you upload a PDF or image, it is read
+    into memory using JavaScript and never transmitted to any server. The only external resources
+    loaded are the open-source PDF.js and pdf-lib libraries, which run entirely client-side.
+  </p>
+  <p>
+    This means your contracts, personal photos, and internal documents never leave your computer
+    or phone. You can even disconnect from the internet after the page loads and the tool will
+    still work.
+  </p>
 
-  <section style="background: #fff; border-radius: 20px; padding: 28px 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.04); margin-bottom: 2rem;">
-    <h2 style="font-size: 1.4rem; font-weight: 800; margin-bottom: 0.75rem;">Frequently Asked Questions</h2>
-
-    <details style="border-bottom: 1px solid #e2e8f0; padding: 0.75rem 0;">
-      <summary style="font-weight: 700; font-size: 1rem; cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: center; color: #0f172a;">
-        Can I add a watermark to just one page of a PDF?
-        <span style="font-size: 0.8rem; color: #94a3b8;">➕</span>
-      </summary>
-      <p style="margin-top: 0.5rem; font-size: 0.95rem; color: #475569; line-height: 1.6;">
-        Yes. Under "Apply to", select "Current page" or "Custom range". If you choose custom range, enter page numbers like "3" or "1-4, 7" in the text field. The watermark will only be applied to those pages when you export.
-      </p>
-    </details>
-
-    <details style="border-bottom: 1px solid #e2e8f0; padding: 0.75rem 0;">
-      <summary style="font-weight: 700; font-size: 1rem; cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: center; color: #0f172a;">
-        How do I make a tiled watermark?
-        <span style="font-size: 0.8rem; color: #94a3b8;">➕</span>
-      </summary>
-      <p style="margin-top: 0.5rem; font-size: 0.95rem; color: #475569; line-height: 1.6;">
-        In the "Layout" section, click the "Tile" button. The watermark will repeat across the entire page or image. Use the "Spacing" slider to control how close together the repeated marks are.
-      </p>
-    </details>
-
-    <details style="border-bottom: 1px solid #e2e8f0; padding: 0.75rem 0;">
-      <summary style="font-weight: 700; font-size: 1rem; cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: center; color: #0f172a;">
-        What image formats can I use for an image watermark?
-        <span style="font-size: 0.8rem; color: #94a3b8;">➕</span>
-      </summary>
-      <p style="margin-top: 0.5rem; font-size: 0.95rem; color: #475569; line-height: 1.6;">
-        You can upload any image your browser can display — PNG, JPG, WebP, GIF, or BMP. For best results, use a PNG with a transparent background so the logo blends naturally.
-      </p>
-    </details>
-
-    <details style="border-bottom: 1px solid #e2e8f0; padding: 0.75rem 0;">
-      <summary style="font-weight: 700; font-size: 1rem; cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: center; color: #0f172a;">
-        Is there a limit on file size?
-        <span style="font-size: 0.8rem; color: #94a3b8;">➕</span>
-      </summary>
-      <p style="margin-top: 0.5rem; font-size: 0.95rem; color: #475569; line-height: 1.6;">
-        Since everything runs in your browser, the practical limit is your device's memory. Most PDFs under 100 pages and images under 20 MB work smoothly on a modern computer or phone.
-      </p>
-    </details>
-
-    <details style="border-bottom: 1px solid #e2e8f0; padding: 0.75rem 0;">
-      <summary style="font-weight: 700; font-size: 1rem; cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: center; color: #0f172a;">
-        Does the watermark stay editable after export?
-        <span style="font-size: 0.8rem; color: #94a3b8;">➕</span>
-      </summary>
-      <p style="margin-top: 0.5rem; font-size: 0.95rem; color: #475569; line-height: 1.6;">
-        No. When you export, the watermark is permanently burned into the PDF or image. It becomes part of the content and cannot be easily removed or edited. Keep a copy of the original file if you need to make changes later.
-      </p>
-    </details>
-
-    <details style="border-bottom: 1px solid #e2e8f0; padding: 0.75rem 0;">
-      <summary style="font-weight: 700; font-size: 1rem; cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: center; color: #0f172a;">
-        Can I watermark a password-protected PDF?
-        <span style="font-size: 0.8rem; color: #94a3b8;">➕</span>
-      </summary>
-      <p style="margin-top: 0.5rem; font-size: 0.95rem; color: #475569; line-height: 1.6;">
-        If the PDF requires a password to open, you'll need to remove the password first using another tool. This watermark tool can only process PDFs that open without a password.
-      </p>
-    </details>
-
-    <details style="border-bottom: none; padding: 0.75rem 0;">
-      <summary style="font-weight: 700; font-size: 1rem; cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: center; color: #0f172a;">
-        Why does the watermark preview look slightly different from the exported file?
-        <span style="font-size: 0.8rem; color: #94a3b8;">➕</span>
-      </summary>
-      <p style="margin-top: 0.5rem; font-size: 0.95rem; color: #475569; line-height: 1.6;">
-        The preview uses a canvas-rendered approximation, while the PDF export uses vector graphics from pdf-lib. Fonts may render slightly differently, and the exact positioning can vary by a few pixels. Always check the exported file before distributing it.
-      </p>
-    </details>
-  </section>
-
-  <section style="background: #f1f5f9; border-radius: 20px; padding: 24px; text-align: center; font-size: 0.9rem; color: #475569;">
-    <p style="margin: 0 0 0.5rem; font-weight: 600;">Ready to watermark your file?</p>
-    <p style="margin: 0;">Click the upload area above to get started. No sign-up, no watermarks added by us, no hidden costs.</p>
-  </section>
+  <h2>What This Tool Does Not Do</h2>
+  <ul>
+    <li><strong>It does not remove existing watermarks.</strong> If a PDF already has a
+        watermark, this tool adds a new one on top; the original remains underneath.</li>
+    <li><strong>It does not digitally sign the document.</strong> A signature watermark is a
+        visual mark, not a cryptographic signature. For legally binding signatures, use a
+        dedicated e-signature service.</li>
+    <li><strong>It does not preserve selectable text in the exported PDF.</strong> When a
+        watermark is applied, each page is rendered as an image and the watermark is drawn on
+        top. The exported PDF is image-based, so the text is no longer selectable. If you need
+        selectable text plus a watermark, use a vector-based PDF editor.</li>
+    <li><strong>It does not support password-protected PDFs.</strong> Remove the password first
+        using a dedicated PDF tool, then watermark the file here.</li>
+  </ul>
 
 </main>
+
+<section class="faq-section">
+  <h2>Watermark Questions</h2>
+
+  <details>
+    <summary>Can I add a watermark to just one page of a PDF?</summary>
+    <p>
+      Yes. Under "Apply to", select "Current page" or "Custom range". If you choose custom
+      range, enter page numbers like "3" or "1-4, 7" in the text field. The watermark will only
+      be applied to those pages when you export.
+    </p>
+  </details>
+
+  <details>
+    <summary>How do I make a tiled watermark?</summary>
+    <p>
+      In the "Layout" section, click the "Tile" button. The watermark will repeat across the
+      entire page or image. Use the "Spacing" slider to control how close together the repeated
+      marks are.
+    </p>
+  </details>
+
+  <details>
+    <summary>What image formats can I use for an image watermark?</summary>
+    <p>
+      You can upload any image your browser can display — PNG, JPG, WebP, GIF, or BMP. For best
+      results, use a PNG with a transparent background so the logo blends naturally.
+    </p>
+  </details>
+
+  <details>
+    <summary>Is there a limit on file size?</summary>
+    <p>
+      Since everything runs in your browser, the practical limit is your device's memory. Most
+      PDFs under 100 pages and images under 20 MB work smoothly on a modern computer or phone.
+    </p>
+  </details>
+
+  <details>
+    <summary>Does the watermark stay editable after export?</summary>
+    <p>
+      No. When you export, the watermark is permanently burned into the PDF or image. It becomes
+      part of the content and cannot be easily removed or edited. Keep a copy of the original
+      file if you need to make changes later.
+    </p>
+  </details>
+
+  <details>
+    <summary>Can I watermark a password-protected PDF?</summary>
+    <p>
+      If the PDF requires a password to open, you will need to remove the password first using
+      another tool. This watermark tool can only process PDFs that open without a password.
+    </p>
+  </details>
+
+  <details>
+    <summary>Why does the watermark preview look slightly different from the exported file?</summary>
+    <p>
+      The preview uses a canvas-rendered approximation, while the PDF export uses vector graphics
+      from pdf-lib. Fonts may render slightly differently, and the exact positioning can vary by
+      a few pixels. Always check the exported file before distributing it.
+    </p>
+  </details>
+
+  <details>
+    <summary>Will the exported PDF still have selectable text?</summary>
+    <p>
+      No. When a watermark is applied, each page is rendered as an image and the watermark is
+      drawn on top. The exported PDF is image-based, so the text is no longer selectable. If you
+      need selectable text plus a watermark, use a vector-based PDF editor instead.
+    </p>
+  </details>
+
+  <details>
+    <summary>Can I use this tool to remove a watermark?</summary>
+    <p>
+      No. This tool only adds watermarks. Removing a watermark requires either editing the
+      original content stream or covering it with new content, which is a different operation.
+    </p>
+  </details>
+
+  <details>
+    <summary>Can I watermark a HEIC image from my iPhone?</summary>
+    <p>
+      Yes, if your browser can decode HEIC. Safari supports HEIC natively; Chrome and Firefox may
+      not. If the image fails to load, convert it to JPG first using the HEIC to JPG converter,
+      then watermark the JPG.
+    </p>
+  </details>
+
+  <details>
+    <summary>Is there a batch mode for multiple files?</summary>
+    <p>
+      Not in this version. The tool processes one file at a time. To watermark several files,
+      process them one after another and re-upload for each. For PDFs, all pages within a single
+      file are handled in one operation.
+    </p>
+  </details>
+
+  <details>
+    <summary>Does the watermark work on both landscape and portrait pages?</summary>
+    <p>
+      Yes. The watermark is positioned and scaled relative to each page's own dimensions, so a
+      landscape page and a portrait page in the same PDF both receive correctly placed
+      watermarks.
+    </p>
+  </details>
+
+</section>
 
 <script>
 'use strict';
@@ -1598,18 +1604,14 @@ async function loadFile(file) {
 
   if (State.sourceType === 'image') {
     editor.classList.add('image-source');
-
     document.getElementById('thumbSidebar').classList.add('hidden');
     document.getElementById('pageRangeSection').classList.add('hidden');
     document.getElementById('previewArea').classList.add('image-mode');
-
   } else {
     editor.classList.remove('image-source');
-
     document.getElementById('thumbSidebar').classList.remove('hidden');
     document.getElementById('pageRangeSection').classList.remove('hidden');
     document.getElementById('previewArea').classList.remove('image-mode');
-
     buildThumbnails();
   }
 
@@ -1734,18 +1736,10 @@ function fitPageToViewer() {
   const naturalH = canvas.height;
 
   let scale;
-
   if (State.sourceType === 'image') {
-    scale = Math.min(
-      availableW / naturalW,
-      availableH / naturalH,
-      1
-    );
+    scale = Math.min(availableW / naturalW, availableH / naturalH, 1);
   } else {
-    scale = Math.min(
-      availableW / naturalW,
-      1
-    );
+    scale = Math.min(availableW / naturalW, 1);
   }
 
   const targetW = Math.max(1, Math.round(naturalW * scale));
@@ -1753,17 +1747,14 @@ function fitPageToViewer() {
 
   page.style.width = targetW + 'px';
   page.style.height = targetH + 'px';
-
   canvas.style.width = targetW + 'px';
   canvas.style.height = targetH + 'px';
-
   overlay.width = targetW;
   overlay.height = targetH;
   overlay.style.width = targetW + 'px';
   overlay.style.height = targetH + 'px';
 }
 
-// Re-fit on resize + orientation change
 let resizeTimer = null;
 function handleViewportChange() {
   if (resizeTimer) clearTimeout(resizeTimer);
@@ -2136,7 +2127,7 @@ function drawTiledImage(ctx, canvasW, canvasH, wm, scaledSpacing) {
 }
 
 // ============================================================
-// DRAG WATERMARK (single mode) — touch & mouse
+// DRAG WATERMARK (single mode)
 // ============================================================
 (function wireDrag() {
   const overlay = document.getElementById('wmOverlay');
