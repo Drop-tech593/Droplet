@@ -3,9 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>AI Summarizer - Droplet</title>
-<meta name="description" content="Summarize long text, articles, and documents instantly in your browser. Advanced client-side AI-powered summarization.">
+<title>AI Summarizer Online Free – Extractive Text Summarizer | Droplet</title>
+<meta name="description" content="Summarize long text, articles, and documents instantly in your browser. Extractive TF-IDF summarization with key topic extraction. 100% client-side, private, and free.">
 <meta name="theme-color" content="#ffffff">
+<link rel="canonical" href="https://dropletweb.xyz/ai-summarizer.html">
 
 <!-- Prevent flash of dark theme on reload -->
 <script>
@@ -176,6 +177,60 @@
     margin-left: auto;
     margin-right: auto;
     line-height: 1.6;
+  }
+
+  /* ============================================================ */
+  /* WHAT THIS TOOL IS / ISN'T                                     */
+  /* ============================================================ */
+  .what-is {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 20px 22px;
+    margin-bottom: 24px;
+  }
+  .what-is h2 {
+    font-size: 15px;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 0 0 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .what-is-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .what-is-col h3 {
+    font-size: 12px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin: 0 0 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .what-is-col.yes h3 { color: #059669; }
+  .what-is-col.no h3 { color: #dc2626; }
+  .what-is-col ul {
+    margin: 0;
+    padding-left: 18px;
+    list-style: disc;
+  }
+  .what-is-col li {
+    font-size: 13.5px;
+    line-height: 1.65;
+    color: #475569;
+    margin-bottom: 5px;
+  }
+  .what-is-col li:last-child { margin-bottom: 0; }
+  .what-is-col li strong { color: #1e293b; }
+
+  @media (max-width: 560px) {
+    .what-is-grid { grid-template-columns: 1fr; }
   }
 
   /* ============================================================ */
@@ -590,6 +645,79 @@
   .how-item .txt strong { color: #1e293b; }
 
   /* ============================================================ */
+  /* SEO CONTENT                                                   */
+  /* ============================================================ */
+  .seo-content {
+    max-width: 42rem;
+    margin: 2.5rem auto 1rem;
+    color: #334155;
+    line-height: 1.65;
+  }
+  .seo-content h2 {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 2rem 0 0.5rem;
+  }
+  .seo-content p {
+    margin-bottom: 1rem;
+    font-size: 0.95rem;
+  }
+  .seo-content ul {
+    padding-left: 1.4rem;
+    margin-bottom: 1rem;
+    font-size: 0.95rem;
+  }
+  .seo-content li {
+    margin-bottom: 0.3rem;
+  }
+  .faq-section {
+    max-width: 42rem;
+    margin: 2rem auto;
+  }
+  .faq-section h2 {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: #0f172a;
+    text-align: center;
+    margin-bottom: 1.25rem;
+  }
+  .faq-section details {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.75rem;
+    padding: 0.75rem 1.25rem;
+    margin-bottom: 0.6rem;
+    transition: background 0.2s, border-color 0.2s;
+  }
+  .faq-section summary {
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: #0f172a;
+    cursor: pointer;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .faq-section summary::-webkit-details-marker { display: none; }
+  .faq-section summary::after {
+    content: "➕";
+    font-size: 0.8rem;
+    color: #94a3b8;
+    transition: transform 0.2s;
+  }
+  .faq-section details[open] summary::after {
+    content: "➖";
+  }
+  .faq-section details p {
+    margin-top: 0.6rem;
+    font-size: 0.9rem;
+    color: #475569;
+    line-height: 1.6;
+  }
+
+  /* ============================================================ */
   /* FOOTER                                                        */
   /* ============================================================ */
   footer {
@@ -661,6 +789,7 @@
     .logo-link img { height: 28px; }
     .summary-text { font-size: 15px; }
     .how { padding: 18px; }
+    .what-is { padding: 16px; }
   }
 
   /* ============================================================ */
@@ -682,6 +811,15 @@
     background: linear-gradient(135deg, #1e3a5f, #1e293b);
     box-shadow: 0 8px 24px rgba(59,130,246,0.15);
   }
+  html.dark .what-is {
+    background: #1e293b;
+    border-color: #334155;
+  }
+  html.dark .what-is h2 { color: #f1f5f9; }
+  html.dark .what-is-col li { color: #cbd5e1; }
+  html.dark .what-is-col li strong { color: #f1f5f9; }
+  html.dark .what-is-col.yes h3 { color: #34d399; }
+  html.dark .what-is-col.no h3 { color: #f87171; }
   html.dark .limits {
     background: linear-gradient(135deg, #422006, #451a03);
     border-color: #78350f;
@@ -742,6 +880,12 @@
   html.dark footer a:hover { color: #60a5fa; }
   html.dark .empty-state { color: #64748b; }
   html.dark .empty-state .hint { color: #475569; }
+  html.dark .seo-content { color: #cbd5e1; }
+  html.dark .seo-content h2 { color: #f1f5f9; }
+  html.dark .faq-section h2 { color: #f1f5f9; }
+  html.dark .faq-section details { background: #1e293b; border-color: #334155; }
+  html.dark .faq-section summary { color: #f1f5f9; }
+  html.dark .faq-section details p { color: #94a3b8; }
 </style>
 </head>
 <body>
@@ -767,6 +911,33 @@
       <div class="icon">✨</div>
       <h1>AI <span class="grad">Summarizer</span></h1>
       <p>Turn long articles, documents, and text into concise, easy-to-read summaries — right in your browser.</p>
+    </div>
+
+    <!-- What This Tool Is / Isn't -->
+    <div class="what-is">
+      <h2>📌 What this tool is — and what it isn't</h2>
+      <div class="what-is-grid">
+        <div class="what-is-col yes">
+          <h3>✅ What it does</h3>
+          <ul>
+            <li>Selects the most important <strong>existing sentences</strong> from your text.</li>
+            <li>Ranks sentences using <strong>TF-IDF</strong>, position, length, proper nouns, and numeric data.</li>
+            <li>Extracts <strong>key topics</strong> as a quick overview.</li>
+            <li>Keeps sentences in their <strong>original order</strong> so the summary reads naturally.</li>
+            <li>Runs <strong>100% locally</strong> — nothing is uploaded.</li>
+          </ul>
+        </div>
+        <div class="what-is-col no">
+          <h3>❌ What it doesn't do</h3>
+          <ul>
+            <li>It does <strong>not write new sentences</strong> or rephrase ideas. It is extractive, not generative.</li>
+            <li>It does <strong>not call an AI API</strong>. There is no server, no account, no external model.</li>
+            <li>It does <strong>not understand meaning</strong> the way a language model does. It uses statistics, not semantics.</li>
+            <li>It does <strong>not work well</strong> on poetry, code, chat logs, or tables.</li>
+            <li>It is <strong>not a substitute</strong> for reading the original when accuracy matters.</li>
+          </ul>
+        </div>
+      </div>
     </div>
 
     <!-- Limitations Panel -->
@@ -892,6 +1063,197 @@
         </div>
       </div>
     </div>
+
+    <!-- ============================================================ -->
+    <!-- SEO CONTENT — What is processed, supported input, options     -->
+    <!-- ============================================================ -->
+    <section class="seo-content">
+      <h2>What Gets Processed</h2>
+      <p>
+        The summarizer reads plain text that you paste into the input box. It does not open PDFs,
+        Word documents, images, or web pages directly. To summarize a PDF, first copy its text
+        (or use the Droplet PDF to TXT converter), then paste the text here. To summarize an
+        article, copy the article body and paste it in.
+      </p>
+      <p>
+        Once text is in the box, the tool splits it into sentences, scores each sentence, and
+        selects the highest-scoring ones. The selected sentences are kept in their original
+        order, so the summary reads in the same sequence as the source. Key topics are also
+        extracted and shown as chips above the summary.
+      </p>
+
+      <h2>Supported Input</h2>
+      <ul>
+        <li><strong>Plain text</strong> — paste directly from any source.</li>
+        <li><strong>Articles and blog posts</strong> — the tool works well on structured prose.</li>
+        <li><strong>Reports and documentation</strong> — headings and paragraphs summarize cleanly.</li>
+        <li><strong>Essays and academic writing</strong> — the position and length signals help pick
+            introductory and concluding sentences.</li>
+        <li><strong>Emails and long messages</strong> — useful for skimming a thread.</li>
+      </ul>
+      <p>
+        Minimum input is about 30 words. Maximum is about 100,000 words — beyond that the browser
+        may slow down. For very long books, summarize chapter by chapter.
+      </p>
+
+      <h2>Summary Options</h2>
+      <p>
+        Two options control the output:
+      </p>
+      <ul>
+        <li><strong>Summary length</strong> — Short keeps roughly 15% of the sentences, Medium
+            keeps about 25%, and Long keeps about 40%. The exact number depends on the input.</li>
+        <li><strong>Output format</strong> — Paragraph joins the selected sentences into a flowing
+            paragraph with smooth transitions. Bullet points lists each selected sentence as its
+            own item, which is easier to skim.</li>
+      </ul>
+
+      <h2>What the Summary Includes</h2>
+      <ul>
+        <li><strong>Key topics</strong> — the most frequent meaningful phrases, shown as chips.</li>
+        <li><strong>Selected sentences</strong> — the highest-scoring sentences in original order.</li>
+        <li><strong>Statistics</strong> — original word count, summary word count, reduction
+            percentage, and how many sentences were kept out of the total.</li>
+      </ul>
+
+      <h2>Limitations You Should Know</h2>
+      <p>
+        This is an <strong>extractive</strong> summarizer. It does not generate new text. Every
+        sentence in the summary is a sentence that already appeared in your input. The tool ranks
+        and selects; it does not paraphrase.
+      </p>
+      <p>
+        Because it relies on statistics rather than understanding, it can occasionally pick a
+        sentence that is long or full of proper nouns but not actually central to the argument.
+        It can also miss irony, sarcasm, and implied meaning. Always verify important facts
+        against the original.
+      </p>
+      <p>
+        The tool is tuned for English. Stop-word removal and simple stemming work on English
+        vocabulary. Other languages will still produce output, but the quality will be lower.
+      </p>
+
+      <h2>Privacy — No Uploads, No Tracking</h2>
+      <p>
+        All processing happens in your browser using JavaScript. Your text is never sent to a
+        server, never logged, and never stored. When you close or refresh the page, everything
+        is cleared. The only external resource loaded is the Tailwind CSS framework from a CDN.
+      </p>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- FAQ SECTION                                                   -->
+    <!-- ============================================================ -->
+    <section class="faq-section">
+      <h2>AI Summarizer Questions</h2>
+
+      <details>
+        <summary>Is this a real AI summarizer?</summary>
+        <p>
+          It is an AI-adjacent tool that uses classical natural-language processing (TF-IDF
+          scoring, position heuristics, and phrase-frequency extraction) rather than a neural
+          language model. It is sometimes called “extractive summarization”. It does not
+          generate new text the way ChatGPT or Gemini do.
+        </p>
+      </details>
+
+      <details>
+        <summary>Does it work offline?</summary>
+        <p>
+          Yes. After the page has loaded once, you can disconnect from the internet and the
+          summarizer will continue to work. There is no API call and no server involved.
+        </p>
+      </details>
+
+      <details>
+        <summary>Can I summarize a PDF or Word document?</summary>
+        <p>
+          Not directly. Copy the text out of the PDF or Word file and paste it into the input
+          box. For PDFs, the Droplet PDF to TXT converter can extract the text for you first.
+        </p>
+      </details>
+
+      <details>
+        <summary>Why does the summary reuse sentences instead of rewriting them?</summary>
+        <p>
+          Because this is an extractive summarizer. It picks the most important existing
+          sentences. A generative summarizer would rewrite them, but that requires a large
+          language model and a server — which would mean uploading your text. This tool avoids
+          that by staying extractive and local.
+        </p>
+      </details>
+
+      <details>
+        <summary>How accurate is the summary?</summary>
+        <p>
+          For structured prose — articles, reports, documentation — the summary usually captures
+          the main points well. For informal writing, poetry, or text with heavy irony, it can
+          miss meaning. Always check the original when accuracy matters.
+        </p>
+      </details>
+
+      <details>
+        <summary>What is the maximum input size?</summary>
+        <p>
+          Around 100,000 words. Beyond that the browser may become slow because all processing
+          happens in memory. For very long documents, summarize one chapter or section at a time.
+        </p>
+      </details>
+
+      <details>
+        <summary>Does it support languages other than English?</summary>
+        <p>
+          It will produce output for other languages, but the stop-word list and stemming rules
+          are tuned for English. Summaries in other languages may be lower quality. The tool
+          works best on English text.
+        </p>
+      </details>
+
+      <details>
+        <summary>Can I edit the summary after generating it?</summary>
+        <p>
+          Yes. The summary is plain text. You can copy it, paste it into a document, and edit it
+          freely. Use the Copy button to grab the whole summary, or select just the parts you
+          want.
+        </p>
+      </details>
+
+      <details>
+        <summary>What do the key topics chips represent?</summary>
+        <p>
+          They are the most frequent meaningful phrases in the text — single words, bigrams, and
+          trigrams that appear multiple times after stop-word removal. They give you a quick
+          sense of what the document is about before you read the summary.
+        </p>
+      </details>
+
+      <details>
+        <summary>Is my text stored or logged anywhere?</summary>
+        <p>
+          No. Everything runs in your browser. The text is never transmitted to a server, never
+          logged, and never stored. When you refresh or close the page, all data is discarded.
+        </p>
+      </details>
+
+      <details>
+        <summary>Can I use this for commercial or academic work?</summary>
+        <p>
+          You can use the tool freely. However, because summaries are extractive and can miss
+          nuance, they are not a substitute for reading the source. For academic work, always
+          cite the original and verify any summary against it.
+        </p>
+      </details>
+
+      <details>
+        <summary>What happens if I paste code or a table?</summary>
+        <p>
+          The summarizer will still run, but the output will be poor. Code and tables do not
+          have the sentence structure the tool relies on. For code, use a code-specific
+          summarizer. For tables, extract the key rows manually.
+        </p>
+      </details>
+
+    </section>
 
   </main>
 
