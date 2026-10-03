@@ -30,7 +30,7 @@
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4006702663328202"
      crossorigin="anonymous"></script>
 
-  <!-- ===== FAVICON & PWA (RESTORED) ===== -->
+  <!-- ===== FAVICON & PWA ===== -->
   <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <link rel="shortcut icon" href="/favicon.ico" />
@@ -116,7 +116,7 @@
     html.dark { color-scheme: dark; }
     * { -webkit-font-smoothing: antialiased; }
 
-    /* ===== SOFTER GRADIENT BLOBS ===== */
+    /* ===== FLOATING BLOBS ===== */
     @keyframes float {
       0%, 100% { transform: translate(0, 0) scale(1); }
       33% { transform: translate(30px, -30px) scale(1.1); }
@@ -278,6 +278,26 @@
       transform: translateX(4px);
     }
 
+    /* ===== HANDOFF SPINNER ===== */
+    .handoff-status {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(15,23,42,0.85); backdrop-filter: blur(6px);
+      z-index: 3000;
+      justify-content: center; align-items: center;
+      color: white; text-align: center;
+    }
+    .handoff-status.show { display: flex; }
+    .handoff-status .spinner {
+      width: 48px; height: 48px;
+      border: 4px solid rgba(255,255,255,0.2);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 1rem;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
     /* ===== PWA INSTALL ===== */
     #pwa-install-btn { display: none; }
     #pwa-install-btn.visible { display: flex !important; }
@@ -347,6 +367,15 @@
 
   <a href="#main" class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[3000] focus:bg-blue-600 focus:text-white focus:px-4 focus:py-2 focus:rounded-lg">Skip to content</a>
 
+  <!-- ===== HANDOFF SPINNER (shown when saving file) ===== -->
+  <div class="handoff-status" id="handoffStatus">
+    <div>
+      <div class="spinner"></div>
+      <p class="font-bold text-lg">Preparing your file…</p>
+      <p class="text-sm text-slate-300 mt-1">Handing off to the converter</p>
+    </div>
+  </div>
+
   <!-- ===== HEADER ===== -->
   <header class="sticky top-0 z-50 backdrop-blur-xl bg-white/75 border-b border-slate-200/70 transition-colors">
     <div class="max-w-7xl mx-auto flex justify-between items-center px-4 md:px-6 h-16">
@@ -356,7 +385,6 @@
         <span class="font-black text-lg tracking-tight text-slate-900">Droplet</span>
       </a>
 
-      <!-- Desktop Nav -->
       <nav class="desktop-nav">
         <div class="nav-link-with-dropdown dropdown-group">
           <a href="#all-tools">All Tools</a>
@@ -548,7 +576,7 @@
   <!-- ===== MAIN ===== -->
   <main id="main" class="flex-grow">
 
-    <!-- HERO — SOFTER -->
+    <!-- HERO -->
     <section class="relative overflow-hidden">
       <div class="absolute inset-0 -z-10 overflow-hidden">
         <div class="blob absolute top-0 left-1/4 w-[500px] h-[500px] bg-blue-300/20 rounded-full blur-3xl"></div>
@@ -638,7 +666,7 @@
       </div>
     </section>
 
-    <!-- POPULAR CONVERTERS — SOFTER (mostly blue + accent) -->
+    <!-- POPULAR CONVERTERS -->
     <section id="all-tools" class="max-w-6xl mx-auto px-4 py-14">
       <div class="text-center mb-10">
         <h2 class="text-3xl md:text-4xl font-black text-slate-900 mb-2">Popular Client-Side Converters</h2>
@@ -1214,7 +1242,7 @@
     });
 
     // ============================================
-    // 5. FILE HANDLING
+    // 5. FILE HANDLING + HANDOFF (Option B)
     // ============================================
     const fileInput = document.getElementById('file-input');
     const dropzone = document.getElementById('dropzone');
@@ -1225,7 +1253,49 @@
     const fileSize = document.getElementById('fileSize');
     const conversionOptions = document.getElementById('conversionOptions');
     const noOptions = document.getElementById('noOptions');
+    const handoffStatus = document.getElementById('handoffStatus');
 
+    // ==========================================
+    // IndexedDB handoff helpers
+    // ==========================================
+    const HANDOFF_DB = 'droplet-handoff';
+    const HANDOFF_STORE = 'files';
+    const HANDOFF_KEY = 'pending';
+    const HANDOFF_MAX_AGE_MS = 2 * 60 * 1000; // 2 minutes
+
+    function openHandoffDB() {
+      return new Promise((resolve, reject) => {
+        const req = indexedDB.open(HANDOFF_DB, 1);
+        req.onupgradeneeded = (e) => {
+          const db = e.target.result;
+          if (!db.objectStoreNames.contains(HANDOFF_STORE)) {
+            db.createObjectStore(HANDOFF_STORE);
+          }
+        };
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = () => reject(req.error);
+      });
+    }
+
+    async function saveFileForHandoff(file) {
+      const db = await openHandoffDB();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(HANDOFF_STORE, 'readwrite');
+        tx.objectStore(HANDOFF_STORE).put({
+          name: file.name,
+          type: file.type,
+          size: file.size,
+          blob: file,
+          savedAt: Date.now()
+        }, HANDOFF_KEY);
+        tx.oncomplete = () => resolve();
+        tx.onerror = () => reject(tx.error);
+      });
+    }
+
+    // ==========================================
+    // Conversion map & extension map
+    // ==========================================
     const conversionMap = {
       'image/heic': [{ name: 'HEIC to JPG', page: '/heic-to-jpg.html', emoji: '🖼️', desc: 'Convert to universal JPG' }],
       'image/heif': [{ name: 'HEIC to JPG', page: '/heic-to-jpg.html', emoji: '🖼️', desc: 'Convert to universal JPG' }],
@@ -1306,6 +1376,28 @@
           btn.className = 'option-btn';
           btn.href = c.page;
           btn.innerHTML = `<span class="emoji" style="font-size:1.5rem">${c.emoji}</span><div><div style="font-weight:600">${c.name}</div><div style="font-size:0.75rem;color:#94a3b8">${c.desc}</div></div>`;
+
+          // 👇 Option B: save file to IndexedDB before navigating
+          btn.addEventListener('click', async (e) => {
+            e.preventDefault();
+
+            // Show loading overlay
+            handoffStatus.classList.add('show');
+
+            try {
+              await saveFileForHandoff(file);
+              // Small delay so the UI feels intentional
+              setTimeout(() => {
+                window.location.href = c.page;
+              }, 200);
+            } catch (err) {
+              console.warn('[Handoff] Failed to save file:', err);
+              handoffStatus.classList.remove('show');
+              // Fallback: just navigate (user re-picks file)
+              window.location.href = c.page;
+            }
+          });
+
           conversionOptions.appendChild(btn);
         });
       } else {
