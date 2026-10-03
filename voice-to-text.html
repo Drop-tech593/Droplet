@@ -20,16 +20,22 @@
     </p>
 
 
+    <!-- ==========================================
+         DEVICE TEST
+    =========================================== -->
+
     <h2>1. Device</h2>
 
     <button id="device-test">
         Check My Device
     </button>
 
-    <pre id="device-results">
-Click "Check My Device"
-    </pre>
+    <pre id="device-results">Click "Check My Device"</pre>
 
+
+    <!-- ==========================================
+         AUDIO FILE
+    =========================================== -->
 
     <h2>2. Select Audio</h2>
 
@@ -39,6 +45,10 @@ Click "Check My Device"
         accept="audio/*"
     >
 
+
+    <!-- ==========================================
+         TRANSCRIPTION
+    =========================================== -->
 
     <h2>3. Transcribe</h2>
 
@@ -52,6 +62,10 @@ Click "Check My Device"
     </p>
 
 
+    <!-- ==========================================
+         TRANSCRIPT
+    =========================================== -->
+
     <h2>Transcript</h2>
 
     <textarea
@@ -62,14 +76,20 @@ Click "Check My Device"
     ></textarea>
 
 
-    <!-- Droplet device system -->
+    <!-- ==========================================
+         DROPLET VOICE ENGINE
+    =========================================== -->
 
     <script src="./voice-engine/js/device-check.js"></script>
 
     <script src="./voice-engine/js/model-manager.js"></script>
 
+    <script src="./voice-engine/js/audio-processor.js"></script>
 
-    <!-- Transformers.js / Whisper -->
+
+    <!-- ==========================================
+         TRANSFORMERS.JS + WHISPER
+    =========================================== -->
 
     <script type="module">
 
@@ -77,6 +97,10 @@ Click "Check My Device"
             pipeline
         } from "https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.8.1";
 
+
+        // ==========================================
+        // UI ELEMENTS
+        // ==========================================
 
         const deviceButton =
             document.getElementById("device-test");
@@ -97,34 +121,55 @@ Click "Check My Device"
             document.getElementById("transcript");
 
 
+        // Whisper pipeline will be stored here
+        // after the first model load.
+
         let transcriber = null;
 
 
-        // -----------------------------------------
+        // ==========================================
         // DEVICE TEST
-        // -----------------------------------------
+        // ==========================================
 
         deviceButton.addEventListener(
             "click",
             async () => {
 
-                const capabilities =
-                    await window.DropletVoice
-                        .detectCapabilities();
+                try {
 
-                deviceResults.textContent =
-                    JSON.stringify(
-                        capabilities,
-                        null,
-                        2
+                    const capabilities =
+                        await window.DropletVoice
+                            .detectCapabilities();
+
+
+                    deviceResults.textContent =
+                        JSON.stringify(
+                            capabilities,
+                            null,
+                            2
+                        );
+
+
+                } catch (error) {
+
+                    console.error(
+                        "Device detection error:",
+                        error
                     );
+
+
+                    deviceResults.textContent =
+                        "Device test failed: " +
+                        error.message;
+                }
+
             }
         );
 
 
-        // -----------------------------------------
-        // TRANSCRIBE
-        // -----------------------------------------
+        // ==========================================
+        // TRANSCRIBE BUTTON
+        // ==========================================
 
         transcribeButton.addEventListener(
             "click",
@@ -133,6 +178,10 @@ Click "Check My Device"
                 const file =
                     audioInput.files[0];
 
+
+                // ----------------------------------
+                // CHECK AUDIO FILE
+                // ----------------------------------
 
                 if (!file) {
 
@@ -144,19 +193,76 @@ Click "Check My Device"
                 }
 
 
+                // Prevent double clicking while
+                // transcription is running.
+
+                transcribeButton.disabled = true;
+
+
                 try {
 
                     transcript.value = "";
 
 
-                    // -----------------------------
+                    console.log(
+                        "================================"
+                    );
+
+                    console.log(
+                        "Droplet Voice-to-Text starting"
+                    );
+
+                    console.log(
+                        "File:",
+                        file.name
+                    );
+
+                    console.log(
+                        "File type:",
+                        file.type
+                    );
+
+                    console.log(
+                        "File size:",
+                        file.size,
+                        "bytes"
+                    );
+
+
+                    // ==================================
+                    // STEP 1
+                    // CHECK DEVICE
+                    // ==================================
+
+                    status.textContent =
+                        "Checking device...";
+
+
+                    const configuration =
+                        await window.DropletVoice
+                            .selectModel();
+
+
+                    console.log(
+                        "Voice configuration:",
+                        configuration
+                    );
+
+
+                    // ==================================
+                    // STEP 2
                     // LOAD WHISPER
-                    // -----------------------------
+                    // ==================================
 
                     if (!transcriber) {
 
                         status.textContent =
                             "Loading Whisper AI model...";
+
+
+                        console.log(
+                            "Loading Whisper Tiny English..."
+                        );
 
 
                         transcriber =
@@ -173,35 +279,150 @@ Click "Check My Device"
                             );
 
 
+                        console.log(
+                            "Whisper model loaded."
+                        );
+
+
                         status.textContent =
                             "Whisper loaded.";
                     }
 
 
-                    // -----------------------------
-                    // AUDIO
-                    // -----------------------------
+                    // ==================================
+                    // STEP 3
+                    // DECODE AUDIO
+                    // ==================================
 
                     status.textContent =
-                        "Reading audio...";
+                        "Decoding and preparing audio...";
 
 
-                    const audioURL =
-                        URL.createObjectURL(file);
+                    console.log(
+                        "Starting audio preprocessing..."
+                    );
 
 
-                    // -----------------------------
-                    // TRANSCRIPTION
-                    // -----------------------------
+                    const audioData =
+                        await window.DropletVoice
+                            .processAudioFile(file);
+
+
+                    console.log(
+                        "Audio ready for Whisper:",
+                        audioData.length,
+                        "samples"
+                    );
+
+
+                    console.log(
+                        "Calculated duration:",
+                        audioData.length / 16000,
+                        "seconds"
+                    );
+
+
+                    // ==================================
+                    // AUDIO VALIDATION
+                    // ==================================
+
+                    if (
+                        !audioData ||
+                        audioData.length === 0
+                    ) {
+
+                        throw new Error(
+                            "Audio processor returned empty audio."
+                        );
+                    }
+
+
+                    // Find audio amplitude.
+                    // This helps us detect completely
+                    // silent/invalid decoded audio.
+
+                    let maxAmplitude = 0;
+
+                    let sumAmplitude = 0;
+
+
+                    for (
+                        let i = 0;
+                        i < audioData.length;
+                        i++
+                    ) {
+
+                        const amplitude =
+                            Math.abs(
+                                audioData[i]
+                            );
+
+
+                        if (
+                            amplitude >
+                            maxAmplitude
+                        ) {
+
+                            maxAmplitude =
+                                amplitude;
+                        }
+
+
+                        sumAmplitude +=
+                            amplitude;
+                    }
+
+
+                    const averageAmplitude =
+                        sumAmplitude /
+                        audioData.length;
+
+
+                    console.log(
+                        "Maximum audio amplitude:",
+                        maxAmplitude
+                    );
+
+
+                    console.log(
+                        "Average audio amplitude:",
+                        averageAmplitude
+                    );
+
+
+                    if (
+                        maxAmplitude <
+                        0.00001
+                    ) {
+
+                        throw new Error(
+                            "Decoded audio appears to be silent."
+                        );
+                    }
+
+
+                    // ==================================
+                    // STEP 4
+                    // WHISPER TRANSCRIPTION
+                    // ==================================
 
                     status.textContent =
-                        "Transcribing...";
+                        "Transcribing audio with Whisper...";
+
+
+                    console.log(
+                        "Sending audio to Whisper..."
+                    );
+
+
+                    const startTime =
+                        performance.now();
 
 
                     const result =
                         await transcriber(
 
-                            audioURL,
+                            audioData,
 
                             {
                                 chunk_length_s: 30,
@@ -214,17 +435,28 @@ Click "Check My Device"
                         );
 
 
-                    // -----------------------------
-                    // RESULT
-                    // -----------------------------
-
-                    transcript.value =
-                        result.text;
+                    const endTime =
+                        performance.now();
 
 
-                    status.textContent =
-                        "Transcription complete.";
+                    const transcriptionSeconds =
+                        (
+                            (endTime - startTime) /
+                            1000
+                        ).toFixed(2);
 
+
+                    console.log(
+                        "Whisper finished in:",
+                        transcriptionSeconds,
+                        "seconds"
+                    );
+
+
+                    // ==================================
+                    // STEP 5
+                    // INSPECT WHISPER RESULT
+                    // ==================================
 
                     console.log(
                         "Droplet transcript:",
@@ -232,12 +464,72 @@ Click "Check My Device"
                     );
 
 
-                    URL.revokeObjectURL(
-                        audioURL
+                    console.log(
+                        "Result type:",
+                        typeof result
+                    );
+
+
+                    console.log(
+                        "Full result:",
+                        JSON.stringify(
+                            result,
+                            null,
+                            2
+                        )
+                    );
+
+
+                    // ==================================
+                    // STEP 6
+                    // DISPLAY TRANSCRIPT
+                    // ==================================
+
+                    if (
+                        result &&
+                        typeof result.text === "string" &&
+                        result.text.trim().length > 0
+                    ) {
+
+                        transcript.value =
+                            result.text.trim();
+
+
+                        status.textContent =
+                            "Transcription complete.";
+
+
+                        console.log(
+                            "Transcript successfully generated."
+                        );
+
+                    } else {
+
+                        transcript.value =
+                            "Whisper returned no text.";
+
+
+                        status.textContent =
+                            "Transcription finished, but no speech was detected.";
+
+
+                        console.warn(
+                            "Whisper returned an empty transcript."
+                        );
+
+                    }
+
+
+                    console.log(
+                        "================================"
                     );
 
 
                 } catch (error) {
+
+                    // ==================================
+                    // ERROR HANDLING
+                    // ==================================
 
                     console.error(
                         "Droplet transcription error:",
@@ -248,6 +540,18 @@ Click "Check My Device"
                     status.textContent =
                         "Transcription failed: " +
                         error.message;
+
+
+                    transcript.value =
+                        "ERROR:\n\n" +
+                        error.message;
+
+                } finally {
+
+                    // Re-enable button
+
+                    transcribeButton.disabled =
+                        false;
                 }
 
             }
