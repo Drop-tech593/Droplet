@@ -2,7 +2,11 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
     <title>Voice to Text - Droplet</title>
 </head>
@@ -11,49 +15,244 @@
 
     <h1>Voice to Text</h1>
 
-    <p>Droplet local AI transcription.</p>
+    <p>
+        Local AI transcription powered by your device.
+    </p>
 
-    <h2>Device Test</h2>
+
+    <h2>1. Device</h2>
 
     <button id="device-test">
         Check My Device
     </button>
 
     <pre id="device-results">
-        Click "Check My Device"
+Click "Check My Device"
     </pre>
 
 
-    <!-- Device detection -->
+    <h2>2. Select Audio</h2>
+
+    <input
+        type="file"
+        id="audio-file"
+        accept="audio/*"
+    >
+
+
+    <h2>3. Transcribe</h2>
+
+    <button id="transcribe-button">
+        Transcribe Audio
+    </button>
+
+
+    <p id="status">
+        Waiting for audio...
+    </p>
+
+
+    <h2>Transcript</h2>
+
+    <textarea
+        id="transcript"
+        rows="15"
+        cols="80"
+        placeholder="Your transcript will appear here..."
+    ></textarea>
+
+
+    <!-- Droplet device system -->
+
     <script src="./voice-engine/js/device-check.js"></script>
 
-    <!-- Main Voice-to-Text application -->
-    <script src="./voice-engine/js/app.js"></script>
+    <script src="./voice-engine/js/model-manager.js"></script>
 
 
-    <script>
-        const testButton = document.getElementById("device-test");
-        const results = document.getElementById("device-results");
+    <!-- Transformers.js / Whisper -->
 
-        testButton.addEventListener("click", async () => {
+    <script type="module">
 
-            try {
+        import {
+            pipeline
+        } from "https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.8.1";
+
+
+        const deviceButton =
+            document.getElementById("device-test");
+
+        const deviceResults =
+            document.getElementById("device-results");
+
+        const audioInput =
+            document.getElementById("audio-file");
+
+        const transcribeButton =
+            document.getElementById("transcribe-button");
+
+        const status =
+            document.getElementById("status");
+
+        const transcript =
+            document.getElementById("transcript");
+
+
+        let transcriber = null;
+
+
+        // -----------------------------------------
+        // DEVICE TEST
+        // -----------------------------------------
+
+        deviceButton.addEventListener(
+            "click",
+            async () => {
 
                 const capabilities =
-                    await window.DropletVoice.detectCapabilities();
+                    await window.DropletVoice
+                        .detectCapabilities();
 
-                results.textContent =
-                    JSON.stringify(capabilities, null, 2);
-
-            } catch (error) {
-
-                console.error(error);
-
-                results.textContent =
-                    "Device test failed: " + error.message;
+                deviceResults.textContent =
+                    JSON.stringify(
+                        capabilities,
+                        null,
+                        2
+                    );
             }
+        );
 
-        });
+
+        // -----------------------------------------
+        // TRANSCRIBE
+        // -----------------------------------------
+
+        transcribeButton.addEventListener(
+            "click",
+            async () => {
+
+                const file =
+                    audioInput.files[0];
+
+
+                if (!file) {
+
+                    alert(
+                        "Please select an audio file first."
+                    );
+
+                    return;
+                }
+
+
+                try {
+
+                    transcript.value = "";
+
+
+                    // -----------------------------
+                    // LOAD WHISPER
+                    // -----------------------------
+
+                    if (!transcriber) {
+
+                        status.textContent =
+                            "Loading Whisper AI model...";
+
+
+                        transcriber =
+                            await pipeline(
+
+                                "automatic-speech-recognition",
+
+                                "onnx-community/whisper-tiny.en",
+
+                                {
+                                    device: "webgpu"
+                                }
+
+                            );
+
+
+                        status.textContent =
+                            "Whisper loaded.";
+                    }
+
+
+                    // -----------------------------
+                    // AUDIO
+                    // -----------------------------
+
+                    status.textContent =
+                        "Reading audio...";
+
+
+                    const audioURL =
+                        URL.createObjectURL(file);
+
+
+                    // -----------------------------
+                    // TRANSCRIPTION
+                    // -----------------------------
+
+                    status.textContent =
+                        "Transcribing...";
+
+
+                    const result =
+                        await transcriber(
+
+                            audioURL,
+
+                            {
+                                chunk_length_s: 30,
+
+                                stride_length_s: 5,
+
+                                return_timestamps: true
+                            }
+
+                        );
+
+
+                    // -----------------------------
+                    // RESULT
+                    // -----------------------------
+
+                    transcript.value =
+                        result.text;
+
+
+                    status.textContent =
+                        "Transcription complete.";
+
+
+                    console.log(
+                        "Droplet transcript:",
+                        result
+                    );
+
+
+                    URL.revokeObjectURL(
+                        audioURL
+                    );
+
+
+                } catch (error) {
+
+                    console.error(
+                        "Droplet transcription error:",
+                        error
+                    );
+
+
+                    status.textContent =
+                        "Transcription failed: " +
+                        error.message;
+                }
+
+            }
+        );
+
     </script>
 
 </body>
