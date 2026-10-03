@@ -1,9 +1,6 @@
 // ============================================================
-// DROPLET VOICE-TO-TEXT V2
-// Whisper Web Worker
-//
-// Runs Whisper away from the main page so the UI can remain
-// responsive while transcription is happening.
+// DROPLET VOICE-TO-TEXT
+// Whisper Worker - Long Audio Engine
 // ============================================================
 
 import {
@@ -11,18 +8,35 @@ import {
 } from "https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.8.1";
 
 
-// ------------------------------------------------------------
+// ============================================================
 // STATE
-// ------------------------------------------------------------
+// ============================================================
 
 let transcriber = null;
+
 let currentModel = null;
+
 let currentDevice = null;
 
+let cancelled = false;
 
-// ------------------------------------------------------------
-// SEND MESSAGE TO MAIN PAGE
-// ------------------------------------------------------------
+
+// Whisper expects 16 kHz audio.
+const SAMPLE_RATE = 16000;
+
+
+// Each chunk sent to Whisper.
+const CHUNK_SECONDS = 20;
+
+
+// Small overlap between chunks.
+// This helps avoid losing words at boundaries.
+const OVERLAP_SECONDS = 3;
+
+
+// ============================================================
+// SEND MESSAGE TO PAGE
+// ============================================================
 
 function send(type, data = {}) {
 
@@ -33,16 +47,21 @@ function send(type, data = {}) {
 }
 
 
-// ------------------------------------------------------------
-// LOAD WHISPER MODEL
-// ------------------------------------------------------------
+// ============================================================
+// LOAD MODEL
+// ============================================================
 
 async function loadModel(
     model = "onnx-community/whisper-base.en",
     device = "webgpu"
 ) {
 
-    // Don't reload the same model unnecessarily.
+    cancelled = false;
+
+
+    // --------------------------------------------------------
+    // SAME MODEL ALREADY LOADED
+    // --------------------------------------------------------
 
     if (
         transcriber &&
@@ -60,6 +79,10 @@ async function loadModel(
     }
 
 
+    // --------------------------------------------------------
+    // LOAD NEW MODEL
+    // --------------------------------------------------------
+
     send("status", {
         message: "Loading Whisper model..."
     });
@@ -72,10 +95,8 @@ async function loadModel(
 
 
     console.log(
-        "[Droplet Worker] Loading:",
-        model,
-        "on",
-        device
+        "[Droplet Worker] Loading model:",
+        model
     );
 
 
@@ -86,32 +107,30 @@ async function loadModel(
         model,
 
         {
+
             device,
 
             progress_callback: (progress) => {
 
-                /*
-                 * Model download/loading progress.
-                 *
-                 * Transformers.js may send several different
-                 * progress object shapes, so forward the raw
-                 * object to the page.
-                 */
-
-                send("model-progress", {
-                    progress
-                });
+                send(
+                    "model-progress",
+                    {
+                        progress
+                    }
+                );
             }
         }
     );
 
 
     currentModel = model;
+
     currentDevice = device;
 
 
     console.log(
-        "[Droplet Worker] Model ready."
+        "[Droplet Worker] Model ready:",
+        model
     );
 
 
@@ -123,11 +142,335 @@ async function loadModel(
 }
 
 
-// ------------------------------------------------------------
-// TRANSCRIBE ONE AUDIO JOB
-// ------------------------------------------------------------
+// ============================================================
+// CREATE LONG-AUDIO CHUNKS
+// ============================================================
 
-async function transcribeAudio(
+function createChunks(audio) {
+
+    const chunkSamples =
+        CHUNK_SECONDS *
+        SAMPLE_RATE;
+
+
+    const overlapSamples =
+        OVERLAP_SECONDS *
+        SAMPLE_RATE;
+
+
+    /*
+     * Move forward by:
+     *
+     * 20 sec chunk - 3 sec overlap
+     *
+     * = 17 seconds each time
+     */
+
+    const stepSamples =
+        chunkSamples -
+        overlapSamples;
+
+
+    const chunks = [];
+
+
+    let startSample = 0;
+
+    let index = 0;
+
+
+    while (
+        startSample <
+        audio.length
+    ) {
+
+        const endSample =
+            Math.min(
+                startSample +
+                chunkSamples,
+
+                audio.length
+            );
+
+
+        const chunk =
+            audio.slice(
+                startSample,
+                endSample
+            );
+
+
+        chunks.push({
+
+            index,
+
+            startSample,
+
+            endSample,
+
+            startTime:
+                startSample /
+                SAMPLE_RATE,
+
+            endTime:
+                endSample /
+                SAMPLE_RATE,
+
+            audio:
+                chunk
+        });
+
+
+        // Last chunk reached end of file.
+
+        if (
+            endSample >=
+            audio.length
+        ) {
+
+            break;
+        }
+
+
+        startSample +=
+            stepSamples;
+
+
+        index++;
+    }
+
+
+    return chunks;
+}
+
+
+// ============================================================
+// CLEAN TRANSCRIPT TEXT
+// ============================================================
+
+function cleanText(text) {
+
+    if (!text) {
+        return "";
+    }
+
+
+    return text
+        .replace(/\s+/g, " ")
+        .trim();
+}
+
+
+// ============================================================
+// WORD NORMALIZATION
+// Used only when comparing overlap.
+// ============================================================
+
+function normalizeWord(word) {
+
+    return word
+        .toLowerCase()
+        .replace(
+            /[^a-z0-9']/g,
+            ""
+        );
+}
+
+
+// ============================================================
+// MERGE TWO TRANSCRIPTS
+//
+// Example:
+//
+// Previous:
+// "I went to the shop this morning"
+//
+// New chunk:
+// "the shop this morning and bought milk"
+//
+// Result:
+// "I went to the shop this morning and bought milk"
+// ============================================================
+
+function mergeTranscript(
+    previousText,
+    newText
+) {
+
+    previousText =
+        cleanText(
+            previousText
+        );
+
+
+    newText =
+        cleanText(
+            newText
+        );
+
+
+    if (!previousText) {
+
+        return newText;
+    }
+
+
+    if (!newText) {
+
+        return previousText;
+    }
+
+
+    const previousWords =
+        previousText.split(/\s+/);
+
+
+    const newWords =
+        newText.split(/\s+/);
+
+
+    /*
+     * Don't search an enormous amount.
+     *
+     * 30 words is more than enough for
+     * our 3-second audio overlap.
+     */
+
+    const maxOverlap =
+        Math.min(
+            30,
+            previousWords.length,
+            newWords.length
+        );
+
+
+    let bestOverlap = 0;
+
+
+    // --------------------------------------------------------
+    // FIND MATCHING WORDS AT BOUNDARY
+    // --------------------------------------------------------
+
+    for (
+        let overlap = maxOverlap;
+        overlap >= 1;
+        overlap--
+    ) {
+
+        let matches = 0;
+
+
+        for (
+            let i = 0;
+            i < overlap;
+            i++
+        ) {
+
+            const previousWord =
+                normalizeWord(
+
+                    previousWords[
+                        previousWords.length -
+                        overlap +
+                        i
+                    ]
+                );
+
+
+            const newWord =
+                normalizeWord(
+                    newWords[i]
+                );
+
+
+            if (
+                previousWord &&
+                newWord &&
+                previousWord ===
+                    newWord
+            ) {
+
+                matches++;
+            }
+        }
+
+
+        /*
+         * Require a strong match.
+         *
+         * This allows small Whisper differences
+         * while still detecting duplicated overlap.
+         */
+
+        const matchRatio =
+            matches /
+            overlap;
+
+
+        if (
+            overlap >= 2 &&
+            matchRatio >= 0.75
+        ) {
+
+            bestOverlap =
+                overlap;
+
+            break;
+        }
+    }
+
+
+    // --------------------------------------------------------
+    // REMOVE DUPLICATED OVERLAP
+    // --------------------------------------------------------
+
+    if (
+        bestOverlap >
+        0
+    ) {
+
+        const remainingWords =
+            newWords.slice(
+                bestOverlap
+            );
+
+
+        if (
+            remainingWords.length ===
+            0
+        ) {
+
+            return previousText;
+        }
+
+
+        return cleanText(
+
+            previousText +
+            " " +
+            remainingWords.join(" ")
+        );
+    }
+
+
+    // --------------------------------------------------------
+    // NO RELIABLE MATCH FOUND
+    // --------------------------------------------------------
+
+    return cleanText(
+
+        previousText +
+        " " +
+        newText
+    );
+}
+
+
+// ============================================================
+// TRANSCRIBE LONG AUDIO
+// ============================================================
+
+async function transcribeLongAudio(
     audioBuffer,
     jobId
 ) {
@@ -140,13 +483,13 @@ async function transcribeAudio(
     }
 
 
-    /*
-     * The ArrayBuffer sent by the page is reconstructed
-     * as a Float32Array here.
-     */
+    cancelled = false;
+
 
     const audio =
-        new Float32Array(audioBuffer);
+        new Float32Array(
+            audioBuffer
+        );
 
 
     if (!audio.length) {
@@ -158,177 +501,474 @@ async function transcribeAudio(
 
 
     const duration =
-        audio.length / 16000;
+        audio.length /
+        SAMPLE_RATE;
+
+
+    // --------------------------------------------------------
+    // BUILD CHUNKS
+    // --------------------------------------------------------
+
+    const chunks =
+        createChunks(
+            audio
+        );
 
 
     console.log(
-        "[Droplet Worker] Received",
-        audio.length,
-        "samples"
-    );
-
-
-    console.log(
-        "[Droplet Worker] Duration:",
-        duration,
-        "seconds"
-    );
-
-
-    send("transcription-start", {
-        jobId,
+        "[Droplet Worker] Audio duration:",
         duration
-    });
+    );
 
 
-    send("status", {
-        message: "Transcribing..."
-    });
+    console.log(
+        "[Droplet Worker] Chunks:",
+        chunks.length
+    );
+
+
+    send(
+        "transcription-start",
+        {
+
+            jobId,
+
+            duration,
+
+            totalChunks:
+                chunks.length,
+
+            chunkSeconds:
+                CHUNK_SECONDS,
+
+            overlapSeconds:
+                OVERLAP_SECONDS
+        }
+    );
 
 
     const startTime =
         performance.now();
 
 
-    /*
-     * Keep the exact settings that successfully worked
-     * in Voice-to-Text V1.
-     */
+    let fullTranscript = "";
 
-    const result =
-        await transcriber(
 
-            audio,
+    const completedChunks = [];
 
+
+    // ========================================================
+    // PROCESS CHUNKS ONE BY ONE
+    // ========================================================
+
+    for (
+        let i = 0;
+        i < chunks.length;
+        i++
+    ) {
+
+        // ----------------------------------------------------
+        // CANCEL
+        // ----------------------------------------------------
+
+        if (cancelled) {
+
+            send(
+                "transcription-cancelled",
+                {
+
+                    jobId,
+
+                    text:
+                        fullTranscript,
+
+                    completedChunks:
+                        completedChunks.length,
+
+                    totalChunks:
+                        chunks.length
+                }
+            );
+
+
+            return;
+        }
+
+
+        const chunk =
+            chunks[i];
+
+
+        // ----------------------------------------------------
+        // CHUNK START
+        // ----------------------------------------------------
+
+        send(
+            "chunk-start",
             {
-                chunk_length_s: 20,
-                stride_length_s: 3
+
+                jobId,
+
+                chunkIndex:
+                    i,
+
+                chunkNumber:
+                    i + 1,
+
+                totalChunks:
+                    chunks.length,
+
+                startTime:
+                    chunk.startTime,
+
+                endTime:
+                    chunk.endTime
             }
         );
 
 
-    const elapsed =
-        (performance.now() - startTime) /
+        console.log(
+            `[Droplet Worker] Chunk ${i + 1}/${chunks.length}`,
+            chunk.startTime,
+            "→",
+            chunk.endTime
+        );
+
+
+        const chunkStart =
+            performance.now();
+
+
+        // ----------------------------------------------------
+        // IMPORTANT
+        //
+        // We are now giving Whisper ONE chunk at a time.
+        //
+        // Therefore do NOT use:
+        //
+        // chunk_length_s
+        // stride_length_s
+        //
+        // here.
+        //
+        // We control chunking ourselves.
+        // ----------------------------------------------------
+
+        const result =
+            await transcriber(
+                chunk.audio
+            );
+
+
+        const chunkElapsed =
+            (
+                performance.now() -
+                chunkStart
+            ) /
+            1000;
+
+
+        const chunkText =
+            cleanText(
+                result?.text || ""
+            );
+
+
+        // ----------------------------------------------------
+        // MERGE
+        // ----------------------------------------------------
+
+        fullTranscript =
+            mergeTranscript(
+                fullTranscript,
+                chunkText
+            );
+
+
+        // ----------------------------------------------------
+        // SAVE CHUNK INFORMATION
+        // ----------------------------------------------------
+
+        completedChunks.push({
+
+            index:
+                i,
+
+            startTime:
+                chunk.startTime,
+
+            endTime:
+                chunk.endTime,
+
+            text:
+                chunkText,
+
+            processingTime:
+                chunkElapsed
+        });
+
+
+        // ----------------------------------------------------
+        // PROGRESS
+        // ----------------------------------------------------
+
+        const progress =
+            (
+                (i + 1) /
+                chunks.length
+            ) *
+            100;
+
+
+        const processedAudio =
+            Math.min(
+                chunk.endTime,
+                duration
+            );
+
+
+        const elapsed =
+            (
+                performance.now() -
+                startTime
+            ) /
+            1000;
+
+
+        /*
+         * Estimate remaining time using
+         * average completed-chunk speed.
+         */
+
+        const averageChunkTime =
+            elapsed /
+            (i + 1);
+
+
+        const remainingChunks =
+            chunks.length -
+            (i + 1);
+
+
+        const estimatedRemaining =
+            averageChunkTime *
+            remainingChunks;
+
+
+        // ----------------------------------------------------
+        // SEND PARTIAL TRANSCRIPT
+        // ----------------------------------------------------
+
+        send(
+            "chunk-complete",
+            {
+
+                jobId,
+
+                chunkIndex:
+                    i,
+
+                chunkNumber:
+                    i + 1,
+
+                totalChunks:
+                    chunks.length,
+
+                chunkText,
+
+                fullText:
+                    fullTranscript,
+
+                progress,
+
+                processedAudio,
+
+                duration,
+
+                chunkProcessingTime:
+                    chunkElapsed,
+
+                elapsed,
+
+                estimatedRemaining
+            }
+        );
+    }
+
+
+    // ========================================================
+    // FINISHED
+    // ========================================================
+
+    const totalElapsed =
+        (
+            performance.now() -
+            startTime
+        ) /
         1000;
 
 
-    console.log(
-        "[Droplet Worker] Result:",
-        result
+    send(
+        "transcription-complete",
+        {
+
+            jobId,
+
+            text:
+                fullTranscript,
+
+            duration,
+
+            elapsed:
+                totalElapsed,
+
+            totalChunks:
+                chunks.length,
+
+            completedChunks
+        }
     );
-
-
-    console.log(
-        "[Droplet Worker] Time:",
-        elapsed,
-        "seconds"
-    );
-
-
-    send("transcription-complete", {
-
-        jobId,
-
-        text:
-            result?.text || "",
-
-        result,
-
-        elapsed,
-
-        duration
-    });
 }
 
 
-// ------------------------------------------------------------
-// RECEIVE COMMANDS FROM MAIN PAGE
-// ------------------------------------------------------------
+// ============================================================
+// RECEIVE MESSAGES
+// ============================================================
 
-self.onmessage = async function(event) {
+self.onmessage =
+    async function(event) {
 
-    const message =
-        event.data;
-
-
-    if (!message) {
-        return;
-    }
+        const message =
+            event.data;
 
 
-    try {
+        if (!message) {
+            return;
+        }
 
-        // ----------------------------------------------------
-        // LOAD MODEL
-        // ----------------------------------------------------
 
-        if (message.type === "load-model") {
+        try {
 
-            await loadModel(
-                message.model,
-                message.device
+            // ------------------------------------------------
+            // LOAD MODEL
+            // ------------------------------------------------
+
+            if (
+                message.type ===
+                "load-model"
+            ) {
+
+                await loadModel(
+
+                    message.model,
+
+                    message.device
+                );
+
+
+                return;
+            }
+
+
+            // ------------------------------------------------
+            // TRANSCRIBE
+            // ------------------------------------------------
+
+            if (
+                message.type ===
+                "transcribe"
+            ) {
+
+                await transcribeLongAudio(
+
+                    message.audioBuffer,
+
+                    message.jobId
+                );
+
+
+                return;
+            }
+
+
+            // ------------------------------------------------
+            // CANCEL
+            // ------------------------------------------------
+
+            if (
+                message.type ===
+                "cancel"
+            ) {
+
+                cancelled = true;
+
+
+                send(
+                    "status",
+                    {
+                        message:
+                            "Stopping after current chunk..."
+                    }
+                );
+
+
+                return;
+            }
+
+
+            // ------------------------------------------------
+            // PING
+            // ------------------------------------------------
+
+            if (
+                message.type ===
+                "ping"
+            ) {
+
+                send(
+                    "pong",
+                    {
+
+                        ready:
+                            !!transcriber,
+
+                        model:
+                            currentModel,
+
+                        device:
+                            currentDevice
+                    }
+                );
+
+
+                return;
+            }
+
+
+        } catch (error) {
+
+            console.error(
+                "[Droplet Worker]",
+                error
             );
 
-            return;
-        }
 
+            send(
+                "error",
+                {
 
-        // ----------------------------------------------------
-        // TRANSCRIBE
-        // ----------------------------------------------------
+                    jobId:
+                        message.jobId ||
+                        null,
 
-        if (message.type === "transcribe") {
+                    message:
+                        error?.message ||
+                        String(error),
 
-            await transcribeAudio(
-                message.audioBuffer,
-                message.jobId
+                    stack:
+                        error?.stack ||
+                        null
+                }
             );
-
-            return;
         }
-
-
-        // ----------------------------------------------------
-        // PING
-        // ----------------------------------------------------
-
-        if (message.type === "ping") {
-
-            send("pong", {
-                ready: !!transcriber,
-                model: currentModel,
-                device: currentDevice
-            });
-
-            return;
-        }
-
-
-        console.warn(
-            "[Droplet Worker] Unknown message:",
-            message
-        );
-
-
-    } catch (error) {
-
-        console.error(
-            "[Droplet Worker] Error:",
-            error
-        );
-
-
-        send("error", {
-
-            jobId:
-                message.jobId || null,
-
-            message:
-                error?.message ||
-                String(error),
-
-            stack:
-                error?.stack || null
-        });
-    }
-};
+    };
