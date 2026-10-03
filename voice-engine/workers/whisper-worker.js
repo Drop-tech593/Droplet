@@ -42,6 +42,28 @@ const OVERLAP_SECONDS = 3;
 
 
 // ============================================================
+// STEP 14 - SPEECH-AWARE CHUNK BOUNDARIES
+// ============================================================
+
+// How far before the normal 20-second boundary we search
+// for a natural pause.
+const BOUNDARY_SEARCH_SECONDS = 3;
+
+// Analyze this much audio at a time while looking for pauses.
+const BOUNDARY_FRAME_MS = 50;
+
+// A frame below this RMS level is considered quiet.
+const BOUNDARY_SILENCE_RMS = 0.0008;
+
+// Prefer at least this much continuous quiet audio
+// before using it as a chunk boundary.
+const MIN_BOUNDARY_SILENCE_MS = 250;
+
+// Never allow speech-aware chunks to become too short.
+const MIN_CHUNK_SECONDS = 8;
+
+
+// ============================================================
 // STEP 13 - VAD / SILENCE DETECTION
 // ============================================================
 
@@ -183,12 +205,226 @@ async function loadModel(
 
 
 // ============================================================
-// CREATE LONG-AUDIO CHUNKS
+// CALCULATE RMS OVER A SAMPLE RANGE
+// ============================================================
+
+function calculateRms(audio, start, end) {
+
+    let sumSquares = 0;
+    let count = 0;
+
+    for (let i = start; i < end; i++) {
+
+        const sample = audio[i];
+
+        sumSquares += sample * sample;
+
+        count++;
+    }
+
+    if (count === 0) {
+        return 0;
+    }
+
+    return Math.sqrt(
+        sumSquares / count
+    );
+}
+
+
+// ============================================================
+// FIND NATURAL PAUSE NEAR CHUNK END
+// ============================================================
+
+function findSpeechBoundary(
+    audio,
+    chunkStartSample,
+    targetEndSample
+) {
+
+    const searchSamples =
+        Math.round(
+            BOUNDARY_SEARCH_SECONDS *
+            SAMPLE_RATE
+        );
+
+    const frameSamples =
+        Math.max(
+            1,
+            Math.round(
+                SAMPLE_RATE *
+                BOUNDARY_FRAME_MS /
+                1000
+            )
+        );
+
+    const minimumSilenceSamples =
+        Math.round(
+            SAMPLE_RATE *
+            MIN_BOUNDARY_SILENCE_MS /
+            1000
+        );
+
+    const minimumChunkSamples =
+        Math.round(
+            MIN_CHUNK_SECONDS *
+            SAMPLE_RATE
+        );
+
+
+    // Search only BEFORE the normal 20-second boundary.
+    const searchStart =
+        Math.max(
+            chunkStartSample +
+                minimumChunkSamples,
+
+            targetEndSample -
+                searchSamples
+        );
+
+
+    let silenceStart = null;
+
+    let bestBoundary = null;
+
+    let bestSilenceLength = 0;
+
+
+    for (
+        let frameStart = searchStart;
+        frameStart < targetEndSample;
+        frameStart += frameSamples
+    ) {
+
+        const frameEnd =
+            Math.min(
+                frameStart +
+                    frameSamples,
+
+                targetEndSample
+            );
+
+
+        const rms =
+            calculateRms(
+                audio,
+                frameStart,
+                frameEnd
+            );
+
+
+        // --------------------------------------------
+        // QUIET FRAME
+        // --------------------------------------------
+
+        if (
+            rms <
+            BOUNDARY_SILENCE_RMS
+        ) {
+
+            if (
+                silenceStart ===
+                null
+            ) {
+
+                silenceStart =
+                    frameStart;
+            }
+
+        } else {
+
+            // ----------------------------------------
+            // END OF QUIET REGION
+            // ----------------------------------------
+
+            if (
+                silenceStart !==
+                null
+            ) {
+
+                const silenceLength =
+                    frameStart -
+                    silenceStart;
+
+
+                if (
+                    silenceLength >=
+                        minimumSilenceSamples &&
+                    silenceLength >
+                        bestSilenceLength
+                ) {
+
+                    bestSilenceLength =
+                        silenceLength;
+
+
+                    // Cut roughly in the middle
+                    // of the pause.
+
+                    bestBoundary =
+                        silenceStart +
+                        Math.floor(
+                            silenceLength /
+                            2
+                        );
+                }
+
+
+                silenceStart =
+                    null;
+            }
+        }
+    }
+
+
+    // --------------------------------------------
+    // SILENCE CONTINUED UNTIL TARGET END
+    // --------------------------------------------
+
+    if (
+        silenceStart !==
+        null
+    ) {
+
+        const silenceLength =
+            targetEndSample -
+            silenceStart;
+
+
+        if (
+            silenceLength >=
+                minimumSilenceSamples &&
+            silenceLength >
+                bestSilenceLength
+        ) {
+
+            bestBoundary =
+                silenceStart +
+                Math.floor(
+                    silenceLength /
+                    2
+                );
+        }
+    }
+
+
+    // No useful pause found.
+    // Keep original 20-second boundary.
+
+    return (
+        bestBoundary ||
+        targetEndSample
+    );
+}
+
+
+// ============================================================
+// CREATE SPEECH-AWARE LONG-AUDIO CHUNKS
 // ============================================================
 
 function createChunks(audio) {
 
-    const chunkSamples =
+    const maximumChunkSamples =
         CHUNK_SECONDS *
         SAMPLE_RATE;
 
@@ -196,19 +432,6 @@ function createChunks(audio) {
     const overlapSamples =
         OVERLAP_SECONDS *
         SAMPLE_RATE;
-
-
-    /*
-     * Move forward by:
-     *
-     * 20 sec chunk - 3 sec overlap
-     *
-     * = 17 seconds each time
-     */
-
-    const stepSamples =
-        chunkSamples -
-        overlapSamples;
 
 
     const chunks = [];
@@ -224,13 +447,47 @@ function createChunks(audio) {
         audio.length
     ) {
 
-        const endSample =
+        const targetEndSample =
             Math.min(
                 startSample +
-                chunkSamples,
+                    maximumChunkSamples,
 
                 audio.length
             );
+
+
+        let endSample =
+            targetEndSample;
+
+
+        // --------------------------------------------
+        // FIND NATURAL SPEECH BOUNDARY
+        // --------------------------------------------
+
+        if (
+            targetEndSample <
+            audio.length
+        ) {
+
+            endSample =
+                findSpeechBoundary(
+                    audio,
+                    startSample,
+                    targetEndSample
+                );
+        }
+
+
+        // Safety protection.
+
+        if (
+            endSample <=
+            startSample
+        ) {
+
+            endSample =
+                targetEndSample;
+        }
 
 
         const chunk =
@@ -256,12 +513,53 @@ function createChunks(audio) {
                 endSample /
                 SAMPLE_RATE,
 
+            duration:
+                (
+                    endSample -
+                    startSample
+                ) /
+                SAMPLE_RATE,
+
+            targetEndTime:
+                targetEndSample /
+                SAMPLE_RATE,
+
+            boundaryAdjusted:
+                endSample !==
+                targetEndSample,
+
             audio:
                 chunk
         });
 
 
-        // Last chunk reached end of file.
+        // --------------------------------------------
+        // DEBUG INFORMATION
+        // --------------------------------------------
+
+        console.log(
+            `[Droplet Chunker] Chunk ${index + 1}`,
+            {
+                start:
+                    startSample /
+                    SAMPLE_RATE,
+
+                targetEnd:
+                    targetEndSample /
+                    SAMPLE_RATE,
+
+                actualEnd:
+                    endSample /
+                    SAMPLE_RATE,
+
+                adjusted:
+                    endSample !==
+                    targetEndSample
+            }
+        );
+
+
+        // Finished.
 
         if (
             endSample >=
@@ -272,8 +570,33 @@ function createChunks(audio) {
         }
 
 
-        startSample +=
-            stepSamples;
+        // --------------------------------------------
+        // CREATE OVERLAP
+        // --------------------------------------------
+
+        const nextStart =
+            Math.max(
+                0,
+                endSample -
+                    overlapSamples
+            );
+
+
+        // Infinite-loop protection.
+
+        if (
+            nextStart <=
+            startSample
+        ) {
+
+            startSample =
+                endSample;
+
+        } else {
+
+            startSample =
+                nextStart;
+        }
 
 
         index++;
