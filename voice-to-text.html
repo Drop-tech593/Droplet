@@ -1,6 +1,9 @@
 <!DOCTYPE html>
+
 <html lang="en">
+
 <head>
+
     <meta charset="UTF-8">
 
     <meta
@@ -8,36 +11,168 @@
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>Voice to Text v2 - Droplet</title>
+    <title>Voice to Text V2 - Droplet</title>
+
+    <style>
+
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 0 20px;
+            line-height: 1.5;
+        }
+
+
+        button,
+        select,
+        input {
+            font-size: 16px;
+            padding: 10px;
+            margin: 5px 0;
+        }
+
+
+        button {
+            cursor: pointer;
+        }
+
+
+        button:disabled {
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
+
+        textarea {
+            width: 100%;
+            min-height: 300px;
+            box-sizing: border-box;
+            font-size: 16px;
+            padding: 15px;
+        }
+
+
+        #status {
+            font-weight: bold;
+        }
+
+
+        #progress-container {
+            width: 100%;
+            height: 20px;
+            background: #ddd;
+            margin-top: 15px;
+            overflow: hidden;
+        }
+
+
+        #progress-bar {
+            width: 0%;
+            height: 100%;
+            background: #333;
+            transition: width 0.2s;
+        }
+
+
+        #debug {
+            background: #111;
+            color: #eee;
+            padding: 15px;
+            white-space: pre-wrap;
+            overflow: auto;
+            max-height: 300px;
+        }
+
+    </style>
+
 </head>
+
 
 <body>
 
-    <h1>Voice to Text v2</h1>
+
+    <h1>
+        Voice to Text V2
+    </h1>
+
 
     <p>
-        Local AI transcription powered by your device.
+        Local AI transcription using a background worker.
     </p>
 
 
-    <!-- ==========================================
-         DEVICE TEST
-    =========================================== -->
+    <!-- ==================================================
+         DEVICE
+    =================================================== -->
 
-    <h2>1. Device</h2>
+
+    <h2>
+        1. Device
+    </h2>
+
 
     <button id="device-test">
         Check My Device
     </button>
 
-    <pre id="device-results">Click "Check My Device"</pre>
+
+    <pre id="device-results">
+Not checked yet.
+    </pre>
 
 
-    <!-- ==========================================
-         AUDIO FILE
-    =========================================== -->
+    <!-- ==================================================
+         MODEL
+    =================================================== -->
 
-    <h2>2. Select Audio</h2>
+
+    <h2>
+        2. Quality
+    </h2>
+
+
+    <select id="model-select">
+
+        <option
+            value="onnx-community/whisper-tiny.en"
+        >
+            Fast - Whisper Tiny
+        </option>
+
+
+        <option
+            value="onnx-community/whisper-base.en"
+            selected
+        >
+            Balanced - Whisper Base
+        </option>
+
+
+        <option
+            value="onnx-community/whisper-small.en"
+        >
+            High Quality - Whisper Small
+        </option>
+
+    </select>
+
+
+    <p>
+        Small gives better accuracy but may be extremely
+        slow on weaker devices.
+    </p>
+
+
+    <!-- ==================================================
+         AUDIO
+    =================================================== -->
+
+
+    <h2>
+        3. Select Audio
+    </h2>
+
 
     <input
         type="file"
@@ -46,11 +181,20 @@
     >
 
 
-    <!-- ==========================================
-         TRANSCRIPTION
-    =========================================== -->
+    <p id="audio-info">
+        No audio selected.
+    </p>
 
-    <h2>3. Transcribe</h2>
+
+    <!-- ==================================================
+         TRANSCRIBE
+    =================================================== -->
+
+
+    <h2>
+        4. Transcribe
+    </h2>
+
 
     <button id="transcribe-button">
         Transcribe Audio
@@ -62,83 +206,477 @@
     </p>
 
 
-    <!-- ==========================================
-         TRANSCRIPT
-    =========================================== -->
+    <div id="progress-container">
 
-    <h2>Transcript</h2>
+        <div id="progress-bar"></div>
+
+    </div>
+
+
+    <p id="time-info"></p>
+
+
+    <!-- ==================================================
+         TRANSCRIPT
+    =================================================== -->
+
+
+    <h2>
+        Transcript
+    </h2>
+
 
     <textarea
         id="transcript"
-        rows="15"
-        cols="80"
         placeholder="Your transcript will appear here..."
     ></textarea>
 
 
-    <!-- ==========================================
-         DROPLET VOICE ENGINE
-    =========================================== -->
-
-    <script src="./voice-engine/js/device-check.js"></script>
-
-    <script src="./voice-engine/js/model-manager.js"></script>
-
-    <script src="./voice-engine/js/audio-processor.js"></script>
+    <!-- ==================================================
+         DEBUG
+    =================================================== -->
 
 
-    <!-- ==========================================
-         TRANSFORMERS.JS + WHISPER
-    =========================================== -->
-
-    <script type="module">
-
-        import {
-            pipeline
-        } from "https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.8.1";
+    <h2>
+        Debug
+    </h2>
 
 
-        // ==========================================
-        // UI ELEMENTS
-        // ==========================================
+    <pre id="debug"></pre>
+
+
+    <!-- ==================================================
+         DROPLET ENGINE
+    =================================================== -->
+
+
+    <script
+        src="./voice-engine/js/device-check.js"
+    ></script>
+
+
+    <script
+        src="./voice-engine/js/model-manager.js"
+    ></script>
+
+
+    <script
+        src="./voice-engine/js/audio-processor.js"
+    ></script>
+
+
+    <script>
+
+
+        // =================================================
+        // ELEMENTS
+        // =================================================
+
 
         const deviceButton =
-            document.getElementById("device-test");
+            document.getElementById(
+                "device-test"
+            );
+
 
         const deviceResults =
-            document.getElementById("device-results");
+            document.getElementById(
+                "device-results"
+            );
+
+
+        const modelSelect =
+            document.getElementById(
+                "model-select"
+            );
+
 
         const audioInput =
-            document.getElementById("audio-file");
+            document.getElementById(
+                "audio-file"
+            );
+
+
+        const audioInfo =
+            document.getElementById(
+                "audio-info"
+            );
+
 
         const transcribeButton =
-            document.getElementById("transcribe-button");
+            document.getElementById(
+                "transcribe-button"
+            );
+
 
         const status =
-            document.getElementById("status");
+            document.getElementById(
+                "status"
+            );
+
+
+        const progressBar =
+            document.getElementById(
+                "progress-bar"
+            );
+
+
+        const timeInfo =
+            document.getElementById(
+                "time-info"
+            );
+
 
         const transcript =
-            document.getElementById("transcript");
+            document.getElementById(
+                "transcript"
+            );
 
 
-        // Whisper pipeline will be stored here
-        // after the first model load.
+        const debug =
+            document.getElementById(
+                "debug"
+            );
 
-        let transcriber = null;
+
+        // =================================================
+        // STATE
+        // =================================================
 
 
-        // ==========================================
+        let worker = null;
+
+        let selectedFile = null;
+
+        let preparedAudio = null;
+
+        let jobCounter = 0;
+
+        let activeJobId = null;
+
+        let jobStartTime = null;
+
+        let loadedModel = null;
+
+
+        // =================================================
+        // DEBUG LOGGER
+        // =================================================
+
+
+        function log(...values) {
+
+            console.log(...values);
+
+
+            const line =
+                values
+                    .map(value => {
+
+                        if (
+                            typeof value === "object"
+                        ) {
+
+                            try {
+
+                                return JSON.stringify(
+                                    value
+                                );
+
+                            } catch {
+
+                                return String(value);
+                            }
+                        }
+
+
+                        return String(value);
+
+                    })
+                    .join(" ");
+
+
+            debug.textContent +=
+                line + "\n";
+
+
+            debug.scrollTop =
+                debug.scrollHeight;
+        }
+
+
+        // =================================================
+        // CREATE WORKER
+        // =================================================
+
+
+        function createWorker() {
+
+            if (worker) {
+                return worker;
+            }
+
+
+            log(
+                "Creating Whisper worker..."
+            );
+
+
+            worker =
+                new Worker(
+
+                    "./voice-engine/workers/whisper-worker.js",
+
+                    {
+                        type: "module"
+                    }
+                );
+
+
+            worker.onmessage =
+                handleWorkerMessage;
+
+
+            worker.onerror =
+                function(error) {
+
+                    console.error(
+                        "Worker error:",
+                        error
+                    );
+
+
+                    status.textContent =
+                        "Worker error: " +
+                        error.message;
+
+
+                    transcribeButton.disabled =
+                        false;
+                };
+
+
+            return worker;
+        }
+
+
+        // =================================================
+        // WORKER MESSAGES
+        // =================================================
+
+
+        function handleWorkerMessage(event) {
+
+            const message =
+                event.data;
+
+
+            log(
+                "Worker:",
+                message.type,
+                message
+            );
+
+
+            // ---------------------------------------------
+            // STATUS
+            // ---------------------------------------------
+
+
+            if (
+                message.type === "status"
+            ) {
+
+                status.textContent =
+                    message.message;
+
+                return;
+            }
+
+
+            // ---------------------------------------------
+            // MODEL DOWNLOAD
+            // ---------------------------------------------
+
+
+            if (
+                message.type ===
+                "model-progress"
+            ) {
+
+                const progress =
+                    message.progress;
+
+
+                if (
+                    progress &&
+                    typeof progress.progress ===
+                    "number"
+                ) {
+
+                    const percent =
+                        Math.round(
+                            progress.progress
+                        );
+
+
+                    progressBar.style.width =
+                        percent + "%";
+
+
+                    status.textContent =
+                        "Loading AI model: " +
+                        percent +
+                        "%";
+                }
+
+
+                return;
+            }
+
+
+            // ---------------------------------------------
+            // MODEL READY
+            // ---------------------------------------------
+
+
+            if (
+                message.type ===
+                "model-ready"
+            ) {
+
+                loadedModel =
+                    message.model;
+
+
+                progressBar.style.width =
+                    "0%";
+
+
+                status.textContent =
+                    "Whisper ready. Preparing transcription...";
+
+
+                startWorkerTranscription();
+
+                return;
+            }
+
+
+            // ---------------------------------------------
+            // TRANSCRIPTION START
+            // ---------------------------------------------
+
+
+            if (
+                message.type ===
+                "transcription-start"
+            ) {
+
+                status.textContent =
+                    "Transcribing in background...";
+
+
+                jobStartTime =
+                    performance.now();
+
+
+                return;
+            }
+
+
+            // ---------------------------------------------
+            // COMPLETE
+            // ---------------------------------------------
+
+
+            if (
+                message.type ===
+                "transcription-complete"
+            ) {
+
+                if (
+                    message.jobId !==
+                    activeJobId
+                ) {
+
+                    return;
+                }
+
+
+                transcript.value =
+                    message.text ||
+                    "No speech detected.";
+
+
+                status.textContent =
+                    "Transcription complete.";
+
+
+                progressBar.style.width =
+                    "100%";
+
+
+                timeInfo.textContent =
+                    "Audio: " +
+                    message.duration.toFixed(1) +
+                    " sec | Processing: " +
+                    message.elapsed.toFixed(1) +
+                    " sec";
+
+
+                transcribeButton.disabled =
+                    false;
+
+
+                return;
+            }
+
+
+            // ---------------------------------------------
+            // ERROR
+            // ---------------------------------------------
+
+
+            if (
+                message.type === "error"
+            ) {
+
+                status.textContent =
+                    "Transcription failed: " +
+                    message.message;
+
+
+                transcript.value =
+                    "ERROR:\n\n" +
+                    message.message;
+
+
+                transcribeButton.disabled =
+                    false;
+
+
+                return;
+            }
+        }
+
+
+        // =================================================
         // DEVICE TEST
-        // ==========================================
+        // =================================================
+
 
         deviceButton.addEventListener(
+
             "click",
-            async () => {
+
+            async function() {
 
                 try {
 
                     const capabilities =
-                        await window.DropletVoice
+                        await window
+                            .DropletVoice
                             .detectCapabilities();
 
 
@@ -149,41 +687,81 @@
                             2
                         );
 
-
                 } catch (error) {
 
-                    console.error(
-                        "Device detection error:",
-                        error
-                    );
-
-
                     deviceResults.textContent =
-                        "Device test failed: " +
                         error.message;
                 }
-
             }
         );
 
 
-        // ==========================================
+        // =================================================
+        // AUDIO SELECTION
+        // =================================================
+
+
+        audioInput.addEventListener(
+
+            "change",
+
+            function() {
+
+                selectedFile =
+                    audioInput.files[0] ||
+                    null;
+
+
+                preparedAudio =
+                    null;
+
+
+                transcript.value =
+                    "";
+
+
+                progressBar.style.width =
+                    "0%";
+
+
+                if (!selectedFile) {
+
+                    audioInfo.textContent =
+                        "No audio selected.";
+
+                    return;
+                }
+
+
+                audioInfo.textContent =
+                    selectedFile.name +
+                    " - " +
+                    (
+                        selectedFile.size /
+                        1024 /
+                        1024
+                    ).toFixed(2) +
+                    " MB";
+
+
+                status.textContent =
+                    "Audio selected. Ready.";
+            }
+        );
+
+
+        // =================================================
         // TRANSCRIBE BUTTON
-        // ==========================================
+        // =================================================
+
 
         transcribeButton.addEventListener(
+
             "click",
-            async () => {
 
-                const file =
-                    audioInput.files[0];
+            async function() {
 
-
-                // ----------------------------------
-                // CHECK AUDIO FILE
-                // ----------------------------------
-
-                if (!file) {
+                if (!selectedFile) {
 
                     alert(
                         "Please select an audio file first."
@@ -193,356 +771,107 @@
                 }
 
 
-                // Prevent double clicking while
-                // transcription is running.
+                transcribeButton.disabled =
+                    true;
 
-                transcribeButton.disabled = true;
+
+                transcript.value =
+                    "";
+
+
+                debug.textContent =
+                    "";
+
+
+                progressBar.style.width =
+                    "0%";
+
+
+                timeInfo.textContent =
+                    "";
 
 
                 try {
 
-                    transcript.value = "";
+                    // -------------------------------------
+                    // PREPARE AUDIO
+                    // -------------------------------------
 
-
-                    console.log(
-                        "================================"
-                    );
-
-                    console.log(
-                        "Droplet Voice-to-Text v1 starting"
-                    );
-
-                    console.log(
-                        "File:",
-                        file.name
-                    );
-
-                    console.log(
-                        "File type:",
-                        file.type
-                    );
-
-                    console.log(
-                        "File size:",
-                        file.size,
-                        "bytes"
-                    );
-
-
-                    // ==================================
-                    // STEP 1
-                    // CHECK DEVICE
-                    // ==================================
 
                     status.textContent =
-                        "Checking device...";
+                        "Decoding audio...";
 
 
-                    const configuration =
-                        await window.DropletVoice
-                            .selectModel();
-
-
-                    console.log(
-                        "Voice configuration:",
-                        configuration
+                    log(
+                        "Preparing:",
+                        selectedFile.name
                     );
 
 
-                    // ==================================
-                    // STEP 2
-                    // LOAD WHISPER
-                    // ==================================
-
-                    if (!transcriber) {
-
-                        status.textContent =
-                            "Loading Whisper AI model...";
-
-
-                        console.log(
-                            "Loading Whisper Small English..."
-                        );
-
-
-                        transcriber =
-                            await pipeline(
-
-                                "automatic-speech-recognition",
-
-                                "onnx-community/whisper-small.en",
-
-                                {
-                                    device: "webgpu"
-                                }
-
+                    preparedAudio =
+                        await window
+                            .DropletVoice
+                            .processAudioFile(
+                                selectedFile
                             );
 
 
-                        console.log(
-                            "Whisper model loaded."
-                        );
-
-
-                        status.textContent =
-                            "Whisper loaded.";
-                    }
-
-
-                    // ==================================
-                    // STEP 3
-                    // DECODE AUDIO
-                    // ==================================
-
-                    status.textContent =
-                        "Decoding and preparing audio...";
-
-
-                    console.log(
-                        "Starting audio preprocessing..."
+                    log(
+                        "Prepared samples:",
+                        preparedAudio.length
                     );
 
 
-                    const audioData =
-                        await window.DropletVoice
-                            .processAudioFile(file);
-
-
-                    console.log(
-                        "Audio ready for Whisper:",
-                        audioData.length,
-                        "samples"
-                    );
-
-
-                    console.log(
-                        "Calculated duration:",
-                        audioData.length / 16000,
+                    log(
+                        "Duration:",
+                        preparedAudio.length /
+                        16000,
                         "seconds"
                     );
 
 
-                    // ==================================
-                    // AUDIO VALIDATION
-                    // ==================================
-
-                    if (
-                        !audioData ||
-                        audioData.length === 0
-                    ) {
-
-                        throw new Error(
-                            "Audio processor returned empty audio."
-                        );
-                    }
+                    // -------------------------------------
+                    // CREATE WORKER
+                    // -------------------------------------
 
 
-                    // Find audio amplitude.
-                    // This helps us detect completely
-                    // silent/invalid decoded audio.
-
-                    let maxAmplitude = 0;
-
-                    let sumAmplitude = 0;
+                    createWorker();
 
 
-                    for (
-                        let i = 0;
-                        i < audioData.length;
-                        i++
-                    ) {
-
-                        const amplitude =
-                            Math.abs(
-                                audioData[i]
-                            );
+                    // -------------------------------------
+                    // LOAD SELECTED MODEL
+                    // -------------------------------------
 
 
-                        if (
-                            amplitude >
-                            maxAmplitude
-                        ) {
+                    const model =
+                        modelSelect.value;
 
-                            maxAmplitude =
-                                amplitude;
-                        }
-
-
-                        sumAmplitude +=
-                            amplitude;
-                    }
-
-
-                    const averageAmplitude =
-                        sumAmplitude /
-                        audioData.length;
-
-
-                    console.log(
-                        "Maximum audio amplitude:",
-                        maxAmplitude
-                    );
-
-
-                    console.log(
-                        "Average audio amplitude:",
-                        averageAmplitude
-                    );
-
-
-                    if (
-                        maxAmplitude <
-                        0.00001
-                    ) {
-
-                        throw new Error(
-                            "Decoded audio appears to be silent."
-                        );
-                    }
-
-
-                    // ==================================
-                    // STEP 4
-                    // WHISPER TRANSCRIPTION
-                    // ==================================
 
                     status.textContent =
-                        "Transcribing audio with Whisper...";
+                        "Loading Whisper model...";
 
 
-                    console.log(
-                        "Sending audio to Whisper..."
-                    );
+                    worker.postMessage({
 
+                        type:
+                            "load-model",
 
-                    const startTime =
-                        performance.now();
+                        model,
 
-
-                    const result =
-                        await transcriber(
-                            audioData,
-                            {
-                                chunk_length_s: 20,
-                                stride_length_s: 3
-                            }
-                        );
-
-
-                    const endTime =
-                        performance.now();
-
-
-                    const transcriptionSeconds =
-                        (
-                            (endTime - startTime) /
-                            1000
-                        ).toFixed(2);
-
-
-                    console.log(
-                        "Whisper finished in:",
-                        transcriptionSeconds,
-                        "seconds"
-                    );
-
-
-                    // ==================================
-                    // STEP 5
-                    // INSPECT WHISPER RESULT
-                    // ==================================
-
-                    console.log(
-                        "Droplet transcript:",
-                        result
-                    );
-
-
-                    console.log(
-                        "Result type:",
-                        typeof result
-                    );
-
-
-                    console.log(
-                        "Full result:",
-                        JSON.stringify(
-                            result,
-                            null,
-                            2
-                        )
-                    );
-
-
-                    // ==================================
-                    // STEP 6
-                    // DISPLAY TRANSCRIPT
-                    // ==================================
-
-                    if (
-                        result &&
-                        typeof result.text === "string" &&
-                        result.text.trim().length > 0
-                    ) {
-
-                        transcript.value =
-                            result.text.trim();
-
-
-                        status.textContent =
-                            "Transcription complete.";
-
-
-                        console.log(
-                            "Transcript successfully generated."
-                        );
-
-                    } else {
-
-                        transcript.value =
-                            "Whisper returned no text.";
-
-
-                        status.textContent =
-                            "Transcription finished, but no speech was detected.";
-
-
-                        console.warn(
-                            "Whisper returned an empty transcript."
-                        );
-
-                    }
-
-
-                    console.log(
-                        "================================"
-                    );
+                        device:
+                            "webgpu"
+                    });
 
 
                 } catch (error) {
 
-                    // ==================================
-                    // ERROR HANDLING
-                    // ==================================
-
-                    console.error(
-                        "Droplet transcription error:",
-                        error
-                    );
+                    console.error(error);
 
 
                     status.textContent =
-                        "Transcription failed: " +
+                        "Failed: " +
                         error.message;
 
-
-                    transcript.value =
-                        "ERROR:\n\n" +
-                        error.message;
-
-                } finally {
-
-                    // Re-enable button
 
                     transcribeButton.disabled =
                         false;
@@ -551,7 +880,109 @@
             }
         );
 
+
+        // =================================================
+        // SEND AUDIO TO WORKER
+        // =================================================
+
+
+        function startWorkerTranscription() {
+
+            if (
+                !worker ||
+                !preparedAudio
+            ) {
+
+                status.textContent =
+                    "Audio is not ready.";
+
+
+                transcribeButton.disabled =
+                    false;
+
+
+                return;
+            }
+
+
+            jobCounter++;
+
+
+            activeJobId =
+                "job-" + jobCounter;
+
+
+            /*
+             * IMPORTANT:
+             *
+             * Make a transferable copy.
+             *
+             * Sending an ArrayBuffer as a transferable means
+             * the browser can move ownership to the worker
+             * instead of making another huge copy.
+             */
+
+
+            const transferable =
+                preparedAudio.buffer;
+
+
+            status.textContent =
+                "Sending audio to background worker...";
+
+
+            worker.postMessage(
+
+                {
+                    type:
+                        "transcribe",
+
+                    jobId:
+                        activeJobId,
+
+                    audioBuffer:
+                        transferable
+                },
+
+                [
+                    transferable
+                ]
+            );
+
+
+            /*
+             * The ArrayBuffer has now been transferred.
+             * Do not use preparedAudio again.
+             */
+
+
+            preparedAudio =
+                null;
+        }
+
+
+        // =================================================
+        // CLEANUP
+        // =================================================
+
+
+        window.addEventListener(
+
+            "beforeunload",
+
+            function() {
+
+                if (worker) {
+
+                    worker.terminate();
+                }
+            }
+        );
+
+
     </script>
 
+
 </body>
+
 </html>
