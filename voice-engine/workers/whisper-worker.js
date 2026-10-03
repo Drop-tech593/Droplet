@@ -1,873 +1,976 @@
-console.log(
-    "DROPLET WHISPER WORKER VERSION: CHUNKED-V2"
-);
+<!DOCTYPE html>
+<html lang="en">
 
+<head>
+    <meta charset="UTF-8">
 
-// ============================================================
-// DROPLET VOICE-TO-TEXT
-// Whisper Worker - Long Audio Engine
-// ============================================================
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
-import {
-    pipeline
-} from "https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.8.1";
+    <title>Voice to Text v4 - Droplet</title>
 
+    <style>
 
-// ============================================================
-// STATE
-// ============================================================
-
-let transcriber = null;
-
-let currentModel = null;
-
-let currentDevice = null;
-
-let cancelled = false;
-
-
-// Whisper expects 16 kHz audio.
-const SAMPLE_RATE = 16000;
-
-
-// Each chunk sent to Whisper.
-const CHUNK_SECONDS = 20;
-
-
-// Small overlap between chunks.
-// This helps avoid losing words at boundaries.
-const OVERLAP_SECONDS = 3;
-
-
-// ============================================================
-// SEND MESSAGE TO PAGE
-// ============================================================
-
-function send(type, data = {}) {
-
-    self.postMessage({
-        type,
-        ...data
-    });
-}
-
-
-// ============================================================
-// LOAD MODEL
-// ============================================================
-
-async function loadModel(
-    model = "onnx-community/whisper-base.en",
-    device = "webgpu"
-) {
-
-    cancelled = false;
-
-
-    // --------------------------------------------------------
-    // SAME MODEL ALREADY LOADED
-    // --------------------------------------------------------
-
-    if (
-        transcriber &&
-        currentModel === model &&
-        currentDevice === device
-    ) {
-
-        send("model-ready", {
-            model,
-            device,
-            cached: true
-        });
-
-        return;
-    }
-
-
-    // --------------------------------------------------------
-    // LOAD NEW MODEL
-    // --------------------------------------------------------
-
-    send("status", {
-        message: "Loading Whisper model..."
-    });
-
-
-    send("model-loading", {
-        model,
-        device
-    });
-
-
-    console.log(
-        "[Droplet Worker] Loading model:",
-        model
-    );
-
-
-    transcriber = await pipeline(
-
-        "automatic-speech-recognition",
-
-        model,
-
-        {
-
-            device,
-
-            progress_callback: (progress) => {
-
-                send(
-                    "model-progress",
-                    {
-                        progress
-                    }
-                );
-            }
-        }
-    );
-
-
-    currentModel = model;
-
-    currentDevice = device;
-
-
-    console.log(
-        "[Droplet Worker] Model ready:",
-        model
-    );
-
-
-    send("model-ready", {
-        model,
-        device,
-        cached: false
-    });
-}
-
-
-// ============================================================
-// CREATE LONG-AUDIO CHUNKS
-// ============================================================
-
-function createChunks(audio) {
-
-    const chunkSamples =
-        CHUNK_SECONDS *
-        SAMPLE_RATE;
-
-
-    const overlapSamples =
-        OVERLAP_SECONDS *
-        SAMPLE_RATE;
-
-
-    /*
-     * Move forward by:
-     *
-     * 20 sec chunk - 3 sec overlap
-     *
-     * = 17 seconds each time
-     */
-
-    const stepSamples =
-        chunkSamples -
-        overlapSamples;
-
-
-    const chunks = [];
-
-
-    let startSample = 0;
-
-    let index = 0;
-
-
-    while (
-        startSample <
-        audio.length
-    ) {
-
-        const endSample =
-            Math.min(
-                startSample +
-                chunkSamples,
-
-                audio.length
-            );
-
-
-        const chunk =
-            audio.slice(
-                startSample,
-                endSample
-            );
-
-
-        chunks.push({
-
-            index,
-
-            startSample,
-
-            endSample,
-
-            startTime:
-                startSample /
-                SAMPLE_RATE,
-
-            endTime:
-                endSample /
-                SAMPLE_RATE,
-
-            audio:
-                chunk
-        });
-
-
-        // Last chunk reached end of file.
-
-        if (
-            endSample >=
-            audio.length
-        ) {
-
-            break;
+        * {
+            box-sizing: border-box;
         }
 
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 950px;
+            margin: 40px auto;
+            padding: 0 20px;
+            line-height: 1.5;
+        }
 
-        startSample +=
-            stepSamples;
+        h1 {
+            margin-bottom: 5px;
+        }
 
+        h2 {
+            margin-top: 35px;
+        }
 
-        index++;
-    }
+        button,
+        select,
+        input {
+            font-size: 16px;
+            padding: 10px 14px;
+            margin: 5px 0;
+        }
 
+        button {
+            cursor: pointer;
+        }
 
-    return chunks;
-}
+        button:disabled {
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
 
+        #cancel-button {
+            display: none;
+            margin-left: 10px;
+        }
 
-// ============================================================
-// CLEAN TRANSCRIPT TEXT
-// ============================================================
+        textarea {
+            width: 100%;
+            min-height: 320px;
+            padding: 15px;
+            font-size: 16px;
+            line-height: 1.6;
+            resize: vertical;
+        }
 
-function cleanText(text) {
+        #status {
+            font-weight: bold;
+            margin-top: 20px;
+        }
 
-    if (!text) {
-        return "";
-    }
+        #progress-container {
+            width: 100%;
+            height: 24px;
+            background: #e5e5e5;
+            border-radius: 6px;
+            overflow: hidden;
+            margin-top: 15px;
+        }
 
+        #progress-bar {
+            width: 0%;
+            height: 100%;
+            background: #333;
+            transition: width 0.25s ease;
+        }
 
-    return text
-        .replace(/\s+/g, " ")
-        .trim();
-}
+        #progress-details {
+            margin-top: 12px;
+            padding: 15px;
+            background: #f5f5f5;
+            border-radius: 6px;
+        }
 
+        #progress-details p {
+            margin: 4px 0;
+        }
 
-// ============================================================
-// WORD NORMALIZATION
-// Used only when comparing overlap.
-// ============================================================
+        #debug {
+            background: #111;
+            color: #eee;
+            padding: 15px;
+            white-space: pre-wrap;
+            overflow: auto;
+            max-height: 300px;
+            border-radius: 6px;
+        }
 
-function normalizeWord(word) {
+        .button-row {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+        }
 
-    return word
-        .toLowerCase()
-        .replace(
-            /[^a-z0-9']/g,
-            ""
-        );
-}
-
-
-// ============================================================
-// MERGE TWO TRANSCRIPTS
-//
-// Example:
-//
-// Previous:
-// "I went to the shop this morning"
-//
-// New chunk:
-// "the shop this morning and bought milk"
-//
-// Result:
-// "I went to the shop this morning and bought milk"
-// ============================================================
-
-function mergeTranscript(
-    previousText,
-    newText
-) {
-
-    previousText =
-        cleanText(
-            previousText
-        );
-
-
-    newText =
-        cleanText(
-            newText
-        );
-
-
-    if (!previousText) {
-
-        return newText;
-    }
-
-
-    if (!newText) {
-
-        return previousText;
-    }
-
-
-    const previousWords =
-        previousText.split(/\s+/);
-
-
-    const newWords =
-        newText.split(/\s+/);
-
-
-    /*
-     * Don't search an enormous amount.
-     *
-     * 30 words is more than enough for
-     * our 3-second audio overlap.
-     */
-
-    const maxOverlap =
-        Math.min(
-            30,
-            previousWords.length,
-            newWords.length
-        );
+    </style>
+</head>
 
 
-    let bestOverlap = 0;
+<body>
 
 
-    // --------------------------------------------------------
-    // FIND MATCHING WORDS AT BOUNDARY
-    // --------------------------------------------------------
+    <h1>Voice to Text v4</h1>
 
-    for (
-        let overlap = maxOverlap;
-        overlap >= 1;
-        overlap--
-    ) {
-
-        let matches = 0;
+    <p>
+        Local AI transcription powered by your device.
+    </p>
 
 
-        for (
-            let i = 0;
-            i < overlap;
-            i++
-        ) {
+    <!-- =====================================================
+         DEVICE
+    ====================================================== -->
 
-            const previousWord =
-                normalizeWord(
+    <h2>1. Device</h2>
 
-                    previousWords[
-                        previousWords.length -
-                        overlap +
-                        i
-                    ]
-                );
+    <button id="device-test">
+        Check My Device
+    </button>
+
+    <pre id="device-results">Not checked yet.</pre>
 
 
-            const newWord =
-                normalizeWord(
-                    newWords[i]
-                );
+    <!-- =====================================================
+         MODEL
+    ====================================================== -->
 
+    <h2>2. Quality</h2>
+
+    <select id="model-select">
+
+        <option
+            value="onnx-community/whisper-tiny.en"
+        >
+            Fast - Whisper Tiny
+        </option>
+
+        <option
+            value="onnx-community/whisper-base.en"
+            selected
+        >
+            Balanced - Whisper Base
+        </option>
+
+        <option
+            value="onnx-community/whisper-small.en"
+        >
+            High Quality - Whisper Small
+        </option>
+
+    </select>
+
+    <p>
+        Base is recommended for balanced speed and accuracy.
+        Small gives better accuracy but requires much more processing power.
+    </p>
+
+
+    <!-- =====================================================
+         AUDIO
+    ====================================================== -->
+
+    <h2>3. Select Audio</h2>
+
+    <input
+        type="file"
+        id="audio-file"
+        accept="audio/*"
+    >
+
+    <p id="audio-info">
+        No audio selected.
+    </p>
+
+
+    <!-- =====================================================
+         TRANSCRIPTION
+    ====================================================== -->
+
+    <h2>4. Transcribe</h2>
+
+    <div class="button-row">
+
+        <button id="transcribe-button">
+            Transcribe Audio
+        </button>
+
+        <button id="cancel-button">
+            Cancel
+        </button>
+
+    </div>
+
+
+    <p id="status">
+        Waiting for audio...
+    </p>
+
+
+    <!-- =====================================================
+         PROGRESS BAR
+    ====================================================== -->
+
+    <div id="progress-container">
+
+        <div id="progress-bar"></div>
+
+    </div>
+
+
+    <!-- =====================================================
+         DETAILED PROGRESS
+    ====================================================== -->
+
+    <div id="progress-details">
+
+        <p>
+            Progress:
+            <strong id="progress-percent">0%</strong>
+        </p>
+
+        <p>
+            Chunk:
+            <strong id="chunk-info">0 / 0</strong>
+        </p>
+
+        <p>
+            Audio processed:
+            <strong id="processed-info">0:00 / 0:00</strong>
+        </p>
+
+        <p>
+            Elapsed:
+            <strong id="elapsed-info">0:00</strong>
+        </p>
+
+        <p>
+            Estimated remaining:
+            <strong id="remaining-info">--</strong>
+        </p>
+
+    </div>
+
+
+    <!-- =====================================================
+         TRANSCRIPT
+    ====================================================== -->
+
+    <h2>Live Transcript</h2>
+
+    <textarea
+        id="transcript"
+        placeholder="Your transcript will appear here as each audio chunk finishes..."
+    ></textarea>
+
+
+    <!-- =====================================================
+         DEBUG
+    ====================================================== -->
+
+    <h2>Debug</h2>
+
+    <pre id="debug"></pre>
+
+
+    <!-- =====================================================
+         DROPLET ENGINE
+    ====================================================== -->
+
+    <script
+        src="./voice-engine/js/device-check.js"
+    ></script>
+
+    <script
+        src="./voice-engine/js/model-manager.js"
+    ></script>
+
+    <script
+        src="./voice-engine/js/audio-processor.js"
+    ></script>
+
+
+    <script>
+
+        // =====================================================
+        // UI
+        // =====================================================
+
+        const deviceButton =
+            document.getElementById("device-test");
+
+        const deviceResults =
+            document.getElementById("device-results");
+
+        const modelSelect =
+            document.getElementById("model-select");
+
+        const audioInput =
+            document.getElementById("audio-file");
+
+        const audioInfo =
+            document.getElementById("audio-info");
+
+        const transcribeButton =
+            document.getElementById("transcribe-button");
+
+        const cancelButton =
+            document.getElementById("cancel-button");
+
+        const status =
+            document.getElementById("status");
+
+        const progressBar =
+            document.getElementById("progress-bar");
+
+        const progressPercent =
+            document.getElementById("progress-percent");
+
+        const chunkInfo =
+            document.getElementById("chunk-info");
+
+        const processedInfo =
+            document.getElementById("processed-info");
+
+        const elapsedInfo =
+            document.getElementById("elapsed-info");
+
+        const remainingInfo =
+            document.getElementById("remaining-info");
+
+        const transcript =
+            document.getElementById("transcript");
+
+        const debug =
+            document.getElementById("debug");
+
+
+        // =====================================================
+        // STATE
+        // =====================================================
+
+        let worker = null;
+
+        let selectedFile = null;
+
+        let preparedAudio = null;
+
+        let jobCounter = 0;
+
+        let activeJobId = null;
+
+        let totalDuration = 0;
+
+        let jobStartTime = null;
+
+        let elapsedTimer = null;
+
+        let transcriptionRunning = false;
+
+
+        // =====================================================
+        // TIME FORMATTER
+        // =====================================================
+
+        function formatTime(seconds) {
 
             if (
-                previousWord &&
-                newWord &&
-                previousWord ===
-                    newWord
+                !Number.isFinite(seconds) ||
+                seconds < 0
             ) {
+                return "--";
+            }
 
-                matches++;
+            seconds =
+                Math.round(seconds);
+
+            const hours =
+                Math.floor(
+                    seconds / 3600
+                );
+
+            const minutes =
+                Math.floor(
+                    (seconds % 3600) / 60
+                );
+
+            const secs =
+                seconds % 60;
+
+
+            if (hours > 0) {
+
+                return (
+                    hours +
+                    ":" +
+                    String(minutes).padStart(2, "0") +
+                    ":" +
+                    String(secs).padStart(2, "0")
+                );
+            }
+
+
+            return (
+                minutes +
+                ":" +
+                String(secs).padStart(2, "0")
+            );
+        }
+
+
+        // =====================================================
+        // DEBUG LOGGER
+        // =====================================================
+
+        function log(...values) {
+
+            console.log(...values);
+
+            const line =
+                values
+                    .map(value => {
+
+                        if (
+                            typeof value === "object"
+                        ) {
+
+                            try {
+
+                                return JSON.stringify(
+                                    value
+                                );
+
+                            } catch {
+
+                                return String(value);
+                            }
+                        }
+
+                        return String(value);
+
+                    })
+                    .join(" ");
+
+
+            debug.textContent +=
+                line + "\n";
+
+
+            debug.scrollTop =
+                debug.scrollHeight;
+        }
+
+
+        // =====================================================
+        // RESET PROGRESS
+        // =====================================================
+
+        function resetProgress() {
+
+            progressBar.style.width =
+                "0%";
+
+            progressPercent.textContent =
+                "0%";
+
+            chunkInfo.textContent =
+                "0 / 0";
+
+            processedInfo.textContent =
+                "0:00 / 0:00";
+
+            elapsedInfo.textContent =
+                "0:00";
+
+            remainingInfo.textContent =
+                "--";
+        }
+
+
+        // =====================================================
+        // BUTTON STATE
+        //
+        // The Cancel button is NOT shown here. It is only
+        // shown when the worker sends "transcription-start",
+        // so the user can't cancel during model download.
+        // =====================================================
+
+        function setRunningState(running) {
+
+            transcriptionRunning =
+                running;
+
+            transcribeButton.disabled =
+                running;
+
+            modelSelect.disabled =
+                running;
+
+            audioInput.disabled =
+                running;
+        }
+
+
+        // =====================================================
+        // ELAPSED TIMER
+        // =====================================================
+
+        function startElapsedTimer() {
+
+            stopElapsedTimer();
+
+            jobStartTime =
+                performance.now();
+
+
+            elapsedTimer =
+                setInterval(
+                    () => {
+
+                        if (!jobStartTime) {
+                            return;
+                        }
+
+                        const seconds =
+                            (
+                                performance.now() -
+                                jobStartTime
+                            ) /
+                            1000;
+
+                        elapsedInfo.textContent =
+                            formatTime(seconds);
+
+                    },
+                    1000
+                );
+        }
+
+
+        function stopElapsedTimer() {
+
+            if (elapsedTimer) {
+
+                clearInterval(
+                    elapsedTimer
+                );
+
+                elapsedTimer = null;
             }
         }
 
 
-        /*
-         * Require a strong match.
-         *
-         * This allows small Whisper differences
-         * while still detecting duplicated overlap.
-         */
+        // =====================================================
+        // CREATE WORKER
+        // =====================================================
 
-        const matchRatio =
-            matches /
-            overlap;
+        function createWorker() {
 
-
-        if (
-            overlap >= 2 &&
-            matchRatio >= 0.75
-        ) {
-
-            bestOverlap =
-                overlap;
-
-            break;
-        }
-    }
+            if (worker) {
+                return worker;
+            }
 
 
-    // --------------------------------------------------------
-    // REMOVE DUPLICATED OVERLAP
-    // --------------------------------------------------------
-
-    if (
-        bestOverlap >
-        0
-    ) {
-
-        const remainingWords =
-            newWords.slice(
-                bestOverlap
+            log(
+                "Creating Whisper worker..."
             );
 
 
-        if (
-            remainingWords.length ===
-            0
-        ) {
+            worker =
+                new Worker(
 
-            return previousText;
+                    "./voice-engine/workers/whisper-worker.js",
+
+                    {
+                        type: "module"
+                    }
+                );
+
+
+            worker.onmessage =
+                handleWorkerMessage;
+
+
+            worker.onerror =
+                function(error) {
+
+                    console.error(
+                        "Worker error:",
+                        error
+                    );
+
+
+                    status.textContent =
+                        "Worker error: " +
+                        error.message;
+
+
+                    stopElapsedTimer();
+
+                    setRunningState(false);
+
+
+                    cancelButton.style.display =
+                        "none";
+                };
+
+
+            return worker;
         }
 
 
-        return cleanText(
+        // =====================================================
+        // WORKER MESSAGE HANDLER
+        // =====================================================
 
-            previousText +
-            " " +
-            remainingWords.join(" ")
-        );
-    }
+        function handleWorkerMessage(event) {
 
-
-    // --------------------------------------------------------
-    // NO RELIABLE MATCH FOUND
-    // --------------------------------------------------------
-
-    return cleanText(
-
-        previousText +
-        " " +
-        newText
-    );
-}
+            const message =
+                event.data;
 
 
-// ============================================================
-// TRANSCRIBE LONG AUDIO
-// ============================================================
-
-async function transcribeLongAudio(
-    audioBuffer,
-    jobId
-) {
-
-    if (!transcriber) {
-
-        throw new Error(
-            "Whisper model has not been loaded."
-        );
-    }
+            log(
+                "Worker:",
+                message.type,
+                message
+            );
 
 
-    cancelled = false;
+            // =================================================
+            // STATUS
+            // =================================================
+
+            if (
+                message.type === "status"
+            ) {
+
+                status.textContent =
+                    message.message;
+
+                return;
+            }
 
 
-    const audio =
-        new Float32Array(
-            audioBuffer
-        );
+            // =================================================
+            // MODEL DOWNLOAD / LOAD PROGRESS
+            // =================================================
+
+            if (
+                message.type ===
+                "model-progress"
+            ) {
+
+                const progress =
+                    message.progress;
 
 
-    if (!audio.length) {
+                if (
+                    progress &&
+                    typeof progress.progress ===
+                    "number"
+                ) {
 
-        throw new Error(
-            "Worker received empty audio."
-        );
-    }
-
-
-    const duration =
-        audio.length /
-        SAMPLE_RATE;
-
-
-    // --------------------------------------------------------
-    // BUILD CHUNKS
-    // --------------------------------------------------------
-
-    const chunks =
-        createChunks(
-            audio
-        );
+                    const percent =
+                        Math.max(
+                            0,
+                            Math.min(
+                                100,
+                                Math.round(
+                                    progress.progress
+                                )
+                            )
+                        );
 
 
-    console.log(
-        "[Droplet Worker] Audio duration:",
-        duration
-    );
-
-
-    console.log(
-        "[Droplet Worker] Chunks:",
-        chunks.length
-    );
-
-
-    send(
-        "transcription-start",
-        {
-
-            jobId,
-
-            duration,
-
-            totalChunks:
-                chunks.length,
-
-            chunkSeconds:
-                CHUNK_SECONDS,
-
-            overlapSeconds:
-                OVERLAP_SECONDS
-        }
-    );
-
-
-    const startTime =
-        performance.now();
-
-
-    let fullTranscript = "";
-
-
-    const completedChunks = [];
-
-
-    // ========================================================
-    // PROCESS CHUNKS ONE BY ONE
-    // ========================================================
-
-    for (
-        let i = 0;
-        i < chunks.length;
-        i++
-    ) {
-
-        // ----------------------------------------------------
-        // CANCEL
-        // ----------------------------------------------------
-
-        if (cancelled) {
-
-            send(
-                "transcription-cancelled",
-                {
-
-                    jobId,
-
-                    text:
-                        fullTranscript,
-
-                    completedChunks:
-                        completedChunks.length,
-
-                    totalChunks:
-                        chunks.length
+                    status.textContent =
+                        "Loading AI model: " +
+                        percent +
+                        "%";
                 }
-            );
 
 
-            return;
-        }
-
-
-        const chunk =
-            chunks[i];
-
-
-        // ----------------------------------------------------
-        // CHUNK START
-        // ----------------------------------------------------
-
-        send(
-            "chunk-start",
-            {
-
-                jobId,
-
-                chunkIndex:
-                    i,
-
-                chunkNumber:
-                    i + 1,
-
-                totalChunks:
-                    chunks.length,
-
-                startTime:
-                    chunk.startTime,
-
-                endTime:
-                    chunk.endTime
+                return;
             }
-        );
 
 
-        console.log(
-            `[Droplet Worker] Chunk ${i + 1}/${chunks.length}`,
-            chunk.startTime,
-            "→",
-            chunk.endTime
-        );
-
-
-        const chunkStart =
-            performance.now();
-
-
-        // ----------------------------------------------------
-        // IMPORTANT
-        //
-        // We are now giving Whisper ONE chunk at a time.
-        //
-        // Therefore do NOT use:
-        //
-        // chunk_length_s
-        // stride_length_s
-        //
-        // here.
-        //
-        // We control chunking ourselves.
-        // ----------------------------------------------------
-
-        const result =
-            await transcriber(
-                chunk.audio
-            );
-
-
-        const chunkElapsed =
-            (
-                performance.now() -
-                chunkStart
-            ) /
-            1000;
-
-
-        const chunkText =
-            cleanText(
-                result?.text || ""
-            );
-
-
-        // ----------------------------------------------------
-        // MERGE
-        // ----------------------------------------------------
-
-        fullTranscript =
-            mergeTranscript(
-                fullTranscript,
-                chunkText
-            );
-
-
-        // ----------------------------------------------------
-        // SAVE CHUNK INFORMATION
-        // ----------------------------------------------------
-
-        completedChunks.push({
-
-            index:
-                i,
-
-            startTime:
-                chunk.startTime,
-
-            endTime:
-                chunk.endTime,
-
-            text:
-                chunkText,
-
-            processingTime:
-                chunkElapsed
-        });
-
-
-        // ----------------------------------------------------
-        // PROGRESS
-        // ----------------------------------------------------
-
-        const progress =
-            (
-                (i + 1) /
-                chunks.length
-            ) *
-            100;
-
-
-        const processedAudio =
-            Math.min(
-                chunk.endTime,
-                duration
-            );
-
-
-        const elapsed =
-            (
-                performance.now() -
-                startTime
-            ) /
-            1000;
-
-
-        /*
-         * Estimate remaining time using
-         * average completed-chunk speed.
-         */
-
-        const averageChunkTime =
-            elapsed /
-            (i + 1);
-
-
-        const remainingChunks =
-            chunks.length -
-            (i + 1);
-
-
-        const estimatedRemaining =
-            averageChunkTime *
-            remainingChunks;
-
-
-        // ----------------------------------------------------
-        // SEND PARTIAL TRANSCRIPT
-        // ----------------------------------------------------
-
-        send(
-            "chunk-complete",
-            {
-
-                jobId,
-
-                chunkIndex:
-                    i,
-
-                chunkNumber:
-                    i + 1,
-
-                totalChunks:
-                    chunks.length,
-
-                chunkText,
-
-                fullText:
-                    fullTranscript,
-
-                progress,
-
-                processedAudio,
-
-                duration,
-
-                chunkProcessingTime:
-                    chunkElapsed,
-
-                elapsed,
-
-                estimatedRemaining
-            }
-        );
-    }
-
-
-    // ========================================================
-    // FINISHED
-    // ========================================================
-
-    const totalElapsed =
-        (
-            performance.now() -
-            startTime
-        ) /
-        1000;
-
-
-    send(
-        "transcription-complete",
-        {
-
-            jobId,
-
-            text:
-                fullTranscript,
-
-            duration,
-
-            elapsed:
-                totalElapsed,
-
-            totalChunks:
-                chunks.length,
-
-            completedChunks
-        }
-    );
-}
-
-
-// ============================================================
-// RECEIVE MESSAGES
-// ============================================================
-
-self.onmessage =
-    async function(event) {
-
-        const message =
-            event.data;
-
-
-        if (!message) {
-            return;
-        }
-
-
-        try {
-
-            // ------------------------------------------------
-            // LOAD MODEL
-            // ------------------------------------------------
+            // =================================================
+            // MODEL READY
+            // =================================================
 
             if (
                 message.type ===
-                "load-model"
+                "model-ready"
             ) {
 
-                await loadModel(
+                status.textContent =
+                    "Whisper ready. Starting transcription...";
 
-                    message.model,
 
-                    message.device
+                startWorkerTranscription();
+
+                return;
+            }
+
+
+            // =================================================
+            // TRANSCRIPTION STARTED
+            //
+            // Cancel button becomes visible HERE, not earlier.
+            // =================================================
+
+            if (
+                message.type ===
+                "transcription-start"
+            ) {
+
+                totalDuration =
+                    message.duration;
+
+
+                chunkInfo.textContent =
+                    "0 / " +
+                    message.totalChunks;
+
+
+                processedInfo.textContent =
+                    "0:00 / " +
+                    formatTime(
+                        totalDuration
+                    );
+
+
+                status.textContent =
+                    "Transcribing audio...";
+
+
+                cancelButton.style.display =
+                    "inline-block";
+
+
+                cancelButton.disabled =
+                    false;
+
+
+                startElapsedTimer();
+
+
+                return;
+            }
+
+
+            // =================================================
+            // CHUNK START
+            // =================================================
+
+            if (
+                message.type ===
+                "chunk-start"
+            ) {
+
+                if (
+                    message.jobId !==
+                    activeJobId
+                ) {
+                    return;
+                }
+
+
+                status.textContent =
+                    "Transcribing chunk " +
+                    message.chunkNumber +
+                    " of " +
+                    message.totalChunks +
+                    "...";
+
+
+                chunkInfo.textContent =
+                    message.chunkNumber +
+                    " / " +
+                    message.totalChunks;
+
+
+                return;
+            }
+
+
+            // =================================================
+            // CHUNK COMPLETE
+            // =================================================
+
+            if (
+                message.type ===
+                "chunk-complete"
+            ) {
+
+                if (
+                    message.jobId !==
+                    activeJobId
+                ) {
+                    return;
+                }
+
+
+                transcript.value =
+                    message.fullText || "";
+
+
+                transcript.scrollTop =
+                    transcript.scrollHeight;
+
+
+                const percent =
+                    Math.max(
+                        0,
+                        Math.min(
+                            100,
+                            message.progress
+                        )
+                    );
+
+
+                progressBar.style.width =
+                    percent + "%";
+
+
+                progressPercent.textContent =
+                    Math.round(percent) +
+                    "%";
+
+
+                chunkInfo.textContent =
+                    message.chunkNumber +
+                    " / " +
+                    message.totalChunks;
+
+
+                processedInfo.textContent =
+                    formatTime(
+                        message.processedAudio
+                    ) +
+                    " / " +
+                    formatTime(
+                        message.duration
+                    );
+
+
+                elapsedInfo.textContent =
+                    formatTime(
+                        message.elapsed
+                    );
+
+
+                remainingInfo.textContent =
+                    formatTime(
+                        message.estimatedRemaining
+                    );
+
+
+                status.textContent =
+                    "Chunk " +
+                    message.chunkNumber +
+                    " of " +
+                    message.totalChunks +
+                    " complete.";
+
+
+                return;
+            }
+
+
+            // =================================================
+            // COMPLETE
+            // =================================================
+
+            if (
+                message.type ===
+                "transcription-complete"
+            ) {
+
+                if (
+                    message.jobId !==
+                    activeJobId
+                ) {
+                    return;
+                }
+
+
+                transcript.value =
+                    message.text ||
+                    "No speech detected.";
+
+
+                const finalTotalChunks =
+                    Number.isFinite(
+                        message.totalChunks
+                    )
+                        ? message.totalChunks
+                        : (
+                            Array.isArray(
+                                message.completedChunks
+                            )
+                                ? message.completedChunks.length
+                                : 0
+                        );
+
+
+                progressBar.style.width =
+                    "100%";
+
+
+                progressPercent.textContent =
+                    "100%";
+
+
+                chunkInfo.textContent =
+                    finalTotalChunks +
+                    " / " +
+                    finalTotalChunks;
+
+
+                processedInfo.textContent =
+                    formatTime(
+                        message.duration
+                    ) +
+                    " / " +
+                    formatTime(
+                        message.duration
+                    );
+
+
+                elapsedInfo.textContent =
+                    formatTime(
+                        message.elapsed
+                    );
+
+
+                remainingInfo.textContent =
+                    "0:00";
+
+
+                status.textContent =
+                    "Transcription complete.";
+
+
+                stopElapsedTimer();
+
+                setRunningState(false);
+
+
+                cancelButton.style.display =
+                    "none";
+
+
+                log(
+                    "FINAL TRANSCRIPT:",
+                    message.text
                 );
 
 
@@ -875,105 +978,463 @@ self.onmessage =
             }
 
 
-            // ------------------------------------------------
-            // TRANSCRIBE
-            // ------------------------------------------------
+            // =================================================
+            // CANCELLED
+            // =================================================
 
             if (
                 message.type ===
-                "transcribe"
+                "transcription-cancelled"
             ) {
 
-                await transcribeLongAudio(
+                if (
+                    message.jobId !==
+                    activeJobId
+                ) {
+                    return;
+                }
 
-                    message.audioBuffer,
 
-                    message.jobId
-                );
+                transcript.value =
+                    message.text || "";
+
+
+                status.textContent =
+                    "Transcription cancelled.";
+
+
+                chunkInfo.textContent =
+                    message.completedChunks +
+                    " / " +
+                    message.totalChunks;
+
+
+                remainingInfo.textContent =
+                    "Cancelled";
+
+
+                stopElapsedTimer();
+
+                setRunningState(false);
+
+
+                cancelButton.style.display =
+                    "none";
 
 
                 return;
             }
 
 
-            // ------------------------------------------------
-            // CANCEL
-            // ------------------------------------------------
+            // =================================================
+            // ERROR
+            // =================================================
 
             if (
                 message.type ===
-                "cancel"
+                "error"
             ) {
 
-                cancelled = true;
+                status.textContent =
+                    "Transcription failed: " +
+                    message.message;
 
 
-                send(
-                    "status",
-                    {
-                        message:
-                            "Stopping after current chunk..."
-                    }
-                );
+                transcript.value =
+                    "ERROR:\n\n" +
+                    message.message;
+
+
+                stopElapsedTimer();
+
+                setRunningState(false);
+
+
+                cancelButton.style.display =
+                    "none";
 
 
                 return;
             }
+        }
 
 
-            // ------------------------------------------------
-            // PING
-            // ------------------------------------------------
+        // =====================================================
+        // DEVICE TEST
+        // =====================================================
 
-            if (
-                message.type ===
-                "ping"
-            ) {
+        deviceButton.addEventListener(
 
-                send(
-                    "pong",
-                    {
+            "click",
 
-                        ready:
-                            !!transcriber,
+            async function() {
 
-                        model:
-                            currentModel,
+                try {
+
+                    const capabilities =
+                        await window
+                            .DropletVoice
+                            .detectCapabilities();
+
+
+                    deviceResults.textContent =
+                        JSON.stringify(
+                            capabilities,
+                            null,
+                            2
+                        );
+
+                } catch (error) {
+
+                    deviceResults.textContent =
+                        error.message;
+                }
+            }
+        );
+
+
+        // =====================================================
+        // AUDIO SELECTION
+        // =====================================================
+
+        audioInput.addEventListener(
+
+            "change",
+
+            function() {
+
+                selectedFile =
+                    audioInput.files[0] ||
+                    null;
+
+
+                preparedAudio =
+                    null;
+
+
+                transcript.value =
+                    "";
+
+
+                resetProgress();
+
+
+                if (!selectedFile) {
+
+                    audioInfo.textContent =
+                        "No audio selected.";
+
+
+                    status.textContent =
+                        "Waiting for audio...";
+
+
+                    return;
+                }
+
+
+                audioInfo.textContent =
+                    selectedFile.name +
+                    " - " +
+                    (
+                        selectedFile.size /
+                        1024 /
+                        1024
+                    ).toFixed(2) +
+                    " MB";
+
+
+                status.textContent =
+                    "Audio selected. Ready.";
+            }
+        );
+
+
+        // =====================================================
+        // TRANSCRIBE
+        // =====================================================
+
+        transcribeButton.addEventListener(
+
+            "click",
+
+            async function() {
+
+                if (!selectedFile) {
+
+                    alert(
+                        "Please select an audio file first."
+                    );
+
+                    return;
+                }
+
+
+                setRunningState(true);
+
+
+                // Cancel stays hidden until
+                // the worker sends transcription-start.
+
+                cancelButton.style.display =
+                    "none";
+
+
+                cancelButton.disabled =
+                    false;
+
+
+                transcript.value =
+                    "";
+
+
+                debug.textContent =
+                    "";
+
+
+                resetProgress();
+
+
+                try {
+
+                    status.textContent =
+                        "Decoding and preparing audio...";
+
+
+                    log(
+                        "Preparing:",
+                        selectedFile.name
+                    );
+
+
+                    preparedAudio =
+                        await window
+                            .DropletVoice
+                            .processAudioFile(
+                                selectedFile
+                            );
+
+
+                    totalDuration =
+                        preparedAudio.length /
+                        16000;
+
+
+                    log(
+                        "Prepared samples:",
+                        preparedAudio.length
+                    );
+
+
+                    log(
+                        "Duration:",
+                        totalDuration,
+                        "seconds"
+                    );
+
+
+                    processedInfo.textContent =
+                        "0:00 / " +
+                        formatTime(
+                            totalDuration
+                        );
+
+
+                    createWorker();
+
+
+                    const model =
+                        modelSelect.value;
+
+
+                    status.textContent =
+                        "Loading Whisper model...";
+
+
+                    worker.postMessage({
+
+                        type:
+                            "load-model",
+
+                        model,
 
                         device:
-                            currentDevice
-                    }
-                );
+                            "webgpu"
+                    });
+
+
+                } catch (error) {
+
+                    console.error(
+                        error
+                    );
+
+
+                    status.textContent =
+                        "Failed: " +
+                        error.message;
+
+
+                    stopElapsedTimer();
+
+                    setRunningState(false);
+
+
+                    cancelButton.style.display =
+                        "none";
+                }
+            }
+        );
+
+
+        // =====================================================
+        // SEND AUDIO TO WORKER
+        // =====================================================
+
+        function startWorkerTranscription() {
+
+            if (
+                !worker ||
+                !preparedAudio
+            ) {
+
+                status.textContent =
+                    "Audio is not ready.";
+
+
+                setRunningState(false);
+
+
+                cancelButton.style.display =
+                    "none";
 
 
                 return;
             }
 
 
-        } catch (error) {
-
-            console.error(
-                "[Droplet Worker]",
-                error
-            );
+            jobCounter++;
 
 
-            send(
-                "error",
+            activeJobId =
+                "job-" +
+                jobCounter;
+
+
+            const transferable =
+                preparedAudio.buffer;
+
+
+            status.textContent =
+                "Sending audio to transcription worker...";
+
+
+            worker.postMessage(
+
                 {
 
+                    type:
+                        "transcribe",
+
                     jobId:
-                        message.jobId ||
-                        null,
+                        activeJobId,
 
-                    message:
-                        error?.message ||
-                        String(error),
+                    audioBuffer:
+                        transferable
+                },
 
-                    stack:
-                        error?.stack ||
-                        null
-                }
+                [
+                    transferable
+                ]
             );
+
+
+            preparedAudio =
+                null;
         }
-    };
+
+
+        // =====================================================
+        // CANCEL
+        // =====================================================
+
+        cancelButton.addEventListener(
+
+            "click",
+
+            function() {
+
+                if (
+                    !worker ||
+                    !transcriptionRunning
+                ) {
+                    return;
+                }
+
+
+                status.textContent =
+                    "Stopping after current chunk...";
+
+
+                cancelButton.disabled =
+                    true;
+
+
+                worker.postMessage({
+
+                    type:
+                        "cancel"
+                });
+            }
+        );
+
+
+        // =====================================================
+        // MODEL CHANGE
+        // =====================================================
+
+        modelSelect.addEventListener(
+
+            "change",
+
+            function() {
+
+                status.textContent =
+                    "Quality changed. Ready.";
+            }
+        );
+
+
+        // =====================================================
+        // CLEANUP
+        // =====================================================
+
+        window.addEventListener(
+
+            "beforeunload",
+
+            function() {
+
+                stopElapsedTimer();
+
+
+                if (worker) {
+
+                    worker.terminate();
+                }
+            }
+        );
+
+
+        // =====================================================
+        // INITIAL STATE
+        // =====================================================
+
+        resetProgress();
+
+
+    </script>
+
+</body>
+
+</html>
