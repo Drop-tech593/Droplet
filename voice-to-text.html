@@ -421,17 +421,11 @@
 
                     const result =
                         await transcriber(
-
                             audioData,
-
                             {
-                                chunk_length_s: 30,
-
-                                stride_length_s: 5,
-
-                                return_timestamps: true
+                                language: "en",
+                                task: "transcribe"
                             }
-
                         );
 
 
