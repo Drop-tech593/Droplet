@@ -1,7 +1,7 @@
 // sw.js - Service Worker for Droplet PWA
 // Cache version bumped to force refresh
 
-const CACHE_NAME = 'droplet-v5';
+const CACHE_NAME = 'droplet-v6';
 
 // Only files that ACTUALLY exist in the repo.
 // Missing files here will NOT break the service worker
@@ -53,6 +53,9 @@ const ASSETS_TO_CACHE = [
   '/json-to-csv.html',
   '/csv-to-json.html',
   '/xml-to-json.html',
+
+  // AI & Audio tools
+  '/voice-to-text.html',
 
   // PDF Organize
   '/merge-pdf.html',
