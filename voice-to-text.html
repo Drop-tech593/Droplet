@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Voice to Text - Droplet</title>
 </head>
 
@@ -12,7 +13,48 @@
 
     <p>Droplet local AI transcription.</p>
 
+    <h2>Device Test</h2>
+
+    <button id="device-test">
+        Check My Device
+    </button>
+
+    <pre id="device-results">
+        Click "Check My Device"
+    </pre>
+
+
+    <!-- Device detection -->
+    <script src="./voice-engine/js/device-check.js"></script>
+
+    <!-- Main Voice-to-Text application -->
     <script src="./voice-engine/js/app.js"></script>
+
+
+    <script>
+        const testButton = document.getElementById("device-test");
+        const results = document.getElementById("device-results");
+
+        testButton.addEventListener("click", async () => {
+
+            try {
+
+                const capabilities =
+                    await window.DropletVoice.detectCapabilities();
+
+                results.textContent =
+                    JSON.stringify(capabilities, null, 2);
+
+            } catch (error) {
+
+                console.error(error);
+
+                results.textContent =
+                    "Device test failed: " + error.message;
+            }
+
+        });
+    </script>
 
 </body>
 </html>
