@@ -1,9 +1,7 @@
 <!DOCTYPE html>
-
 <html lang="en">
 
 <head>
-
     <meta charset="UTF-8">
 
     <meta
@@ -11,69 +9,92 @@
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>Voice to Text V3 - Droplet</title>
+    <title>Voice to Text - Droplet</title>
 
     <style>
 
+        * {
+            box-sizing: border-box;
+        }
+
         body {
             font-family: Arial, sans-serif;
-            max-width: 900px;
+            max-width: 950px;
             margin: 40px auto;
             padding: 0 20px;
             line-height: 1.5;
         }
 
+        h1 {
+            margin-bottom: 5px;
+        }
+
+        h2 {
+            margin-top: 35px;
+        }
 
         button,
         select,
         input {
             font-size: 16px;
-            padding: 10px;
+            padding: 10px 14px;
             margin: 5px 0;
         }
-
 
         button {
             cursor: pointer;
         }
-
 
         button:disabled {
             cursor: not-allowed;
             opacity: 0.5;
         }
 
+        #cancel-button {
+            display: none;
+            margin-left: 10px;
+        }
 
         textarea {
             width: 100%;
-            min-height: 300px;
-            box-sizing: border-box;
-            font-size: 16px;
+            min-height: 320px;
             padding: 15px;
+            font-size: 16px;
+            line-height: 1.6;
+            resize: vertical;
         }
-
 
         #status {
             font-weight: bold;
+            margin-top: 20px;
         }
-
 
         #progress-container {
             width: 100%;
-            height: 20px;
-            background: #ddd;
-            margin-top: 15px;
+            height: 24px;
+            background: #e5e5e5;
+            border-radius: 6px;
             overflow: hidden;
+            margin-top: 15px;
         }
-
 
         #progress-bar {
             width: 0%;
             height: 100%;
             background: #333;
-            transition: width 0.2s;
+            transition: width 0.25s ease;
         }
 
+        #progress-details {
+            margin-top: 12px;
+            padding: 15px;
+            background: #f5f5f5;
+            border-radius: 6px;
+        }
+
+        #progress-details p {
+            margin: 4px 0;
+        }
 
         #debug {
             background: #111;
@@ -82,55 +103,47 @@
             white-space: pre-wrap;
             overflow: auto;
             max-height: 300px;
+            border-radius: 6px;
+        }
+
+        .button-row {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
         }
 
     </style>
-
 </head>
 
 
 <body>
 
 
-    <h1>
-        Voice to Text V3
-    </h1>
-
+    <h1>Voice to Text</h1>
 
     <p>
-        Local AI transcription using a background worker.
+        Local AI transcription powered by your device.
     </p>
 
 
-    <!-- ==================================================
+    <!-- =====================================================
          DEVICE
-    =================================================== -->
+    ====================================================== -->
 
-
-    <h2>
-        1. Device
-    </h2>
-
+    <h2>1. Device</h2>
 
     <button id="device-test">
         Check My Device
     </button>
 
-
-    <pre id="device-results">
-Not checked yet.
-    </pre>
+    <pre id="device-results">Not checked yet.</pre>
 
 
-    <!-- ==================================================
+    <!-- =====================================================
          MODEL
-    =================================================== -->
+    ====================================================== -->
 
-
-    <h2>
-        2. Quality
-    </h2>
-
+    <h2>2. Quality</h2>
 
     <select id="model-select">
 
@@ -140,14 +153,12 @@ Not checked yet.
             Fast - Whisper Tiny
         </option>
 
-
         <option
             value="onnx-community/whisper-base.en"
             selected
         >
             Balanced - Whisper Base
         </option>
-
 
         <option
             value="onnx-community/whisper-small.en"
@@ -157,22 +168,17 @@ Not checked yet.
 
     </select>
 
-
     <p>
-        Small gives better accuracy but may be extremely
-        slow on weaker devices.
+        Base is recommended for balanced speed and accuracy.
+        Small gives better accuracy but requires much more processing power.
     </p>
 
 
-    <!-- ==================================================
+    <!-- =====================================================
          AUDIO
-    =================================================== -->
+    ====================================================== -->
 
-
-    <h2>
-        3. Select Audio
-    </h2>
-
+    <h2>3. Select Audio</h2>
 
     <input
         type="file"
@@ -180,31 +186,38 @@ Not checked yet.
         accept="audio/*"
     >
 
-
     <p id="audio-info">
         No audio selected.
     </p>
 
 
-    <!-- ==================================================
-         TRANSCRIBE
-    =================================================== -->
+    <!-- =====================================================
+         TRANSCRIPTION
+    ====================================================== -->
 
+    <h2>4. Transcribe</h2>
 
-    <h2>
-        4. Transcribe
-    </h2>
+    <div class="button-row">
 
+        <button id="transcribe-button">
+            Transcribe Audio
+        </button>
 
-    <button id="transcribe-button">
-        Transcribe Audio
-    </button>
+        <button id="cancel-button">
+            Cancel
+        </button>
+
+    </div>
 
 
     <p id="status">
         Waiting for audio...
     </p>
 
+
+    <!-- =====================================================
+         PROGRESS BAR
+    ====================================================== -->
 
     <div id="progress-container">
 
@@ -213,52 +226,72 @@ Not checked yet.
     </div>
 
 
-    <p id="time-info"></p>
+    <!-- =====================================================
+         DETAILED PROGRESS
+    ====================================================== -->
+
+    <div id="progress-details">
+
+        <p>
+            Progress:
+            <strong id="progress-percent">0%</strong>
+        </p>
+
+        <p>
+            Chunk:
+            <strong id="chunk-info">0 / 0</strong>
+        </p>
+
+        <p>
+            Audio processed:
+            <strong id="processed-info">0:00 / 0:00</strong>
+        </p>
+
+        <p>
+            Elapsed:
+            <strong id="elapsed-info">0:00</strong>
+        </p>
+
+        <p>
+            Estimated remaining:
+            <strong id="remaining-info">--</strong>
+        </p>
+
+    </div>
 
 
-    <!-- ==================================================
+    <!-- =====================================================
          TRANSCRIPT
-    =================================================== -->
+    ====================================================== -->
 
-
-    <h2>
-        Transcript
-    </h2>
-
+    <h2>Live Transcript</h2>
 
     <textarea
         id="transcript"
-        placeholder="Your transcript will appear here..."
+        placeholder="Your transcript will appear here as each audio chunk finishes..."
     ></textarea>
 
 
-    <!-- ==================================================
+    <!-- =====================================================
          DEBUG
-    =================================================== -->
+    ====================================================== -->
 
-
-    <h2>
-        Debug
-    </h2>
-
+    <h2>Debug</h2>
 
     <pre id="debug"></pre>
 
 
-    <!-- ==================================================
+    <!-- =====================================================
          DROPLET ENGINE
-    =================================================== -->
-
+    ====================================================== -->
 
     <script
         src="./voice-engine/js/device-check.js"
     ></script>
 
-
     <script
         src="./voice-engine/js/model-manager.js"
     ></script>
-
 
     <script
         src="./voice-engine/js/audio-processor.js"
@@ -267,82 +300,62 @@ Not checked yet.
 
     <script>
 
-
-        // =================================================
-        // ELEMENTS
-        // =================================================
-
+        // =====================================================
+        // UI
+        // =====================================================
 
         const deviceButton =
-            document.getElementById(
-                "device-test"
-            );
-
+            document.getElementById("device-test");
 
         const deviceResults =
-            document.getElementById(
-                "device-results"
-            );
-
+            document.getElementById("device-results");
 
         const modelSelect =
-            document.getElementById(
-                "model-select"
-            );
-
+            document.getElementById("model-select");
 
         const audioInput =
-            document.getElementById(
-                "audio-file"
-            );
-
+            document.getElementById("audio-file");
 
         const audioInfo =
-            document.getElementById(
-                "audio-info"
-            );
-
+            document.getElementById("audio-info");
 
         const transcribeButton =
-            document.getElementById(
-                "transcribe-button"
-            );
+            document.getElementById("transcribe-button");
 
+        const cancelButton =
+            document.getElementById("cancel-button");
 
         const status =
-            document.getElementById(
-                "status"
-            );
-
+            document.getElementById("status");
 
         const progressBar =
-            document.getElementById(
-                "progress-bar"
-            );
+            document.getElementById("progress-bar");
 
+        const progressPercent =
+            document.getElementById("progress-percent");
 
-        const timeInfo =
-            document.getElementById(
-                "time-info"
-            );
+        const chunkInfo =
+            document.getElementById("chunk-info");
 
+        const processedInfo =
+            document.getElementById("processed-info");
+
+        const elapsedInfo =
+            document.getElementById("elapsed-info");
+
+        const remainingInfo =
+            document.getElementById("remaining-info");
 
         const transcript =
-            document.getElementById(
-                "transcript"
-            );
-
+            document.getElementById("transcript");
 
         const debug =
-            document.getElementById(
-                "debug"
-            );
+            document.getElementById("debug");
 
 
-        // =================================================
+        // =====================================================
         // STATE
-        // =================================================
-
+        // =====================================================
 
         let worker = null;
 
@@ -354,20 +367,75 @@ Not checked yet.
 
         let activeJobId = null;
 
+        let totalDuration = 0;
+
         let jobStartTime = null;
 
-        let loadedModel = null;
+        let elapsedTimer = null;
+
+        let transcriptionRunning = false;
 
 
-        // =================================================
+        // =====================================================
+        // TIME FORMATTER
+        //
+        // 65 seconds -> 1:05
+        // 3665 seconds -> 1:01:05
+        // =====================================================
+
+        function formatTime(seconds) {
+
+            if (
+                !Number.isFinite(seconds) ||
+                seconds < 0
+            ) {
+                return "--";
+            }
+
+            seconds =
+                Math.round(seconds);
+
+            const hours =
+                Math.floor(
+                    seconds / 3600
+                );
+
+            const minutes =
+                Math.floor(
+                    (seconds % 3600) / 60
+                );
+
+            const secs =
+                seconds % 60;
+
+
+            if (hours > 0) {
+
+                return (
+                    hours +
+                    ":" +
+                    String(minutes).padStart(2, "0") +
+                    ":" +
+                    String(secs).padStart(2, "0")
+                );
+            }
+
+
+            return (
+                minutes +
+                ":" +
+                String(secs).padStart(2, "0")
+            );
+        }
+
+
+        // =====================================================
         // DEBUG LOGGER
-        // =================================================
-
+        // =====================================================
 
         function log(...values) {
 
             console.log(...values);
-
 
             const line =
                 values
@@ -389,7 +457,6 @@ Not checked yet.
                             }
                         }
 
-
                         return String(value);
 
                     })
@@ -405,10 +472,109 @@ Not checked yet.
         }
 
 
-        // =================================================
-        // CREATE WORKER
-        // =================================================
+        // =====================================================
+        // RESET PROGRESS
+        // =====================================================
 
+        function resetProgress() {
+
+            progressBar.style.width =
+                "0%";
+
+            progressPercent.textContent =
+                "0%";
+
+            chunkInfo.textContent =
+                "0 / 0";
+
+            processedInfo.textContent =
+                "0:00 / 0:00";
+
+            elapsedInfo.textContent =
+                "0:00";
+
+            remainingInfo.textContent =
+                "--";
+        }
+
+
+        // =====================================================
+        // BUTTON STATE
+        // =====================================================
+
+        function setRunningState(running) {
+
+            transcriptionRunning =
+                running;
+
+            transcribeButton.disabled =
+                running;
+
+            modelSelect.disabled =
+                running;
+
+            audioInput.disabled =
+                running;
+
+            cancelButton.style.display =
+                running
+                    ? "inline-block"
+                    : "none";
+        }
+
+
+        // =====================================================
+        // ELAPSED TIMER
+        // =====================================================
+
+        function startElapsedTimer() {
+
+            stopElapsedTimer();
+
+            jobStartTime =
+                performance.now();
+
+
+            elapsedTimer =
+                setInterval(
+                    () => {
+
+                        if (!jobStartTime) {
+                            return;
+                        }
+
+                        const seconds =
+                            (
+                                performance.now() -
+                                jobStartTime
+                            ) /
+                            1000;
+
+                        elapsedInfo.textContent =
+                            formatTime(seconds);
+
+                    },
+                    1000
+                );
+        }
+
+
+        function stopElapsedTimer() {
+
+            if (elapsedTimer) {
+
+                clearInterval(
+                    elapsedTimer
+                );
+
+                elapsedTimer = null;
+            }
+        }
+
+
+        // =====================================================
+        // CREATE WORKER
+        // =====================================================
 
         function createWorker() {
 
@@ -451,8 +617,9 @@ Not checked yet.
                         error.message;
 
 
-                    transcribeButton.disabled =
-                        false;
+                    stopElapsedTimer();
+
+                    setRunningState(false);
                 };
 
 
@@ -460,10 +627,9 @@ Not checked yet.
         }
 
 
-        // =================================================
-        // WORKER MESSAGES
-        // =================================================
-
+        // =====================================================
+        // WORKER MESSAGE HANDLER
+        // =====================================================
 
         function handleWorkerMessage(event) {
 
@@ -478,10 +644,9 @@ Not checked yet.
             );
 
 
-            // ---------------------------------------------
+            // =================================================
             // STATUS
-            // ---------------------------------------------
-
+            // =================================================
 
             if (
                 message.type === "status"
@@ -494,10 +659,9 @@ Not checked yet.
             }
 
 
-            // ---------------------------------------------
-            // MODEL DOWNLOAD
-            // ---------------------------------------------
-
+            // =================================================
+            // MODEL DOWNLOAD / LOAD PROGRESS
+            // =================================================
 
             if (
                 message.type ===
@@ -515,13 +679,15 @@ Not checked yet.
                 ) {
 
                     const percent =
-                        Math.round(
-                            progress.progress
+                        Math.max(
+                            0,
+                            Math.min(
+                                100,
+                                Math.round(
+                                    progress.progress
+                                )
+                            )
                         );
-
-
-                    progressBar.style.width =
-                        percent + "%";
 
 
                     status.textContent =
@@ -535,26 +701,17 @@ Not checked yet.
             }
 
 
-            // ---------------------------------------------
+            // =================================================
             // MODEL READY
-            // ---------------------------------------------
-
+            // =================================================
 
             if (
                 message.type ===
                 "model-ready"
             ) {
 
-                loadedModel =
-                    message.model;
-
-
-                progressBar.style.width =
-                    "0%";
-
-
                 status.textContent =
-                    "Whisper ready. Preparing transcription...";
+                    "Whisper ready. Starting transcription...";
 
 
                 startWorkerTranscription();
@@ -563,32 +720,193 @@ Not checked yet.
             }
 
 
-            // ---------------------------------------------
-            // TRANSCRIPTION START
-            // ---------------------------------------------
-
+            // =================================================
+            // TRANSCRIPTION STARTED
+            // =================================================
 
             if (
                 message.type ===
                 "transcription-start"
             ) {
 
+                totalDuration =
+                    message.duration;
+
+
+                chunkInfo.textContent =
+                    "0 / " +
+                    message.totalChunks;
+
+
+                processedInfo.textContent =
+                    "0:00 / " +
+                    formatTime(
+                        totalDuration
+                    );
+
+
                 status.textContent =
-                    "Transcribing in background...";
+                    "Transcribing audio...";
 
 
-                jobStartTime =
-                    performance.now();
+                startElapsedTimer();
 
 
                 return;
             }
 
 
-            // ---------------------------------------------
-            // COMPLETE
-            // ---------------------------------------------
+            // =================================================
+            // CHUNK START
+            // =================================================
 
+            if (
+                message.type ===
+                "chunk-start"
+            ) {
+
+                if (
+                    message.jobId !==
+                    activeJobId
+                ) {
+                    return;
+                }
+
+
+                status.textContent =
+                    "Transcribing chunk " +
+                    message.chunkNumber +
+                    " of " +
+                    message.totalChunks +
+                    "...";
+
+
+                chunkInfo.textContent =
+                    message.chunkNumber +
+                    " / " +
+                    message.totalChunks;
+
+
+                return;
+            }
+
+
+            // =================================================
+            // CHUNK COMPLETE
+            //
+            // THIS IS THE IMPORTANT NEW PART.
+            // =================================================
+
+            if (
+                message.type ===
+                "chunk-complete"
+            ) {
+
+                if (
+                    message.jobId !==
+                    activeJobId
+                ) {
+                    return;
+                }
+
+
+                // ---------------------------------------------
+                // LIVE TRANSCRIPT
+                // ---------------------------------------------
+
+                transcript.value =
+                    message.fullText || "";
+
+
+                // Automatically keep the textarea
+                // near the newest transcript text.
+
+                transcript.scrollTop =
+                    transcript.scrollHeight;
+
+
+                // ---------------------------------------------
+                // PERCENTAGE
+                // ---------------------------------------------
+
+                const percent =
+                    Math.max(
+                        0,
+                        Math.min(
+                            100,
+                            message.progress
+                        )
+                    );
+
+
+                progressBar.style.width =
+                    percent + "%";
+
+
+                progressPercent.textContent =
+                    Math.round(percent) +
+                    "%";
+
+
+                // ---------------------------------------------
+                // CHUNK
+                // ---------------------------------------------
+
+                chunkInfo.textContent =
+                    message.chunkNumber +
+                    " / " +
+                    message.totalChunks;
+
+
+                // ---------------------------------------------
+                // AUDIO POSITION
+                // ---------------------------------------------
+
+                processedInfo.textContent =
+                    formatTime(
+                        message.processedAudio
+                    ) +
+                    " / " +
+                    formatTime(
+                        message.duration
+                    );
+
+
+                // ---------------------------------------------
+                // ELAPSED
+                // ---------------------------------------------
+
+                elapsedInfo.textContent =
+                    formatTime(
+                        message.elapsed
+                    );
+
+
+                // ---------------------------------------------
+                // ESTIMATED REMAINING
+                // ---------------------------------------------
+
+                remainingInfo.textContent =
+                    formatTime(
+                        message.estimatedRemaining
+                    );
+
+
+                status.textContent =
+                    "Chunk " +
+                    message.chunkNumber +
+                    " of " +
+                    message.totalChunks +
+                    " complete.";
+
+
+                return;
+            }
+
+
+            // =================================================
+            // COMPLETE
+            // =================================================
 
             if (
                 message.type ===
@@ -599,7 +917,6 @@ Not checked yet.
                     message.jobId !==
                     activeJobId
                 ) {
-
                     return;
                 }
 
@@ -609,37 +926,110 @@ Not checked yet.
                     "No speech detected.";
 
 
-                status.textContent =
-                    "Transcription complete.";
-
-
                 progressBar.style.width =
                     "100%";
 
 
-                timeInfo.textContent =
-                    "Audio: " +
-                    message.duration.toFixed(1) +
-                    " sec | Processing: " +
-                    message.elapsed.toFixed(1) +
-                    " sec";
+                progressPercent.textContent =
+                    "100%";
 
 
-                transcribeButton.disabled =
-                    false;
+                chunkInfo.textContent =
+                    message.totalChunks +
+                    " / " +
+                    message.totalChunks;
+
+
+                processedInfo.textContent =
+                    formatTime(
+                        message.duration
+                    ) +
+                    " / " +
+                    formatTime(
+                        message.duration
+                    );
+
+
+                elapsedInfo.textContent =
+                    formatTime(
+                        message.elapsed
+                    );
+
+
+                remainingInfo.textContent =
+                    "0:00";
+
+
+                status.textContent =
+                    "Transcription complete.";
+
+
+                stopElapsedTimer();
+
+                setRunningState(false);
+
+
+                log(
+                    "FINAL TRANSCRIPT:",
+                    message.text
+                );
 
 
                 return;
             }
 
 
-            // ---------------------------------------------
-            // ERROR
-            // ---------------------------------------------
-
+            // =================================================
+            // CANCELLED
+            // =================================================
 
             if (
-                message.type === "error"
+                message.type ===
+                "transcription-cancelled"
+            ) {
+
+                if (
+                    message.jobId !==
+                    activeJobId
+                ) {
+                    return;
+                }
+
+
+                transcript.value =
+                    message.text || "";
+
+
+                status.textContent =
+                    "Transcription cancelled.";
+
+
+                chunkInfo.textContent =
+                    message.completedChunks +
+                    " / " +
+                    message.totalChunks;
+
+
+                remainingInfo.textContent =
+                    "Cancelled";
+
+
+                stopElapsedTimer();
+
+                setRunningState(false);
+
+
+                return;
+            }
+
+
+            // =================================================
+            // ERROR
+            // =================================================
+
+            if (
+                message.type ===
+                "error"
             ) {
 
                 status.textContent =
@@ -652,8 +1042,9 @@ Not checked yet.
                     message.message;
 
 
-                transcribeButton.disabled =
-                    false;
+                stopElapsedTimer();
+
+                setRunningState(false);
 
 
                 return;
@@ -661,10 +1052,9 @@ Not checked yet.
         }
 
 
-        // =================================================
+        // =====================================================
         // DEVICE TEST
-        // =================================================
-
+        // =====================================================
 
         deviceButton.addEventListener(
 
@@ -696,10 +1086,9 @@ Not checked yet.
         );
 
 
-        // =================================================
+        // =====================================================
         // AUDIO SELECTION
-        // =================================================
-
+        // =====================================================
 
         audioInput.addEventListener(
 
@@ -720,14 +1109,18 @@ Not checked yet.
                     "";
 
 
-                progressBar.style.width =
-                    "0%";
+                resetProgress();
 
 
                 if (!selectedFile) {
 
                     audioInfo.textContent =
                         "No audio selected.";
+
+
+                    status.textContent =
+                        "Waiting for audio...";
+
 
                     return;
                 }
@@ -750,10 +1143,9 @@ Not checked yet.
         );
 
 
-        // =================================================
-        // TRANSCRIBE BUTTON
-        // =================================================
-
+        // =====================================================
+        // TRANSCRIBE
+        // =====================================================
 
         transcribeButton.addEventListener(
 
@@ -771,8 +1163,7 @@ Not checked yet.
                 }
 
 
-                transcribeButton.disabled =
-                    true;
+                setRunningState(true);
 
 
                 transcript.value =
@@ -783,23 +1174,17 @@ Not checked yet.
                     "";
 
 
-                progressBar.style.width =
-                    "0%";
-
-
-                timeInfo.textContent =
-                    "";
+                resetProgress();
 
 
                 try {
 
-                    // -------------------------------------
-                    // PREPARE AUDIO
-                    // -------------------------------------
-
+                    // -----------------------------------------
+                    // AUDIO PREPROCESSING
+                    // -----------------------------------------
 
                     status.textContent =
-                        "Decoding audio...";
+                        "Decoding and preparing audio...";
 
 
                     log(
@@ -816,6 +1201,11 @@ Not checked yet.
                             );
 
 
+                    totalDuration =
+                        preparedAudio.length /
+                        16000;
+
+
                     log(
                         "Prepared samples:",
                         preparedAudio.length
@@ -824,24 +1214,28 @@ Not checked yet.
 
                     log(
                         "Duration:",
-                        preparedAudio.length /
-                        16000,
+                        totalDuration,
                         "seconds"
                     );
 
 
-                    // -------------------------------------
-                    // CREATE WORKER
-                    // -------------------------------------
+                    processedInfo.textContent =
+                        "0:00 / " +
+                        formatTime(
+                            totalDuration
+                        );
 
+
+                    // -----------------------------------------
+                    // CREATE WORKER
+                    // -----------------------------------------
 
                     createWorker();
 
 
-                    // -------------------------------------
-                    // LOAD SELECTED MODEL
-                    // -------------------------------------
-
+                    // -----------------------------------------
+                    // LOAD MODEL
+                    // -----------------------------------------
 
                     const model =
                         modelSelect.value;
@@ -865,7 +1259,9 @@ Not checked yet.
 
                 } catch (error) {
 
-                    console.error(error);
+                    console.error(
+                        error
+                    );
 
 
                     status.textContent =
@@ -873,18 +1269,17 @@ Not checked yet.
                         error.message;
 
 
-                    transcribeButton.disabled =
-                        false;
-                }
+                    stopElapsedTimer();
 
+                    setRunningState(false);
+                }
             }
         );
 
 
-        // =================================================
+        // =====================================================
         // SEND AUDIO TO WORKER
-        // =================================================
-
+        // =====================================================
 
         function startWorkerTranscription() {
 
@@ -897,8 +1292,7 @@ Not checked yet.
                     "Audio is not ready.";
 
 
-                transcribeButton.disabled =
-                    false;
+                setRunningState(false);
 
 
                 return;
@@ -909,18 +1303,8 @@ Not checked yet.
 
 
             activeJobId =
-                "job-" + jobCounter;
-
-
-            /*
-             * IMPORTANT:
-             *
-             * Make a transferable copy.
-             *
-             * Sending an ArrayBuffer as a transferable means
-             * the browser can move ownership to the worker
-             * instead of making another huge copy.
-             */
+                "job-" +
+                jobCounter;
 
 
             const transferable =
@@ -928,12 +1312,13 @@ Not checked yet.
 
 
             status.textContent =
-                "Sending audio to background worker...";
+                "Sending audio to transcription worker...";
 
 
             worker.postMessage(
 
                 {
+
                     type:
                         "transcribe",
 
@@ -950,27 +1335,84 @@ Not checked yet.
             );
 
 
-            /*
-             * The ArrayBuffer has now been transferred.
-             * Do not use preparedAudio again.
-             */
-
+            // Ownership of this ArrayBuffer
+            // now belongs to the worker.
 
             preparedAudio =
                 null;
         }
 
 
-        // =================================================
-        // CLEANUP
-        // =================================================
+        // =====================================================
+        // CANCEL
+        // =====================================================
 
+        cancelButton.addEventListener(
+
+            "click",
+
+            function() {
+
+                if (
+                    !worker ||
+                    !transcriptionRunning
+                ) {
+                    return;
+                }
+
+
+                status.textContent =
+                    "Stopping after current chunk...";
+
+
+                cancelButton.disabled =
+                    true;
+
+
+                worker.postMessage({
+
+                    type:
+                        "cancel"
+                });
+            }
+        );
+
+
+        // =====================================================
+        // MODEL CHANGE
+        // =====================================================
+
+        modelSelect.addEventListener(
+
+            "change",
+
+            function() {
+
+                /*
+                 * If a different model is selected,
+                 * we'll let the worker replace the
+                 * currently loaded model next time
+                 * Transcribe is pressed.
+                 */
+
+                status.textContent =
+                    "Quality changed. Ready.";
+            }
+        );
+
+
+        // =====================================================
+        // CLEANUP
+        // =====================================================
 
         window.addEventListener(
 
             "beforeunload",
 
             function() {
+
+                stopElapsedTimer();
+
 
                 if (worker) {
 
@@ -980,8 +1422,14 @@ Not checked yet.
         );
 
 
-    </script>
+        // =====================================================
+        // INITIAL STATE
+        // =====================================================
 
+        resetProgress();
+
+
+    </script>
 
 </body>
 
