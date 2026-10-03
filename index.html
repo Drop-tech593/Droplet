@@ -212,12 +212,20 @@
     }
 
     /* ===== SEARCH ===== */
+    /* The search wrapper creates its own stacking context so the results
+       always paint above the dropzone below it. */
+    #searchWrapper {
+      position: relative;
+      z-index: 5000;
+    }
     .search-results {
       display: none; position: absolute; top: calc(100% + 10px);
       left: 0; right: 0; background: white; border-radius: 20px;
-      box-shadow: 0 30px 80px rgba(0,0,0,0.2);
+      box-shadow: 0 30px 80px rgba(0,0,0,0.25);
       border: 1px solid #e2e8f0; max-height: 420px; overflow-y: auto;
-      z-index: 100; padding: 0.5rem 0;
+      /* Higher than any page content so it never gets hidden */
+      z-index: 99999;
+      padding: 0.5rem 0;
     }
     .search-results.open { display: block; }
     .search-results .result-item {
@@ -415,8 +423,10 @@
             <a href="/json-to-csv.html">JSON to CSV</a>
             <a href="/csv-to-json.html">CSV to JSON</a>
             <a href="/xml-to-json.html">XML to JSON</a>
-            <span class="category-label">AI & Audio</span>
+            <span class="category-label">AI, Audio &amp; Media</span>
             <a href="/voice-to-text.html">Voice to Text</a>
+            <a href="/ai-summarizer.html">AI Summarizer</a>
+            <a href="/translate-pdf.html">Translate PDF</a>
           </div>
         </div>
 
@@ -465,15 +475,24 @@
             <a href="/scan-to-pdf.html">Scan to PDF</a>
             <a href="/rotate-pdf.html">Rotate PDF</a>
             <a href="/add-page-numbers.html">Add page numbers</a>
-            <span class="category-label">PDF Intelligence</span>
-            <a href="/ai-summarizer.html">AI Summarizer</a>
-            <a href="/translate-pdf.html">Translate PDF</a>
-            <a href="/pdf-to-markdown.html">PDF to Markdown</a>
-            <span class="category-label">Editing & Security</span>
+            <span class="category-label">Editing &amp; Security</span>
             <a href="/add-watermark.html">Add watermark</a>
             <a href="/crop-pdf.html">Crop PDF</a>
             <a href="/edit-pdf.html">Edit PDF</a>
             <a href="/pdf-forms.html">PDF Forms</a>
+          </div>
+        </div>
+
+        <!-- 👇 NEW: Dedicated AI, Audio & Media nav dropdown -->
+        <div class="nav-link-with-dropdown dropdown-group">
+          <a href="#ai-tools">AI, Audio &amp; Media</a>
+          <div class="dropdown-menu">
+            <span class="category-label">AI &amp; Audio</span>
+            <a href="/voice-to-text.html">Voice to Text</a>
+            <a href="/ai-summarizer.html">AI Summarizer</a>
+            <a href="/translate-pdf.html">Translate PDF</a>
+            <span class="category-label">PDF Intelligence</span>
+            <a href="/pdf-to-markdown.html">PDF to Markdown</a>
           </div>
         </div>
 
@@ -513,8 +532,10 @@
       <div class="category-label">Data Tools</div>
       <a href="/json-to-csv.html" class="mobile-nav-item">JSON to CSV</a>
       <a href="/csv-to-json.html" class="mobile-nav-item">CSV to JSON</a>
-      <div class="category-label">AI & Audio</div>
+      <div class="category-label">AI, Audio &amp; Media</div>
       <a href="/voice-to-text.html" class="mobile-nav-item">Voice to Text</a>
+      <a href="/ai-summarizer.html" class="mobile-nav-item">AI Summarizer</a>
+      <a href="/translate-pdf.html" class="mobile-nav-item">Translate PDF</a>
     </div>
 
     <div class="mobile-nav-item" onclick="toggleMobileSubmenu('sub-image')">Image Converter <span class="arrow">▾</span></div>
@@ -544,6 +565,17 @@
       <a href="/remove-pages.html" class="mobile-nav-item">Remove pages</a>
       <a href="/extract-pages.html" class="mobile-nav-item">Extract pages</a>
       <a href="/rotate-pdf.html" class="mobile-nav-item">Rotate PDF</a>
+    </div>
+
+    <!-- 👇 NEW: Dedicated AI, Audio & Media mobile section -->
+    <div class="mobile-nav-item" onclick="toggleMobileSubmenu('sub-ai-tools')">AI, Audio &amp; Media <span class="arrow">▾</span></div>
+    <div class="mobile-submenu" id="sub-ai-tools">
+      <div class="category-label">AI &amp; Audio</div>
+      <a href="/voice-to-text.html" class="mobile-nav-item">🎤 Voice to Text</a>
+      <a href="/ai-summarizer.html" class="mobile-nav-item">🤖 AI Summarizer</a>
+      <a href="/translate-pdf.html" class="mobile-nav-item">🌍 Translate PDF</a>
+      <div class="category-label">PDF Intelligence</div>
+      <a href="/pdf-to-markdown.html" class="mobile-nav-item">📝 PDF to Markdown</a>
     </div>
 
     <a href="#faq" class="mobile-nav-item">Help</a>
@@ -970,17 +1002,17 @@
             <li><a href="#all-tools" class="hover:text-white transition">Document Tools</a></li>
             <li><a href="#all-tools" class="hover:text-white transition">Data Tools</a></li>
             <li><a href="#all-tools" class="hover:text-white transition">PDF Organize</a></li>
-            <li><a href="#faq" class="hover:text-white transition">FAQ & Help</a></li>
+            <li><a href="#faq" class="hover:text-white transition">FAQ &amp; Help</a></li>
           </ul>
         </div>
 
         <div>
-          <h4 class="text-white font-bold text-sm mb-4 uppercase tracking-wider">Legal & Info</h4>
+          <h4 class="text-white font-bold text-sm mb-4 uppercase tracking-wider">Legal &amp; Info</h4>
           <ul class="space-y-2 text-sm">
             <li><a href="/about.html" class="hover:text-white transition">About Droplet</a></li>
             <li><a href="/privacy.html" class="hover:text-white transition">Privacy Policy</a></li>
             <li><a href="/terms.html" class="hover:text-white transition">Terms of Service</a></li>
-            <li><a href="/faq.html" class="hover:text-white transition">Help & FAQ</a></li>
+            <li><a href="/faq.html" class="hover:text-white transition">Help &amp; FAQ</a></li>
             <li><a href="/sitemap.xml" target="_blank" class="hover:text-white transition">Sitemap</a></li>
           </ul>
         </div>
@@ -1028,7 +1060,7 @@
     });
 
     // ============================================
-    // 1. TOOLS DATABASE (with Voice to Text)
+    // 1. TOOLS DATABASE
     // ============================================
     const allTools = [
       { name: 'PDF to DOCX (Word)', page: '/pdf-to-word.html', category: 'Core Documents', emoji: '📝', keywords: ['pdf','word','docx','convert','edit','document'] },
@@ -1054,8 +1086,11 @@
       { name: 'JSON to CSV', page: '/json-to-csv.html', category: 'Data & Dev Tools', emoji: '📋', keywords: ['json','csv','data'] },
       { name: 'CSV to JSON', page: '/csv-to-json.html', category: 'Data & Dev Tools', emoji: '📈', keywords: ['csv','json','data'] },
       { name: 'XML to JSON', page: '/xml-to-json.html', category: 'Data & Dev Tools', emoji: '🔗', keywords: ['xml','json','data'] },
-      // 👇 NEW: Voice to Text tool
-      { name: 'Voice to Text', page: '/voice-to-text.html', category: 'AI & Audio', emoji: '🎤', keywords: ['voice','speech','dictation','transcribe','transcription','microphone','audio','speech to text','voice to text','record'] },
+      // AI, Audio & Media tools
+      { name: 'Voice to Text', page: '/voice-to-text.html', category: 'AI, Audio & Media', emoji: '🎤', keywords: ['voice','speech','dictation','transcribe','transcription','microphone','audio','speech to text','voice to text','record'] },
+      { name: 'AI Summarizer', page: '/ai-summarizer.html', category: 'AI, Audio & Media', emoji: '🤖', keywords: ['ai','summarize','pdf','summary','artificial intelligence'] },
+      { name: 'Translate PDF', page: '/translate-pdf.html', category: 'AI, Audio & Media', emoji: '🌍', keywords: ['translate','pdf','language','translation'] },
+      { name: 'PDF to Markdown', page: '/pdf-to-markdown.html', category: 'AI, Audio & Media', emoji: '📝', keywords: ['pdf','markdown','md','convert'] },
       { name: 'Merge PDF', page: '/merge-pdf.html', category: 'PDF Organize', emoji: '🔗', keywords: ['merge','pdf','combine'] },
       { name: 'Split PDF', page: '/split-pdf.html', category: 'PDF Organize', emoji: '✂️', keywords: ['split','pdf','separate'] },
       { name: 'Remove pages', page: '/remove-pages.html', category: 'PDF Organize', emoji: '🗑️', keywords: ['remove','pdf','delete'] },
@@ -1064,9 +1099,6 @@
       { name: 'Scan to PDF', page: '/scan-to-pdf.html', category: 'PDF Organize', emoji: '📷', keywords: ['scan','pdf','document'] },
       { name: 'Rotate PDF', page: '/rotate-pdf.html', category: 'PDF Organize', emoji: '🔄', keywords: ['rotate','pdf','orientation'] },
       { name: 'Add page numbers', page: '/add-page-numbers.html', category: 'PDF Organize', emoji: '🔢', keywords: ['page numbers','pdf','numbering'] },
-      { name: 'AI Summarizer', page: '/ai-summarizer.html', category: 'PDF Intelligence', emoji: '🤖', keywords: ['ai','summarize','pdf','summary'] },
-      { name: 'Translate PDF', page: '/translate-pdf.html', category: 'PDF Intelligence', emoji: '🌍', keywords: ['translate','pdf','language'] },
-      { name: 'PDF to Markdown', page: '/pdf-to-markdown.html', category: 'PDF Intelligence', emoji: '📝', keywords: ['pdf','markdown','md'] },
       { name: 'Add watermark', page: '/add-watermark.html', category: 'PDF Editing & Security', emoji: '💧', keywords: ['watermark','pdf','protect'] },
       { name: 'Crop PDF', page: '/crop-pdf.html', category: 'PDF Editing & Security', emoji: '✂️', keywords: ['crop','pdf','trim'] },
       { name: 'Edit PDF', page: '/edit-pdf.html', category: 'PDF Editing & Security', emoji: '✏️', keywords: ['edit','pdf','modify'] },
@@ -1269,7 +1301,7 @@
     const HANDOFF_DB = 'droplet-handoff';
     const HANDOFF_STORE = 'files';
     const HANDOFF_KEY = 'pending';
-    const HANDOFF_MAX_AGE_MS = 2 * 60 * 1000; // 2 minutes
+    const HANDOFF_MAX_AGE_MS = 2 * 60 * 1000;
 
     function openHandoffDB() {
       return new Promise((resolve, reject) => {
@@ -1385,23 +1417,15 @@
           btn.href = c.page;
           btn.innerHTML = `<span class="emoji" style="font-size:1.5rem">${c.emoji}</span><div><div style="font-weight:600">${c.name}</div><div style="font-size:0.75rem;color:#94a3b8">${c.desc}</div></div>`;
 
-          // 👇 Option B: save file to IndexedDB before navigating
           btn.addEventListener('click', async (e) => {
             e.preventDefault();
-
-            // Show loading overlay
             handoffStatus.classList.add('show');
-
             try {
               await saveFileForHandoff(file);
-              // Small delay so the UI feels intentional
-              setTimeout(() => {
-                window.location.href = c.page;
-              }, 200);
+              setTimeout(() => { window.location.href = c.page; }, 200);
             } catch (err) {
               console.warn('[Handoff] Failed to save file:', err);
               handoffStatus.classList.remove('show');
-              // Fallback: just navigate (user re-picks file)
               window.location.href = c.page;
             }
           });
