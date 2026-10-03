@@ -423,8 +423,8 @@
                         await transcriber(
                             audioData,
                             {
-                                language: "en",
-                                task: "transcribe"
+                                chunk_length_s: 20,
+                                stride_length_s: 3
                             }
                         );
 
