@@ -1,3 +1,8 @@
+console.log(
+    "DROPLET WHISPER WORKER VERSION: CHUNKED-V2"
+);
+
+
 // ============================================================
 // DROPLET VOICE-TO-TEXT
 // Whisper Worker - Long Audio Engine
