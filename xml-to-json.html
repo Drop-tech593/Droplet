@@ -448,7 +448,7 @@
   <!-- Main Content -->
   <main class="max-w-4xl mx-auto px-4 py-8 md:py-12 flex-grow w-full">
 
-    <!-- Back Button (prominent & visible) -->
+    <!-- Back Button -->
     <div class="max-w-2xl mx-auto mb-4 flex justify-start">
       <a href="/" class="back-home-btn inline-flex items-center gap-2 bg-white hover:bg-slate-50 border border-slate-200 shadow-sm rounded-full px-5 py-2.5 text-sm font-medium text-slate-700 transition-all hover:shadow-md hover:border-slate-300 active:scale-95">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -469,7 +469,7 @@
       </p>
     </div>
 
-    <!-- What is XML to JSON Info -->
+    <!-- Info -->
     <div class="max-w-2xl mx-auto mb-8 bg-blue-50 border border-blue-200 rounded-xl p-4 transition-colors duration-200">
       <div class="flex items-start gap-3">
         <span class="text-2xl">🔄</span>
@@ -601,9 +601,7 @@
       </div>
     </div>
 
-    <!-- ============================================================ -->
-    <!-- SEO CONTENT — Attributes, child nodes, arrays, malformed XML  -->
-    <!-- ============================================================ -->
+    <!-- SEO CONTENT (unchanged) -->
     <section class="seo-content">
       <h2>How XML Elements Become JSON Keys</h2>
       <p>
@@ -845,9 +843,7 @@
       </p>
     </section>
 
-    <!-- ============================================================ -->
-    <!-- FAQ SECTION                                                   -->
-    <!-- ============================================================ -->
+    <!-- FAQ SECTION -->
     <section class="faq-section">
       <h2>XML to JSON Questions</h2>
 
@@ -956,7 +952,6 @@
           very large XML files, split them into smaller chunks and convert each one.
         </p>
       </details>
-
     </section>
   </main>
 
@@ -972,7 +967,7 @@
     </div>
   </footer>
 
-  <!-- Conversion JavaScript -->
+  <!-- ===== CONVERSION JAVASCRIPT ===== -->
   <script>
     // ============================================
     // DARK MODE TOGGLE
@@ -1108,6 +1103,9 @@
       };
       reader.readAsText(file);
     }
+
+    // 👇 IMPORTANT: Expose handleFile globally so the handoff receiver can call it
+    window.handleFile = handleFile;
 
     function clearFile() {
       currentFile = null;
@@ -1331,7 +1329,6 @@
       console.log(`${nodeCount} nodes, ${attrCount} attributes`);
     }
 
-    // Convert button handler
     function convertXMLtoJSON() {
       tryConvertXML();
     }
@@ -1383,7 +1380,6 @@
           alert('✅ JSON copied to clipboard!');
         })
         .catch(() => {
-          // Fallback for older browsers
           const textarea = document.createElement('textarea');
           textarea.value = jsonString;
           document.body.appendChild(textarea);
@@ -1408,7 +1404,6 @@
       clearTimeout(debounceTimer);
       debounceTimer = setTimeout(() => {
         if (this.value.trim()) {
-          // Check if it looks like XML
           const trimmed = this.value.trim();
           if (trimmed.startsWith('<') && trimmed.includes('>')) {
             tryConvertXML();
@@ -1416,6 +1411,106 @@
         }
       }, 600);
     });
+  </script>
+
+  <!-- ============================================ -->
+  <!-- FILE HANDOFF RECEIVER (Option B)             -->
+  <!-- Receives files from the homepage via IndexedDB -->
+  <!-- ============================================ -->
+  <script>
+  (function() {
+    'use strict';
+
+    const HANDOFF_DB = 'droplet-handoff';
+    const HANDOFF_STORE = 'files';
+    const HANDOFF_KEY = 'pending';
+    const HANDOFF_MAX_AGE_MS = 2 * 60 * 1000; // 2 minutes
+
+    function openHandoffDB() {
+      return new Promise((resolve, reject) => {
+        const req = indexedDB.open(HANDOFF_DB, 1);
+        req.onupgradeneeded = (e) => {
+          const db = e.target.result;
+          if (!db.objectStoreNames.contains(HANDOFF_STORE)) {
+            db.createObjectStore(HANDOFF_STORE);
+          }
+        };
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = () => reject(req.error);
+      });
+    }
+
+    async function loadHandoffFile() {
+      try {
+        const db = await openHandoffDB();
+        return new Promise((resolve) => {
+          const tx = db.transaction(HANDOFF_STORE, 'readonly');
+          const getReq = tx.objectStore(HANDOFF_STORE).get(HANDOFF_KEY);
+          getReq.onsuccess = () => {
+            const data = getReq.result;
+            if (!data) return resolve(null);
+            if (Date.now() - data.savedAt > HANDOFF_MAX_AGE_MS) {
+              clearHandoffFile();
+              return resolve(null);
+            }
+            const file = new File([data.blob], data.name, { type: data.type });
+            resolve(file);
+          };
+          getReq.onerror = () => resolve(null);
+        });
+      } catch (e) {
+        return null;
+      }
+    }
+
+    async function clearHandoffFile() {
+      try {
+        const db = await openHandoffDB();
+        const tx = db.transaction(HANDOFF_STORE, 'readwrite');
+        tx.objectStore(HANDOFF_STORE).delete(HANDOFF_KEY);
+      } catch (e) {}
+    }
+
+    async function initHandoff() {
+      const file = await loadHandoffFile();
+      if (!file) return;
+
+      // Clear it immediately so it can't be reused
+      await clearHandoffFile();
+
+      console.log('[Handoff] Received file from homepage:', file.name);
+
+      try {
+        // xml-to-json.html exposes window.handleFile — call it directly
+        if (typeof window.handleFile === 'function') {
+          window.handleFile(file);
+          return;
+        }
+
+        // Fallback: inject into file input and fire change event
+        const input = document.getElementById('file-input')
+                   || document.getElementById('fileInput')
+                   || document.querySelector('input[type="file"]');
+        if (input) {
+          const dt = new DataTransfer();
+          dt.items.add(file);
+          input.files = dt.files;
+          input.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+      } catch (err) {
+        console.warn('[Handoff] Could not auto-load file:', err);
+      }
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => {
+        // Wait a tick for other scripts to define their functions
+        setTimeout(initHandoff, 100);
+      });
+    } else {
+      setTimeout(initHandoff, 100);
+    }
+  })();
   </script>
 
 </body>
