@@ -1,17 +1,18 @@
 // sw.js - Service Worker for Droplet PWA
-// Version bumped to v4 to force cache refresh after fixes
+// Cache version bumped to force refresh
 
-const CACHE_NAME = 'droplet-v4';
+const CACHE_NAME = 'droplet-v5';
 
-// Files to cache on first install.
-// IMPORTANT: Only list files that ACTUALLY exist in your repo.
+// Only files that ACTUALLY exist in the repo.
+// Missing files here will NOT break the service worker
+// (we use Promise.allSettled instead of cache.addAll).
 const ASSETS_TO_CACHE = [
   // Core pages
   '/',
   '/index.html',
   '/offline.html',
 
-  // PWA metadata (matches index.html <link rel="manifest">)
+  // PWA metadata
   '/site.webmanifest',
 
   // Logos / images
@@ -24,7 +25,7 @@ const ASSETS_TO_CACHE = [
   '/web-app-manifest-192x192.png',
   '/web-app-manifest-512x512.png',
 
-  // === Core document converters ===
+  // Core documents
   '/pdf-to-word.html',
   '/word-to-pdf.html',
   '/pdf-to-txt.html',
@@ -34,7 +35,7 @@ const ASSETS_TO_CACHE = [
   '/pdf-to-powerpoint.html',
   '/pdf-to-excel.html',
 
-  // === Image converters ===
+  // Image converters
   '/heic-to-jpg.html',
   '/webp-to-jpg.html',
   '/webp-to-png.html',
@@ -48,12 +49,12 @@ const ASSETS_TO_CACHE = [
   '/svg-to-png.html',
   '/eps-to-svg.html',
 
-  // === Data tools ===
+  // Data tools
   '/json-to-csv.html',
   '/csv-to-json.html',
   '/xml-to-json.html',
 
-  // === PDF Organize ===
+  // PDF Organize
   '/merge-pdf.html',
   '/split-pdf.html',
   '/remove-pages.html',
@@ -63,42 +64,40 @@ const ASSETS_TO_CACHE = [
   '/rotate-pdf.html',
   '/add-page-numbers.html',
 
-  // === PDF Intelligence ===
+  // PDF Intelligence
   '/ai-summarizer.html',
   '/translate-pdf.html',
   '/pdf-to-markdown.html',
 
-  // === PDF Editing & Security ===
+  // PDF Editing & Security
   '/add-watermark.html',
   '/crop-pdf.html',
   '/edit-pdf.html',
   '/pdf-forms.html',
 
-  // === Convert to PDF ===
+  // Convert to PDF
   '/powerpoint-to-pdf.html',
   '/excel-to-pdf.html',
   '/html-to-pdf.html',
 
-  // === Info pages ===
+  // Info pages
   '/about.html',
   '/privacy.html',
   '/terms.html',
   '/faq.html'
 ];
 
-// ============================================
-// INSTALL — cache assets
-// ============================================
+// INSTALL — cache files individually so one 404 doesn't break everything
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => {
-        console.log('[SW] Caching app shell');
-        // addAll() fails silently if ANY file 404s → use individual adds
+        console.log('[SW] Caching files...');
+        // Use allSettled + individual add() so missing files don't crash install
         return Promise.allSettled(
           ASSETS_TO_CACHE.map(url =>
             cache.add(url).catch(err => {
-              console.warn('[SW] Failed to cache:', url, err);
+              console.warn('[SW] Failed to cache:', url, err.message);
             })
           )
         );
@@ -107,9 +106,7 @@ self.addEventListener('install', (event) => {
   );
 });
 
-// ============================================
 // ACTIVATE — clean up old caches
-// ============================================
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((cacheNames) => {
@@ -125,63 +122,51 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// ============================================
-// FETCH — cache-first for HTML/CSS/JS, network-first for others
-// ============================================
+// FETCH — network-first for HTML, cache-first for static assets
 self.addEventListener('fetch', (event) => {
   const { request } = event;
 
-  // Skip cross-origin requests
+  // Only handle same-origin GET requests
   if (!request.url.startsWith(self.location.origin)) return;
-
-  // Skip non-GET requests
   if (request.method !== 'GET') return;
-
-  // Skip chrome-extension and other non-http schemes
   if (!request.url.startsWith('http')) return;
 
-  event.respondWith(
-    caches.match(request).then((cachedResponse) => {
-      // Return cached response if found
-      if (cachedResponse) return cachedResponse;
+  const isHTML = (request.headers.get('accept') || '').includes('text/html');
 
-      // Otherwise fetch from network
-      return fetch(request)
+  if (isHTML) {
+    // NETWORK-FIRST for HTML pages (fixes stale cache issue)
+    event.respondWith(
+      fetch(request)
         .then((response) => {
-          // Don't cache invalid responses
-          if (!response || response.status !== 200 || response.type === 'opaque') {
-            return response;
+          if (response && response.status === 200) {
+            const clone = response.clone();
+            caches.open(CACHE_NAME).then(cache => cache.put(request, clone));
           }
-
-          // Clone BEFORE we return — response body can only be read once
-          const responseToCache = response.clone();
-
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(request, responseToCache);
-          });
-
           return response;
         })
         .catch(() => {
-          // Offline fallback for HTML page requests
-          const accept = request.headers.get('accept') || '';
-          if (accept.includes('text/html')) {
-            return caches.match('/offline.html');
+          // Offline fallback: try cache, then offline.html
+          return caches.match(request).then(cached => cached || caches.match('/offline.html'));
+        })
+    );
+  } else {
+    // CACHE-FIRST for assets (images, CSS, JS)
+    event.respondWith(
+      caches.match(request).then((cached) => {
+        if (cached) return cached;
+        return fetch(request).then((response) => {
+          if (response && response.status === 200 && response.type !== 'opaque') {
+            const clone = response.clone();
+            caches.open(CACHE_NAME).then(cache => cache.put(request, clone));
           }
-          // For non-HTML, return an empty 503
-          return new Response('Offline — please check your connection.', {
-            status: 503,
-            statusText: 'Service Unavailable',
-            headers: { 'Content-Type': 'text/plain' }
-          });
+          return response;
         });
-    })
-  );
+      })
+    );
+  }
 });
 
-// ============================================
 // MESSAGE — allow page to trigger SW update
-// ============================================
 self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
     self.skipWaiting();
