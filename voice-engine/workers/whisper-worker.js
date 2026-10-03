@@ -37,7 +37,31 @@ const CHUNK_SECONDS = 20;
 
 
 // Small overlap between chunks.
+// This helps avoid losing words at boundaries.
 const OVERLAP_SECONDS = 3;
+
+
+// ============================================================
+// STEP 13 - VAD / SILENCE DETECTION
+// ============================================================
+
+// Analyze audio in small frames.
+const VAD_FRAME_MS = 30;
+
+// A frame must have roughly this RMS energy to count as active.
+//
+// Your test recording had a very low average amplitude, so this
+// deliberately starts conservative. We would rather send some
+// silence to Whisper than accidentally remove quiet speech.
+const VAD_RMS_THRESHOLD = 0.0010;
+
+// Minimum percentage of active frames required before the
+// complete 20-second chunk is considered to contain speech.
+const VAD_MIN_ACTIVE_RATIO = 0.015;
+
+// Never skip a chunk just because one simple measurement says
+// it is silent. Peak amplitude acts as a second safety check.
+const VAD_PEAK_THRESHOLD = 0.006;
 
 
 // ============================================================
@@ -174,6 +198,14 @@ function createChunks(audio) {
         SAMPLE_RATE;
 
 
+    /*
+     * Move forward by:
+     *
+     * 20 sec chunk - 3 sec overlap
+     *
+     * = 17 seconds each time
+     */
+
     const stepSamples =
         chunkSamples -
         overlapSamples;
@@ -229,6 +261,8 @@ function createChunks(audio) {
         });
 
 
+        // Last chunk reached end of file.
+
         if (
             endSample >=
             audio.length
@@ -269,6 +303,7 @@ function cleanText(text) {
 
 // ============================================================
 // WORD NORMALIZATION
+// Used only when comparing overlap.
 // ============================================================
 
 function normalizeWord(word) {
@@ -284,6 +319,17 @@ function normalizeWord(word) {
 
 // ============================================================
 // MERGE TWO TRANSCRIPTS
+//
+// Example:
+//
+// Previous:
+// "I went to the shop this morning"
+//
+// New chunk:
+// "the shop this morning and bought milk"
+//
+// Result:
+// "I went to the shop this morning and bought milk"
 // ============================================================
 
 function mergeTranscript(
@@ -323,6 +369,13 @@ function mergeTranscript(
         newText.split(/\s+/);
 
 
+    /*
+     * Don't search an enormous amount.
+     *
+     * 30 words is more than enough for
+     * our 3-second audio overlap.
+     */
+
     const maxOverlap =
         Math.min(
             30,
@@ -333,6 +386,10 @@ function mergeTranscript(
 
     let bestOverlap = 0;
 
+
+    // --------------------------------------------------------
+    // FIND MATCHING WORDS AT BOUNDARY
+    // --------------------------------------------------------
 
     for (
         let overlap = maxOverlap;
@@ -378,6 +435,13 @@ function mergeTranscript(
         }
 
 
+        /*
+         * Require a strong match.
+         *
+         * This allows small Whisper differences
+         * while still detecting duplicated overlap.
+         */
+
         const matchRatio =
             matches /
             overlap;
@@ -395,6 +459,10 @@ function mergeTranscript(
         }
     }
 
+
+    // --------------------------------------------------------
+    // REMOVE DUPLICATED OVERLAP
+    // --------------------------------------------------------
 
     if (
         bestOverlap >
@@ -425,12 +493,180 @@ function mergeTranscript(
     }
 
 
+    // --------------------------------------------------------
+    // NO RELIABLE MATCH FOUND
+    // --------------------------------------------------------
+
     return cleanText(
 
         previousText +
         " " +
         newText
     );
+}
+
+
+// ============================================================
+// STEP 13 - DETECT SPEECH / SILENCE
+// ============================================================
+
+function analyzeChunkActivity(audio) {
+
+    const frameSamples =
+        Math.max(
+            1,
+            Math.round(
+                SAMPLE_RATE *
+                VAD_FRAME_MS /
+                1000
+            )
+        );
+
+
+    let totalFrames = 0;
+
+    let activeFrames = 0;
+
+    let globalPeak = 0;
+
+    let totalEnergy = 0;
+
+    let totalSamples = 0;
+
+
+    for (
+        let start = 0;
+        start < audio.length;
+        start += frameSamples
+    ) {
+
+        const end =
+            Math.min(
+                start + frameSamples,
+                audio.length
+            );
+
+
+        let sumSquares = 0;
+
+        let framePeak = 0;
+
+
+        for (
+            let i = start;
+            i < end;
+            i++
+        ) {
+
+            const sample =
+                audio[i];
+
+            const absolute =
+                Math.abs(sample);
+
+
+            sumSquares +=
+                sample * sample;
+
+
+            if (
+                absolute >
+                framePeak
+            ) {
+
+                framePeak =
+                    absolute;
+            }
+
+
+            if (
+                absolute >
+                globalPeak
+            ) {
+
+                globalPeak =
+                    absolute;
+            }
+        }
+
+
+        const sampleCount =
+            end - start;
+
+
+        if (
+            sampleCount <= 0
+        ) {
+
+            continue;
+        }
+
+
+        const rms =
+            Math.sqrt(
+                sumSquares /
+                sampleCount
+            );
+
+
+        totalEnergy +=
+            sumSquares;
+
+        totalSamples +=
+            sampleCount;
+
+        totalFrames++;
+
+
+        if (
+            rms >=
+                VAD_RMS_THRESHOLD ||
+            framePeak >=
+                VAD_PEAK_THRESHOLD
+        ) {
+
+            activeFrames++;
+        }
+    }
+
+
+    const activeRatio =
+        totalFrames > 0
+            ? activeFrames /
+                totalFrames
+            : 0;
+
+
+    const overallRms =
+        totalSamples > 0
+            ? Math.sqrt(
+                totalEnergy /
+                totalSamples
+            )
+            : 0;
+
+
+    const hasSpeech =
+        activeRatio >=
+            VAD_MIN_ACTIVE_RATIO;
+
+
+    return {
+
+        hasSpeech,
+
+        activeRatio,
+
+        activeFrames,
+
+        totalFrames,
+
+        rms:
+            overallRms,
+
+        peak:
+            globalPeak
+    };
 }
 
 
@@ -472,6 +708,10 @@ async function transcribeLongAudio(
         audio.length /
         SAMPLE_RATE;
 
+
+    // --------------------------------------------------------
+    // BUILD CHUNKS
+    // --------------------------------------------------------
 
     const chunks =
         createChunks(
@@ -521,11 +761,19 @@ async function transcribeLongAudio(
     const completedChunks = [];
 
 
+    // ========================================================
+    // PROCESS CHUNKS ONE BY ONE
+    // ========================================================
+
     for (
         let i = 0;
         i < chunks.length;
         i++
     ) {
+
+        // ----------------------------------------------------
+        // CANCEL
+        // ----------------------------------------------------
 
         if (cancelled) {
 
@@ -554,6 +802,10 @@ async function transcribeLongAudio(
         const chunk =
             chunks[i];
 
+
+        // ----------------------------------------------------
+        // CHUNK START
+        // ----------------------------------------------------
 
         send(
             "chunk-start",
@@ -591,10 +843,63 @@ async function transcribeLongAudio(
             performance.now();
 
 
-        const result =
-            await transcriber(
+        // ------------------------------------------------------------
+        // STEP 13 - CHECK FOR SPEECH BEFORE RUNNING WHISPER
+        // ------------------------------------------------------------
+
+        const activity =
+            analyzeChunkActivity(
                 chunk.audio
             );
+
+
+        console.log(
+            `[Droplet VAD] Chunk ${i + 1}/${chunks.length}`,
+            {
+                speech:
+                    activity.hasSpeech,
+
+                activeRatio:
+                    activity.activeRatio,
+
+                rms:
+                    activity.rms,
+
+                peak:
+                    activity.peak
+            }
+        );
+
+
+        let chunkText = "";
+
+        let skipped = false;
+
+
+        if (
+            activity.hasSpeech
+        ) {
+
+            const result =
+                await transcriber(
+                    chunk.audio
+                );
+
+
+            chunkText =
+                cleanText(
+                    result?.text || ""
+                );
+
+        } else {
+
+            skipped = true;
+
+
+            console.log(
+                `[Droplet VAD] Skipping silent chunk ${i + 1}`
+            );
+        }
 
 
         const chunkElapsed =
@@ -605,11 +910,9 @@ async function transcribeLongAudio(
             1000;
 
 
-        const chunkText =
-            cleanText(
-                result?.text || ""
-            );
-
+        // ----------------------------------------------------
+        // MERGE
+        // ----------------------------------------------------
 
         fullTranscript =
             mergeTranscript(
@@ -617,6 +920,10 @@ async function transcribeLongAudio(
                 chunkText
             );
 
+
+        // ----------------------------------------------------
+        // SAVE CHUNK INFORMATION
+        // ----------------------------------------------------
 
         completedChunks.push({
 
@@ -633,9 +940,30 @@ async function transcribeLongAudio(
                 chunkText,
 
             processingTime:
-                chunkElapsed
+                chunkElapsed,
+
+            skipped,
+
+            vad: {
+
+                hasSpeech:
+                    activity.hasSpeech,
+
+                activeRatio:
+                    activity.activeRatio,
+
+                rms:
+                    activity.rms,
+
+                peak:
+                    activity.peak
+            }
         });
 
+
+        // ----------------------------------------------------
+        // PROGRESS
+        // ----------------------------------------------------
 
         const progress =
             (
@@ -660,6 +988,11 @@ async function transcribeLongAudio(
             1000;
 
 
+        /*
+         * Estimate remaining time using
+         * average completed-chunk speed.
+         */
+
         const averageChunkTime =
             elapsed /
             (i + 1);
@@ -674,6 +1007,10 @@ async function transcribeLongAudio(
             averageChunkTime *
             remainingChunks;
 
+
+        // ----------------------------------------------------
+        // SEND PARTIAL TRANSCRIPT
+        // ----------------------------------------------------
 
         send(
             "chunk-complete",
@@ -704,6 +1041,23 @@ async function transcribeLongAudio(
                 chunkProcessingTime:
                     chunkElapsed,
 
+                skipped,
+
+                vad: {
+
+                    hasSpeech:
+                        activity.hasSpeech,
+
+                    activeRatio:
+                        activity.activeRatio,
+
+                    rms:
+                        activity.rms,
+
+                    peak:
+                        activity.peak
+                },
+
                 elapsed,
 
                 estimatedRemaining
@@ -711,6 +1065,10 @@ async function transcribeLongAudio(
         );
     }
 
+
+    // ========================================================
+    // FINISHED
+    // ========================================================
 
     const totalElapsed =
         (
