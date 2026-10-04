@@ -18,7 +18,7 @@
  *   error
  */
 
-const VERSION = "DIARIZATION-STEP-4B5-FBANK";
+const VERSION = "DIARIZATION-STEP-4B6-SIMILARITY";
 
 const DIARIZATION_JS_URL =
     "https://esm.sh/diarization-js@0.1.0?bundle";
@@ -70,6 +70,39 @@ function serializeError(error) {
             ? String(error.cause)
             : null
     };
+}
+
+
+/* =========================================================
+   COSINE SIMILARITY
+========================================================= */
+
+function cosineSimilarity(a, b) {
+
+    let dot = 0;
+    let normA = 0;
+    let normB = 0;
+
+    for (
+        let i = 0;
+        i < Math.min(a.length, b.length);
+        i++
+    ) {
+
+        dot += a[i] * b[i];
+
+        normA += a[i] * a[i];
+        normB += b[i] * b[i];
+    }
+
+    if (normA === 0 || normB === 0) {
+        return 0;
+    }
+
+    return dot / (
+        Math.sqrt(normA) *
+        Math.sqrt(normB)
+    );
 }
 
 
@@ -624,6 +657,64 @@ async function loadModels(device = "webgpu") {
             }
 
 
+            /* =========================================================
+               STEP 4B.6 — CAPTURE SPEAKER EMBEDDINGS
+            ========================================================= */
+
+            const originalEmbedBatch =
+                pipeline.embedding.embedBatch.bind(
+                    pipeline.embedding
+                );
+
+            pipeline.embedding.embedBatch =
+                async function(items, options = {}) {
+
+                    console.log(
+                        "[STEP 4B.6] Embedding batch received:",
+                        items.map(item => ({
+                            id: item.id,
+                            numFrames: item.numFrames,
+                            fbankLength: item.fbank.length
+                        }))
+                    );
+
+                    const result =
+                        await originalEmbedBatch(
+                            items,
+                            options
+                        );
+
+                    const captured = [];
+
+                    for (const [id, embedding] of result) {
+
+                        captured.push({
+                            id,
+                            embedding:
+                                Array.from(embedding)
+                        });
+
+                        console.log(
+                            `[STEP 4B.6] Embedding ${id}:`,
+                            {
+                                dimensions:
+                                    embedding.length,
+
+                                first10:
+                                    Array.from(
+                                        embedding.slice(0, 10)
+                                    )
+                            }
+                        );
+                    }
+
+                    self.__dropletCapturedEmbeddings =
+                        captured;
+
+                    return result;
+                };
+
+
             loadedDevice = device;
 
 
@@ -764,6 +855,13 @@ async function diarizeAudio(audioBuffer, sampleRate = 16000) {
 
 
     /*
+     * Reset any previous capture before this run.
+     */
+
+    self.__dropletCapturedEmbeddings = [];
+
+
+    /*
      * diarization-js API:
      *
      * pipeline.run(
@@ -791,6 +889,58 @@ async function diarizeAudio(audioBuffer, sampleRate = 16000) {
                 }
             }
         );
+
+
+    /* =========================================================
+       STEP 4B.6 — EMBEDDING SIMILARITY MATRIX
+    ========================================================= */
+
+    const captured =
+        self.__dropletCapturedEmbeddings || [];
+
+    console.log(
+        "[STEP 4B.6] Total captured embeddings:",
+        captured.length
+    );
+
+    if (captured.length >= 2) {
+
+        const matrix = [];
+
+        for (
+            let i = 0;
+            i < captured.length;
+            i++
+        ) {
+
+            const row = {
+                id: captured[i].id
+            };
+
+            for (
+                let j = 0;
+                j < captured.length;
+                j++
+            ) {
+
+                row[
+                    `vs_${captured[j].id}`
+                ] =
+                    cosineSimilarity(
+                        captured[i].embedding,
+                        captured[j].embedding
+                    ).toFixed(4);
+            }
+
+            matrix.push(row);
+        }
+
+        console.log(
+            "[STEP 4B.6] COSINE SIMILARITY MATRIX"
+        );
+
+        console.table(matrix);
+    }
 
 
     const elapsed =
