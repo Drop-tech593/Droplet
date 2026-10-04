@@ -18,7 +18,7 @@
  *   error
  */
 
-const VERSION = "DIARIZATION-STEP-4B6-SIMILARITY";
+const VERSION = "DIARIZATION-STEP-4B8-AHC-ONLY";
 
 const DIARIZATION_JS_URL =
     "https://esm.sh/diarization-js@0.1.0?bundle";
@@ -103,6 +103,158 @@ function cosineSimilarity(a, b) {
         Math.sqrt(normA) *
         Math.sqrt(normB)
     );
+}
+
+
+/* =========================================================
+   STEP 4B.8 — AHC-ONLY SPEAKER CLUSTERING DIAGNOSTIC
+========================================================= */
+
+function clusterEmbeddingsAhcOnly(
+    captured,
+    threshold = 0.75
+) {
+
+    if (!Array.isArray(captured) || captured.length === 0) {
+        return [];
+    }
+
+    /*
+     * Each embedding begins as its own cluster.
+     */
+    const clusters = captured.map(item => ({
+        ids: [item.id],
+        items: [item]
+    }));
+
+
+    /*
+     * Average cosine similarity between two clusters.
+     */
+    function clusterSimilarity(a, b) {
+
+        let total = 0;
+        let comparisons = 0;
+
+        for (const itemA of a.items) {
+
+            for (const itemB of b.items) {
+
+                total += cosineSimilarity(
+                    itemA.embedding,
+                    itemB.embedding
+                );
+
+                comparisons++;
+            }
+        }
+
+        return comparisons > 0
+            ? total / comparisons
+            : -1;
+    }
+
+
+    /*
+     * Agglomerative clustering.
+     *
+     * Repeatedly merge the most similar pair while
+     * similarity remains >= threshold.
+     */
+    while (clusters.length > 1) {
+
+        let bestI = -1;
+        let bestJ = -1;
+        let bestSimilarity = -Infinity;
+
+        for (
+            let i = 0;
+            i < clusters.length;
+            i++
+        ) {
+
+            for (
+                let j = i + 1;
+                j < clusters.length;
+                j++
+            ) {
+
+                const similarity =
+                    clusterSimilarity(
+                        clusters[i],
+                        clusters[j]
+                    );
+
+                if (similarity > bestSimilarity) {
+
+                    bestSimilarity = similarity;
+                    bestI = i;
+                    bestJ = j;
+                }
+            }
+        }
+
+
+        /*
+         * Stop when no remaining pair passes
+         * the AHC threshold.
+         */
+        if (
+            bestI < 0 ||
+            bestJ < 0 ||
+            bestSimilarity < threshold
+        ) {
+            break;
+        }
+
+
+        const merged = {
+
+            ids: [
+                ...clusters[bestI].ids,
+                ...clusters[bestJ].ids
+            ],
+
+            items: [
+                ...clusters[bestI].items,
+                ...clusters[bestJ].items
+            ]
+        };
+
+
+        /*
+         * Remove higher index first.
+         */
+        clusters.splice(bestJ, 1);
+        clusters.splice(bestI, 1);
+
+        clusters.push(merged);
+    }
+
+
+    /*
+     * Give the diagnostic clusters stable speaker labels.
+     */
+    return clusters
+        .map((cluster, index) => ({
+
+            speaker:
+                `AHC_SPEAKER_${String(index).padStart(2, "0")}`,
+
+            embeddingIds:
+                [...cluster.ids].sort(
+                    (a, b) => a - b
+                ),
+
+            count:
+                cluster.ids.length
+
+        }))
+        .sort(
+            (a, b) =>
+                a.embeddingIds[0] -
+                b.embeddingIds[0]
+        );
 }
 
 
@@ -941,6 +1093,81 @@ async function diarizeAudio(audioBuffer, sampleRate = 16000) {
 
         console.table(matrix);
     }
+
+
+    /* =========================================================
+       STEP 4B.8 — TEST EMBEDDINGS WITHOUT PLDA / VBx
+    ========================================================= */
+
+    const ahcOnlyThreshold = 0.75;
+
+    const ahcOnlyClusters =
+        clusterEmbeddingsAhcOnly(
+            captured,
+            ahcOnlyThreshold
+        );
+
+
+    console.log(
+        "========================================"
+    );
+
+    console.log(
+        "[STEP 4B.8] AHC-ONLY RESULT"
+    );
+
+    console.log(
+        "[STEP 4B.8] Threshold:",
+        ahcOnlyThreshold
+    );
+
+    console.log(
+        "[STEP 4B.8] Active embeddings:",
+        captured.length
+    );
+
+    console.log(
+        "[STEP 4B.8] AHC-only speakers:",
+        ahcOnlyClusters.length
+    );
+
+
+    console.table(
+        ahcOnlyClusters.map(cluster => ({
+
+            speaker:
+                cluster.speaker,
+
+            embeddings:
+                cluster.embeddingIds.join(", "),
+
+            count:
+                cluster.count
+        }))
+    );
+
+
+    console.log(
+        "[STEP 4B.8] IMPORTANT COMPARISON:",
+        {
+            ahcOnlyClusters:
+                ahcOnlyClusters.length,
+
+            libraryAhcClusters:
+                output?.metrics?.numAhcClusters,
+
+            libraryVbxClusters:
+                output?.metrics?.numVbxClusters,
+
+            finalSpeakers:
+                output?.result?.numSpeakers
+        }
+    );
+
+
+    console.log(
+        "========================================"
+    );
 
 
     const elapsed =
