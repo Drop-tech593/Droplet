@@ -7,11 +7,221 @@
 // 2. Decode M4A / MP3 / WAV etc.
 // 3. Convert stereo to mono
 // 4. Resample audio to 16,000 Hz
-// 5. Return Float32Array for Whisper
+// 5. Normalize quiet speech to a safe peak level
+// 6. Return Float32Array for Whisper
 // ============================================================
 
 window.DropletVoice = window.DropletVoice || {};
 
+
+// ============================================================
+// STEP 16 - SAFE SPEECH NORMALIZATION
+// ============================================================
+
+function normalizeSpeechAudio(audio) {
+
+    if (!audio || audio.length === 0) {
+        return audio;
+    }
+
+    let peak = 0;
+
+    let sumSquares = 0;
+
+
+    // --------------------------------------------------------
+    // MEASURE CURRENT AUDIO
+    // --------------------------------------------------------
+
+    for (let i = 0; i < audio.length; i++) {
+
+        const sample = audio[i];
+
+        const absolute =
+            Math.abs(sample);
+
+
+        if (absolute > peak) {
+            peak = absolute;
+        }
+
+
+        sumSquares +=
+            sample * sample;
+    }
+
+
+    const rms =
+        Math.sqrt(
+            sumSquares /
+            audio.length
+        );
+
+
+    console.log(
+        "[Droplet Audio] Before normalization",
+        {
+            peak,
+            rms
+        }
+    );
+
+
+    // Completely silent / invalid audio.
+    if (peak < 0.00001) {
+
+        console.log(
+            "[Droplet Audio] Audio effectively silent - normalization skipped"
+        );
+
+        return audio;
+    }
+
+
+    // --------------------------------------------------------
+    // TARGET
+    //
+    // We don't normalize all the way to 1.0.
+    // Leave headroom for peaks.
+    // --------------------------------------------------------
+
+    const TARGET_PEAK = 0.85;
+
+
+    let gain =
+        TARGET_PEAK /
+        peak;
+
+
+    // --------------------------------------------------------
+    // GAIN PROTECTION
+    //
+    // Never amplify by more than 8x.
+    //
+    // This prevents very quiet recordings/background noise
+    // from being amplified ridiculously.
+    // --------------------------------------------------------
+
+    const MAX_GAIN = 8;
+
+
+    gain =
+        Math.min(
+            gain,
+            MAX_GAIN
+        );
+
+
+    // Don't reduce normal recordings unless they are
+    // already close to clipping.
+
+    if (
+        peak < 0.95 &&
+        gain < 1
+    ) {
+
+        gain = 1;
+    }
+
+
+    console.log(
+        "[Droplet Audio] Applying normalization",
+        {
+            gain,
+            gainDB:
+                20 *
+                Math.log10(gain)
+        }
+    );
+
+
+    // --------------------------------------------------------
+    // APPLY GAIN
+    // --------------------------------------------------------
+
+    const normalized =
+        new Float32Array(
+            audio.length
+        );
+
+
+    let normalizedPeak = 0;
+
+    let normalizedSquares = 0;
+
+
+    for (
+        let i = 0;
+        i < audio.length;
+        i++
+    ) {
+
+        let sample =
+            audio[i] *
+            gain;
+
+
+        // Safety limiter.
+        if (sample > 0.98) {
+            sample = 0.98;
+        }
+
+        if (sample < -0.98) {
+            sample = -0.98;
+        }
+
+
+        normalized[i] =
+            sample;
+
+
+        const absolute =
+            Math.abs(sample);
+
+
+        if (
+            absolute >
+            normalizedPeak
+        ) {
+
+            normalizedPeak =
+                absolute;
+        }
+
+
+        normalizedSquares +=
+            sample * sample;
+    }
+
+
+    const normalizedRms =
+        Math.sqrt(
+            normalizedSquares /
+            normalized.length
+        );
+
+
+    console.log(
+        "[Droplet Audio] After normalization",
+        {
+            peak:
+                normalizedPeak,
+
+            rms:
+                normalizedRms,
+
+            gain
+        }
+    );
+
+
+    return normalized;
+}
+
+
+// ============================================================
+// MAIN AUDIO PROCESSOR
+// ============================================================
 
 window.DropletVoice.processAudioFile = async function (file) {
 
@@ -291,6 +501,16 @@ window.DropletVoice.processAudioFile = async function (file) {
         );
 
 
+        // ------------------------------------------------
+        // STEP 16 - NORMALIZE BEFORE RETURNING
+        // ------------------------------------------------
+
+        const normalizedMono =
+            normalizeSpeechAudio(
+                mono
+            );
+
+
         await audioContext.close();
 
 
@@ -299,7 +519,7 @@ window.DropletVoice.processAudioFile = async function (file) {
         );
 
 
-        return mono;
+        return normalizedMono;
     }
 
 
@@ -497,6 +717,16 @@ window.DropletVoice.processAudioFile = async function (file) {
 
 
     // --------------------------------------------------------
+    // STEP 16 - NORMALIZE AFTER RESAMPLING
+    // --------------------------------------------------------
+
+    const normalizedAudio =
+        normalizeSpeechAudio(
+            resampled
+        );
+
+
+    // --------------------------------------------------------
     // 12. CLEAN UP
     // --------------------------------------------------------
 
@@ -517,5 +747,5 @@ window.DropletVoice.processAudioFile = async function (file) {
     // 13. SEND AUDIO TO WHISPER
     // --------------------------------------------------------
 
-    return resampled;
+    return normalizedAudio;
 };
