@@ -625,6 +625,179 @@ function cleanText(text) {
 
 
 // ============================================================
+// STEP 17 - WHISPER HALLUCINATION / REPETITION DETECTOR
+// ============================================================
+
+function normalizeRepetitionWord(word) {
+    return String(word || "")
+        .toLowerCase()
+        .replace(/[^\p{L}\p{N}']/gu, "");
+}
+
+
+function detectRepetitionLoop(text) {
+
+    const words =
+        String(text || "")
+            .trim()
+            .split(/\s+/)
+            .map(normalizeRepetitionWord)
+            .filter(Boolean);
+
+
+    if (words.length < 12) {
+
+        return {
+            detected: false,
+            pattern: null,
+            repetitions: 0
+        };
+    }
+
+
+    // Check repeating sequences of 1-6 words.
+    //
+    // Examples:
+    //
+    // hello hello hello hello
+    //
+    // one two one two one two
+    //
+    // thank you very much
+    // thank you very much
+    // thank you very much
+
+    const MAX_PATTERN_WORDS = 6;
+
+
+    for (
+        let patternLength = 1;
+        patternLength <= MAX_PATTERN_WORDS;
+        patternLength++
+    ) {
+
+        const requiredWords =
+            patternLength * 4;
+
+
+        if (words.length < requiredWords) {
+            continue;
+        }
+
+
+        // Look throughout the transcript rather than
+        // checking only its beginning.
+
+        for (
+            let start = 0;
+            start <=
+                words.length -
+                requiredWords;
+            start++
+        ) {
+
+            const pattern =
+                words.slice(
+                    start,
+                    start + patternLength
+                );
+
+
+            let repetitions = 1;
+
+            let position =
+                start +
+                patternLength;
+
+
+            while (
+                position +
+                    patternLength <=
+                words.length
+            ) {
+
+                let matches = true;
+
+
+                for (
+                    let j = 0;
+                    j < patternLength;
+                    j++
+                ) {
+
+                    if (
+                        words[position + j] !==
+                        pattern[j]
+                    ) {
+
+                        matches = false;
+                        break;
+                    }
+                }
+
+
+                if (!matches) {
+                    break;
+                }
+
+
+                repetitions++;
+
+                position +=
+                    patternLength;
+            }
+
+
+            // Four consecutive copies is suspicious.
+            //
+            // But require enough duplicated words too,
+            // so ordinary speech such as:
+            //
+            // "very very very"
+            //
+            // isn't automatically treated as a failure.
+
+            const repeatedWordCount =
+                repetitions *
+                patternLength;
+
+
+            if (
+                repetitions >= 4 &&
+                repeatedWordCount >= 8
+            ) {
+
+                return {
+                    detected: true,
+
+                    pattern:
+                        pattern.join(" "),
+
+                    repetitions,
+
+                    startWord:
+                        start,
+
+                    endWord:
+                        position,
+
+                    totalWords:
+                        words.length
+                };
+            }
+        }
+    }
+
+
+    return {
+        detected: false,
+        pattern: null,
+        repetitions: 0
+    };
+}
+
+
+// ============================================================
 // STEP 15 - SMART TRANSCRIPT OVERLAP MERGER
 // ============================================================
 
@@ -1632,10 +1805,48 @@ async function transcribeLongAudio(
             activity.hasSpeech
         ) {
 
+            // ------------------------------------------------------------
+            // STEP 17 - CONTROLLED WHISPER DECODING
+            // ------------------------------------------------------------
+
             const result =
                 await transcriber(
-                    chunk.audio
+                    chunk.audio,
+                    {
+                        // Deterministic decoding.
+                        // We don't want Whisper inventing alternative
+                        // wording from the same audio.
+                        do_sample: false,
+
+                        // Prevent extremely long output from a short
+                        // ~20 second Droplet chunk.
+                        max_new_tokens: 160,
+
+                        // Stop generation when Whisper produces its
+                        // normal end-of-transcript token.
+                        return_timestamps: false
+                    }
                 );
+
+
+            // ------------------------------------------------------------
+            // STEP 17 - REPETITION DETECTOR (DIAGNOSTIC ONLY)
+            // ------------------------------------------------------------
+
+            const repetitionCheck =
+                detectRepetitionLoop(
+                    result?.text || ""
+                );
+
+
+            if (repetitionCheck.detected) {
+
+                console.warn(
+                    "[Droplet Hallucination] Repetition loop detected",
+                    repetitionCheck
+                );
+
+            }
 
 
             chunkText =
