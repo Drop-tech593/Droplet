@@ -18,7 +18,7 @@
  *   error
  */
 
-const VERSION = "DIARIZATION-STEP-4B3-EMBEDDING";
+const VERSION = "DIARIZATION-STEP-4B4-SIGNATURE";
 
 const DIARIZATION_JS_URL =
     "https://esm.sh/diarization-js@0.1.0?bundle";
@@ -511,6 +511,41 @@ async function loadModels(device = "webgpu") {
             console.log(
                 "[STEP 4B.3] PLDA configuration:",
                 pipeline.plda
+            );
+
+
+            /* =========================================================
+               STEP 4B.4 — EMBEDDING METHOD SIGNATURE DIAGNOSTIC
+            ========================================================= */
+
+            console.log(
+                "[STEP 4B.4] embed() source:",
+                pipeline.embedding.embed.toString()
+            );
+
+            console.log(
+                "[STEP 4B.4] embedBatch() source:",
+                pipeline.embedding.embedBatch.toString()
+            );
+
+            console.log(
+                "[STEP 4B.4] embed() argument count:",
+                pipeline.embedding.embed.length
+            );
+
+            console.log(
+                "[STEP 4B.4] embedBatch() argument count:",
+                pipeline.embedding.embedBatch.length
+            );
+
+            console.log(
+                "[STEP 4B.4] Embedding ONNX inputs:",
+                pipeline.embedding.session.inputNames
+            );
+
+            console.log(
+                "[STEP 4B.4] Embedding ONNX outputs:",
+                pipeline.embedding.session.outputNames
             );
 
 
