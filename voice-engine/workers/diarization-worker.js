@@ -18,7 +18,7 @@
  *   error
  */
 
-const VERSION = "DIARIZATION-STEP-4C1-FINAL-SPEAKER-TIMELINE";
+const VERSION = "DIARIZATION-STEP-4C2-FINAL-OUTPUT";
 
 const DIARIZATION_JS_URL =
     "https://esm.sh/diarization-js@0.1.0?bundle";
@@ -2447,6 +2447,102 @@ function buildFinalSpeakerTimeline(
 
 
 /* =========================================================
+   STEP 4C.2 — BUILD FINAL DIARIZATION OUTPUT
+
+   Converts the validated 4C.1 timeline into the actual
+   result returned by the worker.
+
+   This replaces the broken VBx speaker labels.
+========================================================= */
+
+function buildFinalDiarizationOutput(
+    finalTimeline,
+    finalIdentity
+) {
+
+    const speakerMap =
+        new Map();
+
+    let nextSpeakerNumber = 1;
+
+
+    function getPublicSpeakerName(
+        internalSpeaker
+    ) {
+
+        if (
+            !speakerMap.has(
+                internalSpeaker
+            )
+        ) {
+
+            speakerMap.set(
+                internalSpeaker,
+                `Speaker ${nextSpeakerNumber}`
+            );
+
+            nextSpeakerNumber++;
+        }
+
+
+        return speakerMap.get(
+            internalSpeaker
+        );
+    }
+
+
+    const segments =
+        finalTimeline.map(
+            row => ({
+
+                speaker:
+                    getPublicSpeakerName(
+                        row.speaker
+                    ),
+
+                internalSpeaker:
+                    row.speaker,
+
+                start:
+                    row.start,
+
+                end:
+                    row.end,
+
+                duration:
+                    row.end -
+                    row.start
+            })
+        );
+
+
+    const speakerLabels =
+        [
+            ...new Set(
+                segments.map(
+                    segment =>
+                        segment.speaker
+                )
+            )
+        ];
+
+
+    return {
+
+        numSpeakers:
+            speakerLabels.length,
+
+        speakerLabels,
+
+        segments,
+
+        internalSpeakerCount:
+            finalIdentity.numSpeakers
+    };
+}
+
+
+/* =========================================================
    STEP 4B.10 — MAP AHC EMBEDDINGS TO SPEECH TIME
 ========================================================= */
 
@@ -4395,10 +4491,6 @@ async function diarizeAudio(audioBuffer, sampleRate = 16000) {
     );
 
 
-    /* =========================================================
-       STEP 4C.1 — FINAL TIMESTAMPED SPEAKER TIMELINE
-    ========================================================= */
-
     const preciseSpeechSegments =
         Array.isArray(
             output?.result?.segments
@@ -4411,6 +4503,13 @@ async function diarizeAudio(audioBuffer, sampleRate = 16000) {
         buildFinalSpeakerTimeline(
             preciseSpeechSegments,
             ahcTimeline410,
+            finalIdentity414
+        );
+
+
+    const finalOutput4C2 =
+        buildFinalDiarizationOutput(
+            finalTimeline4C1,
             finalIdentity414
         );
 
@@ -4465,6 +4564,51 @@ async function diarizeAudio(audioBuffer, sampleRate = 16000) {
     );
 
 
+    console.log(
+        "[STEP 4C.2] FINAL DIARIZATION OUTPUT"
+    );
+
+
+    console.log(
+        "[STEP 4C.2] Speakers:",
+        finalOutput4C2.numSpeakers
+    );
+
+
+    console.log(
+        "[STEP 4C.2] Speaker labels:",
+        finalOutput4C2.speakerLabels
+    );
+
+
+    console.table(
+        finalOutput4C2.segments.map(
+            segment => ({
+
+                speaker:
+                    segment.speaker,
+
+                internal:
+                    segment.internalSpeaker,
+
+                start:
+                    segment.start.toFixed(2),
+
+                end:
+                    segment.end.toFixed(2),
+
+                duration:
+                    segment.duration.toFixed(2)
+            })
+        )
+    );
+
+
+    console.log(
+        "========================================"
+    );
+
+
     const elapsed =
         (performance.now() - startedAt) / 1000;
 
@@ -4477,102 +4621,16 @@ async function diarizeAudio(audioBuffer, sampleRate = 16000) {
         output?.metrics || {};
 
 
-    const rawSegments =
-        Array.isArray(result.segments)
-            ? result.segments
-            : [];
-
-
-    const segments =
-        rawSegments.map(
-            (segment, index) => {
-
-                return {
-
-                    index,
-
-                    start:
-                        Number(segment.start),
-
-                    end:
-                        Number(segment.end),
-
-                    duration:
-                        Number(segment.end) -
-                        Number(segment.start),
-
-                    speaker:
-                        String(segment.speaker)
-
-                };
-
-            }
-        );
-
-
-    const detectedSpeakerLabels =
-        [
-            ...new Set(
-                segments.map(
-                    segment =>
-                        segment.speaker
-                )
-            )
-        ];
-
-
-    const numSpeakers =
-        Number.isFinite(result.numSpeakers)
-            ? result.numSpeakers
-            : detectedSpeakerLabels.length;
-
-
-    console.log(
-        "[Droplet Diarization] Analysis complete.",
-        {
-            speakers: numSpeakers,
-            speakerLabels:
-                detectedSpeakerLabels,
-            segments:
-                segments.length,
-            audioSeconds:
-                duration,
-            processingSeconds:
-                elapsed,
-            realtimeFactor:
-                duration > 0
-                    ? elapsed / duration
-                    : null,
-            metrics
-        }
-    );
-
-
-    console.table(
-        segments.map(segment => ({
-            speaker:
-                segment.speaker,
-
-            start:
-                segment.start.toFixed(2),
-
-            end:
-                segment.end.toFixed(2),
-
-            duration:
-                segment.duration.toFixed(2)
-        }))
-    );
-
-
     send("diarization-complete", {
 
-        numSpeakers,
+        numSpeakers:
+            finalOutput4C2.numSpeakers,
 
         speakerLabels:
-            detectedSpeakerLabels,
+            finalOutput4C2.speakerLabels,
 
-        segments,
+        segments:
+            finalOutput4C2.segments,
 
         metrics,
 
