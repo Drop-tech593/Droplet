@@ -32,6 +32,10 @@ let loadingModel = false;
 const SAMPLE_RATE = 16000;
 
 
+// ============================================================
+// CHUNKING (Base / Balanced)
+// ============================================================
+
 // Each chunk sent to Whisper.
 //
 // Whisper is designed around an approximately 30-second
@@ -181,6 +185,57 @@ async function loadModel(
                         }
                     );
                 }
+            }
+        );
+
+
+        // ----------------------------------------------------
+        // STEP 19A - WHISPER CONTEXT CAPABILITIES
+        //
+        // Diagnostic only. We want to know exactly what
+        // tokenizer / processor / model objects the pipeline
+        // exposes, and what methods they have, before we
+        // attempt to feed an initial_prompt.
+        // ----------------------------------------------------
+
+        console.log(
+            "[Droplet Step 19A] Whisper context capabilities",
+            {
+                hasTokenizer: !!transcriber?.tokenizer,
+                hasProcessor: !!transcriber?.processor,
+                hasModel: !!transcriber?.model,
+
+                tokenizerType:
+                    transcriber?.tokenizer?.constructor?.name || null,
+
+                processorType:
+                    transcriber?.processor?.constructor?.name || null,
+
+                modelType:
+                    transcriber?.model?.constructor?.name || null,
+
+                tokenizerMethods: transcriber?.tokenizer
+                    ? Object.getOwnPropertyNames(
+                          Object.getPrototypeOf(transcriber.tokenizer)
+                      ).filter(name =>
+                          /encode|decode|token|prompt/i.test(name)
+                      )
+                    : [],
+
+                processorMethods: transcriber?.processor
+                    ? Object.getOwnPropertyNames(
+                          Object.getPrototypeOf(transcriber.processor)
+                      ).filter(name =>
+                          /encode|decode|token|prompt/i.test(name)
+                      )
+                    : [],
+
+                generationConfigKeys:
+                    Object.keys(
+                        transcriber?.model?.generation_config || {}
+                    ).filter(key =>
+                        /prompt|decoder|language|task|token/i.test(key)
+                    )
             }
         );
 
