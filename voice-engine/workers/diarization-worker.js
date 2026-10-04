@@ -18,7 +18,7 @@
  *   error
  */
 
-const VERSION = "DIARIZATION-STEP-4B1-075";
+const VERSION = "DIARIZATION-STEP-4B2-DIAGNOSTIC";
 
 const DIARIZATION_JS_URL =
     "https://esm.sh/diarization-js@0.1.0?bundle";
@@ -385,6 +385,52 @@ async function loadModels(device = "webgpu") {
                     ahcThreshold: 0.75
 
                 });
+
+
+            /* =========================================================
+               STEP 4B.2 — PIPELINE INTERNALS DIAGNOSTIC
+            ========================================================= */
+
+            console.log(
+                "[STEP 4B.2] Pipeline object:",
+                pipeline
+            );
+
+            console.log(
+                "[STEP 4B.2] Pipeline own properties:",
+                Object.getOwnPropertyNames(pipeline)
+            );
+
+            console.log(
+                "[STEP 4B.2] Pipeline prototype properties:",
+                Object.getOwnPropertyNames(
+                    Object.getPrototypeOf(pipeline)
+                )
+            );
+
+            for (
+                const property of
+                Object.getOwnPropertyNames(pipeline)
+            ) {
+                try {
+                    const value = pipeline[property];
+
+                    console.log(
+                        `[STEP 4B.2] pipeline.${property}`,
+                        {
+                            type: typeof value,
+                            constructor:
+                                value?.constructor?.name || null,
+                            value
+                        }
+                    );
+                } catch (error) {
+                    console.warn(
+                        `[STEP 4B.2] Could not inspect ${property}`,
+                        error
+                    );
+                }
+            }
 
 
             loadedDevice = device;
