@@ -18,7 +18,7 @@
  *   error
  */
 
-const VERSION = "DIARIZATION-STEP-4B4-SIGNATURE";
+const VERSION = "DIARIZATION-STEP-4B5-FBANK";
 
 const DIARIZATION_JS_URL =
     "https://esm.sh/diarization-js@0.1.0?bundle";
@@ -547,6 +547,81 @@ async function loadModels(device = "webgpu") {
                 "[STEP 4B.4] Embedding ONNX outputs:",
                 pipeline.embedding.session.outputNames
             );
+
+
+            /* =========================================================
+               STEP 4B.5 — FIND FBANK / FEATURE EXTRACTION API
+            ========================================================= */
+
+            console.log(
+                "[STEP 4B.5] run() source:",
+                pipeline.run.toString()
+            );
+
+            console.log(
+                "[STEP 4B.5] runStream() source:",
+                pipeline.runStream.toString()
+            );
+
+            console.log(
+                "[STEP 4B.5] clusterAndReconstruct() source:",
+                pipeline.clusterAndReconstruct.toString()
+            );
+
+            console.log(
+                "[STEP 4B.5] Segmentation object:",
+                pipeline.segmentation
+            );
+
+            console.log(
+                "[STEP 4B.5] Segmentation own properties:",
+                Object.getOwnPropertyNames(
+                    pipeline.segmentation
+                )
+            );
+
+            console.log(
+                "[STEP 4B.5] Segmentation prototype properties:",
+                Object.getOwnPropertyNames(
+                    Object.getPrototypeOf(
+                        pipeline.segmentation
+                    )
+                )
+            );
+
+            for (
+                const property of
+                Object.getOwnPropertyNames(
+                    pipeline.segmentation
+                )
+            ) {
+                try {
+
+                    const value =
+                        pipeline.segmentation[property];
+
+                    console.log(
+                        `[STEP 4B.5] segmentation.${property}`,
+                        {
+                            type:
+                                typeof value,
+
+                            constructor:
+                                value?.constructor?.name ||
+                                null,
+
+                            value
+                        }
+                    );
+
+                } catch (error) {
+
+                    console.warn(
+                        `[STEP 4B.5] Could not inspect segmentation.${property}`,
+                        error
+                    );
+                }
+            }
 
 
             loadedDevice = device;
