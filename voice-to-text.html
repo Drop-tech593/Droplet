@@ -470,12 +470,36 @@
 
 
         // =====================================================
-        // MICROPHONE STATE
+        // MICROPHONE / LIVE TRANSCRIPTION STATE
         // =====================================================
 
         let recordingTimerInterval = null;
 
         let recordingStartedTime = null;
+
+
+        // True while the live microphone system is active.
+        let liveRecordingActive = false;
+
+
+        // Final transcript produced by the live queue.
+        let liveTranscriptText = "";
+
+
+        // Number of microphone segments captured.
+        let liveSegmentCount = 0;
+
+
+        // Keep every live WebM segment.
+        //
+        // After Stop we combine these into one recording so
+        // speaker diarization can process the entire conversation.
+        let liveRecordedSegments = [];
+
+
+        // Prevent Stop from being pressed twice while the
+        // remaining queue is draining.
+        let liveStopping = false;
 
 
         // =====================================================
@@ -1263,7 +1287,7 @@
 
 
         // =====================================================
-        // MICROPHONE - START RECORDING
+        // MICROPHONE - START LIVE TRANSCRIPTION
         // =====================================================
 
         recordButton.addEventListener(
@@ -1272,120 +1296,492 @@
 
             async function() {
 
+                if (
+                    liveRecordingActive ||
+                    liveStopping ||
+                    transcriptionRunning
+                ) {
+
+                    return;
+                }
+
+
                 try {
 
-                    // Prevent recording while Whisper
-                    // is already processing something.
-                    if (transcriptionRunning) {
-
-                        alert(
-                            "Please wait for the current transcription to finish."
-                        );
-
-                        return;
-                    }
-
-
                     if (
+                        !window.DropletVoice ||
                         !window.DropletVoice
-                            .canRecordMicrophone()
+                            .startLiveCapture ||
+                        !window.DropletVoice
+                            .startLiveTranscriptionQueue
                     ) {
 
-                        alert(
-                            "Microphone recording is not supported by this browser."
+                        throw new Error(
+                            "Live transcription engine is not available."
                         );
-
-                        return;
                     }
 
 
-                    recordingStatus.textContent =
-                        "Requesting microphone permission...";
+                    // =============================================
+                    // RESET LIVE SESSION
+                    // =============================================
+
+                    liveRecordingActive =
+                        true;
+
+                    liveStopping =
+                        false;
+
+                    liveTranscriptText =
+                        "";
+
+                    liveSegmentCount =
+                        0;
+
+                    liveRecordedSegments =
+                        [];
 
 
-                    await window.DropletVoice
-                        .startMicrophoneRecording();
+                    selectedFile =
+                        null;
 
+                    preparedAudio =
+                        null;
 
-                    // Clear previous uploaded/recorded file.
-                    selectedFile = null;
+                    audioInput.value =
+                        "";
 
-                    preparedAudio = null;
+                    transcript.value =
+                        "";
 
-
-                    // Clear the file input so the old
-                    // uploaded file is no longer selected.
-                    audioInput.value = "";
-
-
-                    transcript.value = "";
-
+                    debug.textContent =
+                        "";
 
                     resetProgress();
 
 
+                    // =============================================
+                    // UI
+                    // =============================================
+
                     recordButton.disabled =
                         true;
-
 
                     stopRecordingButton.disabled =
                         false;
 
-
                     audioInput.disabled =
                         true;
-
 
                     transcribeButton.disabled =
                         true;
 
+                    modelSelect.disabled =
+                        true;
+
+                    cancelButton.style.display =
+                        "inline-block";
+
+                    cancelButton.disabled =
+                        false;
+
 
                     recordingStatus.textContent =
-                        "🔴 Recording...";
+                        "🎙 Starting live transcription...";
 
 
                     audioInfo.textContent =
-                        "Recording from microphone...";
+                        "Live microphone session";
+
+
+                    status.textContent =
+                        "Loading Whisper for live transcription...";
 
 
                     startRecordingTimer();
 
+                    startElapsedTimer();
+
+
+                    // =============================================
+                    // START LIVE WHISPER QUEUE
+                    // =============================================
+
+                    const model =
+                        modelSelect.value;
+
+
+                    await window.DropletVoice
+                        .startLiveTranscriptionQueue({
+
+                            model,
+
+                            device:
+                                "webgpu",
+
+
+                            onStatus(info) {
+
+                                console.log(
+                                    "[Live Queue Status]",
+                                    info
+                                );
+
+
+                                if (!info) {
+                                    return;
+                                }
+
+
+                                if (
+                                    typeof info ===
+                                    "string"
+                                ) {
+
+                                    status.textContent =
+                                        info;
+
+                                    return;
+                                }
+
+
+                                if (info.message) {
+
+                                    status.textContent =
+                                        info.message;
+                                }
+                            },
+
+
+                            onTranscript(result) {
+
+                                if (!result) {
+                                    return;
+                                }
+
+
+                                const text =
+                                    (
+                                        result.fullText ||
+                                        result.text ||
+                                        ""
+                                    ).trim();
+
+
+                                if (!text) {
+                                    return;
+                                }
+
+
+                                if (
+                                    text ===
+                                    "[BLANK_AUDIO]"
+                                ) {
+                                    return;
+                                }
+
+
+                                liveTranscriptText =
+                                    text;
+
+
+                                transcript.value =
+                                    liveTranscriptText;
+
+
+                                transcript.scrollTop =
+                                    transcript.scrollHeight;
+
+
+                                log(
+                                    "[LIVE TRANSCRIPT]",
+                                    text
+                                );
+                            },
+
+
+                            onSegmentComplete(info) {
+
+                                console.log(
+                                    "[Live Segment Complete]",
+                                    info
+                                );
+
+
+                                if (!info) {
+                                    return;
+                                }
+
+
+                                const completed =
+                                    Number(
+                                        info.segmentNumber ||
+                                        info.completed ||
+                                        0
+                                    );
+
+
+                                if (
+                                    Number.isFinite(
+                                        completed
+                                    ) &&
+                                    completed > 0
+                                ) {
+
+                                    chunkInfo.textContent =
+                                        completed +
+                                        " / " +
+                                        Math.max(
+                                            completed,
+                                            liveSegmentCount
+                                        );
+                                }
+                            },
+
+
+                            onComplete(result) {
+
+                                console.log(
+                                    "[Live Queue Complete]",
+                                    result
+                                );
+
+
+                                const text =
+                                    (
+                                        result &&
+                                        (
+                                            result.fullText ||
+                                            result.text
+                                        )
+                                    ) ||
+                                    liveTranscriptText;
+
+
+                                if (
+                                    text &&
+                                    text.trim()
+                                ) {
+
+                                    liveTranscriptText =
+                                        text.trim();
+
+
+                                    transcript.value =
+                                        liveTranscriptText;
+                                }
+                            },
+
+
+                            onError(error) {
+
+                                console.error(
+                                    "[Live Queue Error]",
+                                    error
+                                );
+
+
+                                status.textContent =
+                                    "Live transcription error: " +
+                                    (
+                                        error.message ||
+                                        error
+                                    );
+                            }
+                        });
+
+
+                    // =============================================
+                    // START MICROPHONE CAPTURE
+                    // =============================================
+
+                    await window.DropletVoice
+                        .startLiveCapture({
+
+                            async onSegment(segment) {
+
+                                try {
+
+                                    if (!segment) {
+                                        return;
+                                    }
+
+
+                                    liveSegmentCount++;
+
+
+                                    const file =
+                                        segment.file ||
+                                        segment.blob ||
+                                        segment;
+
+
+                                    if (
+                                        !file ||
+                                        typeof file.arrayBuffer !==
+                                            "function"
+                                    ) {
+
+                                        console.warn(
+                                            "[Live] Invalid segment:",
+                                            segment
+                                        );
+
+                                        return;
+                                    }
+
+
+                                    liveRecordedSegments.push(
+                                        file
+                                    );
+
+
+                                    audioInfo.textContent =
+                                        "Live recording - " +
+                                        liveSegmentCount +
+                                        (
+                                            liveSegmentCount === 1
+                                                ? " segment"
+                                                : " segments"
+                                        );
+
+
+                                    chunkInfo.textContent =
+                                        "Recording " +
+                                        liveSegmentCount;
+
+
+                                    status.textContent =
+                                        "Transcribing live audio...";
+
+
+                                    log(
+                                        "[Live] Segment captured:",
+                                        liveSegmentCount,
+                                        file.size,
+                                        "bytes"
+                                    );
+
+
+                                    await window.DropletVoice
+                                        .enqueueLiveSegment({
+
+                                            file,
+
+                                            segmentNumber:
+                                                segment.segmentNumber ||
+                                                liveSegmentCount,
+
+                                            model
+                                        });
+
+
+                                } catch (error) {
+
+                                    console.error(
+                                        "[Live Segment Error]",
+                                        error
+                                    );
+
+
+                                    log(
+                                        "[Live Segment Error]",
+                                        error.message
+                                    );
+                                }
+                            },
+
+
+                            onStatus(info) {
+
+                                console.log(
+                                    "[Live Capture Status]",
+                                    info
+                                );
+
+
+                                if (
+                                    info &&
+                                    info.message
+                                ) {
+
+                                    recordingStatus.textContent =
+                                        info.message;
+                                }
+                            }
+                        });
+
+
+                    // =============================================
+                    // RECORDING ACTIVE
+                    // =============================================
+
+                    recordingStatus.textContent =
+                        "🔴 Recording + transcribing live";
+
+
+                    status.textContent =
+                        "Listening... Start speaking.";
+
 
                     log(
-                        "[Droplet UI] Microphone recording started."
+                        "[Droplet Live] Live transcription started."
                     );
+
 
                 } catch (error) {
 
-                    console.error(error);
+                    console.error(
+                        "[Live Start Error]",
+                        error
+                    );
+
+
+                    liveRecordingActive =
+                        false;
+
+                    liveStopping =
+                        false;
+
+
+                    stopRecordingTimer();
+
+                    stopElapsedTimer();
 
 
                     recordingStatus.textContent =
-                        "Microphone error: " +
+                        "Live recording failed: " +
                         error.message;
+
+
+                    status.textContent =
+                        "Unable to start live transcription.";
 
 
                     recordButton.disabled =
                         false;
 
-
                     stopRecordingButton.disabled =
                         true;
-
 
                     audioInput.disabled =
                         false;
 
-
                     transcribeButton.disabled =
                         false;
+
+                    modelSelect.disabled =
+                        false;
+
+                    cancelButton.style.display =
+                        "none";
                 }
             }
         );
 
 
         // =====================================================
-        // MICROPHONE - STOP RECORDING
+        // MICROPHONE - STOP LIVE TRANSCRIPTION
         // =====================================================
 
         stopRecordingButton.addEventListener(
@@ -1394,127 +1790,282 @@
 
             async function() {
 
+                if (
+                    !liveRecordingActive ||
+                    liveStopping
+                ) {
+
+                    return;
+                }
+
+
+                liveStopping =
+                    true;
+
+
+                stopRecordingButton.disabled =
+                    true;
+
+
+                recordingStatus.textContent =
+                    "Stopping microphone...";
+
+
+                status.textContent =
+                    "Finishing final live segment...";
+
+
                 try {
 
-                    stopRecordingButton.disabled =
-                        true;
+                    // =============================================
+                    // STOP CAPTURE
+                    // =============================================
+
+                    await window.DropletVoice
+                        .stopLiveCapture();
 
 
-                    recordingStatus.textContent =
-                        "Stopping recording...";
-
-
-                    const result =
-                        await window.DropletVoice
-                            .stopMicrophoneRecording();
+                    liveRecordingActive =
+                        false;
 
 
                     stopRecordingTimer();
 
 
-                    // -------------------------------------------------
-                    // IMPORTANT:
-                    // Make microphone recording behave exactly like
-                    // an uploaded audio file.
-                    // -------------------------------------------------
-
-                    selectedFile =
-                        result.file;
-
-
-                    preparedAudio =
-                        null;
-
-
-                    const duration =
-                        Number.isFinite(
-                            result.duration
-                        )
-                            ? result.duration
-                            : 0;
-
-
-                    audioInfo.textContent =
-                        "🎙 " +
-                        selectedFile.name +
-                        " - " +
-                        formatTime(duration) +
-                        " - " +
-                        (
-                            selectedFile.size /
-                            1024 /
-                            1024
-                        ).toFixed(2) +
-                        " MB";
-
-
                     recordingStatus.textContent =
-                        "Recording ready to transcribe.";
+                        "Microphone stopped.";
 
 
                     status.textContent =
-                        "Recorded audio ready.";
+                        "Finishing queued transcription...";
 
+
+                    // =============================================
+                    // DRAIN LIVE WHISPER QUEUE
+                    // =============================================
+
+                    const queueResult =
+                        await window.DropletVoice
+                            .stopLiveTranscriptionQueue();
+
+
+                    console.log(
+                        "[Live] Queue stopped:",
+                        queueResult
+                    );
+
+
+                    // =============================================
+                    // USE FINAL QUEUE TRANSCRIPT
+                    // =============================================
+
+                    if (queueResult) {
+
+                        const finalText =
+                            (
+                                queueResult.fullText ||
+                                queueResult.text ||
+                                ""
+                            ).trim();
+
+
+                        if (finalText) {
+
+                            liveTranscriptText =
+                                finalText;
+
+
+                            transcript.value =
+                                finalText;
+                        }
+                    }
+
+
+                    // =============================================
+                    // CREATE COMPLETE RECORDING FILE
+                    // =============================================
+
+                    if (
+                        liveRecordedSegments.length
+                    ) {
+
+                        const first =
+                            liveRecordedSegments[0];
+
+
+                        const mimeType =
+                            first.type ||
+                            "audio/webm";
+
+
+                        const fullBlob =
+                            new Blob(
+                                liveRecordedSegments,
+                                {
+                                    type:
+                                        mimeType
+                                }
+                            );
+
+
+                        selectedFile =
+                            new File(
+
+                                [fullBlob],
+
+                                "droplet-live-recording-" +
+                                Date.now() +
+                                ".webm",
+
+                                {
+                                    type:
+                                        mimeType
+                                }
+                            );
+
+
+                        audioInfo.textContent =
+                            "🎙 " +
+                            selectedFile.name +
+                            " - " +
+                            (
+                                selectedFile.size /
+                                1024 /
+                                1024
+                            ).toFixed(2) +
+                            " MB";
+
+
+                        log(
+                            "[Live] Complete recording created:",
+                            {
+                                name:
+                                    selectedFile.name,
+
+                                size:
+                                    selectedFile.size,
+
+                                type:
+                                    selectedFile.type,
+
+                                segments:
+                                    liveRecordedSegments.length
+                            }
+                        );
+
+                    } else {
+
+                        console.warn(
+                            "[Live] No recorded segments available."
+                        );
+                    }
+
+
+                    // =============================================
+                    // LIVE TRANSCRIPTION COMPLETE
+                    // =============================================
+
+                    progressBar.style.width =
+                        "100%";
+
+
+                    progressPercent.textContent =
+                        "100%";
+
+
+                    remainingInfo.textContent =
+                        "0:00";
+
+
+                    recordingStatus.textContent =
+                        "Live recording complete.";
+
+
+                    status.textContent =
+                        "Live transcription complete.";
+
+
+                    log(
+                        "[Droplet Live] FINAL LIVE TRANSCRIPT:",
+                        liveTranscriptText
+                    );
+
+
+                    // =============================================
+                    // BUTTONS
+                    // =============================================
 
                     recordButton.disabled =
                         false;
 
-
                     stopRecordingButton.disabled =
                         true;
-
 
                     audioInput.disabled =
                         false;
 
-
-                    transcribeButton.disabled =
+                    modelSelect.disabled =
                         false;
 
 
-                    log(
-                        "[Droplet UI] Recording ready:",
-                        {
-                            name:
-                                selectedFile.name,
+                    // Keep this enabled because the complete recording
+                    // can now be run through Step 4D speaker diarization.
+                    transcribeButton.disabled =
+                        !selectedFile;
 
-                            size:
-                                selectedFile.size,
 
-                            type:
-                                selectedFile.type,
+                    cancelButton.style.display =
+                        "none";
 
-                            duration
-                        }
-                    );
 
                 } catch (error) {
 
-                    console.error(error);
+                    console.error(
+                        "[Live Stop Error]",
+                        error
+                    );
+
+
+                    liveRecordingActive =
+                        false;
 
 
                     stopRecordingTimer();
 
 
                     recordingStatus.textContent =
-                        "Recording failed: " +
+                        "Stop failed: " +
                         error.message;
+
+
+                    status.textContent =
+                        "Live transcription stop failed.";
 
 
                     recordButton.disabled =
                         false;
 
-
                     stopRecordingButton.disabled =
                         true;
-
 
                     audioInput.disabled =
                         false;
 
+                    modelSelect.disabled =
+                        false;
 
                     transcribeButton.disabled =
+                        !selectedFile;
+
+                    cancelButton.style.display =
+                        "none";
+
+                } finally {
+
+                    liveStopping =
                         false;
+
+                    stopElapsedTimer();
                 }
             }
         );
@@ -1673,16 +2224,6 @@
                         modelSelect.value;
 
 
-                    // IMPORTANT:
-                    // speaker-transcript.js needs to keep
-                    // the original audio because it first
-                    // performs diarization and then extracts
-                    // each speaker turn for Whisper.
-                    //
-                    // Therefore we DO NOT transfer
-                    // preparedAudio.buffer here.
-
-
                     const result =
                         await window
                             .DropletVoice
@@ -1694,10 +2235,6 @@
 
                                     model,
 
-
-                                    // =====================================
-                                    // STATUS
-                                    // =====================================
 
                                     onStatus(info) {
 
@@ -1717,10 +2254,6 @@
                                         );
                                     },
 
-
-                                    // =====================================
-                                    // PROGRESS
-                                    // =====================================
 
                                     onProgress(info) {
 
@@ -1778,10 +2311,6 @@
                                     },
 
 
-                                    // =====================================
-                                    // DIARIZATION COMPLETE
-                                    // =====================================
-
                                     onDiarization(info) {
 
                                         log(
@@ -1813,10 +2342,6 @@
                                     },
 
 
-                                    // =====================================
-                                    // EACH COMPLETED SPEAKER TURN
-                                    // =====================================
-
                                     onTurn(turn) {
 
                                         log(
@@ -1824,9 +2349,6 @@
                                             turn
                                         );
 
-
-                                        // Build a live preview from
-                                        // completed turns.
 
                                         const existing =
                                             transcript.value.trim();
@@ -1859,16 +2381,7 @@
                                     },
 
 
-                                    // =====================================
-                                    // DEBUG
-                                    // =====================================
-
                                     onDebug(info) {
-
-                                        // Keep detailed worker information
-                                        // in DevTools instead of filling the
-                                        // visible debug box with thousands
-                                        // of model messages.
 
                                         console.log(
                                             "[Step 4D Debug]",
@@ -1878,10 +2391,6 @@
                                 }
                             );
 
-
-                    // =============================================
-                    // FINAL SPEAKER TRANSCRIPT
-                    // =============================================
 
                     transcript.value =
                         result.text ||
@@ -2100,27 +2609,106 @@
 
         // =====================================================
         // CANCEL
-        // STEP 4D
+        // LIVE + STEP 4D
         // =====================================================
 
         cancelButton.addEventListener(
 
             "click",
 
-            function() {
-
-                if (!transcriptionRunning) {
-                    return;
-                }
-
-
-                status.textContent =
-                    "Cancelling speaker transcription...";
-
+            async function() {
 
                 cancelButton.disabled =
                     true;
 
+
+                // =============================================
+                // LIVE RECORDING
+                // =============================================
+
+                if (
+                    liveRecordingActive ||
+                    liveStopping
+                ) {
+
+                    status.textContent =
+                        "Cancelling live recording...";
+
+
+                    try {
+
+                        if (
+                            window.DropletVoice
+                                .isLiveCaptureActive &&
+                            window.DropletVoice
+                                .isLiveCaptureActive()
+                        ) {
+
+                            await window.DropletVoice
+                                .stopLiveCapture();
+                        }
+
+
+                        await window.DropletVoice
+                            .stopLiveTranscriptionQueue();
+
+
+                    } catch (error) {
+
+                        console.error(
+                            "[Live Cancel]",
+                            error
+                        );
+                    }
+
+
+                    liveRecordingActive =
+                        false;
+
+                    liveStopping =
+                        false;
+
+
+                    stopRecordingTimer();
+
+                    stopElapsedTimer();
+
+
+                    recordingStatus.textContent =
+                        "Recording cancelled.";
+
+
+                    status.textContent =
+                        "Live transcription cancelled.";
+
+
+                    recordButton.disabled =
+                        false;
+
+                    stopRecordingButton.disabled =
+                        true;
+
+                    audioInput.disabled =
+                        false;
+
+                    modelSelect.disabled =
+                        false;
+
+                    transcribeButton.disabled =
+                        !selectedFile;
+
+
+                    cancelButton.style.display =
+                        "none";
+
+
+                    return;
+                }
+
+
+                // =============================================
+                // STEP 4D SPEAKER TRANSCRIPTION
+                // =============================================
 
                 if (
                     window.DropletVoice &&
@@ -2130,15 +2718,27 @@
                         .isSpeakerTranscriptRunning()
                 ) {
 
+                    status.textContent =
+                        "Cancelling speaker transcription...";
+
+
                     window.DropletVoice
                         .cancelSpeakerTranscript();
+
 
                     return;
                 }
 
 
-                // Fallback for the old Whisper route.
+                // =============================================
+                // OLD WHISPER FALLBACK
+                // =============================================
+
                 if (worker) {
+
+                    status.textContent =
+                        "Cancelling transcription...";
+
 
                     worker.postMessage({
                         type:
@@ -2196,6 +2796,19 @@
 
                     window.DropletVoice
                         .cancelSpeakerTranscript();
+                }
+
+
+                if (
+                    window.DropletVoice &&
+                    window.DropletVoice
+                        .isLiveCaptureActive &&
+                    window.DropletVoice
+                        .isLiveCaptureActive()
+                ) {
+
+                    window.DropletVoice
+                        .stopLiveCapture();
                 }
             }
         );
