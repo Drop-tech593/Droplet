@@ -1807,6 +1807,7 @@ async function transcribeLongAudio(
 
             // ------------------------------------------------------------
             // STEP 17 - CONTROLLED WHISPER DECODING
+            // STEP 18 - WORD-LEVEL TIMESTAMPS
             // ------------------------------------------------------------
 
             const result =
@@ -1822,11 +1823,20 @@ async function transcribeLongAudio(
                         // ~20 second Droplet chunk.
                         max_new_tokens: 160,
 
-                        // Stop generation when Whisper produces its
-                        // normal end-of-transcript token.
-                        return_timestamps: false
+                        // Request per-word timestamps.
+                        return_timestamps: "word"
                     }
                 );
+
+
+            // ------------------------------------------------------------
+            // STEP 18 - WORD TIMESTAMP DIAGNOSTIC
+            // ------------------------------------------------------------
+
+            console.log(
+                "[Droplet Step 18] Whisper word timestamps",
+                result.chunks
+            );
 
 
             // ------------------------------------------------------------
