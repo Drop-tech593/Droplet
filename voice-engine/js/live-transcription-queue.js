@@ -5,6 +5,9 @@
 // Receives live microphone segments from live-transcriber.js,
 // preprocesses them with audio-processor.js, and sends them
 // sequentially to the existing Whisper worker.
+//
+// NOTE: This file is loaded as a CLASSIC script.
+// It must NOT contain any top-level `import` statements.
 // ============================================================
 
 (function () {
@@ -20,6 +23,11 @@
     // --------------------------------------------------------
 
     let worker = null;
+
+    let modelReady = false;
+    let modelLoading = false;
+    let activeModel = null;
+    let requestedModel = null;
 
     let queue = [];
 
@@ -62,7 +70,8 @@
     const WORKER_URL =
         "./voice-engine/workers/whisper-worker.js";
 
-    const DEFAULT_MODEL = "base";
+    const DEFAULT_MODEL =
+        "onnx-community/whisper-base.en";
 
 
     // --------------------------------------------------------
@@ -238,6 +247,92 @@
 
 
     // --------------------------------------------------------
+    // Model loader
+    //
+    // Ensures the Whisper worker has loaded the model that
+    // the queue's next item requires before we hand any audio
+    // to it. Handles three cases:
+    //
+    //   1. Model already ready → continue immediately
+    //   2. Same model currently loading → do nothing, wait
+    //   3. Different or no model → request load from worker
+    // --------------------------------------------------------
+
+    function loadWhisperModel(model) {
+
+        const selectedModel =
+            model || DEFAULT_MODEL;
+
+
+        if (
+            modelReady &&
+            activeModel === selectedModel
+        ) {
+
+            console.log(
+                "[Droplet Live Queue] Model already ready:",
+                selectedModel
+            );
+
+            processNext();
+
+            return;
+        }
+
+
+        if (
+            modelLoading &&
+            requestedModel === selectedModel
+        ) {
+
+            console.log(
+                "[Droplet Live Queue] Model already loading:",
+                selectedModel
+            );
+
+            return;
+        }
+
+
+        const whisperWorker =
+            createWorker();
+
+
+        modelReady = false;
+
+        modelLoading = true;
+
+        requestedModel =
+            selectedModel;
+
+
+        sendStatus(
+            "Loading Whisper model..."
+        );
+
+
+        console.log(
+            "[Droplet Live Queue] Loading model:",
+            selectedModel
+        );
+
+
+        whisperWorker.postMessage({
+
+            type:
+                "load-model",
+
+            model:
+                selectedModel,
+
+            device:
+                "webgpu"
+
+        });
+    }
+
+
+    // --------------------------------------------------------
     // Worker messages
     // --------------------------------------------------------
 
@@ -288,9 +383,32 @@
             "model-ready"
         ) {
 
+            modelReady = true;
+
+            modelLoading = false;
+
+            activeModel =
+                requestedModel;
+
+            requestedModel =
+                null;
+
+
+            console.log(
+                "[Droplet Live Queue] Whisper model READY:",
+                activeModel
+            );
+
+
             sendStatus(
                 "Whisper model ready."
             );
+
+
+            // Anything captured while the model was loading
+            // can now begin transcription.
+            processNext();
+
 
             return;
         }
@@ -542,6 +660,11 @@
 
     // --------------------------------------------------------
     // Process next queued segment
+    //
+    // Important: we do NOT remove an item from the queue
+    // until Whisper has the required model loaded. This
+    // means segments captured during model download are
+    // preserved and processed as soon as the model is ready.
     // --------------------------------------------------------
 
     async function processNext() {
@@ -555,6 +678,33 @@
         if (queue.length === 0) {
 
             finishSessionIfReady();
+
+            return;
+        }
+
+
+        // --------------------------------------------------------
+        // Do NOT remove an item from the queue until Whisper
+        // is actually ready.
+        // --------------------------------------------------------
+
+        const nextItem =
+            queue[0];
+
+
+        const requiredModel =
+            nextItem.model ||
+            DEFAULT_MODEL;
+
+
+        if (
+            !modelReady ||
+            activeModel !== requiredModel
+        ) {
+
+            loadWhisperModel(
+                requiredModel
+            );
 
             return;
         }
@@ -618,11 +768,6 @@
             );
 
 
-            const selectedModel =
-                currentItem.model ||
-                DEFAULT_MODEL;
-
-
             const jobId =
                 "live-" +
                 (++jobCounter) +
@@ -652,18 +797,14 @@
 
                         jobId,
 
-                        audio:
-                            buffer,
-
-                        sampleRate:
-                            16000,
-
-                        model:
-                            selectedModel
+                        audioBuffer:
+                            buffer
 
                     },
 
-                    [buffer]
+                    [
+                        buffer
+                    ]
 
                 );
 
@@ -722,6 +863,15 @@
                 performance.now();
 
 
+            modelReady = false;
+
+            modelLoading = false;
+
+            activeModel = null;
+
+            requestedModel = null;
+
+
             transcriptCallback =
                 options.onTranscript ||
                 null;
@@ -742,11 +892,26 @@
                 null;
 
 
+            const selectedModel =
+                options.model ||
+                DEFAULT_MODEL;
+
+
             createWorker();
 
 
             sendStatus(
                 "Live transcription queue started."
+            );
+
+
+            // Start loading immediately instead of waiting
+            // for microphone segment 1. The 10 seconds while
+            // the user is speaking Segment 1 aren't wasted:
+            // Whisper is downloading and initializing in
+            // parallel with microphone capture.
+            loadWhisperModel(
+                selectedModel
             );
 
 
@@ -758,8 +923,7 @@
                 running: true,
 
                 model:
-                    options.model ||
-                    DEFAULT_MODEL
+                    selectedModel
 
             };
         };
@@ -963,6 +1127,14 @@
                     currentItem
                         ? currentItem.segmentNumber
                         : null,
+
+                modelReady,
+
+                modelLoading,
+
+                activeModel,
+
+                requestedModel,
 
                 transcript:
                     getTranscript(),
