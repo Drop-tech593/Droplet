@@ -1807,6 +1807,7 @@ async function transcribeLongAudio(
 
             // ------------------------------------------------------------
             // STEP 17 - CONTROLLED WHISPER DECODING
+            // STEP 19 - GENTLE ANTI-REPETITION PARAMETERS
             // ------------------------------------------------------------
 
             const result =
@@ -1814,16 +1815,22 @@ async function transcribeLongAudio(
                     chunk.audio,
                     {
                         // Deterministic decoding.
-                        // We don't want Whisper inventing alternative
-                        // wording from the same audio.
                         do_sample: false,
 
-                        // Prevent extremely long output from a short
-                        // ~20 second Droplet chunk.
+                        // Hard protection against runaway output.
                         max_new_tokens: 160,
 
-                        // Stop generation when Whisper produces its
-                        // normal end-of-transcript token.
+                        // Mildly discourage Whisper from repeatedly
+                        // generating the same tokens.
+                        repetition_penalty: 1.05,
+
+                        // Prevent an identical 6-token sequence from
+                        // being generated more than once in this chunk.
+                        // 6 is deliberately conservative so normal
+                        // human repetition is less likely to be damaged.
+                        no_repeat_ngram_size: 6,
+
+                        // Current ONNX export cannot provide word timestamps.
                         return_timestamps: false
                     }
                 );
