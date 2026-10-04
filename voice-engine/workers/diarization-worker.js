@@ -18,7 +18,7 @@
  *   error
  */
 
-const VERSION = "DIARIZATION-STEP-4B11-SPEAKER-CENTROIDS";
+const VERSION = "DIARIZATION-STEP-4B12-IDENTITY-MERGE";
 
 const DIARIZATION_JS_URL =
     "https://esm.sh/diarization-js@0.1.0?bundle";
@@ -759,6 +759,630 @@ function analyzeAhcSpeakerCentroids(
 
 
 /* =========================================================
+   STEP 4B.12 — CONSERVATIVE RECURRENCE-AWARE IDENTITY MERGE
+
+   IMPORTANT:
+   This does NOT replace diarization-js output yet.
+
+   Goal:
+   Take the pre-VBx AHC fragments and decide whether
+   separated fragments are probably the same real speaker.
+
+   Evidence used:
+   1. centroid cosine similarity
+   2. centroid Euclidean distance
+   3. separation from the next-best candidate
+   4. cluster size / reliability
+   5. temporal recurrence
+
+   The algorithm deliberately prefers false splits over
+   false merges while this stage is being validated.
+========================================================= */
+
+function mergeRecurringAhcSpeakers(
+    ahcResult,
+    centroidAnalysis,
+    timeline
+) {
+
+    const MIN_COSINE = 0.64;
+
+    const MAX_DISTANCE = 0.86;
+
+    /*
+     * A candidate should normally be noticeably better
+     * than the next alternative for BOTH speakers.
+     *
+     * Recording 8 showed why this matters:
+     *
+     * 00 ↔ 02 = 0.6742
+     * 00 ↔ 01 = 0.6354
+     *
+     * We don't want a chain of weak merges.
+     */
+    const MIN_MARGIN = 0.025;
+
+    /*
+     * A one-embedding cluster is weak evidence.
+     * Do not automatically merge it using only centroid
+     * similarity.
+     */
+    const MIN_RELIABLE_CLUSTER_SIZE = 2;
+
+
+    const speakerInfo =
+        new Map();
+
+
+    /*
+     * Build temporal information for every AHC fragment.
+     */
+    for (const cluster of ahcResult.clusters) {
+
+        const rows =
+            timeline.filter(
+                row =>
+                    row.speaker ===
+                    cluster.speaker
+            );
+
+
+        const firstSeen =
+            rows.length
+                ? Math.min(
+                    ...rows.map(
+                        row => row.start
+                    )
+                )
+                : Infinity;
+
+
+        const lastSeen =
+            rows.length
+                ? Math.max(
+                    ...rows.map(
+                        row => row.end
+                    )
+                )
+                : -Infinity;
+
+
+        speakerInfo.set(
+            cluster.speaker,
+            {
+                speaker:
+                    cluster.speaker,
+
+                embeddingIds:
+                    [...cluster.embeddingIds],
+
+                count:
+                    cluster.count,
+
+                firstSeen,
+
+                lastSeen
+            }
+        );
+    }
+
+
+    /*
+     * Fast lookup for pair similarity.
+     */
+    const pairMap =
+        new Map();
+
+
+    function pairKey(a, b) {
+
+        return [a, b]
+            .sort()
+            .join("::");
+    }
+
+
+    for (
+        const comparison of
+        centroidAnalysis.comparisons
+    ) {
+
+        pairMap.set(
+            pairKey(
+                comparison.speakerA,
+                comparison.speakerB
+            ),
+            comparison
+        );
+    }
+
+
+    /*
+     * Find the strongest OTHER candidate for a speaker,
+     * excluding a specific pair.
+     *
+     * This lets us measure whether the proposed match
+     * has a meaningful margin over alternatives.
+     */
+    function bestAlternative(
+        speaker,
+        excludedSpeaker
+    ) {
+
+        let best = -Infinity;
+
+
+        for (
+            const comparison of
+            centroidAnalysis.comparisons
+        ) {
+
+            const involvesSpeaker =
+                comparison.speakerA === speaker ||
+                comparison.speakerB === speaker;
+
+
+            if (!involvesSpeaker) {
+                continue;
+            }
+
+
+            const other =
+                comparison.speakerA === speaker
+                    ? comparison.speakerB
+                    : comparison.speakerA;
+
+
+            if (other === excludedSpeaker) {
+                continue;
+            }
+
+
+            best =
+                Math.max(
+                    best,
+                    comparison.cosineSimilarity
+                );
+        }
+
+
+        return best;
+    }
+
+
+    /*
+     * Start with each AHC fragment as a separate identity.
+     */
+    const parent =
+        new Map();
+
+
+    for (
+        const cluster of
+        ahcResult.clusters
+    ) {
+
+        parent.set(
+            cluster.speaker,
+            cluster.speaker
+        );
+    }
+
+
+    function find(value) {
+
+        let root = value;
+
+
+        while (
+            parent.get(root) !== root
+        ) {
+
+            root =
+                parent.get(root);
+        }
+
+
+        let current = value;
+
+
+        while (
+            parent.get(current) !== current
+        ) {
+
+            const next =
+                parent.get(current);
+
+            parent.set(
+                current,
+                root
+            );
+
+            current = next;
+        }
+
+
+        return root;
+    }
+
+
+    function union(a, b) {
+
+        const rootA = find(a);
+        const rootB = find(b);
+
+
+        if (rootA === rootB) {
+            return;
+        }
+
+
+        /*
+         * Stable identity:
+         * keep the earlier AHC label as root.
+         */
+        if (rootA < rootB) {
+
+            parent.set(
+                rootB,
+                rootA
+            );
+
+        } else {
+
+            parent.set(
+                rootA,
+                rootB
+            );
+        }
+    }
+
+
+    /*
+     * Highest-confidence pairs first.
+     */
+    const candidates =
+        [...centroidAnalysis.comparisons]
+            .sort(
+                (a, b) =>
+                    b.cosineSimilarity -
+                    a.cosineSimilarity
+            );
+
+
+    const decisions = [];
+
+
+    for (
+        const candidate of
+        candidates
+    ) {
+
+        const infoA =
+            speakerInfo.get(
+                candidate.speakerA
+            );
+
+        const infoB =
+            speakerInfo.get(
+                candidate.speakerB
+            );
+
+
+        if (!infoA || !infoB) {
+            continue;
+        }
+
+
+        /*
+         * Once two fragments already belong to the same
+         * inferred identity, don't evaluate them again.
+         */
+        if (
+            find(candidate.speakerA) ===
+            find(candidate.speakerB)
+        ) {
+
+            decisions.push({
+
+                speakerA:
+                    candidate.speakerA,
+
+                speakerB:
+                    candidate.speakerB,
+
+                cosine:
+                    candidate.cosineSimilarity,
+
+                distance:
+                    candidate.euclideanDistance,
+
+                accepted:
+                    false,
+
+                reason:
+                    "already-same-identity"
+            });
+
+            continue;
+        }
+
+
+        const alternativeA =
+            bestAlternative(
+                candidate.speakerA,
+                candidate.speakerB
+            );
+
+
+        const alternativeB =
+            bestAlternative(
+                candidate.speakerB,
+                candidate.speakerA
+            );
+
+
+        const marginA =
+            Number.isFinite(alternativeA)
+                ? candidate.cosineSimilarity -
+                    alternativeA
+                : Infinity;
+
+
+        const marginB =
+            Number.isFinite(alternativeB)
+                ? candidate.cosineSimilarity -
+                    alternativeB
+                : Infinity;
+
+
+        /*
+         * We are looking for RECURRENCE:
+         * fragments that occur in separated parts of the
+         * recording, rather than fragments representing
+         * simultaneous/adjacent local segmentation.
+         */
+        const temporalGap =
+            infoA.lastSeen < infoB.firstSeen
+                ? infoB.firstSeen -
+                    infoA.lastSeen
+
+                : infoB.lastSeen < infoA.firstSeen
+                    ? infoA.firstSeen -
+                        infoB.lastSeen
+
+                    : 0;
+
+
+        const reliableSizes =
+            infoA.count >=
+                MIN_RELIABLE_CLUSTER_SIZE &&
+            infoB.count >=
+                MIN_RELIABLE_CLUSTER_SIZE;
+
+
+        const passesSimilarity =
+            candidate.cosineSimilarity >=
+                MIN_COSINE;
+
+
+        const passesDistance =
+            candidate.euclideanDistance <=
+                MAX_DISTANCE;
+
+
+        /*
+         * Require at least one side to have a meaningful
+         * margin over its alternatives.
+         *
+         * Requiring both sides would be too strict when
+         * one fragment has several similar overlapping
+         * windows.
+         */
+        const passesMargin =
+            marginA >= MIN_MARGIN ||
+            marginB >= MIN_MARGIN;
+
+
+        /*
+         * For now, require both clusters to contain at
+         * least two embeddings.
+         *
+         * Single-embedding fragments remain separate until
+         * we have stronger evidence for handling them.
+         */
+        const accepted =
+            passesSimilarity &&
+            passesDistance &&
+            passesMargin &&
+            reliableSizes;
+
+
+        let reason = "accepted";
+
+
+        if (!passesSimilarity) {
+
+            reason =
+                "cosine-too-low";
+
+        } else if (!passesDistance) {
+
+            reason =
+                "distance-too-high";
+
+        } else if (!reliableSizes) {
+
+            reason =
+                "weak-single-embedding-cluster";
+
+        } else if (!passesMargin) {
+
+            reason =
+                "ambiguous-match";
+        }
+
+
+        decisions.push({
+
+            speakerA:
+                candidate.speakerA,
+
+            speakerB:
+                candidate.speakerB,
+
+            cosine:
+                candidate.cosineSimilarity,
+
+            distance:
+                candidate.euclideanDistance,
+
+            countA:
+                infoA.count,
+
+            countB:
+                infoB.count,
+
+            alternativeA,
+
+            alternativeB,
+
+            marginA,
+
+            marginB,
+
+            temporalGap,
+
+            accepted,
+
+            reason
+        });
+
+
+        if (accepted) {
+
+            union(
+                candidate.speakerA,
+                candidate.speakerB
+            );
+        }
+    }
+
+
+    /*
+     * Convert union-find roots into clean Droplet identity
+     * labels without assuming a fixed speaker count.
+     */
+    const groupsByRoot =
+        new Map();
+
+
+    for (
+        const cluster of
+        ahcResult.clusters
+    ) {
+
+        const root =
+            find(cluster.speaker);
+
+
+        if (!groupsByRoot.has(root)) {
+
+            groupsByRoot.set(
+                root,
+                []
+            );
+        }
+
+
+        groupsByRoot
+            .get(root)
+            .push(
+                cluster.speaker
+            );
+    }
+
+
+    const rawGroups =
+        [...groupsByRoot.values()]
+            .map(group =>
+                group.sort()
+            )
+            .sort(
+                (a, b) =>
+                    a[0].localeCompare(
+                        b[0]
+                    )
+            );
+
+
+    const groups =
+        rawGroups.map(
+            (fragments, index) => ({
+
+                speaker:
+                    `MERGED_SPEAKER_${String(
+                        index
+                    ).padStart(2, "0")}`,
+
+                ahcFragments:
+                    fragments
+            })
+        );
+
+
+    const identityByAhcSpeaker =
+        new Map();
+
+
+    for (
+        const group of
+        groups
+    ) {
+
+        for (
+            const fragment of
+            group.ahcFragments
+        ) {
+
+            identityByAhcSpeaker.set(
+                fragment,
+                group.speaker
+            );
+        }
+    }
+
+
+    return {
+
+        groups,
+
+        decisions,
+
+        identityByAhcSpeaker,
+
+        numSpeakers:
+            groups.length,
+
+        config: {
+
+            minCosine:
+                MIN_COSINE,
+
+            maxDistance:
+                MAX_DISTANCE,
+
+            minMargin:
+                MIN_MARGIN,
+
+            minReliableClusterSize:
+                MIN_RELIABLE_CLUSTER_SIZE
+        }
+    };
+}
+
+
+/* =========================================================
    STEP 4B.10 — MAP AHC EMBEDDINGS TO SPEECH TIME
 ========================================================= */
 
@@ -1117,15 +1741,6 @@ async function loadModels(device = "webgpu") {
                CONFIGURE ONNX RUNTIME
             --------------------------------------------- */
 
-            /*
-             * IMPORTANT:
-             * ORT was imported through esm.sh, but its WebGPU backend
-             * still needs the official JSEP runtime files.
-             *
-             * Point ORT directly at the matching official
-             * onnxruntime-web 1.22.0 distribution.
-             */
-
             const ORT_DIST =
                 "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.22.0/dist/";
 
@@ -1138,27 +1753,11 @@ async function loadModels(device = "webgpu") {
             };
 
 
-            /*
-             * Droplet currently does not use cross-origin isolation.
-             *
-             * Force single-threaded WASM so ORT does not attempt to
-             * create SharedArrayBuffer-based WASM threads.
-             */
-
             ort.env.wasm.numThreads = 1;
 
 
-            /*
-             * We already have our own dedicated diarization Worker.
-             * Do NOT make ORT create another proxy worker.
-             */
-
             ort.env.wasm.proxy = false;
 
-
-            /*
-             * Useful while Step 4 is being developed.
-             */
 
             ort.env.logLevel = "warning";
 
@@ -1803,12 +2402,6 @@ async function diarizeAudio(audioBuffer, sampleRate = 16000) {
             sampleRate,
             {
                 onProgress: progress => {
-
-                    /*
-                     * Keep progress generic for now because
-                     * different pipeline stages may report
-                     * different progress structures.
-                     */
 
                     send("diarization-progress", {
                         progress
