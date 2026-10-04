@@ -18,7 +18,7 @@
  *   error
  */
 
-const VERSION = "DIARIZATION-STEP-4B2-DIAGNOSTIC";
+const VERSION = "DIARIZATION-STEP-4B3-EMBEDDING";
 
 const DIARIZATION_JS_URL =
     "https://esm.sh/diarization-js@0.1.0?bundle";
@@ -431,6 +431,87 @@ async function loadModels(device = "webgpu") {
                     );
                 }
             }
+
+
+            /* =========================================================
+               STEP 4B.3 — EMBEDDING COMPONENT DIAGNOSTIC
+            ========================================================= */
+
+            if (pipeline.embedding) {
+
+                console.log(
+                    "[STEP 4B.3] Embedding object:",
+                    pipeline.embedding
+                );
+
+                console.log(
+                    "[STEP 4B.3] Embedding own properties:",
+                    Object.getOwnPropertyNames(
+                        pipeline.embedding
+                    )
+                );
+
+                console.log(
+                    "[STEP 4B.3] Embedding prototype properties:",
+                    Object.getOwnPropertyNames(
+                        Object.getPrototypeOf(
+                            pipeline.embedding
+                        )
+                    )
+                );
+
+
+                for (
+                    const property of
+                    Object.getOwnPropertyNames(
+                        pipeline.embedding
+                    )
+                ) {
+
+                    try {
+
+                        const value =
+                            pipeline.embedding[property];
+
+                        console.log(
+                            `[STEP 4B.3] embedding.${property}`,
+                            {
+                                type:
+                                    typeof value,
+
+                                constructor:
+                                    value?.constructor?.name ||
+                                    null,
+
+                                value
+                            }
+                        );
+
+                    } catch (error) {
+
+                        console.warn(
+                            `[STEP 4B.3] Could not inspect embedding.${property}`,
+                            error
+                        );
+                    }
+                }
+
+            }
+
+
+            /* =========================================================
+               STEP 4B.3 — CONFIGURATION DIAGNOSTIC
+            ========================================================= */
+
+            console.log(
+                "[STEP 4B.3] Pipeline configuration:",
+                pipeline.cfg
+            );
+
+            console.log(
+                "[STEP 4B.3] PLDA configuration:",
+                pipeline.plda
+            );
 
 
             loadedDevice = device;
