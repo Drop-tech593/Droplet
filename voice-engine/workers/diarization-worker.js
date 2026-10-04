@@ -18,7 +18,7 @@
  *   error
  */
 
-const VERSION = "DIARIZATION-STEP-4B12-IDENTITY-MERGE";
+const VERSION = "DIARIZATION-STEP-4B13-WEAK-FRAGMENT-DIAGNOSTIC";
 
 const DIARIZATION_JS_URL =
     "https://esm.sh/diarization-js@0.1.0?bundle";
@@ -119,18 +119,12 @@ function clusterEmbeddingsAhcOnly(
         return [];
     }
 
-    /*
-     * Each embedding begins as its own cluster.
-     */
     const clusters = captured.map(item => ({
         ids: [item.id],
         items: [item]
     }));
 
 
-    /*
-     * Average cosine similarity between two clusters.
-     */
     function clusterSimilarity(a, b) {
 
         let total = 0;
@@ -155,12 +149,6 @@ function clusterEmbeddingsAhcOnly(
     }
 
 
-    /*
-     * Agglomerative clustering.
-     *
-     * Repeatedly merge the most similar pair while
-     * similarity remains >= threshold.
-     */
     while (clusters.length > 1) {
 
         let bestI = -1;
@@ -195,10 +183,6 @@ function clusterEmbeddingsAhcOnly(
         }
 
 
-        /*
-         * Stop when no remaining pair passes
-         * the AHC threshold.
-         */
         if (
             bestI < 0 ||
             bestJ < 0 ||
@@ -222,9 +206,6 @@ function clusterEmbeddingsAhcOnly(
         };
 
 
-        /*
-         * Remove higher index first.
-         */
         clusters.splice(bestJ, 1);
         clusters.splice(bestI, 1);
 
@@ -232,9 +213,6 @@ function clusterEmbeddingsAhcOnly(
     }
 
 
-    /*
-     * Give the diagnostic clusters stable speaker labels.
-     */
     return clusters
         .map((cluster, index) => ({
 
@@ -260,12 +238,6 @@ function clusterEmbeddingsAhcOnly(
 
 /* =========================================================
    STEP 4B.9 — DIARIZATION-JS STYLE AHC
-
-   diarization-js:
-   1. L2 normalize embeddings
-   2. Euclidean distance
-   3. Centroid-linkage AHC
-   4. Cut dendrogram at distance threshold
 ========================================================= */
 
 function l2NormalizeEmbedding(values) {
@@ -361,9 +333,6 @@ function diarizationStyleAhc(
     threshold = 0.75
 ) {
 
-    /*
-     * Create one normalized embedding per cluster.
-     */
     let clusters = captured
         .map(item => {
 
@@ -409,9 +378,6 @@ function diarizationStyleAhc(
             Infinity;
 
 
-        /*
-         * Find closest centroids.
-         */
         for (
             let i = 0;
             i < clusters.length;
@@ -443,11 +409,6 @@ function diarizationStyleAhc(
         }
 
 
-        /*
-         * scipy fcluster(distance):
-         * stop once next linkage distance
-         * exceeds threshold.
-         */
         if (
             bestI < 0 ||
             bestJ < 0 ||
@@ -506,9 +467,6 @@ function diarizationStyleAhc(
         });
 
 
-        /*
-         * Remove higher index first.
-         */
         clusters.splice(
             bestJ,
             1
@@ -525,10 +483,6 @@ function diarizationStyleAhc(
     }
 
 
-    /*
-     * Encounter-order labels, matching the
-     * contiguous-label behavior of the package.
-     */
     clusters.sort(
         (a, b) =>
             Math.min(...a.ids) -
@@ -760,23 +714,6 @@ function analyzeAhcSpeakerCentroids(
 
 /* =========================================================
    STEP 4B.12 — CONSERVATIVE RECURRENCE-AWARE IDENTITY MERGE
-
-   IMPORTANT:
-   This does NOT replace diarization-js output yet.
-
-   Goal:
-   Take the pre-VBx AHC fragments and decide whether
-   separated fragments are probably the same real speaker.
-
-   Evidence used:
-   1. centroid cosine similarity
-   2. centroid Euclidean distance
-   3. separation from the next-best candidate
-   4. cluster size / reliability
-   5. temporal recurrence
-
-   The algorithm deliberately prefers false splits over
-   false merges while this stage is being validated.
 ========================================================= */
 
 function mergeRecurringAhcSpeakers(
@@ -789,24 +726,8 @@ function mergeRecurringAhcSpeakers(
 
     const MAX_DISTANCE = 0.86;
 
-    /*
-     * A candidate should normally be noticeably better
-     * than the next alternative for BOTH speakers.
-     *
-     * Recording 8 showed why this matters:
-     *
-     * 00 ↔ 02 = 0.6742
-     * 00 ↔ 01 = 0.6354
-     *
-     * We don't want a chain of weak merges.
-     */
     const MIN_MARGIN = 0.025;
 
-    /*
-     * A one-embedding cluster is weak evidence.
-     * Do not automatically merge it using only centroid
-     * similarity.
-     */
     const MIN_RELIABLE_CLUSTER_SIZE = 2;
 
 
@@ -814,9 +735,6 @@ function mergeRecurringAhcSpeakers(
         new Map();
 
 
-    /*
-     * Build temporal information for every AHC fragment.
-     */
     for (const cluster of ahcResult.clusters) {
 
         const rows =
@@ -867,9 +785,6 @@ function mergeRecurringAhcSpeakers(
     }
 
 
-    /*
-     * Fast lookup for pair similarity.
-     */
     const pairMap =
         new Map();
 
@@ -897,13 +812,6 @@ function mergeRecurringAhcSpeakers(
     }
 
 
-    /*
-     * Find the strongest OTHER candidate for a speaker,
-     * excluding a specific pair.
-     *
-     * This lets us measure whether the proposed match
-     * has a meaningful margin over alternatives.
-     */
     function bestAlternative(
         speaker,
         excludedSpeaker
@@ -950,9 +858,6 @@ function mergeRecurringAhcSpeakers(
     }
 
 
-    /*
-     * Start with each AHC fragment as a separate identity.
-     */
     const parent =
         new Map();
 
@@ -1017,10 +922,6 @@ function mergeRecurringAhcSpeakers(
         }
 
 
-        /*
-         * Stable identity:
-         * keep the earlier AHC label as root.
-         */
         if (rootA < rootB) {
 
             parent.set(
@@ -1038,9 +939,6 @@ function mergeRecurringAhcSpeakers(
     }
 
 
-    /*
-     * Highest-confidence pairs first.
-     */
     const candidates =
         [...centroidAnalysis.comparisons]
             .sort(
@@ -1074,10 +972,6 @@ function mergeRecurringAhcSpeakers(
         }
 
 
-        /*
-         * Once two fragments already belong to the same
-         * inferred identity, don't evaluate them again.
-         */
         if (
             find(candidate.speakerA) ===
             find(candidate.speakerB)
@@ -1136,12 +1030,6 @@ function mergeRecurringAhcSpeakers(
                 : Infinity;
 
 
-        /*
-         * We are looking for RECURRENCE:
-         * fragments that occur in separated parts of the
-         * recording, rather than fragments representing
-         * simultaneous/adjacent local segmentation.
-         */
         const temporalGap =
             infoA.lastSeen < infoB.firstSeen
                 ? infoB.firstSeen -
@@ -1171,26 +1059,11 @@ function mergeRecurringAhcSpeakers(
                 MAX_DISTANCE;
 
 
-        /*
-         * Require at least one side to have a meaningful
-         * margin over its alternatives.
-         *
-         * Requiring both sides would be too strict when
-         * one fragment has several similar overlapping
-         * windows.
-         */
         const passesMargin =
             marginA >= MIN_MARGIN ||
             marginB >= MIN_MARGIN;
 
 
-        /*
-         * For now, require both clusters to contain at
-         * least two embeddings.
-         *
-         * Single-embedding fragments remain separate until
-         * we have stronger evidence for handling them.
-         */
         const accepted =
             passesSimilarity &&
             passesDistance &&
@@ -1269,10 +1142,6 @@ function mergeRecurringAhcSpeakers(
     }
 
 
-    /*
-     * Convert union-find roots into clean Droplet identity
-     * labels without assuming a fixed speaker count.
-     */
     const groupsByRoot =
         new Map();
 
@@ -1383,6 +1252,543 @@ function mergeRecurringAhcSpeakers(
 
 
 /* =========================================================
+   STEP 4B.13 — WEAK FRAGMENT IDENTITY DIAGNOSTIC
+
+   PURPOSE:
+   Investigate AHC fragments containing only one embedding.
+
+   IMPORTANT:
+   This is DIAGNOSTIC ONLY.
+
+   It does NOT:
+   - change AHC assignments
+   - merge speakers
+   - replace 4B.12
+   - replace diarization-js output
+
+   For each weak fragment, compare its raw embedding against
+   every embedding belonging to the established 4B.12
+   identities.
+
+   Evidence produced:
+   - maximum cosine similarity
+   - median cosine similarity
+   - mean cosine similarity
+   - top-2 mean
+   - top-3 mean
+   - number of strong individual matches
+   - best identity
+   - second-best identity
+   - confidence margin
+========================================================= */
+
+function analyzeWeakAhcFragments(
+    ahcResult,
+    captured,
+    identityMerge
+) {
+
+    const WEAK_CLUSTER_MAX_SIZE = 1;
+
+    const STRONG_PAIR_COSINE = 0.65;
+    const GOOD_PAIR_COSINE = 0.60;
+
+
+    const embeddingById =
+        new Map(
+            captured.map(
+                item => [
+                    item.id,
+                    item.embedding
+                ]
+            )
+        );
+
+
+    const clusterBySpeaker =
+        new Map(
+            ahcResult.clusters.map(
+                cluster => [
+                    cluster.speaker,
+                    cluster
+                ]
+            )
+        );
+
+
+    const weakFragments =
+        ahcResult.clusters.filter(
+            cluster =>
+                cluster.count <=
+                WEAK_CLUSTER_MAX_SIZE
+        );
+
+
+    const establishedIdentities = [];
+
+
+    for (
+        const group of
+        identityMerge.groups
+    ) {
+
+        const embeddingIds = [];
+
+        const reliableFragments = [];
+
+
+        for (
+            const ahcSpeaker of
+            group.ahcFragments
+        ) {
+
+            const cluster =
+                clusterBySpeaker.get(
+                    ahcSpeaker
+                );
+
+
+            if (!cluster) {
+                continue;
+            }
+
+
+            if (
+                cluster.count >
+                WEAK_CLUSTER_MAX_SIZE
+            ) {
+
+                reliableFragments.push(
+                    ahcSpeaker
+                );
+
+
+                embeddingIds.push(
+                    ...cluster.embeddingIds
+                );
+            }
+        }
+
+
+        if (embeddingIds.length === 0) {
+            continue;
+        }
+
+
+        establishedIdentities.push({
+
+            speaker:
+                group.speaker,
+
+            ahcFragments:
+                reliableFragments,
+
+            embeddingIds:
+                [...embeddingIds].sort(
+                    (a, b) => a - b
+                )
+        });
+    }
+
+
+    function mean(values) {
+
+        if (values.length === 0) {
+            return 0;
+        }
+
+
+        return (
+            values.reduce(
+                (sum, value) =>
+                    sum + value,
+                0
+            ) /
+            values.length
+        );
+    }
+
+
+    function median(values) {
+
+        if (values.length === 0) {
+            return 0;
+        }
+
+
+        const sorted =
+            [...values].sort(
+                (a, b) => a - b
+            );
+
+
+        const middle =
+            Math.floor(
+                sorted.length / 2
+            );
+
+
+        if (
+            sorted.length % 2 === 0
+        ) {
+
+            return (
+                sorted[middle - 1] +
+                sorted[middle]
+            ) / 2;
+        }
+
+
+        return sorted[middle];
+    }
+
+
+    function topKMean(
+        values,
+        k
+    ) {
+
+        if (values.length === 0) {
+            return 0;
+        }
+
+
+        const selected =
+            [...values]
+                .sort(
+                    (a, b) => b - a
+                )
+                .slice(
+                    0,
+                    Math.min(
+                        k,
+                        values.length
+                    )
+                );
+
+
+        return mean(selected);
+    }
+
+
+    const analyses = [];
+
+
+    for (
+        const weakCluster of
+        weakFragments
+    ) {
+
+        const weakEmbeddingIds =
+            [...weakCluster.embeddingIds];
+
+
+        const weakVectors =
+            weakEmbeddingIds
+                .map(
+                    id => ({
+                        id,
+                        vector:
+                            embeddingById.get(id)
+                    })
+                )
+                .filter(
+                    item => item.vector
+                );
+
+
+        const identityComparisons = [];
+
+
+        for (
+            const identity of
+            establishedIdentities
+        ) {
+
+            if (
+                identity.ahcFragments.includes(
+                    weakCluster.speaker
+                )
+            ) {
+                continue;
+            }
+
+
+            const pairComparisons = [];
+
+
+            for (
+                const weakItem of
+                weakVectors
+            ) {
+
+                for (
+                    const candidateId of
+                    identity.embeddingIds
+                ) {
+
+                    const candidateVector =
+                        embeddingById.get(
+                            candidateId
+                        );
+
+
+                    if (!candidateVector) {
+                        continue;
+                    }
+
+
+                    const cosine =
+                        cosineSimilarity(
+                            weakItem.vector,
+                            candidateVector
+                        );
+
+
+                    pairComparisons.push({
+
+                        weakEmbeddingId:
+                            weakItem.id,
+
+                        candidateEmbeddingId:
+                            candidateId,
+
+                        cosine
+                    });
+                }
+            }
+
+
+            if (
+                pairComparisons.length === 0
+            ) {
+                continue;
+            }
+
+
+            pairComparisons.sort(
+                (a, b) =>
+                    b.cosine -
+                    a.cosine
+            );
+
+
+            const cosineValues =
+                pairComparisons.map(
+                    item => item.cosine
+                );
+
+
+            const maxCosine =
+                Math.max(
+                    ...cosineValues
+                );
+
+
+            const meanCosine =
+                mean(
+                    cosineValues
+                );
+
+
+            const medianCosine =
+                median(
+                    cosineValues
+                );
+
+
+            const top2Mean =
+                topKMean(
+                    cosineValues,
+                    2
+                );
+
+
+            const top3Mean =
+                topKMean(
+                    cosineValues,
+                    3
+                );
+
+
+            const strongMatches =
+                cosineValues.filter(
+                    value =>
+                        value >=
+                        STRONG_PAIR_COSINE
+                ).length;
+
+
+            const goodMatches =
+                cosineValues.filter(
+                    value =>
+                        value >=
+                        GOOD_PAIR_COSINE
+                ).length;
+
+
+            identityComparisons.push({
+
+                identity:
+                    identity.speaker,
+
+                ahcFragments:
+                    [...identity.ahcFragments],
+
+                candidateEmbeddingIds:
+                    [...identity.embeddingIds],
+
+                comparisons:
+                    pairComparisons,
+
+                maxCosine,
+
+                meanCosine,
+
+                medianCosine,
+
+                top2Mean,
+
+                top3Mean,
+
+                strongMatches,
+
+                goodMatches,
+
+                totalMatches:
+                    cosineValues.length
+            });
+        }
+
+
+        identityComparisons.sort(
+            (a, b) => {
+
+                if (
+                    b.top3Mean !==
+                    a.top3Mean
+                ) {
+
+                    return (
+                        b.top3Mean -
+                        a.top3Mean
+                    );
+                }
+
+
+                if (
+                    b.medianCosine !==
+                    a.medianCosine
+                ) {
+
+                    return (
+                        b.medianCosine -
+                        a.medianCosine
+                    );
+                }
+
+
+                return (
+                    b.maxCosine -
+                    a.maxCosine
+                );
+            }
+        );
+
+
+        const best =
+            identityComparisons[0] ||
+            null;
+
+
+        const secondBest =
+            identityComparisons[1] ||
+            null;
+
+
+        const top3Margin =
+            best && secondBest
+                ? best.top3Mean -
+                    secondBest.top3Mean
+                : Infinity;
+
+
+        const medianMargin =
+            best && secondBest
+                ? best.medianCosine -
+                    secondBest.medianCosine
+                : Infinity;
+
+
+        const maxMargin =
+            best && secondBest
+                ? best.maxCosine -
+                    secondBest.maxCosine
+                : Infinity;
+
+
+        analyses.push({
+
+            weakSpeaker:
+                weakCluster.speaker,
+
+            weakEmbeddingIds,
+
+            candidateIdentities:
+                identityComparisons,
+
+            bestIdentity:
+                best?.identity || null,
+
+            secondBestIdentity:
+                secondBest?.identity || null,
+
+            top3Margin,
+
+            medianMargin,
+
+            maxMargin
+        });
+    }
+
+
+    return {
+
+        weakFragments:
+            weakFragments.map(
+                cluster => ({
+
+                    speaker:
+                        cluster.speaker,
+
+                    embeddingIds:
+                        [...cluster.embeddingIds],
+
+                    count:
+                        cluster.count
+                })
+            ),
+
+        establishedIdentities,
+
+        analyses,
+
+        config: {
+
+            weakClusterMaxSize:
+                WEAK_CLUSTER_MAX_SIZE,
+
+            strongPairCosine:
+                STRONG_PAIR_COSINE,
+
+            goodPairCosine:
+                GOOD_PAIR_COSINE
+        }
+    };
+}
+
+
+/* =========================================================
    STEP 4B.10 — MAP AHC EMBEDDINGS TO SPEECH TIME
 ========================================================= */
 
@@ -1417,12 +1823,6 @@ function buildAhcTimeline(
     }
 
 
-    /*
-     * Fast lookup:
-     *
-     * embedding ID -> global AHC speaker
-     */
-
     const speakerByEmbeddingId =
         new Map();
 
@@ -1441,14 +1841,6 @@ function buildAhcTimeline(
 
     const rows = [];
 
-
-    /*
-     * Each embedding ID was originally created as:
-     *
-     * id =
-     *   chunkIndex * numLocalSpeakers
-     *   + localSpeaker
-     */
 
     for (
         const [
@@ -1484,10 +1876,6 @@ function buildAhcTimeline(
                 ]
             );
 
-
-        /*
-         * Segmentation frames cover windowSec.
-         */
 
         const frameDuration =
             windowSec /
@@ -1683,9 +2071,6 @@ async function fetchJson(url, label) {
 
 async function loadModels(device = "webgpu") {
 
-    /*
-     * Already loaded.
-     */
     if (
         pipeline &&
         loadedDevice === device
@@ -1702,9 +2087,6 @@ async function loadModels(device = "webgpu") {
     }
 
 
-    /*
-     * Prevent duplicate model loads.
-     */
     if (loadingPromise) {
         return loadingPromise;
     }
@@ -1713,10 +2095,6 @@ async function loadModels(device = "webgpu") {
     loadingPromise = (async () => {
 
         try {
-
-            /* ---------------------------------------------
-               LOAD JAVASCRIPT RUNTIMES
-            --------------------------------------------- */
 
             send("model-progress", {
                 stage: "runtime",
@@ -1736,10 +2114,6 @@ async function loadModels(device = "webgpu") {
 
             ]);
 
-
-            /* ---------------------------------------------
-               CONFIGURE ONNX RUNTIME
-            --------------------------------------------- */
 
             const ORT_DIST =
                 "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.22.0/dist/";
@@ -1792,10 +2166,6 @@ async function loadModels(device = "webgpu") {
             }
 
 
-            /* ---------------------------------------------
-               CHECK WEBGPU
-            --------------------------------------------- */
-
             if (device === "webgpu") {
 
                 if (!("gpu" in self.navigator)) {
@@ -1828,10 +2198,6 @@ async function loadModels(device = "webgpu") {
             }
 
 
-            /* ---------------------------------------------
-               DOWNLOAD MODELS
-            --------------------------------------------- */
-
             const [
                 segmentationModel,
                 embeddingModel,
@@ -1856,10 +2222,6 @@ async function loadModels(device = "webgpu") {
             ]);
 
 
-            /* ---------------------------------------------
-               CREATE PIPELINE
-            --------------------------------------------- */
-
             send("model-progress", {
                 stage: "pipeline-create",
                 message:
@@ -1882,10 +2244,6 @@ async function loadModels(device = "webgpu") {
 
                 });
 
-
-            /* =========================================================
-               STEP 4B.2 — PIPELINE INTERNALS DIAGNOSTIC
-            ========================================================= */
 
             console.log(
                 "[STEP 4B.2] Pipeline object:",
@@ -1928,10 +2286,6 @@ async function loadModels(device = "webgpu") {
                 }
             }
 
-
-            /* =========================================================
-               STEP 4B.3 — EMBEDDING COMPONENT DIAGNOSTIC
-            ========================================================= */
 
             if (pipeline.embedding) {
 
@@ -1995,10 +2349,6 @@ async function loadModels(device = "webgpu") {
             }
 
 
-            /* =========================================================
-               STEP 4B.3 — CONFIGURATION DIAGNOSTIC
-            ========================================================= */
-
             console.log(
                 "[STEP 4B.3] Pipeline configuration:",
                 pipeline.cfg
@@ -2009,10 +2359,6 @@ async function loadModels(device = "webgpu") {
                 pipeline.plda
             );
 
-
-            /* =========================================================
-               STEP 4B.4 — EMBEDDING METHOD SIGNATURE DIAGNOSTIC
-            ========================================================= */
 
             console.log(
                 "[STEP 4B.4] embed() source:",
@@ -2044,10 +2390,6 @@ async function loadModels(device = "webgpu") {
                 pipeline.embedding.session.outputNames
             );
 
-
-            /* =========================================================
-               STEP 4B.5 — FIND FBANK / FEATURE EXTRACTION API
-            ========================================================= */
 
             console.log(
                 "[STEP 4B.5] run() source:",
@@ -2120,10 +2462,6 @@ async function loadModels(device = "webgpu") {
             }
 
 
-            /* =========================================================
-               STEP 4B.10 — CAPTURE SEGMENTATION OUTPUT
-            ========================================================= */
-
             const originalSegmentationRun =
                 pipeline.segmentation.run.bind(
                     pipeline.segmentation
@@ -2167,10 +2505,6 @@ async function loadModels(device = "webgpu") {
                     return result;
                 };
 
-
-            /* =========================================================
-               STEP 4B.6 — CAPTURE SPEAKER EMBEDDINGS
-            ========================================================= */
 
             const originalEmbedBatch =
                 pipeline.embedding.embedBatch.bind(
@@ -2228,10 +2562,6 @@ async function loadModels(device = "webgpu") {
 
             loadedDevice = device;
 
-
-            /* ---------------------------------------------
-               SUCCESS
-            --------------------------------------------- */
 
             send("model-ready", {
 
@@ -2326,10 +2656,6 @@ async function diarizeAudio(audioBuffer, sampleRate = 16000) {
     }
 
 
-    /*
-     * The main page transfers the ArrayBuffer from the
-     * already-prepared 16 kHz Float32Array.
-     */
     const audio = new Float32Array(audioBuffer);
 
 
@@ -2365,24 +2691,11 @@ async function diarizeAudio(audioBuffer, sampleRate = 16000) {
         performance.now();
 
 
-    /*
-     * Reset any previous capture before this run.
-     */
-
     self.__dropletCapturedEmbeddings = [];
 
     self.__dropletSegmentationResult = null;
 
 
-    /*
-     * diarization-js API:
-     *
-     * pipeline.run(
-     *     waveform,
-     *     sampleRate,
-     *     { onProgress }
-     * )
-     */
     const output =
         await pipeline.run(
             audio,
@@ -2995,18 +3308,316 @@ async function diarizeAudio(audioBuffer, sampleRate = 16000) {
     );
 
 
+    /* =========================================================
+       STEP 4B.13 — WEAK FRAGMENT IDENTITY DIAGNOSTIC
+    ========================================================= */
+
+    const weakFragmentAnalysis413 =
+        analyzeWeakAhcFragments(
+            ahc49,
+            captured,
+            identityMerge412
+        );
+
+
+    console.log(
+        "========================================"
+    );
+
+
+    console.log(
+        "[STEP 4B.13] WEAK FRAGMENT IDENTITY DIAGNOSTIC"
+    );
+
+
+    console.log(
+        "[STEP 4B.13] Configuration:",
+        weakFragmentAnalysis413.config
+    );
+
+
+    console.log(
+        "[STEP 4B.13] WEAK AHC FRAGMENTS"
+    );
+
+
+    console.table(
+        weakFragmentAnalysis413
+            .weakFragments
+            .map(
+                fragment => ({
+
+                    speaker:
+                        fragment.speaker,
+
+                    embeddings:
+                        fragment.embeddingIds.join(
+                            ", "
+                        ),
+
+                    count:
+                        fragment.count
+                })
+            )
+    );
+
+
+    console.log(
+        "[STEP 4B.13] ESTABLISHED IDENTITIES"
+    );
+
+
+    console.table(
+        weakFragmentAnalysis413
+            .establishedIdentities
+            .map(
+                identity => ({
+
+                    identity:
+                        identity.speaker,
+
+                    ahcFragments:
+                        identity.ahcFragments.join(
+                            ", "
+                        ),
+
+                    embeddings:
+                        identity.embeddingIds.join(
+                            ", "
+                        ),
+
+                    count:
+                        identity.embeddingIds.length
+                })
+            )
+    );
+
+
+    for (
+        const analysis of
+        weakFragmentAnalysis413.analyses
+    ) {
+
+        console.log(
+            "----------------------------------------"
+        );
+
+
+        console.log(
+            `[STEP 4B.13] Weak fragment: ${analysis.weakSpeaker}`,
+            {
+                embeddingIds:
+                    analysis.weakEmbeddingIds,
+
+                bestIdentity:
+                    analysis.bestIdentity,
+
+                secondBestIdentity:
+                    analysis.secondBestIdentity,
+
+                top3Margin:
+                    analysis.top3Margin,
+
+                medianMargin:
+                    analysis.medianMargin,
+
+                maxMargin:
+                    analysis.maxMargin
+            }
+        );
+
+
+        console.log(
+            `[STEP 4B.13] IDENTITY SCORES — ${analysis.weakSpeaker}`
+        );
+
+
+        console.table(
+            analysis.candidateIdentities.map(
+                candidate => ({
+
+                    identity:
+                        candidate.identity,
+
+                    ahcFragments:
+                        candidate.ahcFragments.join(
+                            ", "
+                        ),
+
+                    candidateEmbeddings:
+                        candidate.candidateEmbeddingIds.join(
+                            ", "
+                        ),
+
+                    max:
+                        candidate.maxCosine.toFixed(
+                            4
+                        ),
+
+                    median:
+                        candidate.medianCosine.toFixed(
+                            4
+                        ),
+
+                    mean:
+                        candidate.meanCosine.toFixed(
+                            4
+                        ),
+
+                    top2:
+                        candidate.top2Mean.toFixed(
+                            4
+                        ),
+
+                    top3:
+                        candidate.top3Mean.toFixed(
+                            4
+                        ),
+
+                    strongMatches:
+                        candidate.strongMatches,
+
+                    goodMatches:
+                        candidate.goodMatches,
+
+                    total:
+                        candidate.totalMatches
+                })
+            )
+        );
+
+
+        for (
+            const candidate of
+            analysis.candidateIdentities
+        ) {
+
+            console.log(
+                `[STEP 4B.13] RAW PAIRS — ${analysis.weakSpeaker} vs ${candidate.identity}`
+            );
+
+
+            console.table(
+                candidate.comparisons.map(
+                    pair => ({
+
+                        weakEmbedding:
+                            pair.weakEmbeddingId,
+
+                        candidateEmbedding:
+                            pair.candidateEmbeddingId,
+
+                        cosine:
+                            pair.cosine.toFixed(
+                                4
+                            )
+                    })
+                )
+            );
+        }
+    }
+
+
+    console.log(
+        "[STEP 4B.13] SUMMARY"
+    );
+
+
+    console.table(
+        weakFragmentAnalysis413
+            .analyses
+            .map(
+                analysis => {
+
+                    const best =
+                        analysis
+                            .candidateIdentities[0];
+
+                    const second =
+                        analysis
+                            .candidateIdentities[1];
+
+
+                    return {
+
+                        weakSpeaker:
+                            analysis.weakSpeaker,
+
+                        embeddings:
+                            analysis
+                                .weakEmbeddingIds
+                                .join(", "),
+
+                        bestIdentity:
+                            analysis.bestIdentity,
+
+                        bestTop3:
+                            best
+                                ? best.top3Mean
+                                    .toFixed(4)
+                                : "",
+
+                        bestMedian:
+                            best
+                                ? best.medianCosine
+                                    .toFixed(4)
+                                : "",
+
+                        bestMax:
+                            best
+                                ? best.maxCosine
+                                    .toFixed(4)
+                                : "",
+
+                        secondIdentity:
+                            analysis.secondBestIdentity,
+
+                        secondTop3:
+                            second
+                                ? second.top3Mean
+                                    .toFixed(4)
+                                : "",
+
+                        top3Margin:
+                            Number.isFinite(
+                                analysis.top3Margin
+                            )
+                                ? analysis
+                                    .top3Margin
+                                    .toFixed(4)
+                                : "",
+
+                        medianMargin:
+                            Number.isFinite(
+                                analysis.medianMargin
+                            )
+                                ? analysis
+                                    .medianMargin
+                                    .toFixed(4)
+                                : "",
+
+                        maxMargin:
+                            Number.isFinite(
+                                analysis.maxMargin
+                            )
+                                ? analysis
+                                    .maxMargin
+                                    .toFixed(4)
+                                : ""
+                    };
+                }
+            )
+    );
+
+
+    console.log(
+        "========================================"
+    );
+
+
     const elapsed =
         (performance.now() - startedAt) / 1000;
 
-
-    /*
-     * diarization-js returns:
-     *
-     * {
-     *     result,
-     *     metrics
-     * }
-     */
 
     const result =
         output?.result || {};
@@ -3021,10 +3632,6 @@ async function diarizeAudio(audioBuffer, sampleRate = 16000) {
             ? result.segments
             : [];
 
-
-    /*
-     * Convert package output into a stable Droplet format.
-     */
 
     const segments =
         rawSegments.map(
@@ -3052,12 +3659,6 @@ async function diarizeAudio(audioBuffer, sampleRate = 16000) {
             }
         );
 
-
-    /*
-     * Prefer the model's speaker count.
-     *
-     * Also calculate it ourselves as a safety check.
-     */
 
     const detectedSpeakerLabels =
         [
@@ -3096,10 +3697,6 @@ async function diarizeAudio(audioBuffer, sampleRate = 16000) {
         }
     );
 
-
-    /*
-     * Print an easy-to-read speaker timeline.
-     */
 
     console.table(
         segments.map(segment => ({
@@ -3163,10 +3760,6 @@ self.onmessage = async event => {
         switch (message.type) {
 
 
-            /* -----------------------------------------
-               LOAD MODELS
-            ----------------------------------------- */
-
             case "load-models":
 
                 await loadModels(
@@ -3175,10 +3768,6 @@ self.onmessage = async event => {
 
                 break;
 
-
-            /* -----------------------------------------
-               DIARIZE AUDIO
-            ----------------------------------------- */
 
             case "diarize":
 
@@ -3189,10 +3778,6 @@ self.onmessage = async event => {
 
                 break;
 
-
-            /* -----------------------------------------
-               STATUS
-            ----------------------------------------- */
 
             case "status":
 
@@ -3212,10 +3797,6 @@ self.onmessage = async event => {
                 break;
 
 
-            /* -----------------------------------------
-               UNKNOWN COMMAND
-            ----------------------------------------- */
-
             default:
 
                 throw new Error(
@@ -3228,9 +3809,6 @@ self.onmessage = async event => {
 
     catch (error) {
 
-        /*
-         * loadModels() already sends its detailed error.
-         */
         if (message.type !== "load-models") {
 
             send("error", {
