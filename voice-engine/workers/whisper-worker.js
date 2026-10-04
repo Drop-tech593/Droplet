@@ -625,34 +625,464 @@ function cleanText(text) {
 
 
 // ============================================================
-// WORD NORMALIZATION
-// Used only when comparing overlap.
+// STEP 15 - SMART TRANSCRIPT OVERLAP MERGER
 // ============================================================
 
-function normalizeWord(word) {
-
+function normalizeMergeWord(word) {
     return word
         .toLowerCase()
-        .replace(
-            /[^a-z0-9']/g,
-            ""
-        );
+        .replace(/[^\p{L}\p{N}']/gu, "");
+}
+
+
+function wordsAreSimilar(a, b) {
+
+    a = normalizeMergeWord(a);
+    b = normalizeMergeWord(b);
+
+    if (!a || !b) {
+        return false;
+    }
+
+    // Exact match.
+    if (a === b) {
+        return true;
+    }
+
+    // Very small Whisper differences such as:
+    // gonna / gona
+    // working / workin
+
+    if (
+        a.length >= 5 &&
+        b.length >= 5
+    ) {
+
+        const minimumLength =
+            Math.min(
+                a.length,
+                b.length
+            );
+
+        let same = 0;
+
+        for (
+            let i = 0;
+            i < minimumLength;
+            i++
+        ) {
+
+            if (a[i] === b[i]) {
+                same++;
+            }
+        }
+
+        if (
+            same / Math.max(
+                a.length,
+                b.length
+            ) >= 0.8
+        ) {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 
 // ============================================================
-// MERGE TWO TRANSCRIPTS
+// COMPARE TWO POSSIBLE OVERLAP SEQUENCES
+// ============================================================
+
+function calculateOverlapSimilarity(
+    previousWords,
+    newWords,
+    previousStart,
+    newStart,
+    length
+) {
+
+    let matches = 0;
+
+    for (
+        let i = 0;
+        i < length;
+        i++
+    ) {
+
+        if (
+            wordsAreSimilar(
+                previousWords[
+                    previousStart + i
+                ],
+                newWords[
+                    newStart + i
+                ]
+            )
+        ) {
+
+            matches++;
+        }
+    }
+
+    return matches / length;
+}
+
+
+// ============================================================
+// FIND BEST TRANSCRIPT OVERLAP
+// ============================================================
+
+function findBestTranscriptOverlap(
+    previousWords,
+    newWords
+) {
+
+    // We only need to inspect the tail of the previous
+    // transcript because the audio overlap is only 3 seconds.
+
+    const MAX_SEARCH_WORDS = 35;
+
+    const previousSearchStart =
+        Math.max(
+            0,
+            previousWords.length -
+                MAX_SEARCH_WORDS
+        );
+
+
+    const maxNewWords =
+        Math.min(
+            newWords.length,
+            MAX_SEARCH_WORDS
+        );
+
+
+    let best = {
+        found: false,
+        score: 0,
+        matchedWords: 0,
+        previousStart: -1,
+        newConsumed: 0
+    };
+
+
+    // --------------------------------------------------------
+    // Try different starting positions near the END of the
+    // previous transcript.
+    //
+    // Also allow the new transcript to have 0-3 extra words
+    // before the actual matching region.
+    // --------------------------------------------------------
+
+    for (
+        let previousStart =
+            previousSearchStart;
+
+        previousStart <
+            previousWords.length;
+
+        previousStart++
+    ) {
+
+        for (
+            let newStart = 0;
+            newStart <= 3 &&
+            newStart < maxNewWords;
+            newStart++
+        ) {
+
+            const availablePrevious =
+                previousWords.length -
+                previousStart;
+
+
+            const availableNew =
+                newWords.length -
+                newStart;
+
+
+            const compareLength =
+                Math.min(
+                    availablePrevious,
+                    availableNew,
+                    20
+                );
+
+
+            // Two words is too easy to match accidentally.
+            if (compareLength < 3) {
+                continue;
+            }
+
+
+            const score =
+                calculateOverlapSimilarity(
+                    previousWords,
+                    newWords,
+                    previousStart,
+                    newStart,
+                    compareLength
+                );
+
+
+            // Reward longer matches slightly.
+            const lengthBonus =
+                Math.min(
+                    compareLength / 20,
+                    1
+                ) * 0.08;
+
+
+            const adjustedScore =
+                score +
+                lengthBonus;
+
+
+            if (
+                adjustedScore >
+                best.score
+            ) {
+
+                best = {
+                    found: false,
+                    score:
+                        adjustedScore,
+                    rawScore:
+                        score,
+                    matchedWords:
+                        compareLength,
+                    previousStart,
+                    newStart,
+
+                    // Everything through this point in the
+                    // new chunk belongs to the overlap.
+                    newConsumed:
+                        newStart +
+                        compareLength
+                };
+            }
+        }
+    }
+
+
+    // --------------------------------------------------------
+    // ACCEPT / REJECT
+    // --------------------------------------------------------
+
+    if (
+        best.matchedWords >= 3 &&
+        best.rawScore >= 0.60
+    ) {
+
+        best.found = true;
+    }
+
+
+    return best;
+}
+
+
+// ============================================================
+// FALLBACK FUZZY OVERLAP
 //
+// Handles cases where Whisper inserts/deletes a word.
 // Example:
 //
 // Previous:
-// "I went to the shop this morning"
+// "do that work when I came home"
 //
-// New chunk:
-// "the shop this morning and bought milk"
+// New:
+// "do that when I came home I expected"
 //
-// Result:
-// "I went to the shop this morning and bought milk"
+// Exact positional comparison is imperfect because "work"
+// exists only in one version.
+// ============================================================
+
+function findFuzzyTranscriptOverlap(
+    previousWords,
+    newWords
+) {
+
+    const previousNormalized =
+        previousWords.map(
+            normalizeMergeWord
+        );
+
+    const newNormalized =
+        newWords.map(
+            normalizeMergeWord
+        );
+
+
+    const previousStart =
+        Math.max(
+            0,
+            previousWords.length - 30
+        );
+
+
+    const maxNew =
+        Math.min(
+            newWords.length,
+            25
+        );
+
+
+    let best = {
+        found: false,
+        score: 0,
+        previousStart: -1,
+        newConsumed: 0,
+        matches: 0
+    };
+
+
+    // Try every possible position near the end
+    // of the previous transcript.
+
+    for (
+        let start = previousStart;
+        start < previousWords.length;
+        start++
+    ) {
+
+        let i = start;
+        let j = 0;
+
+        let matches = 0;
+        let misses = 0;
+
+
+        while (
+            i < previousWords.length &&
+            j < maxNew
+        ) {
+
+            if (
+                wordsAreSimilar(
+                    previousNormalized[i],
+                    newNormalized[j]
+                )
+            ) {
+
+                matches++;
+
+                i++;
+                j++;
+
+                continue;
+            }
+
+
+            // --------------------------------------------
+            // Try skipping one word from previous text.
+            // Handles an extra Whisper word in chunk A.
+            // --------------------------------------------
+
+            if (
+                i + 1 <
+                    previousWords.length &&
+                wordsAreSimilar(
+                    previousNormalized[i + 1],
+                    newNormalized[j]
+                )
+            ) {
+
+                i += 2;
+                j++;
+
+                matches++;
+                misses++;
+
+                continue;
+            }
+
+
+            // --------------------------------------------
+            // Try skipping one word from new text.
+            // Handles an extra Whisper word in chunk B.
+            // --------------------------------------------
+
+            if (
+                j + 1 <
+                    maxNew &&
+                wordsAreSimilar(
+                    previousNormalized[i],
+                    newNormalized[j + 1]
+                )
+            ) {
+
+                i++;
+                j += 2;
+
+                matches++;
+                misses++;
+
+                continue;
+            }
+
+
+            misses++;
+
+            i++;
+            j++;
+
+
+            // Too many disagreements means this probably
+            // isn't the overlapping section.
+
+            if (misses > 4) {
+                break;
+            }
+        }
+
+
+        const compared =
+            matches +
+            misses;
+
+
+        if (compared < 3) {
+            continue;
+        }
+
+
+        const score =
+            matches /
+            compared;
+
+
+        if (
+            matches >= 3 &&
+            score > best.score
+        ) {
+
+            best = {
+                found:
+                    score >= 0.60,
+
+                score,
+
+                previousStart:
+                    start,
+
+                newConsumed:
+                    j,
+
+                matches
+            };
+        }
+    }
+
+
+    return best;
+}
+
+
+// ============================================================
+// FINAL MERGE FUNCTION
 // ============================================================
 
 function mergeTranscript(
@@ -661,171 +1091,170 @@ function mergeTranscript(
 ) {
 
     previousText =
-        cleanText(
-            previousText
-        );
-
+        (previousText || "")
+            .trim();
 
     newText =
-        cleanText(
-            newText
-        );
+        (newText || "")
+            .trim();
 
 
     if (!previousText) {
-
         return newText;
     }
 
 
     if (!newText) {
-
         return previousText;
     }
 
 
     const previousWords =
-        previousText.split(/\s+/);
+        previousText
+            .split(/\s+/);
 
 
     const newWords =
-        newText.split(/\s+/);
+        newText
+            .split(/\s+/);
 
 
-    /*
-     * Don't search an enormous amount.
-     *
-     * 30 words is more than enough for
-     * our 3-second audio overlap.
-     */
+    // --------------------------------------------------------
+    // METHOD 1
+    // Normal overlap comparison.
+    // --------------------------------------------------------
 
-    const maxOverlap =
-        Math.min(
-            30,
-            previousWords.length,
-            newWords.length
+    const normalOverlap =
+        findBestTranscriptOverlap(
+            previousWords,
+            newWords
         );
 
 
-    let bestOverlap = 0;
-
-
     // --------------------------------------------------------
-    // FIND MATCHING WORDS AT BOUNDARY
+    // METHOD 2
+    // Insertion/deletion tolerant comparison.
     // --------------------------------------------------------
 
-    for (
-        let overlap = maxOverlap;
-        overlap >= 1;
-        overlap--
+    const fuzzyOverlap =
+        findFuzzyTranscriptOverlap(
+            previousWords,
+            newWords
+        );
+
+
+    let overlap = null;
+
+
+    if (
+        normalOverlap.found &&
+        fuzzyOverlap.found
     ) {
 
-        let matches = 0;
+        overlap =
+            normalOverlap.score >=
+            fuzzyOverlap.score
 
+                ? normalOverlap
+                : fuzzyOverlap;
 
-        for (
-            let i = 0;
-            i < overlap;
-            i++
-        ) {
+    } else if (
+        normalOverlap.found
+    ) {
 
-            const previousWord =
-                normalizeWord(
+        overlap =
+            normalOverlap;
 
-                    previousWords[
-                        previousWords.length -
-                        overlap +
-                        i
-                    ]
-                );
+    } else if (
+        fuzzyOverlap.found
+    ) {
 
-
-            const newWord =
-                normalizeWord(
-                    newWords[i]
-                );
-
-
-            if (
-                previousWord &&
-                newWord &&
-                previousWord ===
-                    newWord
-            ) {
-
-                matches++;
-            }
-        }
-
-
-        /*
-         * Require a strong match.
-         *
-         * This allows small Whisper differences
-         * while still detecting duplicated overlap.
-         */
-
-        const matchRatio =
-            matches /
-            overlap;
-
-
-        if (
-            overlap >= 2 &&
-            matchRatio >= 0.75
-        ) {
-
-            bestOverlap =
-                overlap;
-
-            break;
-        }
+        overlap =
+            fuzzyOverlap;
     }
 
 
     // --------------------------------------------------------
-    // REMOVE DUPLICATED OVERLAP
+    // SUCCESSFUL OVERLAP
     // --------------------------------------------------------
 
     if (
-        bestOverlap >
-        0
+        overlap &&
+        overlap.newConsumed > 0 &&
+        overlap.newConsumed <
+            newWords.length
     ) {
 
         const remainingWords =
             newWords.slice(
-                bestOverlap
+                overlap.newConsumed
             );
 
 
-        if (
-            remainingWords.length ===
-            0
-        ) {
+        console.log(
+            "[Droplet Merge] Overlap detected",
+            {
+                score:
+                    overlap.score,
 
-            return previousText;
-        }
+                consumedWords:
+                    overlap.newConsumed,
+
+                remainingWords:
+                    remainingWords.length
+            }
+        );
 
 
-        return cleanText(
-
+        return (
             previousText +
             " " +
             remainingWords.join(" ")
-        );
+        ).trim();
     }
 
 
     // --------------------------------------------------------
-    // NO RELIABLE MATCH FOUND
+    // ENTIRE NEW CHUNK WAS DUPLICATE
     // --------------------------------------------------------
 
-    return cleanText(
+    if (
+        overlap &&
+        overlap.newConsumed >=
+            newWords.length
+    ) {
 
+        console.log(
+            "[Droplet Merge] Entire new chunk appears duplicated",
+            {
+                score:
+                    overlap.score
+            }
+        );
+
+
+        return previousText;
+    }
+
+
+    // --------------------------------------------------------
+    // NO RELIABLE OVERLAP
+    //
+    // Never delete text when we're uncertain.
+    // Losing a few duplicated words is much better than
+    // deleting something the speaker actually said.
+    // --------------------------------------------------------
+
+    console.log(
+        "[Droplet Merge] No reliable overlap - preserving text"
+    );
+
+
+    return (
         previousText +
         " " +
         newText
-    );
+    ).trim();
 }
 
 
