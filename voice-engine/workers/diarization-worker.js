@@ -18,7 +18,7 @@
  *   error
  */
 
-const VERSION = "DIARIZATION-STEP-4B13-WEAK-FRAGMENT-DIAGNOSTIC";
+const VERSION = "DIARIZATION-STEP-4B14-FINAL-IDENTITY-MERGE";
 
 const DIARIZATION_JS_URL =
     "https://esm.sh/diarization-js@0.1.0?bundle";
@@ -1253,33 +1253,6 @@ function mergeRecurringAhcSpeakers(
 
 /* =========================================================
    STEP 4B.13 — WEAK FRAGMENT IDENTITY DIAGNOSTIC
-
-   PURPOSE:
-   Investigate AHC fragments containing only one embedding.
-
-   IMPORTANT:
-   This is DIAGNOSTIC ONLY.
-
-   It does NOT:
-   - change AHC assignments
-   - merge speakers
-   - replace 4B.12
-   - replace diarization-js output
-
-   For each weak fragment, compare its raw embedding against
-   every embedding belonging to the established 4B.12
-   identities.
-
-   Evidence produced:
-   - maximum cosine similarity
-   - median cosine similarity
-   - mean cosine similarity
-   - top-2 mean
-   - top-3 mean
-   - number of strong individual matches
-   - best identity
-   - second-best identity
-   - confidence margin
 ========================================================= */
 
 function analyzeWeakAhcFragments(
@@ -1783,6 +1756,439 @@ function analyzeWeakAhcFragments(
 
             goodPairCosine:
                 GOOD_PAIR_COSINE
+        }
+    };
+}
+
+
+/* =========================================================
+   STEP 4B.14 — FINAL SPEAKER IDENTITY MERGE
+========================================================= */
+
+function buildFinalSpeakerIdentities(
+    ahcResult,
+    identityMerge412,
+    weakAnalysis413
+) {
+
+    const MIN_TOP3 = 0.58;
+    const MIN_TOP3_MARGIN = 0.08;
+    const MIN_MEDIAN_MARGIN = 0.07;
+    const MIN_MAX_MARGIN = 0.07;
+
+    const MIN_GOOD_MATCHES = 1;
+
+
+    const groups =
+        identityMerge412.groups.map(
+            group => ({
+
+                speaker:
+                    group.speaker,
+
+                ahcFragments:
+                    [...group.ahcFragments]
+            })
+        );
+
+
+    function findGroupContaining(
+        ahcSpeaker
+    ) {
+
+        return groups.find(
+            group =>
+                group.ahcFragments.includes(
+                    ahcSpeaker
+                )
+        ) || null;
+    }
+
+
+    const weakSpeakers =
+        new Set(
+            weakAnalysis413
+                .weakFragments
+                .map(
+                    fragment =>
+                        fragment.speaker
+                )
+        );
+
+
+    for (
+        let i = groups.length - 1;
+        i >= 0;
+        i--
+    ) {
+
+        groups[i].ahcFragments =
+            groups[i].ahcFragments.filter(
+                fragment =>
+                    !weakSpeakers.has(
+                        fragment
+                    )
+            );
+
+
+        if (
+            groups[i].ahcFragments.length === 0
+        ) {
+
+            groups.splice(
+                i,
+                1
+            );
+        }
+    }
+
+
+    const decisions = [];
+
+
+    for (
+        const analysis of
+        weakAnalysis413.analyses
+    ) {
+
+        const weakSpeaker =
+            analysis.weakSpeaker;
+
+
+        const best =
+            analysis.candidateIdentities[0] ||
+            null;
+
+
+        const second =
+            analysis.candidateIdentities[1] ||
+            null;
+
+
+        if (!best) {
+
+            decisions.push({
+
+                weakSpeaker,
+
+                accepted:
+                    false,
+
+                targetIdentity:
+                    null,
+
+                reason:
+                    "no-candidate-identity"
+            });
+
+            continue;
+        }
+
+
+        const top3Margin =
+            second
+                ? best.top3Mean -
+                    second.top3Mean
+                : Infinity;
+
+
+        const medianMargin =
+            second
+                ? best.medianCosine -
+                    second.medianCosine
+                : Infinity;
+
+
+        const maxMargin =
+            second
+                ? best.maxCosine -
+                    second.maxCosine
+                : Infinity;
+
+
+        const passesAbsoluteEvidence =
+            best.top3Mean >=
+                MIN_TOP3;
+
+
+        const passesTop3Margin =
+            top3Margin >=
+                MIN_TOP3_MARGIN;
+
+
+        const passesMedianMargin =
+            medianMargin >=
+                MIN_MEDIAN_MARGIN;
+
+
+        const passesMaxMargin =
+            maxMargin >=
+                MIN_MAX_MARGIN;
+
+
+        const passesSupport =
+            best.goodMatches >=
+                MIN_GOOD_MATCHES;
+
+
+        const accepted =
+            passesAbsoluteEvidence &&
+            passesTop3Margin &&
+            passesMedianMargin &&
+            passesMaxMargin &&
+            passesSupport;
+
+
+        let reason =
+            "accepted";
+
+
+        if (!passesAbsoluteEvidence) {
+
+            reason =
+                "top3-evidence-too-low";
+
+        } else if (!passesSupport) {
+
+            reason =
+                "not-enough-supporting-matches";
+
+        } else if (!passesTop3Margin) {
+
+            reason =
+                "top3-margin-too-small";
+
+        } else if (!passesMedianMargin) {
+
+            reason =
+                "median-margin-too-small";
+
+        } else if (!passesMaxMargin) {
+
+            reason =
+                "max-margin-too-small";
+        }
+
+
+        decisions.push({
+
+            weakSpeaker,
+
+            bestIdentity:
+                best.identity,
+
+            secondBestIdentity:
+                second?.identity ||
+                null,
+
+            bestTop3:
+                best.top3Mean,
+
+            bestMedian:
+                best.medianCosine,
+
+            bestMax:
+                best.maxCosine,
+
+            goodMatches:
+                best.goodMatches,
+
+            strongMatches:
+                best.strongMatches,
+
+            top3Margin,
+
+            medianMargin,
+
+            maxMargin,
+
+            accepted,
+
+            targetIdentity:
+                accepted
+                    ? best.identity
+                    : null,
+
+            reason
+        });
+
+
+        if (!accepted) {
+            continue;
+        }
+
+
+        const sourceIdentity =
+            weakAnalysis413
+                .establishedIdentities
+                .find(
+                    identity =>
+                        identity.speaker ===
+                        best.identity
+                );
+
+
+        if (!sourceIdentity) {
+            continue;
+        }
+
+
+        let targetGroup = null;
+
+
+        for (
+            const fragment of
+            sourceIdentity.ahcFragments
+        ) {
+
+            targetGroup =
+                findGroupContaining(
+                    fragment
+                );
+
+
+            if (targetGroup) {
+                break;
+            }
+        }
+
+
+        if (!targetGroup) {
+            continue;
+        }
+
+
+        if (
+            !targetGroup
+                .ahcFragments
+                .includes(
+                    weakSpeaker
+                )
+        ) {
+
+            targetGroup
+                .ahcFragments
+                .push(
+                    weakSpeaker
+                );
+        }
+    }
+
+
+    for (
+        const weakFragment of
+        weakAnalysis413.weakFragments
+    ) {
+
+        const alreadyAssigned =
+            groups.some(
+                group =>
+                    group
+                        .ahcFragments
+                        .includes(
+                            weakFragment.speaker
+                        )
+            );
+
+
+        if (!alreadyAssigned) {
+
+            groups.push({
+
+                speaker:
+                    null,
+
+                ahcFragments: [
+                    weakFragment.speaker
+                ]
+            });
+        }
+    }
+
+
+    groups.sort(
+        (a, b) => {
+
+            const firstA =
+                a.ahcFragments
+                    .slice()
+                    .sort()[0];
+
+            const firstB =
+                b.ahcFragments
+                    .slice()
+                    .sort()[0];
+
+
+            return firstA.localeCompare(
+                firstB
+            );
+        }
+    );
+
+
+    groups.forEach(
+        (group, index) => {
+
+            group.speaker =
+                `FINAL_SPEAKER_${String(
+                    index
+                ).padStart(2, "0")}`;
+
+
+            group.ahcFragments.sort();
+        }
+    );
+
+
+    const identityByAhcSpeaker =
+        new Map();
+
+
+    for (
+        const group of groups
+    ) {
+
+        for (
+            const fragment of
+            group.ahcFragments
+        ) {
+
+            identityByAhcSpeaker.set(
+                fragment,
+                group.speaker
+            );
+        }
+    }
+
+
+    return {
+
+        groups,
+
+        decisions,
+
+        identityByAhcSpeaker,
+
+        numSpeakers:
+            groups.length,
+
+        config: {
+
+            minTop3:
+                MIN_TOP3,
+
+            minTop3Margin:
+                MIN_TOP3_MARGIN,
+
+            minMedianMargin:
+                MIN_MEDIAN_MARGIN,
+
+            minMaxMargin:
+                MIN_MAX_MARGIN,
+
+            minGoodMatches:
+                MIN_GOOD_MATCHES
         }
     };
 }
@@ -3607,6 +4013,160 @@ async function diarizeAudio(audioBuffer, sampleRate = 16000) {
                     };
                 }
             )
+    );
+
+
+    console.log(
+        "========================================"
+    );
+
+
+    /* =========================================================
+       STEP 4B.14 — FINAL SPEAKER IDENTITIES
+    ========================================================= */
+
+    const finalIdentity414 =
+        buildFinalSpeakerIdentities(
+            ahc49,
+            identityMerge412,
+            weakFragmentAnalysis413
+        );
+
+
+    console.log(
+        "========================================"
+    );
+
+
+    console.log(
+        "[STEP 4B.14] FINAL SPEAKER IDENTITY MERGE"
+    );
+
+
+    console.log(
+        "[STEP 4B.14] Configuration:",
+        finalIdentity414.config
+    );
+
+
+    console.log(
+        "[STEP 4B.14] WEAK FRAGMENT DECISIONS"
+    );
+
+
+    console.table(
+        finalIdentity414
+            .decisions
+            .map(
+                decision => ({
+
+                    weakSpeaker:
+                        decision.weakSpeaker,
+
+                    bestIdentity:
+                        decision.bestIdentity || "",
+
+                    secondIdentity:
+                        decision.secondBestIdentity || "",
+
+                    bestTop3:
+                        Number.isFinite(
+                            decision.bestTop3
+                        )
+                            ? decision.bestTop3
+                                .toFixed(4)
+                            : "",
+
+                    goodMatches:
+                        decision.goodMatches ?? "",
+
+                    top3Margin:
+                        Number.isFinite(
+                            decision.top3Margin
+                        )
+                            ? decision.top3Margin
+                                .toFixed(4)
+                            : "",
+
+                    medianMargin:
+                        Number.isFinite(
+                            decision.medianMargin
+                        )
+                            ? decision.medianMargin
+                                .toFixed(4)
+                            : "",
+
+                    maxMargin:
+                        Number.isFinite(
+                            decision.maxMargin
+                        )
+                            ? decision.maxMargin
+                                .toFixed(4)
+                            : "",
+
+                    accepted:
+                        decision.accepted,
+
+                    target:
+                        decision.targetIdentity || "",
+
+                    reason:
+                        decision.reason
+                })
+            )
+    );
+
+
+    console.log(
+        "[STEP 4B.14] FINAL IDENTITIES"
+    );
+
+
+    console.table(
+        finalIdentity414
+            .groups
+            .map(
+                group => ({
+
+                    speaker:
+                        group.speaker,
+
+                    ahcFragments:
+                        group
+                            .ahcFragments
+                            .join(", "),
+
+                    fragmentCount:
+                        group
+                            .ahcFragments
+                            .length
+                })
+            )
+    );
+
+
+    console.log(
+        "[STEP 4B.14] RESULT",
+        {
+
+            originalAhcFragments:
+                ahc49.clusters.length,
+
+            afterStrongMerge:
+                identityMerge412.numSpeakers,
+
+            finalSpeakers:
+                finalIdentity414.numSpeakers,
+
+            libraryAhcClusters:
+                output?.metrics?.numAhcClusters,
+
+            libraryVbxClusters:
+                output?.metrics?.numVbxClusters,
+
+            libraryFinalSpeakers:
+                output?.result?.numSpeakers
+        }
     );
 
 
