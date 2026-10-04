@@ -1,0 +1,490 @@
+/*
+ * Droplet Voice Engine
+ * Speaker Diarization Worker
+ * Step 4A — model-loading proof
+ *
+ * Input:
+ *   { type: "load-models", device: "webgpu" }
+ *
+ * Output:
+ *   worker-ready
+ *   model-progress
+ *   model-ready
+ *   status
+ *   error
+ */
+
+const VERSION = "DIARIZATION-STEP-4A-V1";
+
+const DIARIZATION_JS_URL =
+    "https://esm.sh/diarization-js@0.1.0?bundle";
+
+const ORT_WEBGPU_URL =
+    "https://esm.sh/onnxruntime-web@1.22.0/webgpu?bundle";
+
+const MODEL_BASE =
+    "https://huggingface.co/briox/diarization-js-community-1/resolve/main";
+
+const SEGMENTATION_URL =
+    `${MODEL_BASE}/segmentation-3.0.onnx`;
+
+const EMBEDDING_URL =
+    `${MODEL_BASE}/embedding-resnet34.onnx`;
+
+const PLDA_URL =
+    `${MODEL_BASE}/plda-params-vbx.json`;
+
+
+let pipeline = null;
+let loadingPromise = null;
+let loadedDevice = null;
+
+
+/* =========================================================
+   MESSAGE HELPER
+========================================================= */
+
+function send(type, data = {}) {
+    self.postMessage({
+        type,
+        version: VERSION,
+        ...data
+    });
+}
+
+
+/* =========================================================
+   ERROR SERIALIZER
+========================================================= */
+
+function serializeError(error) {
+    return {
+        name: error?.name || "Error",
+        message: error?.message || String(error),
+        stack: error?.stack || null,
+        cause: error?.cause
+            ? String(error.cause)
+            : null
+    };
+}
+
+
+/* =========================================================
+   DOWNLOAD BINARY MODEL
+========================================================= */
+
+async function fetchBinary(url, label) {
+
+    send("model-progress", {
+        stage: "download-start",
+        model: label,
+        message: `Downloading ${label}...`
+    });
+
+    const response = await fetch(url, {
+        mode: "cors",
+        cache: "force-cache"
+    });
+
+    if (!response.ok) {
+        throw new Error(
+            `${label} download failed: ` +
+            `HTTP ${response.status} ${response.statusText}`
+        );
+    }
+
+    const buffer = await response.arrayBuffer();
+
+    send("model-progress", {
+        stage: "download-complete",
+        model: label,
+        bytes: buffer.byteLength,
+        message: `${label} downloaded.`
+    });
+
+    return new Uint8Array(buffer);
+}
+
+
+/* =========================================================
+   DOWNLOAD JSON
+========================================================= */
+
+async function fetchJson(url, label) {
+
+    send("model-progress", {
+        stage: "download-start",
+        model: label,
+        message: `Downloading ${label}...`
+    });
+
+    const response = await fetch(url, {
+        mode: "cors",
+        cache: "force-cache"
+    });
+
+    if (!response.ok) {
+        throw new Error(
+            `${label} download failed: ` +
+            `HTTP ${response.status} ${response.statusText}`
+        );
+    }
+
+    const json = await response.json();
+
+    send("model-progress", {
+        stage: "download-complete",
+        model: label,
+        message: `${label} downloaded.`
+    });
+
+    return json;
+}
+
+
+/* =========================================================
+   LOAD DIARIZATION MODELS
+========================================================= */
+
+async function loadModels(device = "webgpu") {
+
+    /*
+     * Already loaded.
+     */
+    if (
+        pipeline &&
+        loadedDevice === device
+    ) {
+
+        send("model-ready", {
+            device: loadedDevice,
+            cached: true,
+            message:
+                "Diarization models already loaded."
+        });
+
+        return;
+    }
+
+
+    /*
+     * Prevent duplicate model loads.
+     */
+    if (loadingPromise) {
+        return loadingPromise;
+    }
+
+
+    loadingPromise = (async () => {
+
+        try {
+
+            /* ---------------------------------------------
+               LOAD JAVASCRIPT RUNTIMES
+            --------------------------------------------- */
+
+            send("model-progress", {
+                stage: "runtime",
+                message:
+                    "Loading diarization JavaScript runtime..."
+            });
+
+
+            const [
+                diarizationModule,
+                ort
+            ] = await Promise.all([
+
+                import(DIARIZATION_JS_URL),
+
+                import(ORT_WEBGPU_URL)
+
+            ]);
+
+
+            const {
+                DiarizationPipeline
+            } = diarizationModule;
+
+
+            if (!DiarizationPipeline) {
+                throw new Error(
+                    "DiarizationPipeline export was not found."
+                );
+            }
+
+
+            if (!ort?.InferenceSession) {
+                throw new Error(
+                    "ONNX Runtime Web failed to load."
+                );
+            }
+
+
+            /* ---------------------------------------------
+               CHECK WEBGPU
+            --------------------------------------------- */
+
+            if (device === "webgpu") {
+
+                if (!("gpu" in self.navigator)) {
+
+                    throw new Error(
+                        "WebGPU is not available " +
+                        "inside this browser worker."
+                    );
+                }
+
+
+                const adapter =
+                    await self.navigator.gpu.requestAdapter();
+
+
+                if (!adapter) {
+
+                    throw new Error(
+                        "WebGPU exists, but no GPU " +
+                        "adapter is available."
+                    );
+                }
+
+
+                send("model-progress", {
+                    stage: "webgpu-ready",
+                    message:
+                        "WebGPU adapter available."
+                });
+            }
+
+
+            /* ---------------------------------------------
+               DOWNLOAD MODELS
+            --------------------------------------------- */
+
+            const [
+                segmentationModel,
+                embeddingModel,
+                pldaParamsJson
+            ] = await Promise.all([
+
+                fetchBinary(
+                    SEGMENTATION_URL,
+                    "segmentation-3.0.onnx"
+                ),
+
+                fetchBinary(
+                    EMBEDDING_URL,
+                    "embedding-resnet34.onnx"
+                ),
+
+                fetchJson(
+                    PLDA_URL,
+                    "plda-params-vbx.json"
+                )
+
+            ]);
+
+
+            /* ---------------------------------------------
+               CREATE PIPELINE
+            --------------------------------------------- */
+
+            send("model-progress", {
+                stage: "pipeline-create",
+                message:
+                    "Creating diarization pipeline..."
+            });
+
+
+            pipeline =
+                await DiarizationPipeline.create({
+
+                    ort,
+
+                    segmentationModel,
+
+                    embeddingModel,
+
+                    pldaParamsJson
+
+                });
+
+
+            loadedDevice = device;
+
+
+            /* ---------------------------------------------
+               SUCCESS
+            --------------------------------------------- */
+
+            send("model-ready", {
+
+                device,
+
+                cached: false,
+
+                models: {
+
+                    segmentation:
+                        "segmentation-3.0.onnx",
+
+                    embedding:
+                        "embedding-resnet34.onnx",
+
+                    plda:
+                        "plda-params-vbx.json"
+
+                },
+
+                message:
+                    "Speaker diarization pipeline ready."
+            });
+
+
+            console.log(
+                "[Droplet Diarization] Pipeline ready.",
+                {
+                    version: VERSION,
+                    device
+                }
+            );
+
+        }
+
+        catch (error) {
+
+            pipeline = null;
+            loadedDevice = null;
+
+
+            console.error(
+                "[Droplet Diarization] " +
+                "Model loading failed:",
+                error
+            );
+
+
+            send("error", {
+
+                stage: "load-models",
+
+                error:
+                    serializeError(error)
+
+            });
+
+
+            throw error;
+        }
+
+        finally {
+
+            loadingPromise = null;
+
+        }
+
+    })();
+
+
+    return loadingPromise;
+}
+
+
+/* =========================================================
+   WORKER MESSAGE HANDLER
+========================================================= */
+
+self.onmessage = async event => {
+
+    const message =
+        event.data || {};
+
+
+    try {
+
+        switch (message.type) {
+
+
+            /* -----------------------------------------
+               LOAD MODELS
+            ----------------------------------------- */
+
+            case "load-models":
+
+                await loadModels(
+                    message.device || "webgpu"
+                );
+
+                break;
+
+
+            /* -----------------------------------------
+               STATUS
+            ----------------------------------------- */
+
+            case "status":
+
+                send("status", {
+
+                    ready:
+                        Boolean(pipeline),
+
+                    loading:
+                        Boolean(loadingPromise),
+
+                    device:
+                        loadedDevice
+
+                });
+
+                break;
+
+
+            /* -----------------------------------------
+               UNKNOWN COMMAND
+            ----------------------------------------- */
+
+            default:
+
+                throw new Error(
+                    "Unknown diarization worker message: " +
+                    message.type
+                );
+        }
+
+    }
+
+    catch (error) {
+
+        /*
+         * loadModels() already sends its detailed error.
+         */
+        if (message.type !== "load-models") {
+
+            send("error", {
+
+                stage:
+                    message.type || "unknown",
+
+                error:
+                    serializeError(error)
+
+            });
+        }
+    }
+};
+
+
+/* =========================================================
+   WORKER STARTUP
+========================================================= */
+
+console.log(
+    `[Droplet Diarization] Worker loaded: ${VERSION}`
+);
+
+
+send("worker-ready", {
+    message:
+        "Diarization worker ready."
+});
