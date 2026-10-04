@@ -452,6 +452,248 @@ async function loadModels(device = "webgpu") {
 
 
 /* =========================================================
+   RUN SPEAKER DIARIZATION
+========================================================= */
+
+async function diarizeAudio(audioBuffer, sampleRate = 16000) {
+
+    if (!pipeline) {
+        throw new Error(
+            "Diarization pipeline is not loaded. " +
+            "Send load-models first."
+        );
+    }
+
+    if (!audioBuffer) {
+        throw new Error(
+            "No audioBuffer was provided for diarization."
+        );
+    }
+
+
+    /*
+     * The main page transfers the ArrayBuffer from the
+     * already-prepared 16 kHz Float32Array.
+     */
+    const audio = new Float32Array(audioBuffer);
+
+
+    if (audio.length === 0) {
+        throw new Error(
+            "The diarization audio buffer is empty."
+        );
+    }
+
+
+    const duration =
+        audio.length / sampleRate;
+
+
+    console.log(
+        "[Droplet Diarization] Starting analysis.",
+        {
+            samples: audio.length,
+            sampleRate,
+            duration
+        }
+    );
+
+
+    send("diarization-start", {
+        samples: audio.length,
+        sampleRate,
+        duration
+    });
+
+
+    const startedAt =
+        performance.now();
+
+
+    /*
+     * diarization-js API:
+     *
+     * pipeline.run(
+     *     waveform,
+     *     sampleRate,
+     *     { onProgress }
+     * )
+     */
+    const output =
+        await pipeline.run(
+            audio,
+            sampleRate,
+            {
+                onProgress: progress => {
+
+                    /*
+                     * Keep progress generic for now because
+                     * different pipeline stages may report
+                     * different progress structures.
+                     */
+
+                    send("diarization-progress", {
+                        progress
+                    });
+                }
+            }
+        );
+
+
+    const elapsed =
+        (performance.now() - startedAt) / 1000;
+
+
+    /*
+     * diarization-js returns:
+     *
+     * {
+     *     result,
+     *     metrics
+     * }
+     */
+
+    const result =
+        output?.result || {};
+
+
+    const metrics =
+        output?.metrics || {};
+
+
+    const rawSegments =
+        Array.isArray(result.segments)
+            ? result.segments
+            : [];
+
+
+    /*
+     * Convert package output into a stable Droplet format.
+     */
+
+    const segments =
+        rawSegments.map(
+            (segment, index) => {
+
+                return {
+
+                    index,
+
+                    start:
+                        Number(segment.start),
+
+                    end:
+                        Number(segment.end),
+
+                    duration:
+                        Number(segment.end) -
+                        Number(segment.start),
+
+                    speaker:
+                        String(segment.speaker)
+
+                };
+
+            }
+        );
+
+
+    /*
+     * Prefer the model's speaker count.
+     *
+     * Also calculate it ourselves as a safety check.
+     */
+
+    const detectedSpeakerLabels =
+        [
+            ...new Set(
+                segments.map(
+                    segment =>
+                        segment.speaker
+                )
+            )
+        ];
+
+
+    const numSpeakers =
+        Number.isFinite(result.numSpeakers)
+            ? result.numSpeakers
+            : detectedSpeakerLabels.length;
+
+
+    console.log(
+        "[Droplet Diarization] Analysis complete.",
+        {
+            speakers: numSpeakers,
+            speakerLabels:
+                detectedSpeakerLabels,
+            segments:
+                segments.length,
+            audioSeconds:
+                duration,
+            processingSeconds:
+                elapsed,
+            realtimeFactor:
+                duration > 0
+                    ? elapsed / duration
+                    : null,
+            metrics
+        }
+    );
+
+
+    /*
+     * Print an easy-to-read speaker timeline.
+     */
+
+    console.table(
+        segments.map(segment => ({
+            speaker:
+                segment.speaker,
+
+            start:
+                segment.start.toFixed(2),
+
+            end:
+                segment.end.toFixed(2),
+
+            duration:
+                segment.duration.toFixed(2)
+        }))
+    );
+
+
+    send("diarization-complete", {
+
+        numSpeakers,
+
+        speakerLabels:
+            detectedSpeakerLabels,
+
+        segments,
+
+        metrics,
+
+        performance: {
+
+            audioSeconds:
+                duration,
+
+            processingSeconds:
+                elapsed,
+
+            realtimeFactor:
+                duration > 0
+                    ? elapsed / duration
+                    : null
+
+        }
+
+    });
+}
+
+
+/* =========================================================
    WORKER MESSAGE HANDLER
 ========================================================= */
 
@@ -474,6 +716,20 @@ self.onmessage = async event => {
 
                 await loadModels(
                     message.device || "webgpu"
+                );
+
+                break;
+
+
+            /* -----------------------------------------
+               DIARIZE AUDIO
+            ----------------------------------------- */
+
+            case "diarize":
+
+                await diarizeAudio(
+                    message.audioBuffer,
+                    message.sampleRate || 16000
                 );
 
                 break;
