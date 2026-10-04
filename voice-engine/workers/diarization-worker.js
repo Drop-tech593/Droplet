@@ -18,7 +18,7 @@
  *   error
  */
 
-const VERSION = "DIARIZATION-STEP-4B9-REAL-AHC";
+const VERSION = "DIARIZATION-STEP-4B10-AHC-TIMELINE";
 
 const DIARIZATION_JS_URL =
     "https://esm.sh/diarization-js@0.1.0?bundle";
@@ -596,6 +596,228 @@ function diarizationStyleAhc(
 
 
 /* =========================================================
+   STEP 4B.10 — MAP AHC EMBEDDINGS TO SPEECH TIME
+========================================================= */
+
+function buildAhcTimeline(
+    ahcResult,
+    segmentation,
+    windowSec
+) {
+
+    if (!segmentation) {
+        return [];
+    }
+
+
+    const {
+        data,
+        numChunks,
+        numFrames,
+        numLocalSpeakers,
+        chunkStarts
+    } = segmentation;
+
+
+    if (
+        !data ||
+        !numChunks ||
+        !numFrames ||
+        !numLocalSpeakers ||
+        !chunkStarts
+    ) {
+        return [];
+    }
+
+
+    /*
+     * Fast lookup:
+     *
+     * embedding ID -> global AHC speaker
+     */
+
+    const speakerByEmbeddingId =
+        new Map();
+
+
+    for (
+        const assignment of
+        ahcResult.assignments
+    ) {
+
+        speakerByEmbeddingId.set(
+            assignment.embeddingId,
+            assignment.speaker
+        );
+    }
+
+
+    const rows = [];
+
+
+    /*
+     * Each embedding ID was originally created as:
+     *
+     * id =
+     *   chunkIndex * numLocalSpeakers
+     *   + localSpeaker
+     */
+
+    for (
+        const [
+            embeddingId,
+            speaker
+        ] of speakerByEmbeddingId
+    ) {
+
+        const chunkIndex =
+            Math.floor(
+                embeddingId /
+                numLocalSpeakers
+            );
+
+
+        const localSpeaker =
+            embeddingId %
+            numLocalSpeakers;
+
+
+        if (
+            chunkIndex < 0 ||
+            chunkIndex >= numChunks
+        ) {
+            continue;
+        }
+
+
+        const chunkStart =
+            Number(
+                chunkStarts[
+                    chunkIndex
+                ]
+            );
+
+
+        /*
+         * Segmentation frames cover windowSec.
+         */
+
+        const frameDuration =
+            windowSec /
+            numFrames;
+
+
+        let firstActiveFrame =
+            -1;
+
+        let lastActiveFrame =
+            -1;
+
+        let activeFrames =
+            0;
+
+
+        for (
+            let frame = 0;
+            frame < numFrames;
+            frame++
+        ) {
+
+            const index =
+                (
+                    chunkIndex *
+                    numFrames +
+                    frame
+                ) *
+                numLocalSpeakers +
+                localSpeaker;
+
+
+            if (data[index]) {
+
+                activeFrames++;
+
+
+                if (
+                    firstActiveFrame === -1
+                ) {
+
+                    firstActiveFrame =
+                        frame;
+                }
+
+
+                lastActiveFrame =
+                    frame;
+            }
+        }
+
+
+        if (
+            firstActiveFrame === -1
+        ) {
+            continue;
+        }
+
+
+        const start =
+            chunkStart +
+            firstActiveFrame *
+            frameDuration;
+
+
+        const end =
+            chunkStart +
+            (
+                lastActiveFrame + 1
+            ) *
+            frameDuration;
+
+
+        rows.push({
+
+            embeddingId,
+
+            speaker,
+
+            chunkIndex,
+
+            localSpeaker,
+
+            chunkStart,
+
+            start,
+
+            end,
+
+            duration:
+                end - start,
+
+            activeFrames
+        });
+    }
+
+
+    rows.sort(
+        (a, b) => {
+
+            if (a.start !== b.start) {
+                return a.start - b.start;
+            }
+
+            return (
+                a.embeddingId -
+                b.embeddingId
+            );
+        }
+    );
+
+
+    return rows;
+}
+
+
+/* =========================================================
    DOWNLOAD BINARY MODEL
 ========================================================= */
 
@@ -1147,6 +1369,57 @@ async function loadModels(device = "webgpu") {
 
 
             /* =========================================================
+               STEP 4B.10 — CAPTURE SEGMENTATION OUTPUT
+
+               We need the original segmentation masks so that the
+               pre-VBx AHC embedding IDs can be mapped back to time.
+            ========================================================= */
+
+            const originalSegmentationRun =
+                pipeline.segmentation.run.bind(
+                    pipeline.segmentation
+                );
+
+
+            pipeline.segmentation.run =
+                async function(audio, options = {}) {
+
+                    const result =
+                        await originalSegmentationRun(
+                            audio,
+                            options
+                        );
+
+
+                    self.__dropletSegmentationResult =
+                        result;
+
+
+                    console.log(
+                        "[STEP 4B.10] Segmentation captured:",
+                        {
+                            numChunks:
+                                result.numChunks,
+
+                            numFrames:
+                                result.numFrames,
+
+                            numLocalSpeakers:
+                                result.numLocalSpeakers,
+
+                            chunkStarts:
+                                Array.from(
+                                    result.chunkStarts || []
+                                )
+                        }
+                    );
+
+
+                    return result;
+                };
+
+
+            /* =========================================================
                STEP 4B.6 — CAPTURE SPEAKER EMBEDDINGS
             ========================================================= */
 
@@ -1348,6 +1621,8 @@ async function diarizeAudio(audioBuffer, sampleRate = 16000) {
      */
 
     self.__dropletCapturedEmbeddings = [];
+
+    self.__dropletSegmentationResult = null;
 
 
     /*
@@ -1614,6 +1889,161 @@ async function diarizeAudio(audioBuffer, sampleRate = 16000) {
                 ahc49.clusters.length ===
                 output?.metrics?.numAhcClusters
         }
+    );
+
+
+    console.log(
+        "========================================"
+    );
+
+
+    /* =========================================================
+       STEP 4B.10 — PRE-VBx SPEAKER TIMELINE
+    ========================================================= */
+
+    const segmentation410 =
+        self.__dropletSegmentationResult;
+
+
+    const ahcTimeline410 =
+        buildAhcTimeline(
+            ahc49,
+            segmentation410,
+            pipeline.cfg.windowSec
+        );
+
+
+    console.log(
+        "========================================"
+    );
+
+
+    console.log(
+        "[STEP 4B.10] PRE-VBx AHC TIMELINE"
+    );
+
+
+    console.table(
+        ahcTimeline410.map(
+            row => ({
+
+                speaker:
+                    row.speaker,
+
+                embedding:
+                    row.embeddingId,
+
+                chunk:
+                    row.chunkIndex,
+
+                localSpeaker:
+                    row.localSpeaker,
+
+                start:
+                    row.start.toFixed(2),
+
+                end:
+                    row.end.toFixed(2),
+
+                duration:
+                    row.duration.toFixed(2),
+
+                activeFrames:
+                    row.activeFrames
+            })
+        )
+    );
+
+
+    console.log(
+        "[STEP 4B.10] SPEAKER SUMMARY"
+    );
+
+
+    const summary410 = {};
+
+
+    for (
+        const row of
+        ahcTimeline410
+    ) {
+
+        if (!summary410[row.speaker]) {
+
+            summary410[row.speaker] = {
+
+                embeddings: [],
+
+                firstSeen:
+                    Infinity,
+
+                lastSeen:
+                    -Infinity,
+
+                activeDuration:
+                    0
+            };
+        }
+
+
+        const summary =
+            summary410[row.speaker];
+
+
+        summary.embeddings.push(
+            row.embeddingId
+        );
+
+
+        summary.firstSeen =
+            Math.min(
+                summary.firstSeen,
+                row.start
+            );
+
+
+        summary.lastSeen =
+            Math.max(
+                summary.lastSeen,
+                row.end
+            );
+
+
+        summary.activeDuration +=
+            row.duration;
+    }
+
+
+    console.table(
+
+        Object.entries(
+            summary410
+        ).map(
+            ([speaker, info]) => ({
+
+                speaker,
+
+                embeddings:
+                    info.embeddings
+                        .sort(
+                            (a, b) =>
+                                a - b
+                        )
+                        .join(", "),
+
+                firstSeen:
+                    info.firstSeen
+                        .toFixed(2),
+
+                lastSeen:
+                    info.lastSeen
+                        .toFixed(2),
+
+                activeDuration:
+                    info.activeDuration
+                        .toFixed(2)
+            })
+        )
     );
 
 
