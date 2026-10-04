@@ -9,7 +9,7 @@
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>Voice to Text - Droplet</title>
+    <title>Voice to Text v11 - Droplet</title>
 
     <style>
 
@@ -138,7 +138,7 @@
 <body>
 
 
-    <h1>Voice to Text</h1>
+    <h1>Voice to Text v11</h1>
 
     <p>
         Local AI transcription powered by your device.
@@ -1585,7 +1585,8 @@
 
 
         // =====================================================
-        // TRANSCRIBE
+        // TRANSCRIBE WITH SPEAKER DIARIZATION
+        // STEP 4D
         // =====================================================
 
         transcribeButton.addEventListener(
@@ -1606,27 +1607,21 @@
 
                 setRunningState(true);
 
-
-                // Cancel stays hidden until
-                // the worker sends transcription-start.
-
                 cancelButton.style.display =
-                    "none";
-
+                    "inline-block";
 
                 cancelButton.disabled =
                     false;
 
-
                 transcript.value =
                     "";
-
 
                 debug.textContent =
                     "";
 
-
                 resetProgress();
+
+                startElapsedTimer();
 
 
                 try {
@@ -1636,7 +1631,7 @@
 
 
                     log(
-                        "Preparing:",
+                        "[Step 4D] Preparing:",
                         selectedFile.name
                     );
 
@@ -1655,13 +1650,13 @@
 
 
                     log(
-                        "Prepared samples:",
+                        "[Step 4D] Prepared samples:",
                         preparedAudio.length
                     );
 
 
                     log(
-                        "Duration:",
+                        "[Step 4D] Duration:",
                         totalDuration,
                         "seconds"
                     );
@@ -1674,48 +1669,363 @@
                         );
 
 
-                    createWorker();
-
-
                     const model =
                         modelSelect.value;
 
 
+                    // IMPORTANT:
+                    // speaker-transcript.js needs to keep
+                    // the original audio because it first
+                    // performs diarization and then extracts
+                    // each speaker turn for Whisper.
+                    //
+                    // Therefore we DO NOT transfer
+                    // preparedAudio.buffer here.
+
+
+                    const result =
+                        await window
+                            .DropletVoice
+                            .createSpeakerTranscript(
+
+                                preparedAudio,
+
+                                {
+
+                                    model,
+
+
+                                    // =====================================
+                                    // STATUS
+                                    // =====================================
+
+                                    onStatus(info) {
+
+                                        if (
+                                            info &&
+                                            info.message
+                                        ) {
+
+                                            status.textContent =
+                                                info.message;
+                                        }
+
+
+                                        log(
+                                            "[Step 4D Status]",
+                                            info
+                                        );
+                                    },
+
+
+                                    // =====================================
+                                    // PROGRESS
+                                    // =====================================
+
+                                    onProgress(info) {
+
+                                        if (!info) {
+                                            return;
+                                        }
+
+
+                                        const percent =
+                                            Number.isFinite(
+                                                info.percent
+                                            )
+                                                ? info.percent
+                                                : 0;
+
+
+                                        progressBar.style.width =
+                                            percent + "%";
+
+
+                                        progressPercent.textContent =
+                                            Math.round(
+                                                percent
+                                            ) + "%";
+
+
+                                        if (
+                                            Number.isFinite(
+                                                info.completed
+                                            ) &&
+                                            Number.isFinite(
+                                                info.total
+                                            )
+                                        ) {
+
+                                            chunkInfo.textContent =
+                                                info.completed +
+                                                " / " +
+                                                info.total;
+                                        }
+
+
+                                        processedInfo.textContent =
+                                            formatTime(
+                                                totalDuration *
+                                                (
+                                                    percent /
+                                                    100
+                                                )
+                                            ) +
+                                            " / " +
+                                            formatTime(
+                                                totalDuration
+                                            );
+                                    },
+
+
+                                    // =====================================
+                                    // DIARIZATION COMPLETE
+                                    // =====================================
+
+                                    onDiarization(info) {
+
+                                        log(
+                                            "[Step 4D] Speakers detected:",
+                                            info.numSpeakers
+                                        );
+
+
+                                        log(
+                                            "[Step 4D] Speaker labels:",
+                                            info.speakerLabels
+                                        );
+
+
+                                        console.table(
+                                            info.segments
+                                        );
+
+
+                                        status.textContent =
+                                            "Found " +
+                                            info.numSpeakers +
+                                            (
+                                                info.numSpeakers === 1
+                                                    ? " speaker. "
+                                                    : " speakers. "
+                                            ) +
+                                            "Preparing speaker turns...";
+                                    },
+
+
+                                    // =====================================
+                                    // EACH COMPLETED SPEAKER TURN
+                                    // =====================================
+
+                                    onTurn(turn) {
+
+                                        log(
+                                            "[Step 4D Turn]",
+                                            turn
+                                        );
+
+
+                                        // Build a live preview from
+                                        // completed turns.
+
+                                        const existing =
+                                            transcript.value.trim();
+
+
+                                        const block =
+                                            "[" +
+                                            formatTime(
+                                                turn.start
+                                            ) +
+                                            "] " +
+                                            turn.speaker +
+                                            "\n" +
+                                            (
+                                                turn.text ||
+                                                ""
+                                            );
+
+
+                                        transcript.value =
+                                            existing
+                                                ? existing +
+                                                  "\n\n" +
+                                                  block
+                                                : block;
+
+
+                                        transcript.scrollTop =
+                                            transcript.scrollHeight;
+                                    },
+
+
+                                    // =====================================
+                                    // DEBUG
+                                    // =====================================
+
+                                    onDebug(info) {
+
+                                        // Keep detailed worker information
+                                        // in DevTools instead of filling the
+                                        // visible debug box with thousands
+                                        // of model messages.
+
+                                        console.log(
+                                            "[Step 4D Debug]",
+                                            info
+                                        );
+                                    }
+                                }
+                            );
+
+
+                    // =============================================
+                    // FINAL SPEAKER TRANSCRIPT
+                    // =============================================
+
+                    transcript.value =
+                        result.text ||
+                        "No speech detected.";
+
+
+                    progressBar.style.width =
+                        "100%";
+
+
+                    progressPercent.textContent =
+                        "100%";
+
+
+                    chunkInfo.textContent =
+                        result.turns.length +
+                        " / " +
+                        result.turns.length;
+
+
+                    processedInfo.textContent =
+                        formatTime(
+                            totalDuration
+                        ) +
+                        " / " +
+                        formatTime(
+                            totalDuration
+                        );
+
+
+                    remainingInfo.textContent =
+                        "0:00";
+
+
                     status.textContent =
-                        "Loading Whisper model...";
+                        "Speaker transcription complete - " +
+                        result.numSpeakers +
+                        (
+                            result.numSpeakers === 1
+                                ? " speaker detected."
+                                : " speakers detected."
+                        );
 
 
-                    worker.postMessage({
+                    log(
+                        "[Step 4D] FINAL RESULT:",
+                        {
+                            speakers:
+                                result.numSpeakers,
 
-                        type:
-                            "load-model",
+                            turns:
+                                result.turns.length,
 
-                        model,
+                            model:
+                                result.model
+                        }
+                    );
 
-                        device:
-                            "webgpu"
-                    });
+
+                    log(
+                        "[Step 4D] FINAL TRANSCRIPT:"
+                    );
+
+
+                    log(
+                        result.text
+                    );
+
+
+                    console.table(
+                        result.turns.map(
+                            turn => ({
+                                speaker:
+                                    turn.speaker,
+
+                                start:
+                                    turn.start.toFixed(
+                                        2
+                                    ),
+
+                                end:
+                                    turn.end.toFixed(
+                                        2
+                                    ),
+
+                                text:
+                                    turn.text
+                            })
+                        )
+                    );
 
 
                 } catch (error) {
 
                     console.error(
+                        "[Step 4D]",
                         error
                     );
 
 
-                    status.textContent =
-                        "Failed: " +
-                        error.message;
+                    if (
+                        /cancel/i.test(
+                            error.message || ""
+                        )
+                    ) {
+
+                        status.textContent =
+                            "Speaker transcription cancelled.";
+
+                        remainingInfo.textContent =
+                            "Cancelled";
+
+                    } else {
+
+                        status.textContent =
+                            "Speaker transcription failed: " +
+                            error.message;
+
+
+                        transcript.value =
+                            "ERROR:\n\n" +
+                            error.message;
+                    }
+
+                } finally {
+
+                    preparedAudio =
+                        null;
 
 
                     stopElapsedTimer();
 
-                    setRunningState(false);
+
+                    setRunningState(
+                        false
+                    );
 
 
                     cancelButton.style.display =
                         "none";
+
+
+                    cancelButton.disabled =
+                        false;
                 }
             }
         );
@@ -1790,6 +2100,7 @@
 
         // =====================================================
         // CANCEL
+        // STEP 4D
         // =====================================================
 
         cancelButton.addEventListener(
@@ -1798,27 +2109,42 @@
 
             function() {
 
-                if (
-                    !worker ||
-                    !transcriptionRunning
-                ) {
+                if (!transcriptionRunning) {
                     return;
                 }
 
 
                 status.textContent =
-                    "Stopping after current chunk...";
+                    "Cancelling speaker transcription...";
 
 
                 cancelButton.disabled =
                     true;
 
 
-                worker.postMessage({
+                if (
+                    window.DropletVoice &&
+                    window.DropletVoice
+                        .isSpeakerTranscriptRunning &&
+                    window.DropletVoice
+                        .isSpeakerTranscriptRunning()
+                ) {
 
-                    type:
-                        "cancel"
-                });
+                    window.DropletVoice
+                        .cancelSpeakerTranscript();
+
+                    return;
+                }
+
+
+                // Fallback for the old Whisper route.
+                if (worker) {
+
+                    worker.postMessage({
+                        type:
+                            "cancel"
+                    });
+                }
             }
         );
 
@@ -1857,6 +2183,19 @@
                 if (worker) {
 
                     worker.terminate();
+                }
+
+
+                if (
+                    window.DropletVoice &&
+                    window.DropletVoice
+                        .isSpeakerTranscriptRunning &&
+                    window.DropletVoice
+                        .isSpeakerTranscriptRunning()
+                ) {
+
+                    window.DropletVoice
+                        .cancelSpeakerTranscript();
                 }
             }
         );
