@@ -18,7 +18,7 @@
  *   error
  */
 
-const VERSION = "DIARIZATION-STEP-4B14-FINAL-IDENTITY-MERGE";
+const VERSION = "DIARIZATION-STEP-4C1-FINAL-SPEAKER-TIMELINE";
 
 const DIARIZATION_JS_URL =
     "https://esm.sh/diarization-js@0.1.0?bundle";
@@ -2195,6 +2195,258 @@ function buildFinalSpeakerIdentities(
 
 
 /* =========================================================
+   STEP 4C.1 — FINAL TIMESTAMPED SPEAKER TIMELINE
+========================================================= */
+
+function buildFinalSpeakerTimeline(
+    librarySegments,
+    ahcTimeline,
+    finalIdentity414
+) {
+
+    if (
+        !Array.isArray(librarySegments) ||
+        librarySegments.length === 0
+    ) {
+        return [];
+    }
+
+
+    if (
+        !Array.isArray(ahcTimeline) ||
+        ahcTimeline.length === 0
+    ) {
+        return [];
+    }
+
+
+    const finalSpeakerByAhc =
+        finalIdentity414.identityByAhcSpeaker;
+
+
+    function overlapDuration(
+        startA,
+        endA,
+        startB,
+        endB
+    ) {
+
+        return Math.max(
+            0,
+            Math.min(endA, endB) -
+            Math.max(startA, startB)
+        );
+    }
+
+
+    const timeline = [];
+
+
+    for (
+        let segmentIndex = 0;
+        segmentIndex < librarySegments.length;
+        segmentIndex++
+    ) {
+
+        const segment =
+            librarySegments[segmentIndex];
+
+
+        const start =
+            Number(segment.start);
+
+        const end =
+            Number(segment.end);
+
+
+        if (
+            !Number.isFinite(start) ||
+            !Number.isFinite(end) ||
+            end <= start
+        ) {
+            continue;
+        }
+
+
+        const scoreByFinalSpeaker =
+            new Map();
+
+
+        const evidenceByFinalSpeaker =
+            new Map();
+
+
+        for (
+            const row of ahcTimeline
+        ) {
+
+            const finalSpeaker =
+                finalSpeakerByAhc.get(
+                    row.speaker
+                );
+
+
+            if (!finalSpeaker) {
+                continue;
+            }
+
+
+            const overlap =
+                overlapDuration(
+                    start,
+                    end,
+                    row.start,
+                    row.end
+                );
+
+
+            if (overlap <= 0) {
+                continue;
+            }
+
+
+            const rowDuration =
+                Math.max(
+                    0.001,
+                    row.end - row.start
+                );
+
+
+            const overlapRatio =
+                overlap /
+                rowDuration;
+
+
+            const activeWeight =
+                Math.max(
+                    1,
+                    Number(
+                        row.activeFrames
+                    ) || 1
+                );
+
+
+            const score =
+                overlapRatio *
+                activeWeight;
+
+
+            scoreByFinalSpeaker.set(
+                finalSpeaker,
+                (
+                    scoreByFinalSpeaker.get(
+                        finalSpeaker
+                    ) || 0
+                ) + score
+            );
+
+
+            if (
+                !evidenceByFinalSpeaker.has(
+                    finalSpeaker
+                )
+            ) {
+
+                evidenceByFinalSpeaker.set(
+                    finalSpeaker,
+                    []
+                );
+            }
+
+
+            evidenceByFinalSpeaker
+                .get(finalSpeaker)
+                .push({
+
+                    ahcSpeaker:
+                        row.speaker,
+
+                    embeddingId:
+                        row.embeddingId,
+
+                    overlap,
+
+                    overlapRatio,
+
+                    activeFrames:
+                        row.activeFrames,
+
+                    score
+                });
+        }
+
+
+        const ranked =
+            [...scoreByFinalSpeaker.entries()]
+                .map(
+                    ([speaker, score]) => ({
+                        speaker,
+                        score,
+                        evidence:
+                            evidenceByFinalSpeaker.get(
+                                speaker
+                            ) || []
+                    })
+                )
+                .sort(
+                    (a, b) =>
+                        b.score - a.score
+                );
+
+
+        const best =
+            ranked[0] || null;
+
+
+        const second =
+            ranked[1] || null;
+
+
+        timeline.push({
+
+            segmentIndex,
+
+            start,
+
+            end,
+
+            duration:
+                end - start,
+
+            speaker:
+                best?.speaker ||
+                "FINAL_SPEAKER_UNKNOWN",
+
+            score:
+                best?.score || 0,
+
+            secondSpeaker:
+                second?.speaker ||
+                null,
+
+            secondScore:
+                second?.score || 0,
+
+            scoreMargin:
+                best
+                    ? best.score -
+                        (
+                            second?.score ||
+                            0
+                        )
+                    : 0,
+
+            evidence:
+                best?.evidence || []
+        });
+    }
+
+
+    return timeline;
+}
+
+
+/* =========================================================
    STEP 4B.10 — MAP AHC EMBEDDINGS TO SPEECH TIME
 ========================================================= */
 
@@ -3117,10 +3369,6 @@ async function diarizeAudio(audioBuffer, sampleRate = 16000) {
         );
 
 
-    /* =========================================================
-       STEP 4B.6 — EMBEDDING SIMILARITY MATRIX
-    ========================================================= */
-
     const captured =
         self.__dropletCapturedEmbeddings || [];
 
@@ -3168,10 +3416,6 @@ async function diarizeAudio(audioBuffer, sampleRate = 16000) {
         console.table(matrix);
     }
 
-
-    /* =========================================================
-       STEP 4B.8 — TEST EMBEDDINGS WITHOUT PLDA / VBx
-    ========================================================= */
 
     const ahcOnlyThreshold = 0.75;
 
@@ -3243,10 +3487,6 @@ async function diarizeAudio(audioBuffer, sampleRate = 16000) {
         "========================================"
     );
 
-
-    /* =========================================================
-       STEP 4B.9 — REAL AHC ASSIGNMENT DIAGNOSTIC
-    ========================================================= */
 
     const ahc49 =
         diarizationStyleAhc(
@@ -3358,10 +3598,6 @@ async function diarizeAudio(audioBuffer, sampleRate = 16000) {
         "========================================"
     );
 
-
-    /* =========================================================
-       STEP 4B.10 — PRE-VBx SPEAKER TIMELINE
-    ========================================================= */
 
     const segmentation410 =
         self.__dropletSegmentationResult;
@@ -3514,10 +3750,6 @@ async function diarizeAudio(audioBuffer, sampleRate = 16000) {
     );
 
 
-    /* =========================================================
-       STEP 4B.11 — COMPARE AHC SPEAKER CENTROIDS
-    ========================================================= */
-
     const centroidAnalysis411 =
         analyzeAhcSpeakerCentroids(
             ahc49,
@@ -3586,10 +3818,6 @@ async function diarizeAudio(audioBuffer, sampleRate = 16000) {
         "========================================"
     );
 
-
-    /* =========================================================
-       STEP 4B.12 — RECURRENCE-AWARE SPEAKER IDENTITY MERGE
-    ========================================================= */
 
     const identityMerge412 =
         mergeRecurringAhcSpeakers(
@@ -3713,10 +3941,6 @@ async function diarizeAudio(audioBuffer, sampleRate = 16000) {
         "========================================"
     );
 
-
-    /* =========================================================
-       STEP 4B.13 — WEAK FRAGMENT IDENTITY DIAGNOSTIC
-    ========================================================= */
 
     const weakFragmentAnalysis413 =
         analyzeWeakAhcFragments(
@@ -4021,10 +4245,6 @@ async function diarizeAudio(audioBuffer, sampleRate = 16000) {
     );
 
 
-    /* =========================================================
-       STEP 4B.14 — FINAL SPEAKER IDENTITIES
-    ========================================================= */
-
     const finalIdentity414 =
         buildFinalSpeakerIdentities(
             ahc49,
@@ -4167,6 +4387,76 @@ async function diarizeAudio(audioBuffer, sampleRate = 16000) {
             libraryFinalSpeakers:
                 output?.result?.numSpeakers
         }
+    );
+
+
+    console.log(
+        "========================================"
+    );
+
+
+    /* =========================================================
+       STEP 4C.1 — FINAL TIMESTAMPED SPEAKER TIMELINE
+    ========================================================= */
+
+    const preciseSpeechSegments =
+        Array.isArray(
+            output?.result?.segments
+        )
+            ? output.result.segments
+            : [];
+
+
+    const finalTimeline4C1 =
+        buildFinalSpeakerTimeline(
+            preciseSpeechSegments,
+            ahcTimeline410,
+            finalIdentity414
+        );
+
+
+    console.log(
+        "========================================"
+    );
+
+
+    console.log(
+        "[STEP 4C.1] FINAL SPEAKER TIMELINE"
+    );
+
+
+    console.log(
+        "[STEP 4C.1] Segments:",
+        finalTimeline4C1.length
+    );
+
+
+    console.table(
+        finalTimeline4C1.map(
+            row => ({
+
+                speaker:
+                    row.speaker,
+
+                start:
+                    row.start.toFixed(2),
+
+                end:
+                    row.end.toFixed(2),
+
+                duration:
+                    row.duration.toFixed(2),
+
+                score:
+                    row.score.toFixed(4),
+
+                secondSpeaker:
+                    row.secondSpeaker || "",
+
+                scoreMargin:
+                    row.scoreMargin.toFixed(4)
+            })
+        )
     );
 
 
