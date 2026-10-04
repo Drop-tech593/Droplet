@@ -1878,16 +1878,6 @@ async function loadModels(device = "webgpu") {
 
                     pldaParamsJson,
 
-                    /*
-                     * Step 4B.1 diagnostic:
-                     *
-                     * Default diarization-js AHC threshold = 0.60.
-                     *
-                     * Our two-speaker recording was incorrectly
-                     * merged into one speaker.
-                     *
-                     * Test a stricter clustering threshold.
-                     */
                     ahcThreshold: 0.75
 
                 });
@@ -2132,9 +2122,6 @@ async function loadModels(device = "webgpu") {
 
             /* =========================================================
                STEP 4B.10 — CAPTURE SEGMENTATION OUTPUT
-
-               We need the original segmentation masks so that the
-               pre-VBx AHC embedding IDs can be mapped back to time.
             ========================================================= */
 
             const originalSegmentationRun =
@@ -2917,7 +2904,6 @@ async function diarizeAudio(audioBuffer, sampleRate = 16000) {
     console.table(
         identityMerge412.decisions.map(
             decision => ({
-
                 speakerA:
                     decision.speakerA,
 
@@ -2925,18 +2911,14 @@ async function diarizeAudio(audioBuffer, sampleRate = 16000) {
                     decision.speakerB,
 
                 cosine:
-                    Number.isFinite(
-                        decision.cosine
-                    )
+                    Number.isFinite(decision.cosine)
                         ? decision.cosine.toFixed(4)
-                        : "",
+                        : decision.cosine,
 
                 distance:
-                    Number.isFinite(
-                        decision.distance
-                    )
+                    Number.isFinite(decision.distance)
                         ? decision.distance.toFixed(4)
-                        : "",
+                        : decision.distance,
 
                 countA:
                     decision.countA ?? "",
@@ -2945,23 +2927,17 @@ async function diarizeAudio(audioBuffer, sampleRate = 16000) {
                     decision.countB ?? "",
 
                 marginA:
-                    Number.isFinite(
-                        decision.marginA
-                    )
+                    Number.isFinite(decision.marginA)
                         ? decision.marginA.toFixed(4)
                         : "",
 
                 marginB:
-                    Number.isFinite(
-                        decision.marginB
-                    )
+                    Number.isFinite(decision.marginB)
                         ? decision.marginB.toFixed(4)
                         : "",
 
                 temporalGap:
-                    Number.isFinite(
-                        decision.temporalGap
-                    )
+                    Number.isFinite(decision.temporalGap)
                         ? decision.temporalGap.toFixed(2)
                         : "",
 
@@ -2976,14 +2952,13 @@ async function diarizeAudio(audioBuffer, sampleRate = 16000) {
 
 
     console.log(
-        "[STEP 4B.12] FINAL INFERRED IDENTITIES"
+        "[STEP 4B.12] MERGED SPEAKER IDENTITIES"
     );
 
 
     console.table(
         identityMerge412.groups.map(
             group => ({
-
                 speaker:
                     group.speaker,
 
@@ -2995,13 +2970,12 @@ async function diarizeAudio(audioBuffer, sampleRate = 16000) {
 
 
     console.log(
-        "[STEP 4B.12] COMPARISON",
+        "[STEP 4B.12] RESULT",
         {
-
-            preVbxAhcFragments:
+            ahcFragments:
                 ahc49.clusters.length,
 
-            inferredSpeakerIdentities:
+            mergedSpeakerIdentities:
                 identityMerge412.numSpeakers,
 
             libraryAhcClusters:
@@ -3010,9 +2984,8 @@ async function diarizeAudio(audioBuffer, sampleRate = 16000) {
             libraryVbxClusters:
                 output?.metrics?.numVbxClusters,
 
-            brokenLibraryFinalSpeakers:
+            libraryFinalSpeakers:
                 output?.result?.numSpeakers
-
         }
     );
 
