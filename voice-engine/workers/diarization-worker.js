@@ -202,6 +202,67 @@ async function loadModels(device = "webgpu") {
             ]);
 
 
+            /* ---------------------------------------------
+               CONFIGURE ONNX RUNTIME
+            --------------------------------------------- */
+
+            /*
+             * IMPORTANT:
+             * ORT was imported through esm.sh, but its WebGPU backend
+             * still needs the official JSEP runtime files.
+             *
+             * Point ORT directly at the matching official
+             * onnxruntime-web 1.22.0 distribution.
+             */
+
+            const ORT_DIST =
+                "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.22.0/dist/";
+
+            ort.env.wasm.wasmPaths = {
+                mjs:
+                    `${ORT_DIST}ort-wasm-simd-threaded.jsep.mjs`,
+
+                wasm:
+                    `${ORT_DIST}ort-wasm-simd-threaded.jsep.wasm`
+            };
+
+
+            /*
+             * Droplet currently does not use cross-origin isolation.
+             *
+             * Force single-threaded WASM so ORT does not attempt to
+             * create SharedArrayBuffer-based WASM threads.
+             */
+
+            ort.env.wasm.numThreads = 1;
+
+
+            /*
+             * We already have our own dedicated diarization Worker.
+             * Do NOT make ORT create another proxy worker.
+             */
+
+            ort.env.wasm.proxy = false;
+
+
+            /*
+             * Useful while Step 4 is being developed.
+             */
+
+            ort.env.logLevel = "warning";
+
+
+            console.log(
+                "[Droplet Diarization] ONNX Runtime configured.",
+                {
+                    version: ort.env.versions?.web,
+                    threads: ort.env.wasm.numThreads,
+                    proxy: ort.env.wasm.proxy,
+                    wasmPaths: ort.env.wasm.wasmPaths
+                }
+            );
+
+
             const {
                 DiarizationPipeline
             } = diarizationModule;
