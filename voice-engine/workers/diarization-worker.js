@@ -18,7 +18,7 @@
  *   error
  */
 
-const VERSION = "DIARIZATION-STEP-4B8-AHC-ONLY";
+const VERSION = "DIARIZATION-STEP-4B9-REAL-AHC";
 
 const DIARIZATION_JS_URL =
     "https://esm.sh/diarization-js@0.1.0?bundle";
@@ -255,6 +255,343 @@ function clusterEmbeddingsAhcOnly(
                 a.embeddingIds[0] -
                 b.embeddingIds[0]
         );
+}
+
+
+/* =========================================================
+   STEP 4B.9 — DIARIZATION-JS STYLE AHC
+
+   diarization-js:
+   1. L2 normalize embeddings
+   2. Euclidean distance
+   3. Centroid-linkage AHC
+   4. Cut dendrogram at distance threshold
+========================================================= */
+
+function l2NormalizeEmbedding(values) {
+
+    let normSquared = 0;
+
+    for (const value of values) {
+        normSquared += value * value;
+    }
+
+    const norm = Math.sqrt(normSquared);
+
+    if (!Number.isFinite(norm) || norm === 0) {
+        return null;
+    }
+
+    return Float64Array.from(
+        values,
+        value => value / norm
+    );
+}
+
+
+function euclideanDistance(a, b) {
+
+    let sum = 0;
+
+    for (
+        let i = 0;
+        i < Math.min(a.length, b.length);
+        i++
+    ) {
+
+        const difference =
+            a[i] - b[i];
+
+        sum +=
+            difference * difference;
+    }
+
+    return Math.sqrt(sum);
+}
+
+
+function calculateCentroid(members) {
+
+    const dimensions =
+        members[0].vector.length;
+
+    const centroid =
+        new Float64Array(dimensions);
+
+    let totalWeight = 0;
+
+    for (const member of members) {
+
+        const weight =
+            member.weight || 1;
+
+        totalWeight += weight;
+
+        for (
+            let d = 0;
+            d < dimensions;
+            d++
+        ) {
+
+            centroid[d] +=
+                member.vector[d] *
+                weight;
+        }
+    }
+
+    if (totalWeight > 0) {
+
+        for (
+            let d = 0;
+            d < dimensions;
+            d++
+        ) {
+
+            centroid[d] /=
+                totalWeight;
+        }
+    }
+
+    return centroid;
+}
+
+
+function diarizationStyleAhc(
+    captured,
+    threshold = 0.75
+) {
+
+    /*
+     * Create one normalized embedding per cluster.
+     */
+    let clusters = captured
+        .map(item => {
+
+            const normalized =
+                l2NormalizeEmbedding(
+                    item.embedding
+                );
+
+            if (!normalized) {
+                return null;
+            }
+
+            return {
+
+                ids: [item.id],
+
+                members: [
+                    {
+                        id: item.id,
+                        vector: normalized,
+                        weight: 1
+                    }
+                ],
+
+                centroid:
+                    normalized,
+
+                size: 1
+            };
+        })
+        .filter(Boolean);
+
+
+    const mergeHistory = [];
+
+
+    while (clusters.length > 1) {
+
+        let bestI = -1;
+        let bestJ = -1;
+
+        let bestDistance =
+            Infinity;
+
+
+        /*
+         * Find closest centroids.
+         */
+        for (
+            let i = 0;
+            i < clusters.length;
+            i++
+        ) {
+
+            for (
+                let j = i + 1;
+                j < clusters.length;
+                j++
+            ) {
+
+                const distance =
+                    euclideanDistance(
+                        clusters[i].centroid,
+                        clusters[j].centroid
+                    );
+
+
+                if (distance < bestDistance) {
+
+                    bestDistance =
+                        distance;
+
+                    bestI = i;
+                    bestJ = j;
+                }
+            }
+        }
+
+
+        /*
+         * scipy fcluster(distance):
+         * stop once next linkage distance
+         * exceeds threshold.
+         */
+        if (
+            bestI < 0 ||
+            bestJ < 0 ||
+            bestDistance > threshold
+        ) {
+            break;
+        }
+
+
+        const left =
+            clusters[bestI];
+
+        const right =
+            clusters[bestJ];
+
+
+        const members = [
+            ...left.members,
+            ...right.members
+        ];
+
+
+        const merged = {
+
+            ids: [
+                ...left.ids,
+                ...right.ids
+            ],
+
+            members,
+
+            centroid:
+                calculateCentroid(
+                    members
+                ),
+
+            size:
+                left.size +
+                right.size
+        };
+
+
+        mergeHistory.push({
+
+            left:
+                [...left.ids],
+
+            right:
+                [...right.ids],
+
+            distance:
+                bestDistance,
+
+            result:
+                [...merged.ids]
+        });
+
+
+        /*
+         * Remove higher index first.
+         */
+        clusters.splice(
+            bestJ,
+            1
+        );
+
+        clusters.splice(
+            bestI,
+            1
+        );
+
+        clusters.push(
+            merged
+        );
+    }
+
+
+    /*
+     * Encounter-order labels, matching the
+     * contiguous-label behavior of the package.
+     */
+    clusters.sort(
+        (a, b) =>
+            Math.min(...a.ids) -
+            Math.min(...b.ids)
+    );
+
+
+    const assignments = [];
+
+    clusters.forEach(
+        (cluster, clusterIndex) => {
+
+            for (const id of cluster.ids) {
+
+                assignments.push({
+
+                    embeddingId:
+                        id,
+
+                    speaker:
+                        `AHC_SPEAKER_${String(
+                            clusterIndex
+                        ).padStart(2, "0")}`
+                });
+            }
+        }
+    );
+
+
+    assignments.sort(
+        (a, b) =>
+            a.embeddingId -
+            b.embeddingId
+    );
+
+
+    return {
+
+        clusters:
+            clusters.map(
+                (cluster, index) => ({
+
+                    speaker:
+                        `AHC_SPEAKER_${String(
+                            index
+                        ).padStart(2, "0")}`,
+
+                    embeddingIds:
+                        [...cluster.ids]
+                            .sort(
+                                (a, b) =>
+                                    a - b
+                            ),
+
+                    count:
+                        cluster.ids.length
+                })
+            ),
+
+        assignments,
+
+        mergeHistory
+    };
 }
 
 
@@ -1161,6 +1498,121 @@ async function diarizeAudio(audioBuffer, sampleRate = 16000) {
 
             finalSpeakers:
                 output?.result?.numSpeakers
+        }
+    );
+
+
+    console.log(
+        "========================================"
+    );
+
+
+    /* =========================================================
+       STEP 4B.9 — REAL AHC ASSIGNMENT DIAGNOSTIC
+    ========================================================= */
+
+    const ahc49 =
+        diarizationStyleAhc(
+            captured,
+            pipeline.cfg.ahcThreshold
+        );
+
+
+    console.log(
+        "========================================"
+    );
+
+    console.log(
+        "[STEP 4B.9] DIARIZATION-STYLE AHC"
+    );
+
+
+    console.log(
+        "[STEP 4B.9] Distance threshold:",
+        pipeline.cfg.ahcThreshold
+    );
+
+
+    console.log(
+        "[STEP 4B.9] Cluster count:",
+        ahc49.clusters.length
+    );
+
+
+    console.table(
+        ahc49.clusters.map(
+            cluster => ({
+
+                speaker:
+                    cluster.speaker,
+
+                embeddings:
+                    cluster.embeddingIds.join(", "),
+
+                count:
+                    cluster.count
+            })
+        )
+    );
+
+
+    console.log(
+        "[STEP 4B.9] EMBEDDING ASSIGNMENTS"
+    );
+
+
+    console.table(
+        ahc49.assignments
+    );
+
+
+    console.log(
+        "[STEP 4B.9] MERGE HISTORY"
+    );
+
+
+    console.table(
+        ahc49.mergeHistory.map(
+            (merge, index) => ({
+
+                merge:
+                    index + 1,
+
+                left:
+                    merge.left.join(", "),
+
+                right:
+                    merge.right.join(", "),
+
+                distance:
+                    merge.distance.toFixed(4),
+
+                result:
+                    merge.result.join(", ")
+            })
+        )
+    );
+
+
+    console.log(
+        "[STEP 4B.9] VALIDATION",
+        {
+
+            reproducedAhcClusters:
+                ahc49.clusters.length,
+
+            libraryAhcClusters:
+                output?.metrics?.numAhcClusters,
+
+            libraryVbxClusters:
+                output?.metrics?.numVbxClusters,
+
+            finalSpeakers:
+                output?.result?.numSpeakers,
+
+            ahcCountMatchesLibrary:
+                ahc49.clusters.length ===
+                output?.metrics?.numAhcClusters
         }
     );
 
