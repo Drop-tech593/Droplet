@@ -6,11 +6,12 @@ console.log(
 // ============================================================
 // DROPLET VOICE-TO-TEXT
 // Whisper Worker - Long Audio Engine
+//
+// NOTE: This file is loaded as a CLASSIC worker.
+// It must NOT use a top-level `import` statement.
+// The Transformers.js library is loaded with dynamic
+// import() inside loadModel() instead.
 // ============================================================
-
-import {
-    pipeline
-} from "https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.8.1";
 
 
 // ============================================================
@@ -165,6 +166,21 @@ async function loadModel(
 
 
     try {
+
+        // ----------------------------------------------------
+        // DYNAMIC IMPORT OF TRANSFORMERS.JS
+        //
+        // This is the key change. A classic worker cannot
+        // use `import ... from "..."` at the top of the file,
+        // but it CAN use `await import(...)` inside a function.
+        // ----------------------------------------------------
+
+        const {
+            pipeline
+        } = await import(
+            "https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.8.1"
+        );
+
 
         transcriber = await pipeline(
 
