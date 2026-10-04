@@ -33,7 +33,12 @@ const SAMPLE_RATE = 16000;
 
 
 // Each chunk sent to Whisper.
-const CHUNK_SECONDS = 20;
+//
+// Whisper is designed around an approximately 30-second
+// audio context window. Giving Base more surrounding speech
+// can help it understand sentences and terminology that
+// span a longer period.
+const CHUNK_SECONDS = 30;
 
 
 // Small overlap between chunks.
@@ -45,7 +50,7 @@ const OVERLAP_SECONDS = 3;
 // STEP 14 - SPEECH-AWARE CHUNK BOUNDARIES
 // ============================================================
 
-// How far before the normal 20-second boundary we search
+// How far before the normal chunk boundary we search
 // for a natural pause.
 const BOUNDARY_SEARCH_SECONDS = 3;
 
@@ -78,7 +83,7 @@ const VAD_FRAME_MS = 30;
 const VAD_RMS_THRESHOLD = 0.0010;
 
 // Minimum percentage of active frames required before the
-// complete 20-second chunk is considered to contain speech.
+// complete chunk is considered to contain speech.
 const VAD_MIN_ACTIVE_RATIO = 0.015;
 
 // Never skip a chunk just because one simple measurement says
@@ -272,7 +277,7 @@ function findSpeechBoundary(
         );
 
 
-    // Search only BEFORE the normal 20-second boundary.
+    // Search only BEFORE the normal chunk boundary.
     const searchStart =
         Math.max(
             chunkStartSample +
@@ -409,7 +414,7 @@ function findSpeechBoundary(
 
 
     // No useful pause found.
-    // Keep original 20-second boundary.
+    // Keep original chunk boundary.
 
     return (
         bestBoundary ||
@@ -1807,30 +1812,17 @@ async function transcribeLongAudio(
 
             // ------------------------------------------------------------
             // STEP 17 - CONTROLLED WHISPER DECODING
-            // STEP 19 - GENTLE ANTI-REPETITION PARAMETERS
+            //
+            // Baseline configuration. No generation-time
+            // repetition controls. No word timestamps.
             // ------------------------------------------------------------
 
             const result =
                 await transcriber(
                     chunk.audio,
                     {
-                        // Deterministic decoding.
                         do_sample: false,
-
-                        // Hard protection against runaway output.
                         max_new_tokens: 160,
-
-                        // Mildly discourage Whisper from repeatedly
-                        // generating the same tokens.
-                        repetition_penalty: 1.05,
-
-                        // Prevent an identical 6-token sequence from
-                        // being generated more than once in this chunk.
-                        // 6 is deliberately conservative so normal
-                        // human repetition is less likely to be damaged.
-                        no_repeat_ngram_size: 6,
-
-                        // Current ONNX export cannot provide word timestamps.
                         return_timestamps: false
                     }
                 );
