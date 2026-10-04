@@ -96,13 +96,15 @@ function normalizeSpeechAudio(audio) {
     // --------------------------------------------------------
     // GAIN PROTECTION
     //
-    // Never amplify by more than 8x.
+    // Never amplify by more than 3x.
     //
     // This prevents very quiet recordings/background noise
-    // from being amplified ridiculously.
+    // from being amplified ridiculously. +9.5 dB is enough
+    // to lift low-level speech without drowning Whisper in
+    // amplified room tone.
     // --------------------------------------------------------
 
-    const MAX_GAIN = 8;
+    const MAX_GAIN = 3;
 
 
     gain =
