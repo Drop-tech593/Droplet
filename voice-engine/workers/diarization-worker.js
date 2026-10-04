@@ -18,7 +18,7 @@
  *   error
  */
 
-const VERSION = "DIARIZATION-STEP-4A-V1";
+const VERSION = "DIARIZATION-STEP-4B1-075";
 
 const DIARIZATION_JS_URL =
     "https://esm.sh/diarization-js@0.1.0?bundle";
@@ -370,7 +370,19 @@ async function loadModels(device = "webgpu") {
 
                     embeddingModel,
 
-                    pldaParamsJson
+                    pldaParamsJson,
+
+                    /*
+                     * Step 4B.1 diagnostic:
+                     *
+                     * Default diarization-js AHC threshold = 0.60.
+                     *
+                     * Our two-speaker recording was incorrectly
+                     * merged into one speaker.
+                     *
+                     * Test a stricter clustering threshold.
+                     */
+                    ahcThreshold: 0.75
 
                 });
 
