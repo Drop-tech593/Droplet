@@ -55,6 +55,37 @@
             margin-left: 10px;
         }
 
+        #record-button,
+        #stop-record-button {
+            margin-right: 10px;
+        }
+
+        #stop-record-button {
+            display: none;
+        }
+
+        #record-indicator {
+            display: none;
+            align-items: center;
+            margin-top: 10px;
+            font-weight: bold;
+            color: #b00020;
+        }
+
+        #record-indicator .dot {
+            width: 12px;
+            height: 12px;
+            background: #d00;
+            border-radius: 50%;
+            margin-right: 10px;
+            animation: pulse 1s infinite ease-in-out;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50%      { opacity: 0.25; }
+        }
+
         textarea {
             width: 100%;
             min-height: 320px;
@@ -178,7 +209,34 @@
          AUDIO
     ====================================================== -->
 
-    <h2>3. Select Audio</h2>
+    <h2>3. Audio</h2>
+
+    <div class="button-row">
+
+        <button id="record-button">
+            Record from Microphone
+        </button>
+
+        <button id="stop-record-button">
+            Stop Recording
+        </button>
+
+    </div>
+
+    <div id="record-indicator">
+
+        <div class="dot"></div>
+
+        <span>
+            Recording:
+            <strong id="record-timer">0:00</strong>
+        </span>
+
+    </div>
+
+    <p>
+        Or choose an existing file:
+    </p>
 
     <input
         type="file"
@@ -317,6 +375,18 @@
         const modelSelect =
             document.getElementById("model-select");
 
+        const recordButton =
+            document.getElementById("record-button");
+
+        const stopRecordButton =
+            document.getElementById("stop-record-button");
+
+        const recordIndicator =
+            document.getElementById("record-indicator");
+
+        const recordTimer =
+            document.getElementById("record-timer");
+
         const audioInput =
             document.getElementById("audio-file");
 
@@ -378,6 +448,14 @@
         let elapsedTimer = null;
 
         let transcriptionRunning = false;
+
+
+        // Recording state
+        let isRecording = false;
+
+        let recordStartTime = null;
+
+        let recordTimerHandle = null;
 
 
         // =====================================================
@@ -501,10 +579,6 @@
 
         // =====================================================
         // BUTTON STATE
-        //
-        // The Cancel button is NOT shown here. It is only
-        // shown when the worker sends "transcription-start",
-        // so the user can't cancel during model download.
         // =====================================================
 
         function setRunningState(running) {
@@ -520,6 +594,86 @@
 
             audioInput.disabled =
                 running;
+
+            // Disable record buttons during transcription.
+            recordButton.disabled =
+                running || isRecording;
+
+            stopRecordButton.disabled =
+                running || !isRecording;
+        }
+
+
+        // =====================================================
+        // RECORDING STATE
+        // =====================================================
+
+        function setRecordingState(recording) {
+
+            isRecording =
+                recording;
+
+            recordButton.style.display =
+                recording ? "none" : "inline-block";
+
+            stopRecordButton.style.display =
+                recording ? "inline-block" : "none";
+
+            recordIndicator.style.display =
+                recording ? "flex" : "none";
+
+
+            if (recording) {
+
+                recordStartTime =
+                    performance.now();
+
+
+                recordTimer.textContent =
+                    "0:00";
+
+
+                recordTimerHandle =
+                    setInterval(
+                        () => {
+
+                            if (!recordStartTime) {
+                                return;
+                            }
+
+                            const seconds =
+                                (
+                                    performance.now() -
+                                    recordStartTime
+                                ) /
+                                1000;
+
+                            recordTimer.textContent =
+                                formatTime(seconds);
+
+                        },
+                        250
+                    );
+
+            } else {
+
+                recordStartTime =
+                    null;
+
+
+                if (recordTimerHandle) {
+
+                    clearInterval(
+                        recordTimerHandle
+                    );
+
+                    recordTimerHandle = null;
+                }
+
+
+                recordTimer.textContent =
+                    "0:00";
+            }
         }
 
 
@@ -726,8 +880,6 @@
 
             // =================================================
             // TRANSCRIPTION STARTED
-            //
-            // Cancel button becomes visible HERE, not earlier.
             // =================================================
 
             if (
@@ -1098,7 +1250,7 @@
 
 
         // =====================================================
-        // AUDIO SELECTION
+        // AUDIO SELECTION (FILE)
         // =====================================================
 
         audioInput.addEventListener(
@@ -1155,7 +1307,307 @@
 
 
         // =====================================================
-        // TRANSCRIBE
+        // RECORD FROM MICROPHONE
+        // =====================================================
+
+        recordButton.addEventListener(
+
+            "click",
+
+            async function() {
+
+                if (isRecording) {
+                    return;
+                }
+
+
+                if (
+                    !window.DropletRecorder ||
+                    typeof window.DropletRecorder.start !== "function"
+                ) {
+
+                    status.textContent =
+                        "Recorder module not available.";
+
+                    return;
+                }
+
+
+                try {
+
+                    status.textContent =
+                        "Requesting microphone access...";
+
+
+                    await window.DropletRecorder.start();
+
+
+                    setRecordingState(true);
+
+
+                    status.textContent =
+                        "Recording. Click Stop Recording when done.";
+
+
+                    recordButton.disabled =
+                        true;
+
+                    stopRecordButton.disabled =
+                        false;
+
+                } catch (error) {
+
+                    console.error(
+                        "Recording start failed:",
+                        error
+                    );
+
+
+                    status.textContent =
+                        "Recording failed: " +
+                        error.message;
+
+
+                    setRecordingState(false);
+                }
+            }
+        );
+
+
+        // =====================================================
+        // STOP RECORDING
+        // =====================================================
+
+        stopRecordButton.addEventListener(
+
+            "click",
+
+            async function() {
+
+                if (!isRecording) {
+                    return;
+                }
+
+
+                stopRecordButton.disabled =
+                    true;
+
+
+                status.textContent =
+                    "Stopping recording...";
+
+
+                let recordedBlob = null;
+
+
+                try {
+
+                    recordedBlob =
+                        await window.DropletRecorder.stop();
+
+                } catch (error) {
+
+                    console.error(
+                        "Recording stop failed:",
+                        error
+                    );
+
+
+                    status.textContent =
+                        "Recording stop failed: " +
+                        error.message;
+
+
+                    setRecordingState(false);
+
+                    recordButton.disabled =
+                        false;
+
+                    return;
+                }
+
+
+                setRecordingState(false);
+
+                recordButton.disabled =
+                    false;
+
+                stopRecordButton.disabled =
+                    true;
+
+
+                if (!recordedBlob || recordedBlob.size === 0) {
+
+                    status.textContent =
+                        "Recording was empty.";
+
+                    return;
+                }
+
+
+                // Clear the file-input choice so it is
+                // unambiguous that we are transcribing
+                // the new recording.
+
+                audioInput.value =
+                    "";
+
+                selectedFile =
+                    null;
+
+
+                const sizeMB =
+                    recordedBlob.size / 1024 / 1024;
+
+
+                audioInfo.textContent =
+                    "New recording - " +
+                    sizeMB.toFixed(2) +
+                    " MB - " +
+                    (recordedBlob.type || "audio/webm");
+
+
+                transcript.value =
+                    "";
+
+                resetProgress();
+
+
+                // -----------------------------------------
+                // Decode the recording through the same
+                // shared pipeline the upload path uses.
+                // -----------------------------------------
+
+                try {
+
+                    status.textContent =
+                        "Decoding recording...";
+
+
+                    log(
+                        "Decoding recording of size:",
+                        recordedBlob.size,
+                        "type:",
+                        recordedBlob.type
+                    );
+
+
+                    preparedAudio =
+                        await window
+                            .DropletVoice
+                            .processRecordedBlob(
+                                recordedBlob
+                            );
+
+
+                    totalDuration =
+                        preparedAudio.length /
+                        16000;
+
+
+                    log(
+                        "Prepared samples:",
+                        preparedAudio.length
+                    );
+
+
+                    log(
+                        "Duration:",
+                        totalDuration,
+                        "seconds"
+                    );
+
+
+                    processedInfo.textContent =
+                        "0:00 / " +
+                        formatTime(
+                            totalDuration
+                        );
+
+
+                } catch (error) {
+
+                    console.error(
+                        "Recording decode failed:",
+                        error
+                    );
+
+
+                    status.textContent =
+                        "Recording decode failed: " +
+                        error.message;
+
+
+                    return;
+                }
+
+
+                // -----------------------------------------
+                // Now behave exactly like the Transcribe
+                // button: load model, then transcribe.
+                // -----------------------------------------
+
+                setRunningState(true);
+
+
+                cancelButton.style.display =
+                    "none";
+
+                cancelButton.disabled =
+                    false;
+
+
+                try {
+
+                    createWorker();
+
+
+                    const model =
+                        modelSelect.value;
+
+
+                    status.textContent =
+                        "Loading Whisper model...";
+
+
+                    worker.postMessage({
+
+                        type:
+                            "load-model",
+
+                        model,
+
+                        device:
+                            "webgpu"
+                    });
+
+
+                } catch (error) {
+
+                    console.error(
+                        error
+                    );
+
+
+                    status.textContent =
+                        "Failed: " +
+                        error.message;
+
+
+                    stopElapsedTimer();
+
+                    setRunningState(false);
+
+
+                    cancelButton.style.display =
+                        "none";
+                }
+            }
+        );
+
+
+        // =====================================================
+        // TRANSCRIBE (from selected file)
         // =====================================================
 
         transcribeButton.addEventListener(
@@ -1167,7 +1619,7 @@
                 if (!selectedFile) {
 
                     alert(
-                        "Please select an audio file first."
+                        "Please select an audio file first, or record one."
                     );
 
                     return;
@@ -1176,9 +1628,6 @@
 
                 setRunningState(true);
 
-
-                // Cancel stays hidden until
-                // the worker sends transcription-start.
 
                 cancelButton.style.display =
                     "none";
@@ -1422,6 +1871,28 @@
                 stopElapsedTimer();
 
 
+                if (recordTimerHandle) {
+
+                    clearInterval(
+                        recordTimerHandle
+                    );
+
+                    recordTimerHandle =
+                        null;
+                }
+
+
+                if (
+                    window.DropletRecorder &&
+                    typeof window.DropletRecorder.cancel === "function"
+                ) {
+
+                    try {
+                        window.DropletRecorder.cancel();
+                    } catch {}
+                }
+
+
                 if (worker) {
 
                     worker.terminate();
@@ -1435,6 +1906,11 @@
         // =====================================================
 
         resetProgress();
+
+        setRecordingState(false);
+
+        recordButton.disabled = false;
+        stopRecordButton.disabled = true;
 
 
     </script>
