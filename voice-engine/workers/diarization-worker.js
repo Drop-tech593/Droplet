@@ -2881,6 +2881,147 @@ async function diarizeAudio(audioBuffer, sampleRate = 16000) {
     );
 
 
+    /* =========================================================
+       STEP 4B.12 — RECURRENCE-AWARE SPEAKER IDENTITY MERGE
+    ========================================================= */
+
+    const identityMerge412 =
+        mergeRecurringAhcSpeakers(
+            ahc49,
+            centroidAnalysis411,
+            ahcTimeline410
+        );
+
+
+    console.log(
+        "========================================"
+    );
+
+
+    console.log(
+        "[STEP 4B.12] RECURRENCE-AWARE IDENTITY MERGE"
+    );
+
+
+    console.log(
+        "[STEP 4B.12] Configuration:",
+        identityMerge412.config
+    );
+
+
+    console.log(
+        "[STEP 4B.12] MERGE DECISIONS"
+    );
+
+
+    console.table(
+        identityMerge412.decisions.map(
+            decision => ({
+
+                speakerA:
+                    decision.speakerA,
+
+                speakerB:
+                    decision.speakerB,
+
+                cosine:
+                    Number.isFinite(
+                        decision.cosine
+                    )
+                        ? decision.cosine.toFixed(4)
+                        : "",
+
+                distance:
+                    Number.isFinite(
+                        decision.distance
+                    )
+                        ? decision.distance.toFixed(4)
+                        : "",
+
+                countA:
+                    decision.countA ?? "",
+
+                countB:
+                    decision.countB ?? "",
+
+                marginA:
+                    Number.isFinite(
+                        decision.marginA
+                    )
+                        ? decision.marginA.toFixed(4)
+                        : "",
+
+                marginB:
+                    Number.isFinite(
+                        decision.marginB
+                    )
+                        ? decision.marginB.toFixed(4)
+                        : "",
+
+                temporalGap:
+                    Number.isFinite(
+                        decision.temporalGap
+                    )
+                        ? decision.temporalGap.toFixed(2)
+                        : "",
+
+                accepted:
+                    decision.accepted,
+
+                reason:
+                    decision.reason
+            })
+        )
+    );
+
+
+    console.log(
+        "[STEP 4B.12] FINAL INFERRED IDENTITIES"
+    );
+
+
+    console.table(
+        identityMerge412.groups.map(
+            group => ({
+
+                speaker:
+                    group.speaker,
+
+                ahcFragments:
+                    group.ahcFragments.join(", ")
+            })
+        )
+    );
+
+
+    console.log(
+        "[STEP 4B.12] COMPARISON",
+        {
+
+            preVbxAhcFragments:
+                ahc49.clusters.length,
+
+            inferredSpeakerIdentities:
+                identityMerge412.numSpeakers,
+
+            libraryAhcClusters:
+                output?.metrics?.numAhcClusters,
+
+            libraryVbxClusters:
+                output?.metrics?.numVbxClusters,
+
+            brokenLibraryFinalSpeakers:
+                output?.result?.numSpeakers
+
+        }
+    );
+
+
+    console.log(
+        "========================================"
+    );
+
+
     const elapsed =
         (performance.now() - startedAt) / 1000;
 
