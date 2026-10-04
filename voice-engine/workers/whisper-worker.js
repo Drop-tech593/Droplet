@@ -1927,6 +1927,21 @@ async function transcribeLongAudio(
             1000;
 
 
+        // ------------------------------------------------------------
+        // PERFORMANCE DIAGNOSTIC
+        // ------------------------------------------------------------
+
+        console.log(
+            `[Droplet Performance] Chunk ${i + 1}/${chunks.length}`,
+            {
+                audioSeconds: chunk.duration,
+                processingSeconds: chunkElapsed,
+                realtimeFactor:
+                    chunkElapsed / chunk.duration
+            }
+        );
+
+
         // ----------------------------------------------------
         // MERGE
         // ----------------------------------------------------
@@ -2243,8 +2258,7 @@ self.onmessage =
                             currentModel,
 
                         device:
-                            currentDevice
-                    }
+                            currentDevice                    }
                 );
 
 
