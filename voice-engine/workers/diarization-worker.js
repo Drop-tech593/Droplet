@@ -18,7 +18,7 @@
  *   error
  */
 
-const VERSION = "DIARIZATION-STEP-4B10-AHC-TIMELINE";
+const VERSION = "DIARIZATION-STEP-4B11-SPEAKER-CENTROIDS";
 
 const DIARIZATION_JS_URL =
     "https://esm.sh/diarization-js@0.1.0?bundle";
@@ -591,6 +591,169 @@ function diarizationStyleAhc(
         assignments,
 
         mergeHistory
+    };
+}
+
+
+/* =========================================================
+   STEP 4B.11 — AHC SPEAKER CENTROID SIMILARITY
+========================================================= */
+
+function analyzeAhcSpeakerCentroids(
+    ahcResult,
+    captured
+) {
+
+    const embeddingById =
+        new Map(
+            captured.map(
+                item => [
+                    item.id,
+                    item.embedding
+                ]
+            )
+        );
+
+
+    const speakers = [];
+
+
+    for (
+        const cluster of
+        ahcResult.clusters
+    ) {
+
+        const vectors =
+            cluster.embeddingIds
+                .map(
+                    id =>
+                        embeddingById.get(id)
+                )
+                .filter(Boolean);
+
+
+        if (vectors.length === 0) {
+            continue;
+        }
+
+
+        const dimensions =
+            vectors[0].length;
+
+
+        const centroid =
+            new Float64Array(
+                dimensions
+            );
+
+
+        for (
+            const vector of vectors
+        ) {
+
+            for (
+                let d = 0;
+                d < dimensions;
+                d++
+            ) {
+
+                centroid[d] +=
+                    vector[d];
+            }
+        }
+
+
+        for (
+            let d = 0;
+            d < dimensions;
+            d++
+        ) {
+
+            centroid[d] /=
+                vectors.length;
+        }
+
+
+        const normalized =
+            l2NormalizeEmbedding(
+                centroid
+            );
+
+
+        speakers.push({
+
+            speaker:
+                cluster.speaker,
+
+            embeddingIds:
+                [...cluster.embeddingIds],
+
+            count:
+                vectors.length,
+
+            centroid:
+                normalized
+        });
+    }
+
+
+    const comparisons = [];
+
+
+    for (
+        let i = 0;
+        i < speakers.length;
+        i++
+    ) {
+
+        for (
+            let j = i + 1;
+            j < speakers.length;
+            j++
+        ) {
+
+            const cosine =
+                cosineSimilarity(
+                    speakers[i].centroid,
+                    speakers[j].centroid
+                );
+
+
+            const distance =
+                euclideanDistance(
+                    speakers[i].centroid,
+                    speakers[j].centroid
+                );
+
+
+            comparisons.push({
+
+                speakerA:
+                    speakers[i].speaker,
+
+                speakerB:
+                    speakers[j].speaker,
+
+                cosineSimilarity:
+                    cosine,
+
+                euclideanDistance:
+                    distance
+            });
+        }
+    }
+
+
+    comparisons.sort(
+        (a, b) =>
+            b.cosineSimilarity -
+            a.cosineSimilarity
+    );
+
+
+    return {
+        speakers,
+        comparisons
     };
 }
 
@@ -2042,6 +2205,79 @@ async function diarizeAudio(audioBuffer, sampleRate = 16000) {
                 activeDuration:
                     info.activeDuration
                         .toFixed(2)
+            })
+        )
+    );
+
+
+    console.log(
+        "========================================"
+    );
+
+
+    /* =========================================================
+       STEP 4B.11 — COMPARE AHC SPEAKER CENTROIDS
+    ========================================================= */
+
+    const centroidAnalysis411 =
+        analyzeAhcSpeakerCentroids(
+            ahc49,
+            captured
+        );
+
+
+    console.log(
+        "========================================"
+    );
+
+
+    console.log(
+        "[STEP 4B.11] AHC SPEAKER CENTROIDS"
+    );
+
+
+    console.table(
+
+        centroidAnalysis411.speakers.map(
+            item => ({
+
+                speaker:
+                    item.speaker,
+
+                embeddings:
+                    item.embeddingIds.join(", "),
+
+                count:
+                    item.count
+            })
+        )
+    );
+
+
+    console.log(
+        "[STEP 4B.11] SPEAKER-TO-SPEAKER SIMILARITY"
+    );
+
+
+    console.table(
+
+        centroidAnalysis411.comparisons.map(
+            item => ({
+
+                speakerA:
+                    item.speakerA,
+
+                speakerB:
+                    item.speakerB,
+
+                cosine:
+                    item.cosineSimilarity
+                        .toFixed(4),
+
+                distance:
+                    item.euclideanDistance
+                        .toFixed(4)
+
             })
         )
     );
