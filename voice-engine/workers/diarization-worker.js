@@ -5,11 +5,15 @@
  *
  * Input:
  *   { type: "load-models", device: "webgpu" }
+ *   { type: "diarize", audioBuffer, sampleRate }
  *
  * Output:
  *   worker-ready
  *   model-progress
  *   model-ready
+ *   diarization-start
+ *   diarization-progress
+ *   diarization-complete
  *   status
  *   error
  */
