@@ -35,10 +35,10 @@ const SAMPLE_RATE = 16000;
 // Each chunk sent to Whisper.
 //
 // Whisper is designed around an approximately 30-second
-// audio context window. Giving Base more surrounding speech
-// can help it understand sentences and terminology that
-// span a longer period.
-const CHUNK_SECONDS = 30;
+// audio context window. 25 seconds gives us a solid margin
+// under that limit while still supplying more surrounding
+// speech than the original 20-second configuration.
+const CHUNK_SECONDS = 25;
 
 
 // Small overlap between chunks.
