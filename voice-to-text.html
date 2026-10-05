@@ -148,16 +148,17 @@
     .main-panel {
       display: flex;
       flex-direction: column;
-      gap: 14px;
-      padding: 16px 20px;
+      gap: 16px;
+      padding: 16px 20px 28px;
       overflow-y: auto;
       min-width: 0;
       min-height: 0;
       background: #f8fafc;
+      align-items: stretch;
     }
     
     /* ============================================================ */
-    /* CARDS / PANELS                                                */
+    /* CARDS / PANELS — fixed-size blocks in normal flow            */
     /* ============================================================ */
     .panel {
       background: #fff;
@@ -165,6 +166,9 @@
       border-radius: 16px;
       padding: 16px 18px;
       transition: background 0.2s, border-color 0.2s;
+      flex: 0 0 auto;
+      width: 100%;
+      min-width: 0;
     }
     .panel-header {
       display: flex;
@@ -276,13 +280,13 @@
     }
     
     /* ============================================================ */
-    /* TRANSCRIPT AREA                                               */
+    /* TRANSCRIPT PANEL — fixed height block, not flex-growing      */
     /* ============================================================ */
     .transcript-area {
-      flex: 1;
       display: flex;
       flex-direction: column;
       min-height: 0;
+      flex: 0 0 auto;
     }
     .transcript-toolbar {
       display: flex;
@@ -312,13 +316,14 @@
     }
 
     /* ============================================================ */
-    /* TRANSCRIPT TEXTAREA — FIXED VISIBILITY                        */
+    /* TRANSCRIPT TEXTAREA — fixed height, scrolls internally       */
     /* ============================================================ */
     #transcriptArea {
         display: block;
         width: 100%;
         min-height: 320px;
         height: 320px;
+        max-height: 520px;
 
         padding: 20px;
 
@@ -345,6 +350,8 @@
         visibility: visible;
 
         -webkit-text-fill-color: #111827;
+
+        flex: 0 0 auto;
     }
 
     #transcriptArea:focus {
@@ -702,7 +709,7 @@
       #theme-toggle { min-width: 36px; min-height: 38px; font-size: 1.1rem; }
       
       .editor { grid-template-columns: 1fr; grid-template-rows: minmax(0, 1fr) auto; }
-      .main-panel { padding: 12px 14px; gap: 12px; }
+      .main-panel { padding: 12px 14px 24px; gap: 12px; }
       .panel { padding: 14px 14px; border-radius: 14px; }
       .sidebar-right {
         max-height: 50vh;
@@ -716,7 +723,7 @@
         box-shadow: 0 -6px 20px rgba(0,0,0,0.08);
         gap: 14px;
       }
-      #transcriptArea { min-height: 200px; height: 200px; font-size: 15px; padding: 16px; }
+      #transcriptArea { min-height: 180px; height: 180px; max-height: 320px; font-size: 15px; padding: 16px; }
       .record-btn { font-size: 13px; padding: 10px 14px; min-height: 44px; }
       .timer-display { font-size: 17px; min-width: 60px; }
       .stats-grid { gap: 6px; }
