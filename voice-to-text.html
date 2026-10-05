@@ -310,28 +310,50 @@
       background: #eff6ff;
       color: #1d4ed8;
     }
-    .transcript-area textarea {
-      flex: 1;
-      width: 100%;
-      min-height: 260px;
-      padding: 16px;
-      font-size: 15px;
-      line-height: 1.7;
-      border: 1px solid #e2e8f0;
-      border-radius: 12px;
-      resize: vertical;
-      background: #fff;
-      color: #0f172a;
-      outline: none;
-      transition: border-color 0.2s;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+    /* ============================================================ */
+    /* TRANSCRIPT TEXTAREA — FIXED VISIBILITY                        */
+    /* ============================================================ */
+    #transcriptArea {
+        display: block;
+        width: 100%;
+        min-height: 320px;
+        height: 320px;
+
+        padding: 20px;
+
+        border: 1px solid #dbe3ef;
+        border-radius: 14px;
+
+        background: #ffffff;
+        color: #111827;
+
+        font-family: Arial, sans-serif;
+        font-size: 16px;
+        font-weight: 400;
+        line-height: 1.7;
+
+        resize: vertical;
+        overflow-y: auto;
+
+        white-space: pre-wrap;
+        overflow-wrap: break-word;
+
+        outline: none;
+
+        opacity: 1;
+        visibility: visible;
+
+        -webkit-text-fill-color: #111827;
     }
-    .transcript-area textarea:focus {
-      border-color: #3b82f6;
-      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+
+    #transcriptArea:focus {
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
     }
-    .transcript-area textarea::placeholder {
-      color: #94a3b8;
+
+    #transcriptArea::placeholder {
+        color: #94a3b8;
     }
     
     /* ============================================================ */
@@ -611,9 +633,6 @@
     html.dark .record-btn.secondary { background: #0f172a; border-color: #334155; color: #cbd5e1; }
     html.dark .record-btn.secondary:hover { background: #334155; }
     html.dark .timer-display { color: #f1f5f9; }
-    html.dark .transcript-area textarea { background: #0f172a; border-color: #334155; color: #f1f5f9; }
-    html.dark .transcript-area textarea:focus { border-color: #3b82f6; }
-    html.dark .transcript-area textarea::placeholder { color: #64748b; }
     html.dark .transcript-toolbar button { background: #0f172a; border-color: #334155; color: #cbd5e1; }
     html.dark .transcript-toolbar button:hover { background: #1e3a5f; border-color: #3b82f6; color: #93c5fd; }
     html.dark .sidebar-right { background: #1e293b; border-color: #334155; }
@@ -638,6 +657,23 @@
     html.dark .faq-section details { background: #1e293b; border-color: #334155; }
     html.dark .faq-section summary { color: #f1f5f9; }
     html.dark .faq-section details p { color: #94a3b8; }
+    
+    /* Dark mode for the fixed transcript textarea */
+    html.dark #transcriptArea {
+        background: #111827;
+        color: #f9fafb;
+        -webkit-text-fill-color: #f9fafb;
+        border-color: #374151;
+    }
+
+    html.dark #transcriptArea:focus {
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+    }
+
+    html.dark #transcriptArea::placeholder {
+        color: #64748b;
+    }
     
     /* ============================================================ */
     /* RESPONSIVE — TABLET & PHONE                                   */
@@ -680,7 +716,7 @@
         box-shadow: 0 -6px 20px rgba(0,0,0,0.08);
         gap: 14px;
       }
-      .transcript-area textarea { min-height: 160px; font-size: 14px; padding: 14px; }
+      #transcriptArea { min-height: 200px; height: 200px; font-size: 15px; padding: 16px; }
       .record-btn { font-size: 13px; padding: 10px 14px; min-height: 44px; }
       .timer-display { font-size: 17px; min-width: 60px; }
       .stats-grid { gap: 6px; }
@@ -1383,8 +1419,6 @@ function clearTranscript() {
   State.duration = 0;
   updateStats();
   updateProgress(0, 'Ready. Upload an audio file or record one.');
-initializeDeviceQuality();
-restoreSession();
   statusBadge.textContent = 'Ready';
   statusBadge.style.background = '#dbeafe';
   statusBadge.style.color = '#1e40af';
@@ -1425,7 +1459,6 @@ function downloadTranscript(format) {
   let filename = 'dropletweb-transcript';
 
   if (format === 'srt') {
-    // Generate simple SRT
     const lines = text.split('\n').filter(l => l.trim());
     let srt = '';
     lines.forEach((line, i) => {
@@ -1450,7 +1483,6 @@ function downloadTranscript(format) {
     ext = 'json';
     mime = 'application/json';
   } else if (format === 'docx') {
-    // Simple HTML-based DOCX (Word can open HTML)
     content = `<html><head><meta charset="UTF-8"><title>Transcript</title></head><body><pre>${text.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</pre></body></html>`;
     ext = 'doc';
     mime = 'application/msword';
@@ -1490,7 +1522,7 @@ function resetAll() {
 }
 
 // ============================================================
-// UPLOAD HANDLING (basic — uses Web Speech API for now)
+// UPLOAD HANDLING
 // ============================================================
 function wireUpload() {
   const drop = document.getElementById('uploadZone');
@@ -1528,7 +1560,6 @@ function handleAudioFile(file) {
   saveAudioToBrowser(file);
   saveSession();
 }
-
 
 // ============================================================
 // QUALITY + DEVICE RECOMMENDATION
@@ -1689,7 +1720,6 @@ transcriptArea.addEventListener('input', () => {
   saveSession();
 });
 
-
 // Keyboard shortcut: Ctrl+Enter to copy
 document.addEventListener('keydown', (e) => {
   if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
@@ -1708,7 +1738,6 @@ updateStats();
 updateProgress(0, 'Ready. Upload an audio file or record one.');
 initializeDeviceQuality();
 restoreSession();
-
 
 console.log('Voice to Text tool loaded.');
 </script>
