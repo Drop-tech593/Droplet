@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
   <title>Voice to Text – Free Online Transcription | Droplet</title>
-  <meta name="description" content="Convert speech to text instantly in your browser. Live transcription, multi-language, 100% private. No sign-up, no uploads, free forever.">
+  <meta name="description" content="Convert audio and recorded speech to text privately in your browser. Record or upload audio, choose transcription quality, edit your transcript, and export it.">
   <meta name="theme-color" content="#ffffff">
   <link rel="canonical" href="https://dropletweb.xyz/voice-to-text">
   
@@ -692,6 +692,61 @@
       .app-header .title { font-size: 11px; }
       .header-btn { padding: 7px 6px; font-size: 10.5px; }
     }
+
+    /* ============================================================ */
+    /* DROPLET VOICE V1 POLISH                                      */
+    /* ============================================================ */
+    .trust-row { display:flex; flex-wrap:wrap; gap:8px 16px; margin-top:12px; color:#64748b; font-size:11px; font-weight:650; }
+    .trust-row span { display:inline-flex; align-items:center; gap:5px; }
+    .trust-row .tick { color:#10b981; font-weight:900; }
+    .audio-actions { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:14px; }
+    .action-card { border:1px solid #e2e8f0; border-radius:14px; padding:12px; background:#fff; min-width:0; }
+    .action-card.primary-card { border-color:#bfdbfe; background:#f8fbff; }
+    .action-card.coming-card { background:#f8fafc; border-style:dashed; }
+    .action-card .record-btn { width:100%; }
+    .action-note { margin:8px 2px 0; color:#64748b; font-size:11px; line-height:1.45; }
+    .coming-title { display:flex; align-items:center; justify-content:space-between; gap:8px; font-size:13px; font-weight:800; color:#334155; margin-bottom:8px; }
+    .coming-badge { font-size:9px; letter-spacing:.4px; text-transform:uppercase; background:#ede9fe; color:#6d28d9; padding:3px 7px; border-radius:999px; white-space:nowrap; }
+    .coming-btn { width:100%; min-height:48px; border:1px solid #ddd6fe; background:#f5f3ff; color:#6d28d9; border-radius:12px; font-weight:800; cursor:not-allowed; opacity:.88; }
+    .selected-audio { display:none; margin-top:12px; padding:10px 12px; border:1px solid #dbeafe; background:#eff6ff; border-radius:12px; align-items:center; gap:10px; }
+    .selected-audio.show { display:flex; }
+    .selected-audio .audio-meta { min-width:0; flex:1; }
+    .selected-audio strong { display:block; font-size:12px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .selected-audio small { color:#64748b; font-size:10px; }
+    .transcribe-main { width:100%; margin-top:12px; min-height:48px; border:0; border-radius:12px; background:#3b82f6; color:#fff; font-weight:850; font-size:14px; cursor:pointer; box-shadow:0 4px 14px rgba(59,130,246,.24); }
+    .transcribe-main:hover { background:#2563eb; }
+    .transcribe-main:disabled { background:#cbd5e1; box-shadow:none; cursor:not-allowed; }
+    .quality-list { display:flex; flex-direction:column; gap:8px; }
+    .quality-option { position:relative; display:block; cursor:pointer; }
+    .quality-option input { position:absolute; opacity:0; pointer-events:none; }
+    .quality-card { display:flex; gap:10px; padding:10px 11px; border:1px solid #e2e8f0; border-radius:11px; transition:.15s; background:#fff; }
+    .quality-option input:checked + .quality-card { border-color:#3b82f6; background:#eff6ff; box-shadow:0 0 0 1px #3b82f6; }
+    .quality-dot { width:16px; height:16px; border:2px solid #cbd5e1; border-radius:50%; margin-top:2px; flex:none; }
+    .quality-option input:checked + .quality-card .quality-dot { border:5px solid #3b82f6; }
+    .quality-copy { min-width:0; flex:1; }
+    .quality-name { font-size:12px; font-weight:850; color:#0f172a; display:flex; align-items:center; gap:6px; }
+    .quality-desc { margin-top:2px; font-size:10.5px; color:#64748b; line-height:1.35; }
+    .recommended { font-size:8px; background:#dcfce7; color:#15803d; padding:2px 5px; border-radius:999px; text-transform:uppercase; letter-spacing:.25px; }
+    .device-box { padding:10px 11px; border:1px solid #e2e8f0; border-radius:11px; background:#f8fafc; font-size:10.5px; color:#64748b; line-height:1.5; }
+    .device-box strong { color:#334155; }
+    .quality-warning { display:none; padding:9px 10px; border:1px solid #fde68a; background:#fffbeb; color:#92400e; border-radius:10px; font-size:10.5px; line-height:1.45; }
+    .quality-warning.show { display:block; }
+    .save-state { display:flex; align-items:center; gap:6px; margin-top:8px; color:#64748b; font-size:10.5px; }
+    .save-state .save-dot { width:7px; height:7px; border-radius:50%; background:#10b981; }
+    .coming-list { display:flex; flex-direction:column; gap:8px; }
+    .coming-item { display:flex; gap:9px; align-items:flex-start; padding:9px 10px; border:1px solid #e2e8f0; border-radius:10px; background:#f8fafc; }
+    .coming-item span:first-child { font-size:15px; }
+    .coming-item strong { display:block; font-size:11px; color:#334155; }
+    .coming-item small { display:block; margin-top:1px; color:#94a3b8; font-size:9.5px; line-height:1.35; }
+    html.dark .action-card { background:#0f172a; border-color:#334155; }
+    html.dark .action-card.primary-card { background:#172033; border-color:#1d4ed8; }
+    html.dark .action-card.coming-card, html.dark .coming-item, html.dark .device-box { background:#0f172a; border-color:#334155; }
+    html.dark .quality-card { background:#0f172a; border-color:#334155; }
+    html.dark .quality-option input:checked + .quality-card { background:#1e3a5f; border-color:#3b82f6; }
+    html.dark .quality-name, html.dark .coming-item strong, html.dark .device-box strong, html.dark .coming-title { color:#e2e8f0; }
+    html.dark .selected-audio { background:#172554; border-color:#1d4ed8; }
+    @media(max-width:640px){ .audio-actions{grid-template-columns:1fr;} .trust-row{gap:6px 12px;} }
+
   </style>
 </head>
 <body>
@@ -723,48 +778,64 @@
     <!-- ========================================================== -->
     <div class="main-panel">
 
-      <!-- Recording Controls -->
+      <!-- Select / Record Audio -->
       <div class="panel">
         <div class="panel-header">
           <span class="icon">🎙️</span>
-          <h3>Record or Upload Audio</h3>
+          <h3>Select or Record Audio</h3>
           <span class="badge" id="statusBadge">Ready</span>
         </div>
 
         <div class="upload-zone" id="uploadZone">
           <div class="big-icon">📁</div>
           <h4>Drop an audio file here</h4>
-          <p>or click to browse — MP3, WAV, M4A, FLAC, OGG, WEBM (max 2 hours)</p>
+          <p>or click to browse — MP3, WAV, M4A, FLAC, OGG, WEBM</p>
           <input type="file" id="audioInput" accept="audio/*" style="display:none;">
         </div>
 
-        <div style="margin-top:14px;">
-          <div class="record-row">
-            <button class="record-btn primary" id="recordBtn">
-              🎙️ Start Recording
-            </button>
-            <button class="record-btn danger" id="stopBtn" disabled>
-              ⏹️ Stop
-            </button>
-            <span class="timer-display" id="timerDisplay">00:00</span>
+        <div class="audio-actions">
+          <div class="action-card primary-card">
+            <button class="record-btn primary" id="recordBtn">🎙️ Record Audio</button>
+            <button class="record-btn danger hidden" id="stopBtn">⏹️ Stop Recording</button>
+            <div class="action-note">Record first, then Droplet will transcribe the finished recording.</div>
+          </div>
+
+          <div class="action-card coming-card">
+            <div class="coming-title"><span>⚡ Live Transcription</span><span class="coming-badge">Coming soon</span></div>
+            <button class="coming-btn" type="button" disabled>🎙️ Transcribe while speaking</button>
+            <div class="action-note">Words will appear while you speak without waiting for the recording to finish. More languages and improved live processing are planned too.</div>
           </div>
         </div>
 
-        <div style="margin-top:10px;">
-          <div class="progress-container">
-            <div class="progress-bar" id="progressBar"></div>
+        <div class="selected-audio" id="selectedAudioCard">
+          <span style="font-size:20px;">🎧</span>
+          <div class="audio-meta">
+            <strong id="selectedAudioName">Audio ready</strong>
+            <small id="selectedAudioMeta">Ready to transcribe</small>
           </div>
-          <p style="font-size:11px; color:#94a3b8; margin:6px 0 0; text-align:center;" id="statusMessage">
-            Ready. Select a file or start recording.
-          </p>
+          <span class="timer-display" id="timerDisplay">00:00</span>
+        </div>
+
+        <div class="trust-row">
+          <span><b class="tick">✓</b> Private processing</span>
+          <span><b class="tick">✓</b> Audio stays on your device</span>
+          <span><b class="tick">✓</b> No account required</span>
+          <span><b class="tick">✓</b> Free</span>
+        </div>
+
+        <button class="transcribe-main" id="transcribeBtn" disabled>Transcribe Audio</button>
+
+        <div style="margin-top:10px;">
+          <div class="progress-container"><div class="progress-bar" id="progressBar"></div></div>
+          <p style="font-size:11px; color:#94a3b8; margin:6px 0 0; text-align:center;" id="statusMessage">Ready. Upload an audio file or record one.</p>
         </div>
       </div>
 
-      <!-- Live Transcript -->
+      <!-- Transcript -->
       <div class="panel transcript-area">
         <div class="panel-header">
           <span class="icon">📝</span>
-          <h3>Live Transcript</h3>
+          <h3>Transcript</h3>
           <span class="badge" id="wordCountBadge">0 words</span>
         </div>
 
@@ -776,7 +847,8 @@
           <button onclick="clearTranscript()" style="color:#ef4444; border-color:#fecaca;">🗑️ Clear</button>
         </div>
 
-        <textarea id="transcriptArea" placeholder="Your transcript will appear here as you speak..."></textarea>
+        <textarea id="transcriptArea" placeholder="Your transcript will appear here after transcription. You can edit it anytime."></textarea>
+        <div class="save-state"><span class="save-dot"></span><span id="saveStateText">Saved in this browser</span></div>
       </div>
 
       <!-- Progress Details -->
@@ -813,57 +885,38 @@
     <!-- ========================================================== -->
     <div class="sidebar-right">
 
-      <!-- Model / Quality -->
+      <!-- Quality -->
       <div class="sidebar-section">
-        <h4>Transcription Model</h4>
-        <div class="field">
-          <select id="modelSelect">
-            <option value="whisper-tiny.en">Fast — Whisper Tiny (English)</option>
-            <option value="whisper-base.en" selected>Balanced — Whisper Base (English)</option>
-            <option value="whisper-small.en">High Quality — Whisper Small (English)</option>
-            <option value="whisper-base">Multilingual — Whisper Base</option>
-          </select>
+        <h4>Quality</h4>
+        <div class="quality-list" id="qualityList">
+          <label class="quality-option">
+            <input type="radio" name="quality" value="onnx-community/whisper-tiny.en">
+            <span class="quality-card"><span class="quality-dot"></span><span class="quality-copy"><span class="quality-name">Fast</span><span class="quality-desc">Fastest processing with lower transcription accuracy.</span></span></span>
+          </label>
+          <label class="quality-option">
+            <input type="radio" name="quality" value="onnx-community/whisper-base.en" checked>
+            <span class="quality-card"><span class="quality-dot"></span><span class="quality-copy"><span class="quality-name">Balanced <span class="recommended">Recommended</span></span><span class="quality-desc">Best balance of speed and accuracy for most devices.</span></span></span>
+          </label>
+          <label class="quality-option">
+            <input type="radio" name="quality" value="onnx-community/whisper-small.en">
+            <span class="quality-card"><span class="quality-dot"></span><span class="quality-copy"><span class="quality-name">High Quality</span><span class="quality-desc">Better accuracy, but needs much more processing power.</span></span></span>
+          </label>
         </div>
-        <div style="font-size:11px; color:#94a3b8; margin-top:2px;">
-          Base is recommended for most users. Small is slower but more accurate.
-        </div>
+        <select id="modelSelect" class="hidden" aria-hidden="true">
+          <option value="onnx-community/whisper-tiny.en">Fast</option>
+          <option value="onnx-community/whisper-base.en" selected>Balanced</option>
+          <option value="onnx-community/whisper-small.en">High Quality</option>
+        </select>
+        <div class="quality-warning" id="qualityWarning">⚠️ <strong>High Quality may be very slow on this device.</strong><br>Balanced is recommended for smoother processing.</div>
+        <div class="device-box" id="deviceSummary"><strong>Device:</strong> Checking your device automatically…</div>
       </div>
 
-      <!-- Language -->
       <div class="sidebar-section">
-        <h4>Language</h4>
-        <div class="field">
-          <select id="languageSelect">
-            <option value="en-US" selected>English (US)</option>
-            <option value="en-GB">English (UK)</option>
-            <option value="es-ES">Spanish</option>
-            <option value="fr-FR">French</option>
-            <option value="de-DE">German</option>
-            <option value="it-IT">Italian</option>
-            <option value="pt-BR">Portuguese (Brazil)</option>
-            <option value="ja-JP">Japanese</option>
-            <option value="ko-KR">Korean</option>
-            <option value="zh-CN">Chinese (Mandarin)</option>
-            <option value="ar-SA">Arabic</option>
-            <option value="hi-IN">Hindi</option>
-          </select>
-        </div>
-      </div>
-
-      <!-- Audio Settings -->
-      <div class="sidebar-section">
-        <h4>Audio Settings</h4>
-        <div class="field">
-          <label>Sample Rate</label>
-          <select id="sampleRateSelect">
-            <option value="16000" selected>16 kHz (Recommended)</option>
-            <option value="22050">22.05 kHz</option>
-            <option value="44100">44.1 kHz</option>
-          </select>
-        </div>
-        <div class="field">
-          <label>Chunk Size (seconds)</label>
-          <input type="text" id="chunkSizeInput" value="30" placeholder="30">
+        <h4>Coming Soon</h4>
+        <div class="coming-list">
+          <div class="coming-item"><span>⚡</span><div><strong>Live transcription</strong><small>See words appear while you are still speaking.</small></div></div>
+          <div class="coming-item"><span>🌍</span><div><strong>More languages</strong><small>Multilingual transcription is being prepared for a future update.</small></div></div>
+          <div class="coming-item"><span>👥</span><div><strong>Speaker labels</strong><small>Separate conversations into Speaker 1, Speaker 2 and more.</small></div></div>
         </div>
       </div>
 
@@ -898,7 +951,6 @@
           <button onclick="downloadTranscript('txt')">📄 Download as TXT</button>
           <button onclick="downloadTranscript('docx')">📝 Download as DOCX</button>
           <button onclick="downloadTranscript('srt')">🎬 Download as SRT</button>
-          <button onclick="downloadTranscript('json')">📊 Download as JSON</button>
         </div>
       </div>
 
@@ -925,7 +977,7 @@
 
   <h1>Voice to Text — Free, Private, Browser-Based Transcription</h1>
   <p>
-    Convert speech to text instantly using your device's microphone or by uploading an audio file.
+    Convert speech to text by recording audio or uploading an existing audio file.
     This tool runs entirely in your browser — no data is sent to any server, no sign-up required,
     and no file size limits beyond your device's memory.
   </p>
@@ -935,17 +987,8 @@
     transcript appear in real time.
   </p>
 
-  <h2>Live Microphone Transcription</h2>
-  <p>
-    Click <strong>Start Recording</strong> and begin speaking. The tool captures audio in small
-    chunks, transcribes each chunk using the Whisper model, and appends the results to the
-    transcript area. The timer shows how long you've been recording, and the progress bar fills
-    as each chunk is processed.
-  </p>
-  <p>
-    You can pause at any time — the transcript is preserved. When you're done, click Stop and
-    the final text is ready to copy or download.
-  </p>
+  <h2>Record Audio in Your Browser</h2>
+  <p>Use <strong>Record Audio</strong> to capture your voice privately in the browser. When you finish, stop the recording and transcribe the completed audio. Live transcription while you speak is planned for a future update.</p>
 
   <h2>Upload Audio Files</h2>
   <p>
@@ -958,12 +1001,8 @@
     without uploading sensitive audio to a third-party server.
   </p>
 
-  <h2>Multi-Language Support</h2>
-  <p>
-    Choose from a wide range of languages including English (US/UK), Spanish, French, German,
-    Italian, Portuguese, Japanese, Korean, Chinese, Arabic, and Hindi. The model adapts to the
-    selected language for better accuracy.
-  </p>
+  <h2>English Transcription Quality</h2>
+  <p>Choose Fast, Balanced, or High Quality. Balanced is recommended for most devices. More languages are planned for a future update.</p>
 
   <h2>Export Options</h2>
   <p>
@@ -974,7 +1013,6 @@
     <li><strong>Download as TXT</strong> — plain text file for universal compatibility.</li>
     <li><strong>Download as DOCX</strong> — formatted Word document (coming soon).</li>
     <li><strong>Download as SRT</strong> — subtitle file with timestamps for video projects.</li>
-    <li><strong>Download as JSON</strong> — structured data with segments and timestamps.</li>
   </ul>
 
   <h2>Privacy — Your Audio Never Leaves Your Device</h2>
@@ -991,10 +1029,8 @@
 
   <h2>What This Tool Does Not Do</h2>
   <ul>
-    <li><strong>It does not store your transcripts.</strong> Everything is ephemeral — close the
-        tab and it's gone.</li>
-    <li><strong>It does not support real-time translation.</strong> It transcribes in the selected
-        language, not translates.</li>
+    <li><strong>Your current work is saved in this browser.</strong> Reloading the page can restore the current transcript and audio session. Clearing browser site data removes it.</li>
+    <li><strong>Live transcription and more languages are coming soon.</strong> This version focuses on reliable completed-audio transcription.</li>
     <li><strong>It does not provide speaker diarization in this version.</strong> All text is
         attributed to a single speaker.</li>
     <li><strong>It does not work offline on the first load.</strong> The model file must be
@@ -1085,7 +1121,7 @@
     <summary>Can I edit the transcript after it's generated?</summary>
     <p>
       Yes. The transcript area is a standard text area — you can click anywhere and edit the
-      text directly. Changes are not saved automatically, so copy or download before closing.
+      text directly. Changes are saved locally in this browser so a reload does not immediately destroy your current work. You should still download important transcripts for permanent storage.
     </p>
   </details>
 
@@ -1106,6 +1142,12 @@
   </details>
 
 </section>
+
+<!-- Droplet Voice Engine -->
+<script src="./voice-engine/js/device-check.js"></script>
+<script src="./voice-engine/js/model-manager.js"></script>
+<script src="./voice-engine/js/audio-processor.js"></script>
+<script src="./voice-engine/js/recorder.js"></script>
 
 <!-- ============================================================ -->
 <!-- JAVASCRIPT                                                    -->
@@ -1194,7 +1236,13 @@ const progressPercentBadge = document.getElementById('progressPercentBadge');
 const uploadZone = document.getElementById('uploadZone');
 const audioInput = document.getElementById('audioInput');
 const modelSelect = document.getElementById('modelSelect');
-const languageSelect = document.getElementById('languageSelect');
+const transcribeBtn = document.getElementById('transcribeBtn');
+const selectedAudioCard = document.getElementById('selectedAudioCard');
+const selectedAudioName = document.getElementById('selectedAudioName');
+const selectedAudioMeta = document.getElementById('selectedAudioMeta');
+const qualityWarning = document.getElementById('qualityWarning');
+const deviceSummary = document.getElementById('deviceSummary');
+const saveStateText = document.getElementById('saveStateText');
 
 // Stats
 const statWords = document.getElementById('statWords');
@@ -1251,182 +1299,73 @@ function stopTimer() {
 }
 
 // ============================================================
-// SPEECH RECOGNITION (Web Speech API)
-// ============================================================
-function initSpeechRecognition() {
-  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!SpeechRecognition) {
-    showToast('Speech recognition is not supported in this browser. Please use Chrome or Edge.', 'error', 4000);
-    return null;
-  }
-
-  const recognition = new SpeechRecognition();
-  recognition.continuous = true;
-  recognition.interimResults = true;
-  recognition.lang = languageSelect.value || 'en-US';
-  recognition.maxAlternatives = 1;
-
-  recognition.onresult = (event) => {
-    let interim = '';
-    let final = '';
-
-    for (let i = event.resultIndex; i < event.results.length; i++) {
-      const result = event.results[i];
-      if (result.isFinal) {
-        final += result[0].transcript + ' ';
-        State.segmentCount++;
-      } else {
-        interim += result[0].transcript;
-      }
-    }
-
-    if (final) {
-      State.transcriptText += final;
-      transcriptArea.value = State.transcriptText;
-      transcriptArea.scrollTop = transcriptArea.scrollHeight;
-    }
-
-    // Update stats
-    updateStats();
-
-    // Update progress (approximate)
-    if (State.duration > 0) {
-      const elapsed = (performance.now() - State.startTime) / 1000;
-      const pct = Math.min(95, (elapsed / State.duration) * 100);
-      updateProgress(pct, 'Listening...');
-    } else {
-      updateProgress(30, 'Listening...');
-    }
-  };
-
-  recognition.onerror = (event) => {
-    if (event.error === 'not-allowed') {
-      showToast('Microphone access denied. Please allow microphone permissions.', 'error', 4000);
-      stopRecording();
-    } else if (event.error === 'no-speech') {
-      // Ignore
-    } else if (event.error === 'aborted') {
-      // Ignore
-    } else {
-      console.warn('Speech recognition error:', event.error);
-    }
-  };
-
-  recognition.onend = () => {
-    if (State.isRecording) {
-      // Restart if still recording
-      try {
-        recognition.start();
-      } catch (e) {
-        // Already started
-      }
-    }
-  };
-
-  return recognition;
-}
-
-// ============================================================
-// START RECORDING
+// NORMAL MICROPHONE RECORDING — NO LIVE MODULES
 // ============================================================
 async function startRecording() {
   if (State.isRecording || State.isProcessing) return;
-
   try {
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-
+    if (!window.DropletVoice || !window.DropletVoice.startMicrophoneRecording) {
+      throw new Error('Droplet microphone recorder is not available.');
+    }
+    await window.DropletVoice.startMicrophoneRecording();
     State.isRecording = true;
-    State.audioChunks = [];
-    State.segmentCount = 0;
-    State.transcriptText = '';
-
-    recordBtn.disabled = true;
+    State.currentFile = null;
+    recordBtn.classList.add('hidden');
+    stopBtn.classList.remove('hidden');
     stopBtn.disabled = false;
-    recordBtn.textContent = '🔴 Recording...';
+    transcribeBtn.disabled = true;
     statusBadge.textContent = 'Recording';
     statusBadge.style.background = '#fef3c7';
     statusBadge.style.color = '#92400e';
-
+    selectedAudioCard.classList.add('show');
+    selectedAudioName.textContent = 'Recording from microphone…';
+    selectedAudioMeta.textContent = 'Your audio stays on this device';
     startTimer();
-    updateProgress(0, 'Listening... Speak now.');
-
-    // Initialize speech recognition
-    State.recognition = initSpeechRecognition();
-    if (State.recognition) {
-      State.recognition.lang = languageSelect.value || 'en-US';
-      State.recognition.start();
-    }
-
-    // Also set up MediaRecorder for audio capture (backup / future use)
-    const mediaRecorder = new MediaRecorder(stream);
-    State.mediaRecorder = mediaRecorder;
-    mediaRecorder.ondataavailable = (e) => {
-      if (e.data.size > 0) State.audioChunks.push(e.data);
-    };
-    mediaRecorder.start(1000);
-
+    updateProgress(0, 'Recording… Press Stop when you are finished.');
     showToast('Recording started', 'success', 1500);
-
   } catch (err) {
-    console.error('Recording error:', err);
+    console.error(err);
     showToast('Could not access microphone: ' + err.message, 'error', 4000);
-    stopRecording();
   }
 }
 
-// ============================================================
-// STOP RECORDING
-// ============================================================
-function stopRecording() {
+async function stopRecording() {
   if (!State.isRecording) return;
-
-  State.isRecording = false;
-  State.isProcessing = true;
-
-  recordBtn.disabled = false;
   stopBtn.disabled = true;
-  recordBtn.textContent = '🎙️ Start Recording';
-  statusBadge.textContent = 'Processing';
-  statusBadge.style.background = '#dbeafe';
-  statusBadge.style.color = '#1e40af';
-
-  stopTimer();
-  updateProgress(100, 'Processing complete.');
-
-  // Stop speech recognition
-  if (State.recognition) {
-    try { State.recognition.stop(); } catch (e) {}
-    State.recognition = null;
-  }
-
-  // Stop media recorder
-  if (State.mediaRecorder && State.mediaRecorder.state !== 'inactive') {
-    try { State.mediaRecorder.stop(); } catch (e) {}
-    State.mediaRecorder = null;
-  }
-
-  // Stop all tracks
-  if (State.audioContext) {
-    try { State.audioContext.close(); } catch (e) {}
-    State.audioContext = null;
-  }
-
-  // Update duration
-  if (State.startTime) {
-    State.duration = (performance.now() - State.startTime) / 1000;
+  try {
+    const result = await window.DropletVoice.stopMicrophoneRecording();
+    State.isRecording = false;
+    stopTimer();
+    State.currentFile = result.file;
+    State.duration = Number.isFinite(result.duration) ? result.duration : 0;
+    recordBtn.classList.remove('hidden');
+    stopBtn.classList.add('hidden');
+    transcribeBtn.disabled = false;
+    selectedAudioCard.classList.add('show');
+    selectedAudioName.textContent = result.file.name;
+    selectedAudioMeta.textContent = formatBytes(result.file.size) + ' • Recorded audio • Ready to transcribe';
+    timerDisplay.textContent = formatTime(State.duration);
     statDuration.textContent = formatTime(State.duration);
-    statProcessed.textContent = formatTime(State.duration);
+    statusBadge.textContent = 'Ready';
+    statusBadge.style.background = '#dbeafe';
+    statusBadge.style.color = '#1e40af';
+    updateProgress(0, 'Recording ready. Choose quality and press Transcribe Audio.');
+    await saveAudioToBrowser(result.file);
+    saveSession();
+    showToast('Recording ready to transcribe', 'success', 1800);
+  } catch (err) {
+    State.isRecording = false;
+    stopTimer();
+    recordBtn.classList.remove('hidden');
+    stopBtn.classList.add('hidden');
+    showToast('Could not finish recording: ' + err.message, 'error', 4000);
   }
+}
 
-  updateStats();
-
-  statusBadge.textContent = 'Ready';
-  statusBadge.style.background = '#dbeafe';
-  statusBadge.style.color = '#1e40af';
-  statusMessage.textContent = 'Recording stopped. Transcript ready.';
-  State.isProcessing = false;
-
-  showToast('Recording stopped', 'success', 1500);
+function formatBytes(bytes) {
+  if (!Number.isFinite(bytes)) return '';
+  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(0) + ' KB';
+  return (bytes / 1024 / 1024).toFixed(2) + ' MB';
 }
 
 // ============================================================
@@ -1443,7 +1382,9 @@ function clearTranscript() {
   State.segmentCount = 0;
   State.duration = 0;
   updateStats();
-  updateProgress(0, 'Ready. Select a file or start recording.');
+  updateProgress(0, 'Ready. Upload an audio file or record one.');
+initializeDeviceQuality();
+restoreSession();
   statusBadge.textContent = 'Ready';
   statusBadge.style.background = '#dbeafe';
   statusBadge.style.color = '#1e40af';
@@ -1574,12 +1515,165 @@ wireUpload();
 
 function handleAudioFile(file) {
   State.currentFile = file;
-  showToast('Audio file loaded: ' + file.name, 'success', 2000);
-  statusMessage.textContent = 'Audio file ready. Click "Start Recording" to transcribe using live speech recognition.';
-  statusBadge.textContent = 'File loaded';
+  selectedAudioCard.classList.add('show');
+  selectedAudioName.textContent = file.name;
+  selectedAudioMeta.textContent = formatBytes(file.size) + ' • Uploaded audio • Ready to transcribe';
+  transcribeBtn.disabled = false;
+  showToast('Audio ready: ' + file.name, 'success', 1800);
+  statusMessage.textContent = 'Audio ready. Choose quality and press Transcribe Audio.';
+  statusBadge.textContent = 'Ready';
   statusBadge.style.background = '#dbeafe';
   statusBadge.style.color = '#1e40af';
-  updateProgress(0, 'Audio file ready. Click Start Recording and play the audio.');
+  updateProgress(0, 'Audio ready to transcribe.');
+  saveAudioToBrowser(file);
+  saveSession();
+}
+
+
+// ============================================================
+// QUALITY + DEVICE RECOMMENDATION
+// ============================================================
+const qualityRadios = Array.from(document.querySelectorAll('input[name="quality"]'));
+function setQuality(model, persist = true) {
+  const radio = qualityRadios.find(r => r.value === model) || qualityRadios[1];
+  radio.checked = true;
+  modelSelect.value = radio.value;
+  const caps = window.__dropletCaps || {};
+  const weak = (caps.cpuThreads && caps.cpuThreads <= 4) || (caps.memoryGB && caps.memoryGB <= 8);
+  qualityWarning.classList.toggle('show', radio.value.includes('whisper-small') && weak);
+  if (persist) { localStorage.setItem('dropletVoiceQuality', radio.value); saveSession(); }
+}
+qualityRadios.forEach(r => r.addEventListener('change', () => setQuality(r.value)));
+
+async function initializeDeviceQuality() {
+  try {
+    const caps = window.DropletVoice && window.DropletVoice.detectCapabilities
+      ? await window.DropletVoice.detectCapabilities() : {};
+    window.__dropletCaps = caps;
+    deviceSummary.innerHTML = '<strong>Device:</strong> ' +
+      (caps.webGPU ? 'WebGPU available' : 'CPU mode') + ' • ' +
+      (caps.cpuThreads || '?') + ' CPU threads' +
+      (caps.memoryGB ? ' • ' + caps.memoryGB + ' GB memory' : '');
+    const saved = localStorage.getItem('dropletVoiceQuality');
+    let recommended = 'onnx-community/whisper-base.en';
+    if ((caps.memoryGB && caps.memoryGB <= 4) || (caps.cpuThreads && caps.cpuThreads <= 2 && !caps.webGPU)) recommended = 'onnx-community/whisper-tiny.en';
+    if (saved) setQuality(saved, false); else setQuality(recommended, false);
+  } catch (e) {
+    deviceSummary.innerHTML = '<strong>Device:</strong> Balanced quality recommended.';
+  }
+}
+
+// ============================================================
+// BROWSER SESSION RECOVERY
+// ============================================================
+const SESSION_KEY = 'dropletVoiceSessionV1';
+let saveTimer = null;
+function saveSession() {
+  clearTimeout(saveTimer);
+  if (saveStateText) saveStateText.textContent = 'Saving…';
+  saveTimer = setTimeout(() => {
+    const data = { transcript: transcriptArea.value || '', quality: modelSelect.value, duration: State.duration || 0, savedAt: Date.now() };
+    localStorage.setItem(SESSION_KEY, JSON.stringify(data));
+    if (saveStateText) saveStateText.textContent = 'Saved in this browser';
+  }, 250);
+}
+function openVoiceDB() {
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open('DropletVoice', 1);
+    req.onupgradeneeded = () => { if (!req.result.objectStoreNames.contains('session')) req.result.createObjectStore('session'); };
+    req.onsuccess = () => resolve(req.result); req.onerror = () => reject(req.error);
+  });
+}
+async function saveAudioToBrowser(file) {
+  try { const db = await openVoiceDB(); const tx = db.transaction('session','readwrite'); tx.objectStore('session').put(file,'currentAudio'); } catch(e) { console.warn('Audio autosave unavailable:', e); }
+}
+async function restoreAudioFromBrowser() {
+  try {
+    const db = await openVoiceDB();
+    const file = await new Promise((resolve,reject)=>{ const q=db.transaction('session').objectStore('session').get('currentAudio'); q.onsuccess=()=>resolve(q.result); q.onerror=()=>reject(q.error); });
+    if (file instanceof Blob) {
+      State.currentFile = file;
+      selectedAudioCard.classList.add('show');
+      selectedAudioName.textContent = file.name || 'Recovered recording';
+      selectedAudioMeta.textContent = formatBytes(file.size) + ' • Restored from this browser';
+      transcribeBtn.disabled = false;
+    }
+  } catch(e) { console.warn('No saved audio session:', e); }
+}
+async function restoreSession() {
+  try {
+    const data = JSON.parse(localStorage.getItem(SESSION_KEY) || 'null');
+    if (data) {
+      transcriptArea.value = data.transcript || '';
+      State.transcriptText = transcriptArea.value;
+      State.duration = data.duration || 0;
+      if (data.quality) setQuality(data.quality, false);
+      updateStats();
+      statDuration.textContent = formatTime(State.duration);
+    }
+  } catch(e) {}
+  await restoreAudioFromBrowser();
+}
+
+// ============================================================
+// UPLOAD / RECORDED AUDIO TRANSCRIPTION
+// ============================================================
+let transcriptionWorker = null;
+let transcriptionJobId = 0;
+async function transcribeSelectedAudio() {
+  if (!State.currentFile || State.isProcessing) return;
+  State.isProcessing = true;
+  transcribeBtn.disabled = true; recordBtn.disabled = true;
+  statusBadge.textContent = 'Processing';
+  updateProgress(1, 'Preparing audio…');
+  try {
+    const audio = await window.DropletVoice.processAudioFile(State.currentFile);
+    State.duration = audio.length / 16000;
+    statDuration.textContent = formatTime(State.duration);
+    const model = modelSelect.value;
+    transcriptionJobId++;
+    const jobId = 'ui-' + transcriptionJobId;
+    transcriptionWorker = new Worker('./voice-engine/workers/whisper-worker.js?v=voice-ui-v1', {type:'module'});
+    transcriptionWorker.onmessage = (event) => {
+      const m = event.data || {};
+      if (m.type === 'model-progress' && m.progress && Number.isFinite(m.progress.progress)) updateProgress(Math.min(12, m.progress.progress * .12), 'Loading transcription model…');
+      if (m.type === 'status' && m.message) statusMessage.textContent = m.message;
+      if (m.type === 'model-ready') {
+        updateProgress(12, 'Transcribing audio…');
+        const buf = audio.buffer;
+        transcriptionWorker.postMessage({type:'transcribe', jobId, audioBuffer:buf}, [buf]);
+      }
+      if (m.type === 'chunk-complete' && m.jobId === jobId) {
+        transcriptArea.value = m.fullText || transcriptArea.value;
+        State.transcriptText = transcriptArea.value;
+        State.segmentCount = m.chunkNumber || State.segmentCount;
+        statChunks.textContent = (m.chunkNumber || 0) + ' / ' + (m.totalChunks || 0);
+        statProcessed.textContent = formatTime(m.processedAudio || 0);
+        statRemaining.textContent = formatTime(m.estimatedRemaining || 0);
+        updateProgress(12 + ((m.progress || 0) * .88), 'Transcribing chunk ' + (m.chunkNumber || '') + ' of ' + (m.totalChunks || '') + '…');
+        updateStats(); saveSession();
+      }
+      if (m.type === 'transcription-complete' && m.jobId === jobId) finishTranscription(m.text || '');
+      if (m.type === 'error') failTranscription(m.message || 'Transcription failed.');
+    };
+    transcriptionWorker.onerror = e => failTranscription(e.message || 'Transcription worker failed.');
+    transcriptionWorker.postMessage({type:'load-model', model, device:'webgpu'});
+  } catch(e) { failTranscription(e.message); }
+}
+function finishTranscription(text) {
+  transcriptArea.value = text || 'No speech detected.';
+  State.transcriptText = transcriptArea.value;
+  updateStats(); updateProgress(100, 'Transcription complete.');
+  statusBadge.textContent = 'Complete'; statProcessed.textContent = formatTime(State.duration); statRemaining.textContent = '0:00';
+  State.isProcessing = false; transcribeBtn.disabled = false; recordBtn.disabled = false;
+  saveSession(); showToast('Transcription complete', 'success', 1800);
+  if (transcriptionWorker) { transcriptionWorker.terminate(); transcriptionWorker = null; }
+}
+function failTranscription(message) {
+  console.error(message); statusBadge.textContent = 'Error'; updateProgress(0, message || 'Transcription failed.');
+  State.isProcessing = false; transcribeBtn.disabled = !State.currentFile; recordBtn.disabled = false;
+  if (transcriptionWorker) { transcriptionWorker.terminate(); transcriptionWorker = null; }
+  showToast(message || 'Transcription failed', 'error', 4000);
 }
 
 // ============================================================
@@ -1587,16 +1681,14 @@ function handleAudioFile(file) {
 // ============================================================
 recordBtn.addEventListener('click', startRecording);
 stopBtn.addEventListener('click', stopRecording);
+transcribeBtn.addEventListener('click', transcribeSelectedAudio);
 
 transcriptArea.addEventListener('input', () => {
   updateStats();
+  State.transcriptText = transcriptArea.value;
+  saveSession();
 });
 
-languageSelect.addEventListener('change', () => {
-  if (State.recognition) {
-    State.recognition.lang = languageSelect.value;
-  }
-});
 
 // Keyboard shortcut: Ctrl+Enter to copy
 document.addEventListener('keydown', (e) => {
@@ -1613,15 +1705,10 @@ document.addEventListener('keydown', (e) => {
 // BOOT
 // ============================================================
 updateStats();
-updateProgress(0, 'Ready. Select a file or start recording.');
+updateProgress(0, 'Ready. Upload an audio file or record one.');
+initializeDeviceQuality();
+restoreSession();
 
-// Check browser support
-if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-  statusBadge.textContent = 'Limited support';
-  statusBadge.style.background = '#fef3c7';
-  statusBadge.style.color = '#92400e';
-  statusMessage.textContent = 'Your browser does not support live speech recognition. Please use Chrome or Edge for the best experience.';
-}
 
 console.log('Voice to Text tool loaded.');
 </script>
