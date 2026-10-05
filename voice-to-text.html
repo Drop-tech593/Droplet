@@ -1,2828 +1,1630 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
-    <title>Voice to Text v11 - Droplet</title>
-
-    <style>
-
-        * {
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 950px;
-            margin: 40px auto;
-            padding: 0 20px;
-            line-height: 1.5;
-        }
-
-        h1 {
-            margin-bottom: 5px;
-        }
-
-        h2 {
-            margin-top: 35px;
-        }
-
-        button,
-        select,
-        input {
-            font-size: 16px;
-            padding: 10px 14px;
-            margin: 5px 0;
-        }
-
-        button {
-            cursor: pointer;
-        }
-
-        button:disabled {
-            cursor: not-allowed;
-            opacity: 0.5;
-        }
-
-        #cancel-button {
-            display: none;
-            margin-left: 10px;
-        }
-
-        #recorder-controls {
-            margin-top: 10px;
-            display: flex;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-
-        #recording-timer {
-            font-family: monospace;
-            font-size: 18px;
-            padding: 0 6px;
-        }
-
-        #recording-status {
-            font-weight: bold;
-            margin-top: 8px;
-        }
-
-        textarea {
-            width: 100%;
-            min-height: 320px;
-            padding: 15px;
-            font-size: 16px;
-            line-height: 1.6;
-            resize: vertical;
-        }
-
-        #status {
-            font-weight: bold;
-            margin-top: 20px;
-        }
-
-        #progress-container {
-            width: 100%;
-            height: 24px;
-            background: #e5e5e5;
-            border-radius: 6px;
-            overflow: hidden;
-            margin-top: 15px;
-        }
-
-        #progress-bar {
-            width: 0%;
-            height: 100%;
-            background: #333;
-            transition: width 0.25s ease;
-        }
-
-        #progress-details {
-            margin-top: 12px;
-            padding: 15px;
-            background: #f5f5f5;
-            border-radius: 6px;
-        }
-
-        #progress-details p {
-            margin: 4px 0;
-        }
-
-        #debug {
-            background: #111;
-            color: #eee;
-            padding: 15px;
-            white-space: pre-wrap;
-            overflow: auto;
-            max-height: 300px;
-            border-radius: 6px;
-        }
-
-        .button-row {
-            display: flex;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+  <title>Voice to Text – Free Online Transcription | Droplet</title>
+  <meta name="description" content="Convert speech to text instantly in your browser. Live transcription, multi-language, 100% private. No sign-up, no uploads, free forever.">
+  <meta name="theme-color" content="#ffffff">
+  <link rel="canonical" href="https://dropletweb.xyz/voice-to-text">
+  
+  <!-- Prevent flash of light theme -->
+  <script>
+    (function() {
+      if (localStorage.getItem('theme') === 'dark') {
+        document.documentElement.classList.add('dark');
+      }
+    })();
+  </script>
+  
+  <!-- Google AdSense -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4006702663328202" crossorigin="anonymous"></script>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <style>
+    /* ============================================================ */
+    /* BASE RESET & TYPOGRAPHY                                       */
+    /* ============================================================ */
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    html, body { margin: 0; padding: 0; width: 100%; min-height: 100%; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f8fafc;
+      color: #0f172a;
+      overscroll-behavior: none;
+      transition: background 0.2s, color 0.2s;
+    }
+    .hidden { display: none !important; }
+    
+    /* ============================================================ */
+    /* APP GRID                                                      */
+    /* ============================================================ */
+    .app {
+      width: 100vw;
+      min-height: 100vh;
+      display: grid;
+      grid-template-rows: 56px minmax(0, 1fr);
+    }
+    .app-header {
+      padding: 0 12px;
+      background: #fff;
+      border-bottom: 1px solid #e2e8f0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+      z-index: 20;
+      padding-top: env(safe-area-inset-top, 0);
+      height: 56px;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    
+    /* ============================================================ */
+    /* EDITOR — VOICE TO TEXT GRID                                   */
+    /* ============================================================ */
+    .editor {
+      display: grid;
+      grid-template-columns: 1fr 360px;
+      min-width: 0;
+      min-height: 0;
+      width: 100%;
+      height: calc(100vh - 56px);
+      overflow: hidden;
+    }
+    
+    /* ============================================================ */
+    /* HEADER                                                        */
+    /* ============================================================ */
+    .app-header .logo-link {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      text-decoration: none;
+      flex-shrink: 0;
+    }
+    .app-header .logo-link img {
+      height: 28px;
+      width: auto;
+      border-radius: 8px;
+    }
+    .app-header .logo-link .logo-text {
+      font-weight: 900;
+      font-size: 14px;
+      color: #0f172a;
+    }
+    .app-header .title {
+      font-size: 13px;
+      font-weight: 700;
+      color: #0f172a;
+      margin-left: 2px;
+      flex-shrink: 0;
+      white-space: nowrap;
+    }
+    .header-spacer { flex: 1; }
+    .header-btn {
+      background: none;
+      border: none;
+      color: #3b82f6;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 8px 10px;
+      border-radius: 8px;
+      transition: background 0.15s;
+      white-space: nowrap;
+      min-height: 40px;
+      display: inline-flex;
+      align-items: center;
+    }
+    .header-btn:hover { background: #eff6ff; }
+    .header-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+    .header-btn.strong { background: #3b82f6; color: #fff; padding: 8px 12px; }
+    .header-btn.strong:hover { background: #2563eb; }
+    .header-btn.strong:disabled { background: #cbd5e1; }
+    
+    #theme-toggle {
+      background: none;
+      border: none;
+      font-size: 1.2rem;
+      cursor: pointer;
+      padding: 0.3rem 0.5rem;
+      border-radius: 8px;
+      transition: background 0.2s;
+      line-height: 1;
+      color: #475569;
+      min-width: 40px;
+      min-height: 40px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    #theme-toggle:hover { background: #f1f5f9; }
+    
+    /* ============================================================ */
+    /* MAIN CONTENT — LEFT PANEL                                     */
+    /* ============================================================ */
+    .main-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      padding: 16px 20px;
+      overflow-y: auto;
+      min-width: 0;
+      min-height: 0;
+      background: #f8fafc;
+    }
+    
+    /* ============================================================ */
+    /* CARDS / PANELS                                                */
+    /* ============================================================ */
+    .panel {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 16px;
+      padding: 16px 18px;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .panel-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .panel-header .icon {
+      font-size: 18px;
+      line-height: 1;
+    }
+    .panel-header h3 {
+      font-size: 15px;
+      font-weight: 800;
+      margin: 0;
+      color: #0f172a;
+    }
+    .panel-header .badge {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: #dbeafe;
+      color: #1e40af;
+      margin-left: auto;
+    }
+    
+    /* ============================================================ */
+    /* UPLOAD / RECORD CONTROLS                                      */
+    /* ============================================================ */
+    .upload-zone {
+      border: 2px dashed #cbd5e1;
+      border-radius: 14px;
+      padding: 24px 16px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: #f8fafc;
+    }
+    .upload-zone:hover, .upload-zone.dragover {
+      border-color: #3b82f6;
+      background: #eff6ff;
+    }
+    .upload-zone .big-icon {
+      font-size: 36px;
+      margin-bottom: 6px;
+    }
+    .upload-zone h4 {
+      font-size: 14px;
+      font-weight: 700;
+      margin: 0 0 4px;
+      color: #0f172a;
+    }
+    .upload-zone p {
+      font-size: 12px;
+      color: #64748b;
+      margin: 0;
+    }
+    
+    .record-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .record-btn {
+      flex: 1;
+      padding: 12px 16px;
+      border-radius: 12px;
+      border: none;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      min-height: 48px;
+    }
+    .record-btn.primary {
+      background: #3b82f6;
+      color: #fff;
+      box-shadow: 0 4px 14px rgba(59, 130, 246, 0.3);
+    }
+    .record-btn.primary:hover { background: #2563eb; }
+    .record-btn.primary:disabled { background: #cbd5e1; box-shadow: none; cursor: not-allowed; }
+    .record-btn.secondary {
+      background: #f1f5f9;
+      color: #334155;
+      border: 1px solid #e2e8f0;
+    }
+    .record-btn.secondary:hover { background: #e2e8f0; }
+    .record-btn.secondary:disabled { opacity: 0.4; cursor: not-allowed; }
+    .record-btn.danger {
+      background: #ef4444;
+      color: #fff;
+    }
+    .record-btn.danger:hover { background: #dc2626; }
+    
+    .timer-display {
+      font-family: 'SF Mono', Menlo, Consolas, monospace;
+      font-size: 20px;
+      font-weight: 700;
+      color: #0f172a;
+      min-width: 72px;
+      text-align: center;
+      padding: 0 6px;
+    }
+    
+    /* ============================================================ */
+    /* TRANSCRIPT AREA                                               */
+    /* ============================================================ */
+    .transcript-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+    .transcript-toolbar {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+    }
+    .transcript-toolbar button {
+      padding: 6px 12px;
+      border-radius: 8px;
+      border: 1px solid #e2e8f0;
+      background: #fff;
+      color: #334155;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+      min-height: 34px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .transcript-toolbar button:hover {
+      border-color: #3b82f6;
+      background: #eff6ff;
+      color: #1d4ed8;
+    }
+    .transcript-area textarea {
+      flex: 1;
+      width: 100%;
+      min-height: 260px;
+      padding: 16px;
+      font-size: 15px;
+      line-height: 1.7;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      resize: vertical;
+      background: #fff;
+      color: #0f172a;
+      outline: none;
+      transition: border-color 0.2s;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+    .transcript-area textarea:focus {
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+    .transcript-area textarea::placeholder {
+      color: #94a3b8;
+    }
+    
+    /* ============================================================ */
+    /* PROGRESS BAR                                                  */
+    /* ============================================================ */
+    .progress-container {
+      width: 100%;
+      height: 8px;
+      background: #e2e8f0;
+      border-radius: 999px;
+      overflow: hidden;
+      margin-top: 6px;
+    }
+    .progress-bar {
+      height: 100%;
+      background: #3b82f6;
+      width: 0%;
+      transition: width 0.3s ease;
+      border-radius: 999px;
+    }
+    
+    /* ============================================================ */
+    /* RIGHT SIDEBAR — SETTINGS & TOOLS                              */
+    /* ============================================================ */
+    .sidebar-right {
+      background: #fff;
+      border-left: 1px solid #e2e8f0;
+      min-width: 0;
+      min-height: 0;
+      width: 360px;
+      max-width: 360px;
+      overflow-y: auto;
+      padding: 16px 18px 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      -webkit-overflow-scrolling: touch;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .sidebar-section {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .sidebar-section h4 {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      font-weight: 800;
+      color: #94a3b8;
+      margin: 0 0 2px;
+    }
+    .sidebar-section .field {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .sidebar-section .field label {
+      font-size: 12px;
+      font-weight: 700;
+      color: #64748b;
+    }
+    .sidebar-section select,
+    .sidebar-section input[type="text"] {
+      padding: 10px 12px;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      font-size: 14px;
+      background: #fff;
+      color: #0f172a;
+      outline: none;
+      transition: border-color 0.15s;
+      min-height: 44px;
+      width: 100%;
+    }
+    .sidebar-section select:focus,
+    .sidebar-section input[type="text"]:focus {
+      border-color: #3b82f6;
+    }
+    
+    /* ============================================================ */
+    /* STATS GRID                                                    */
+    /* ============================================================ */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .stat-card {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 10px 12px;
+      text-align: center;
+    }
+    .stat-card .stat-value {
+      font-size: 20px;
+      font-weight: 900;
+      color: #0f172a;
+      line-height: 1.2;
+    }
+    .stat-card .stat-label {
+      font-size: 10px;
+      font-weight: 700;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+    
+    /* ============================================================ */
+    /* BUTTON GROUP                                                  */
+    /* ============================================================ */
+    .btn-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .btn-group button {
+      padding: 10px 14px;
+      border-radius: 10px;
+      border: 1px solid #e2e8f0;
+      background: #fff;
+      color: #334155;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+      text-align: left;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 44px;
+    }
+    .btn-group button:hover {
+      border-color: #3b82f6;
+      background: #eff6ff;
+      color: #1d4ed8;
+    }
+    .btn-group button.danger {
+      color: #ef4444;
+      border-color: #fecaca;
+    }
+    .btn-group button.danger:hover {
+      background: #fef2f2;
+      border-color: #ef4444;
+    }
+    
+    /* ============================================================ */
+    /* TOAST                                                         */
+    /* ============================================================ */
+    .toast {
+      position: fixed;
+      bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+      left: 50%;
+      transform: translateX(-50%) translateY(120px);
+      background: #0f172a;
+      color: #fff;
+      padding: 12px 22px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 600;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      z-index: 20000;
+      transition: transform 0.3s ease;
+      max-width: calc(100% - 32px);
+      text-align: center;
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); }
+    .toast.success { background: #10b981; }
+    .toast.error { background: #ef4444; }
+    
+    /* ============================================================ */
+    /* SEO CONTENT                                                   */
+    /* ============================================================ */
+    .seo-content {
+      max-width: 42rem;
+      margin: 2.5rem auto 1rem;
+      padding: 0 20px;
+      color: #334155;
+      line-height: 1.65;
+    }
+    .seo-content h1 {
+      font-size: 1.6rem;
+      font-weight: 900;
+      color: #0f172a;
+      letter-spacing: -0.02em;
+      margin: 0 0 1rem;
+      line-height: 1.25;
+    }
+    .seo-content h2 {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #0f172a;
+      margin: 2rem 0 0.5rem;
+    }
+    .seo-content p {
+      margin-bottom: 1rem;
+      font-size: 0.95rem;
+    }
+    .seo-content ul {
+      padding-left: 1.4rem;
+      margin-bottom: 1rem;
+      font-size: 0.95rem;
+    }
+    .seo-content li {
+      margin-bottom: 0.3rem;
+    }
+    .faq-section {
+      max-width: 42rem;
+      margin: 2rem auto;
+      padding: 0 20px;
+    }
+    .faq-section h2 {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #0f172a;
+      text-align: center;
+      margin-bottom: 1.25rem;
+    }
+    .faq-section details {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 0.75rem;
+      padding: 0.75rem 1.25rem;
+      margin-bottom: 0.6rem;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .faq-section summary {
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: #0f172a;
+      cursor: pointer;
+      list-style: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .faq-section summary::-webkit-details-marker { display: none; }
+    .faq-section summary::after {
+      content: "➕";
+      font-size: 0.8rem;
+      color: #94a3b8;
+      transition: transform 0.2s;
+    }
+    .faq-section details[open] summary::after {
+      content: "➖";
+    }
+    .faq-section details p {
+      margin-top: 0.6rem;
+      font-size: 0.9rem;
+      color: #475569;
+      line-height: 1.6;
+    }
+    
+    /* ============================================================ */
+    /* DARK MODE OVERRIDES                                           */
+    /* ============================================================ */
+    html.dark body { background: #0f172a; color: #e2e8f0; }
+    html.dark .app-header { background: #1e293b; border-color: #334155; }
+    html.dark .app-header .logo-link .logo-text,
+    html.dark .app-header .title { color: #f1f5f9; }
+    html.dark .header-btn { color: #60a5fa; }
+    html.dark .header-btn:hover { background: #334155; }
+    html.dark .header-btn.strong { background: #2563eb; color: #fff; }
+    html.dark .header-btn.strong:hover { background: #3b82f6; }
+    html.dark .header-btn.strong:disabled { background: #334155; color: #64748b; }
+    html.dark #theme-toggle { color: #e2e8f0; }
+    html.dark #theme-toggle:hover { background: #334155; }
+    html.dark .main-panel { background: #0f172a; }
+    html.dark .panel { background: #1e293b; border-color: #334155; }
+    html.dark .panel-header h3 { color: #f1f5f9; }
+    html.dark .panel-header .badge { background: #1e3a5f; color: #93c5fd; }
+    html.dark .upload-zone { background: #0f172a; border-color: #334155; }
+    html.dark .upload-zone:hover { border-color: #3b82f6; background: #1e3a5f; }
+    html.dark .upload-zone h4 { color: #f1f5f9; }
+    html.dark .upload-zone p { color: #94a3b8; }
+    html.dark .record-btn.secondary { background: #0f172a; border-color: #334155; color: #cbd5e1; }
+    html.dark .record-btn.secondary:hover { background: #334155; }
+    html.dark .timer-display { color: #f1f5f9; }
+    html.dark .transcript-area textarea { background: #0f172a; border-color: #334155; color: #f1f5f9; }
+    html.dark .transcript-area textarea:focus { border-color: #3b82f6; }
+    html.dark .transcript-area textarea::placeholder { color: #64748b; }
+    html.dark .transcript-toolbar button { background: #0f172a; border-color: #334155; color: #cbd5e1; }
+    html.dark .transcript-toolbar button:hover { background: #1e3a5f; border-color: #3b82f6; color: #93c5fd; }
+    html.dark .sidebar-right { background: #1e293b; border-color: #334155; }
+    html.dark .sidebar-section h4 { color: #64748b; }
+    html.dark .sidebar-section .field label { color: #94a3b8; }
+    html.dark .sidebar-section select,
+    html.dark .sidebar-section input[type="text"] { background: #0f172a; border-color: #334155; color: #f1f5f9; }
+    html.dark .sidebar-section select:focus,
+    html.dark .sidebar-section input[type="text"]:focus { border-color: #3b82f6; }
+    html.dark .stat-card { background: #0f172a; border-color: #334155; }
+    html.dark .stat-card .stat-value { color: #f1f5f9; }
+    html.dark .stat-card .stat-label { color: #64748b; }
+    html.dark .btn-group button { background: #0f172a; border-color: #334155; color: #cbd5e1; }
+    html.dark .btn-group button:hover { background: #1e3a5f; border-color: #3b82f6; color: #93c5fd; }
+    html.dark .btn-group button.danger { color: #f87171; border-color: #7f1d1d; }
+    html.dark .btn-group button.danger:hover { background: #1e1b1b; border-color: #ef4444; }
+    html.dark .progress-container { background: #334155; }
+    html.dark .seo-content { color: #cbd5e1; }
+    html.dark .seo-content h1 { color: #f1f5f9; }
+    html.dark .seo-content h2 { color: #f1f5f9; }
+    html.dark .faq-section h2 { color: #f1f5f9; }
+    html.dark .faq-section details { background: #1e293b; border-color: #334155; }
+    html.dark .faq-section summary { color: #f1f5f9; }
+    html.dark .faq-section details p { color: #94a3b8; }
+    
+    /* ============================================================ */
+    /* RESPONSIVE — TABLET & PHONE                                   */
+    /* ============================================================ */
+    @media (max-width: 900px) {
+      .editor {
+        grid-template-columns: 1fr;
+        grid-template-rows: minmax(0, 1fr) auto;
+      }
+      .sidebar-right {
+        max-height: 46vh;
+        border-top: 1px solid #e2e8f0;
+        border-left: none;
+        width: 100%;
+        max-width: none;
+      }
+    }
+    @media (max-width: 640px) {
+      .app-header { padding: 0 8px; gap: 6px; height: 52px; }
+      .app { grid-template-rows: 52px minmax(0, 1fr); }
+      .app-header .logo-link img { height: 24px; }
+      .app-header .logo-link .logo-text { font-size: 13px; }
+      .app-header .title { font-size: 12px; max-width: 70px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      .header-btn { padding: 8px 8px; font-size: 11px; min-height: 38px; }
+      .header-btn.strong { padding: 8px 10px; }
+      #theme-toggle { min-width: 36px; min-height: 38px; font-size: 1.1rem; }
+      
+      .editor { grid-template-columns: 1fr; grid-template-rows: minmax(0, 1fr) auto; }
+      .main-panel { padding: 12px 14px; gap: 12px; }
+      .panel { padding: 14px 14px; border-radius: 14px; }
+      .sidebar-right {
+        max-height: 50vh;
+        max-height: 50dvh;
+        border-top: 1px solid #e2e8f0;
+        border-left: none;
+        width: 100%;
+        max-width: none;
+        padding: 14px 14px calc(20px + env(safe-area-inset-bottom, 0px));
+        border-radius: 16px 16px 0 0;
+        box-shadow: 0 -6px 20px rgba(0,0,0,0.08);
+        gap: 14px;
+      }
+      .transcript-area textarea { min-height: 160px; font-size: 14px; padding: 14px; }
+      .record-btn { font-size: 13px; padding: 10px 14px; min-height: 44px; }
+      .timer-display { font-size: 17px; min-width: 60px; }
+      .stats-grid { gap: 6px; }
+      .stat-card .stat-value { font-size: 17px; }
+      .toast { font-size: 13px; padding: 12px 18px; }
+    }
+    @media (max-width: 380px) {
+      .app-header .logo-link .logo-text { display: none; }
+      .app-header .title { font-size: 11px; }
+      .header-btn { padding: 7px 6px; font-size: 10.5px; }
+    }
+  </style>
 </head>
-
-
 <body>
 
+<div class="app">
+  <!-- ============================================================ -->
+  <!-- HEADER                                                        -->
+  <!-- ============================================================ -->
+  <div class="app-header">
+    <a href="/" class="logo-link">
+      <img src="Gemini_Generated_Image_sdu6v7sdu6v7sdu6.jpg" alt="Droplet">
+      <span class="logo-text">Droplet</span>
+    </a>
+    <span class="title" id="headerTitle">Voice to Text</span>
+    <div class="header-spacer"></div>
+    <button class="header-btn" id="clearBtn" onclick="clearTranscript()">Clear</button>
+    <button class="header-btn strong" id="copyBtn" onclick="copyTranscript()">Copy</button>
+    <button class="header-btn" onclick="backToHome()">← Back</button>
+    <button id="theme-toggle" aria-label="Toggle theme">🌙</button>
+  </div>
 
-    <h1>Voice to Text v11</h1>
+  <!-- ============================================================ -->
+  <!-- EDITOR                                                        -->
+  <!-- ============================================================ -->
+  <div class="editor" id="screen-editor">
 
+    <!-- ========================================================== -->
+    <!-- LEFT MAIN PANEL                                            -->
+    <!-- ========================================================== -->
+    <div class="main-panel">
+
+      <!-- Recording Controls -->
+      <div class="panel">
+        <div class="panel-header">
+          <span class="icon">🎙️</span>
+          <h3>Record or Upload Audio</h3>
+          <span class="badge" id="statusBadge">Ready</span>
+        </div>
+
+        <div class="upload-zone" id="uploadZone">
+          <div class="big-icon">📁</div>
+          <h4>Drop an audio file here</h4>
+          <p>or click to browse — MP3, WAV, M4A, FLAC, OGG, WEBM (max 2 hours)</p>
+          <input type="file" id="audioInput" accept="audio/*" style="display:none;">
+        </div>
+
+        <div style="margin-top:14px;">
+          <div class="record-row">
+            <button class="record-btn primary" id="recordBtn">
+              🎙️ Start Recording
+            </button>
+            <button class="record-btn danger" id="stopBtn" disabled>
+              ⏹️ Stop
+            </button>
+            <span class="timer-display" id="timerDisplay">00:00</span>
+          </div>
+        </div>
+
+        <div style="margin-top:10px;">
+          <div class="progress-container">
+            <div class="progress-bar" id="progressBar"></div>
+          </div>
+          <p style="font-size:11px; color:#94a3b8; margin:6px 0 0; text-align:center;" id="statusMessage">
+            Ready. Select a file or start recording.
+          </p>
+        </div>
+      </div>
+
+      <!-- Live Transcript -->
+      <div class="panel transcript-area">
+        <div class="panel-header">
+          <span class="icon">📝</span>
+          <h3>Live Transcript</h3>
+          <span class="badge" id="wordCountBadge">0 words</span>
+        </div>
+
+        <div class="transcript-toolbar">
+          <button onclick="copyTranscript()">📋 Copy</button>
+          <button onclick="downloadTranscript('txt')">⬇️ TXT</button>
+          <button onclick="downloadTranscript('docx')">⬇️ DOCX</button>
+          <button onclick="downloadTranscript('srt')">⬇️ SRT</button>
+          <button onclick="clearTranscript()" style="color:#ef4444; border-color:#fecaca;">🗑️ Clear</button>
+        </div>
+
+        <textarea id="transcriptArea" placeholder="Your transcript will appear here as you speak..."></textarea>
+      </div>
+
+      <!-- Progress Details -->
+      <div class="panel">
+        <div class="panel-header">
+          <span class="icon">📊</span>
+          <h3>Progress</h3>
+          <span class="badge" id="progressPercentBadge">0%</span>
+        </div>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-value" id="statChunks">0 / 0</div>
+            <div class="stat-label">Chunks</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="statProcessed">0:00</div>
+            <div class="stat-label">Processed</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="statElapsed">0:00</div>
+            <div class="stat-label">Elapsed</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="statRemaining">--:--</div>
+            <div class="stat-label">Remaining</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ========================================================== -->
+    <!-- RIGHT SIDEBAR                                              -->
+    <!-- ========================================================== -->
+    <div class="sidebar-right">
+
+      <!-- Model / Quality -->
+      <div class="sidebar-section">
+        <h4>Transcription Model</h4>
+        <div class="field">
+          <select id="modelSelect">
+            <option value="whisper-tiny.en">Fast — Whisper Tiny (English)</option>
+            <option value="whisper-base.en" selected>Balanced — Whisper Base (English)</option>
+            <option value="whisper-small.en">High Quality — Whisper Small (English)</option>
+            <option value="whisper-base">Multilingual — Whisper Base</option>
+          </select>
+        </div>
+        <div style="font-size:11px; color:#94a3b8; margin-top:2px;">
+          Base is recommended for most users. Small is slower but more accurate.
+        </div>
+      </div>
+
+      <!-- Language -->
+      <div class="sidebar-section">
+        <h4>Language</h4>
+        <div class="field">
+          <select id="languageSelect">
+            <option value="en-US" selected>English (US)</option>
+            <option value="en-GB">English (UK)</option>
+            <option value="es-ES">Spanish</option>
+            <option value="fr-FR">French</option>
+            <option value="de-DE">German</option>
+            <option value="it-IT">Italian</option>
+            <option value="pt-BR">Portuguese (Brazil)</option>
+            <option value="ja-JP">Japanese</option>
+            <option value="ko-KR">Korean</option>
+            <option value="zh-CN">Chinese (Mandarin)</option>
+            <option value="ar-SA">Arabic</option>
+            <option value="hi-IN">Hindi</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Audio Settings -->
+      <div class="sidebar-section">
+        <h4>Audio Settings</h4>
+        <div class="field">
+          <label>Sample Rate</label>
+          <select id="sampleRateSelect">
+            <option value="16000" selected>16 kHz (Recommended)</option>
+            <option value="22050">22.05 kHz</option>
+            <option value="44100">44.1 kHz</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Chunk Size (seconds)</label>
+          <input type="text" id="chunkSizeInput" value="30" placeholder="30">
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="sidebar-section">
+        <h4>Statistics</h4>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-value" id="statWords">0</div>
+            <div class="stat-label">Words</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="statChars">0</div>
+            <div class="stat-label">Characters</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="statSegments">0</div>
+            <div class="stat-label">Segments</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="statDuration">0:00</div>
+            <div class="stat-label">Duration</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Export Tools -->
+      <div class="sidebar-section">
+        <h4>Export Transcript</h4>
+        <div class="btn-group">
+          <button onclick="copyTranscript()">📋 Copy to Clipboard</button>
+          <button onclick="downloadTranscript('txt')">📄 Download as TXT</button>
+          <button onclick="downloadTranscript('docx')">📝 Download as DOCX</button>
+          <button onclick="downloadTranscript('srt')">🎬 Download as SRT</button>
+          <button onclick="downloadTranscript('json')">📊 Download as JSON</button>
+        </div>
+      </div>
+
+      <!-- Danger Zone -->
+      <div class="sidebar-section">
+        <h4>Actions</h4>
+        <div class="btn-group">
+          <button class="danger" onclick="clearTranscript()">🗑️ Clear Transcript</button>
+          <button class="danger" onclick="resetAll()">🔄 Reset Everything</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- ============================================================ -->
+<!-- SEO CONTENT                                                   -->
+<!-- ============================================================ -->
+<main class="seo-content">
+
+  <h1>Voice to Text — Free, Private, Browser-Based Transcription</h1>
+  <p>
+    Convert speech to text instantly using your device's microphone or by uploading an audio file.
+    This tool runs entirely in your browser — no data is sent to any server, no sign-up required,
+    and no file size limits beyond your device's memory.
+  </p>
+  <p>
+    Whether you're dictating notes, transcribing an interview, or creating subtitles for a video,
+    the workflow is simple: choose a language, pick a model, hit record or upload, and watch the
+    transcript appear in real time.
+  </p>
+
+  <h2>Live Microphone Transcription</h2>
+  <p>
+    Click <strong>Start Recording</strong> and begin speaking. The tool captures audio in small
+    chunks, transcribes each chunk using the Whisper model, and appends the results to the
+    transcript area. The timer shows how long you've been recording, and the progress bar fills
+    as each chunk is processed.
+  </p>
+  <p>
+    You can pause at any time — the transcript is preserved. When you're done, click Stop and
+    the final text is ready to copy or download.
+  </p>
+
+  <h2>Upload Audio Files</h2>
+  <p>
+    Drag and drop any audio file (MP3, WAV, M4A, FLAC, OGG, WEBM) onto the upload zone, or click
+    to browse. The tool decodes the audio, splits it into manageable chunks, and transcribes each
+    one. Progress is shown in real time, with elapsed time and estimated remaining time.
+  </p>
+  <p>
+    This is ideal for transcribing interviews, lectures, meeting recordings, or voice memos —
+    without uploading sensitive audio to a third-party server.
+  </p>
+
+  <h2>Multi-Language Support</h2>
+  <p>
+    Choose from a wide range of languages including English (US/UK), Spanish, French, German,
+    Italian, Portuguese, Japanese, Korean, Chinese, Arabic, and Hindi. The model adapts to the
+    selected language for better accuracy.
+  </p>
+
+  <h2>Export Options</h2>
+  <p>
+    Once your transcript is ready, you can:
+  </p>
+  <ul>
+    <li><strong>Copy to clipboard</strong> — paste into any text editor or document.</li>
+    <li><strong>Download as TXT</strong> — plain text file for universal compatibility.</li>
+    <li><strong>Download as DOCX</strong> — formatted Word document (coming soon).</li>
+    <li><strong>Download as SRT</strong> — subtitle file with timestamps for video projects.</li>
+    <li><strong>Download as JSON</strong> — structured data with segments and timestamps.</li>
+  </ul>
+
+  <h2>Privacy — Your Audio Never Leaves Your Device</h2>
+  <p>
+    All audio processing happens locally in your browser using WebAssembly and the Web Audio API.
+    The Whisper model runs entirely on your device. No audio data, transcript text, or metadata
+    is ever transmitted to any server. The only external resource loaded is the open-source
+    model file, which is cached by your browser after the first load.
+  </p>
+  <p>
+    You can even disconnect from the internet after the page loads and the tool will continue
+    to work.
+  </p>
+
+  <h2>What This Tool Does Not Do</h2>
+  <ul>
+    <li><strong>It does not store your transcripts.</strong> Everything is ephemeral — close the
+        tab and it's gone.</li>
+    <li><strong>It does not support real-time translation.</strong> It transcribes in the selected
+        language, not translates.</li>
+    <li><strong>It does not provide speaker diarization in this version.</strong> All text is
+        attributed to a single speaker.</li>
+    <li><strong>It does not work offline on the first load.</strong> The model file must be
+        downloaded once, then it's cached.</li>
+  </ul>
+
+</main>
+
+<section class="faq-section">
+  <h2>Voice to Text Questions</h2>
+
+  <details>
+    <summary>Is this voice to text tool really free?</summary>
     <p>
-        Local AI transcription powered by your device.
+      Yes. The tool is completely free to use with no hidden limits. There are no sign-ups,
+      no watermarks, and no file count restrictions. The only practical limit is your device's
+      memory and processing power.
     </p>
+  </details>
 
-
-    <!-- =====================================================
-         DEVICE
-    ====================================================== -->
-
-    <h2>1. Device</h2>
-
-    <button id="device-test">
-        Check My Device
-    </button>
-
-    <pre id="device-results">Not checked yet.</pre>
-
-
-    <!-- =====================================================
-         MODEL
-    ====================================================== -->
-
-    <h2>2. Quality</h2>
-
-    <select id="model-select">
-
-        <option
-            value="onnx-community/whisper-tiny.en"
-        >
-            Fast - Whisper Tiny
-        </option>
-
-        <option
-            value="onnx-community/whisper-base.en"
-            selected
-        >
-            Balanced - Whisper Base
-        </option>
-
-        <option
-            value="onnx-community/whisper-small.en"
-        >
-            High Quality - Whisper Small
-        </option>
-
-    </select>
-
+  <details>
+    <summary>Does it work on mobile devices?</summary>
     <p>
-        Base is recommended for balanced speed and accuracy.
-        Small gives better accuracy but requires much more processing power.
+      Yes. The interface is fully responsive and works on modern iOS and Android browsers.
+      Microphone access requires a secure context (HTTPS or localhost) and user permission.
     </p>
+  </details>
 
-
-    <!-- =====================================================
-         AUDIO
-    ====================================================== -->
-
-    <h2>3. Select or Record Audio</h2>
-
-    <!-- Upload existing audio -->
-    <input
-        type="file"
-        id="audio-file"
-        accept="audio/*"
-    >
-
-    <p>or</p>
-
-    <!-- Microphone recorder -->
-    <div id="recorder-controls">
-
-        <button
-            id="record-button"
-            type="button"
-        >
-            🎙 Record Audio
-        </button>
-
-        <button
-            id="stop-recording-button"
-            type="button"
-            disabled
-        >
-            ⏹ Stop Recording
-        </button>
-
-        <strong
-            id="recording-timer"
-            style="margin-left: 12px;"
-        >
-            00:00
-        </strong>
-
-    </div>
-
-    <p id="recording-status">
-        Microphone ready.
+  <details>
+    <summary>How accurate is the transcription?</summary>
+    <p>
+      Accuracy depends on the model, audio quality, and background noise. The Whisper Base model
+      provides good accuracy for clear speech in quiet environments. For best results, use a
+      external microphone and speak clearly at a moderate pace.
     </p>
+  </details>
 
-    <p id="audio-info">
-        No audio selected.
+  <details>
+    <summary>Can I transcribe a long recording?</summary>
+    <p>
+      Yes. The tool splits audio into chunks and processes them sequentially. A 2-hour recording
+      will work, but it may take several minutes to process depending on your device's speed.
     </p>
+  </details>
 
-
-    <!-- =====================================================
-         TRANSCRIPTION
-    ====================================================== -->
-
-    <h2>4. Transcribe</h2>
-
-    <div class="button-row">
-
-        <button id="transcribe-button">
-            Transcribe Audio
-        </button>
-
-        <button id="cancel-button">
-            Cancel
-        </button>
-
-    </div>
-
-
-    <p id="status">
-        Waiting for audio...
+  <details>
+    <summary>What audio formats are supported?</summary>
+    <p>
+      The tool accepts any format your browser can decode: MP3, WAV, M4A, FLAC, OGG, WEBM, and
+      more. If your browser can play it, the tool can transcribe it.
     </p>
-
-
-    <!-- =====================================================
-         PROGRESS BAR
-    ====================================================== -->
-
-    <div id="progress-container">
-
-        <div id="progress-bar"></div>
-
-    </div>
-
-
-    <!-- =====================================================
-         DETAILED PROGRESS
-    ====================================================== -->
-
-    <div id="progress-details">
-
-        <p>
-            Progress:
-            <strong id="progress-percent">0%</strong>
-        </p>
-
-        <p>
-            Chunk:
-            <strong id="chunk-info">0 / 0</strong>
-        </p>
-
-        <p>
-            Audio processed:
-            <strong id="processed-info">0:00 / 0:00</strong>
-        </p>
-
-        <p>
-            Elapsed:
-            <strong id="elapsed-info">0:00</strong>
-        </p>
-
-        <p>
-            Estimated remaining:
-            <strong id="remaining-info">--</strong>
-        </p>
-
-    </div>
-
-
-    <!-- =====================================================
-         TRANSCRIPT
-    ====================================================== -->
-
-    <h2>Live Transcript</h2>
-
-    <textarea
-        id="transcript"
-        placeholder="Your transcript will appear here as each audio chunk finishes..."
-    ></textarea>
-
-
-    <!-- =====================================================
-         DEBUG
-    ====================================================== -->
-
-    <h2>Debug</h2>
-
-    <pre id="debug"></pre>
-
-
-    <!-- =====================================================
-         DROPLET ENGINE
-    ====================================================== -->
-
-    <script
-        src="./voice-engine/js/device-check.js"
-    ></script>
-
-    <script
-        src="./voice-engine/js/model-manager.js"
-    ></script>
-
-    <script
-        src="./voice-engine/js/audio-processor.js"
-    ></script>
-
-    <script
-        src="./voice-engine/js/speaker-transcript.js?v=4D1"
-    ></script>
-
-    <script
-        src="./voice-engine/js/recorder.js"
-    ></script>
-
-    <script
-        src="./voice-engine/js/live-transcriber.js"
-    ></script>
-
-    <script
-        src="./voice-engine/js/live-transcription-queue.js"
-    ></script>
-
-
-    <script>
-
-        // =====================================================
-        // UI
-        // =====================================================
-
-        const deviceButton =
-            document.getElementById("device-test");
-
-        const deviceResults =
-            document.getElementById("device-results");
-
-        const modelSelect =
-            document.getElementById("model-select");
-
-        const audioInput =
-            document.getElementById("audio-file");
-
-        const audioInfo =
-            document.getElementById("audio-info");
-
-
-        // =====================================================
-        // MICROPHONE UI
-        // =====================================================
-
-        const recordButton =
-            document.getElementById("record-button");
-
-        const stopRecordingButton =
-            document.getElementById(
-                "stop-recording-button"
-            );
-
-        const recordingTimer =
-            document.getElementById(
-                "recording-timer"
-            );
-
-        const recordingStatus =
-            document.getElementById(
-                "recording-status"
-            );
-
-
-        const transcribeButton =
-            document.getElementById("transcribe-button");
-
-        const cancelButton =
-            document.getElementById("cancel-button");
-
-        const status =
-            document.getElementById("status");
-
-        const progressBar =
-            document.getElementById("progress-bar");
-
-        const progressPercent =
-            document.getElementById("progress-percent");
-
-        const chunkInfo =
-            document.getElementById("chunk-info");
-
-        const processedInfo =
-            document.getElementById("processed-info");
-
-        const elapsedInfo =
-            document.getElementById("elapsed-info");
-
-        const remainingInfo =
-            document.getElementById("remaining-info");
-
-        const transcript =
-            document.getElementById("transcript");
-
-        const debug =
-            document.getElementById("debug");
-
-
-        // =====================================================
-        // STATE
-        // =====================================================
-
-        let worker = null;
-
-        let selectedFile = null;
-
-        let preparedAudio = null;
-
-        let jobCounter = 0;
-
-        let activeJobId = null;
-
-        let totalDuration = 0;
-
-        let jobStartTime = null;
-
-        let elapsedTimer = null;
-
-        let transcriptionRunning = false;
-
-
-        // =====================================================
-        // MICROPHONE / LIVE TRANSCRIPTION STATE
-        // =====================================================
-
-        let recordingTimerInterval = null;
-
-        let recordingStartedTime = null;
-
-
-        // True while the live microphone system is active.
-        let liveRecordingActive = false;
-
-
-        // Final transcript produced by the live queue.
-        let liveTranscriptText = "";
-
-
-        // Number of microphone segments captured.
-        let liveSegmentCount = 0;
-
-
-        // Keep every live WebM segment.
-        //
-        // After Stop we combine these into one recording so
-        // speaker diarization can process the entire conversation.
-        let liveRecordedSegments = [];
-
-
-        // Prevent Stop from being pressed twice while the
-        // remaining queue is draining.
-        let liveStopping = false;
-
-
-        // =====================================================
-        // TIME FORMATTER
-        // =====================================================
-
-        function formatTime(seconds) {
-
-            if (
-                !Number.isFinite(seconds) ||
-                seconds < 0
-            ) {
-                return "--";
-            }
-
-            seconds =
-                Math.round(seconds);
-
-            const hours =
-                Math.floor(
-                    seconds / 3600
-                );
-
-            const minutes =
-                Math.floor(
-                    (seconds % 3600) / 60
-                );
-
-            const secs =
-                seconds % 60;
-
-
-            if (hours > 0) {
-
-                return (
-                    hours +
-                    ":" +
-                    String(minutes).padStart(2, "0") +
-                    ":" +
-                    String(secs).padStart(2, "0")
-                );
-            }
-
-
-            return (
-                minutes +
-                ":" +
-                String(secs).padStart(2, "0")
-            );
-        }
-
-
-        // =====================================================
-        // RECORDING TIMER
-        // =====================================================
-
-        function startRecordingTimer() {
-
-            stopRecordingTimer();
-
-            recordingStartedTime =
-                performance.now();
-
-
-            recordingTimer.textContent =
-                "00:00";
-
-
-            recordingTimerInterval =
-                setInterval(
-                    function() {
-
-                        if (!recordingStartedTime) {
-                            return;
-                        }
-
-
-                        const elapsed =
-                            (
-                                performance.now() -
-                                recordingStartedTime
-                            ) /
-                            1000;
-
-
-                        recordingTimer.textContent =
-                            formatTime(elapsed);
-
-                    },
-                    250
-                );
-        }
-
-
-        function stopRecordingTimer() {
-
-            if (recordingTimerInterval) {
-
-                clearInterval(
-                    recordingTimerInterval
-                );
-
-                recordingTimerInterval =
-                    null;
-            }
-
-
-            recordingStartedTime = null;
-        }
-
-
-        // =====================================================
-        // DEBUG LOGGER
-        // =====================================================
-
-        function log(...values) {
-
-            console.log(...values);
-
-            const line =
-                values
-                    .map(value => {
-
-                        if (
-                            typeof value === "object"
-                        ) {
-
-                            try {
-
-                                return JSON.stringify(
-                                    value
-                                );
-
-                            } catch {
-
-                                return String(value);
-                            }
-                        }
-
-                        return String(value);
-
-                    })
-                    .join(" ");
-
-
-            debug.textContent +=
-                line + "\n";
-
-
-            debug.scrollTop =
-                debug.scrollHeight;
-        }
-
-
-        // =====================================================
-        // RESET PROGRESS
-        // =====================================================
-
-        function resetProgress() {
-
-            progressBar.style.width =
-                "0%";
-
-            progressPercent.textContent =
-                "0%";
-
-            chunkInfo.textContent =
-                "0 / 0";
-
-            processedInfo.textContent =
-                "0:00 / 0:00";
-
-            elapsedInfo.textContent =
-                "0:00";
-
-            remainingInfo.textContent =
-                "--";
-        }
-
-
-        // =====================================================
-        // BUTTON STATE
-        // =====================================================
-
-        function setRunningState(running) {
-
-            transcriptionRunning =
-                running;
-
-
-            transcribeButton.disabled =
-                running;
-
-
-            modelSelect.disabled =
-                running;
-
-
-            audioInput.disabled =
-                running;
-
-
-            recordButton.disabled =
-                running;
-
-
-            if (running) {
-
-                stopRecordingButton.disabled =
-                    true;
-            }
-        }
-
-
-        // =====================================================
-        // ELAPSED TIMER
-        // =====================================================
-
-        function startElapsedTimer() {
-
-            stopElapsedTimer();
-
-            jobStartTime =
-                performance.now();
-
-
-            elapsedTimer =
-                setInterval(
-                    () => {
-
-                        if (!jobStartTime) {
-                            return;
-                        }
-
-                        const seconds =
-                            (
-                                performance.now() -
-                                jobStartTime
-                            ) /
-                            1000;
-
-                        elapsedInfo.textContent =
-                            formatTime(seconds);
-
-                    },
-                    1000
-                );
-        }
-
-
-        function stopElapsedTimer() {
-
-            if (elapsedTimer) {
-
-                clearInterval(
-                    elapsedTimer
-                );
-
-                elapsedTimer = null;
-            }
-        }
-
-
-        // =====================================================
-        // CREATE WORKER
-        // =====================================================
-
-        function createWorker() {
-
-            if (worker) {
-                return worker;
-            }
-
-
-            log(
-                "Creating Whisper worker..."
-            );
-
-
-            worker =
-                new Worker(
-
-                    "./voice-engine/workers/whisper-worker.js",
-
-                    {
-                        type: "module"
-                    }
-                );
-
-
-            worker.onmessage =
-                handleWorkerMessage;
-
-
-            worker.onerror =
-                function(error) {
-
-                    console.error(
-                        "Worker error:",
-                        error
-                    );
-
-
-                    status.textContent =
-                        "Worker error: " +
-                        error.message;
-
-
-                    stopElapsedTimer();
-
-                    setRunningState(false);
-
-
-                    cancelButton.style.display =
-                        "none";
-                };
-
-
-            return worker;
-        }
-
-
-        // =====================================================
-        // WORKER MESSAGE HANDLER
-        // =====================================================
-
-        function handleWorkerMessage(event) {
-
-            const message =
-                event.data;
-
-
-            log(
-                "Worker:",
-                message.type,
-                message
-            );
-
-
-            // =================================================
-            // STATUS
-            // =================================================
-
-            if (
-                message.type === "status"
-            ) {
-
-                status.textContent =
-                    message.message;
-
-                return;
-            }
-
-
-            // =================================================
-            // MODEL DOWNLOAD / LOAD PROGRESS
-            // =================================================
-
-            if (
-                message.type ===
-                "model-progress"
-            ) {
-
-                const progress =
-                    message.progress;
-
-
-                if (
-                    progress &&
-                    typeof progress.progress ===
-                    "number"
-                ) {
-
-                    const percent =
-                        Math.max(
-                            0,
-                            Math.min(
-                                100,
-                                Math.round(
-                                    progress.progress
-                                )
-                            )
-                        );
-
-
-                    status.textContent =
-                        "Loading AI model: " +
-                        percent +
-                        "%";
-                }
-
-
-                return;
-            }
-
-
-            // =================================================
-            // MODEL READY
-            // =================================================
-
-            if (
-                message.type ===
-                "model-ready"
-            ) {
-
-                status.textContent =
-                    "Whisper ready. Starting transcription...";
-
-
-                startWorkerTranscription();
-
-                return;
-            }
-
-
-            // =================================================
-            // TRANSCRIPTION STARTED
-            // =================================================
-
-            if (
-                message.type ===
-                "transcription-start"
-            ) {
-
-                totalDuration =
-                    message.duration;
-
-
-                chunkInfo.textContent =
-                    "0 / " +
-                    message.totalChunks;
-
-
-                processedInfo.textContent =
-                    "0:00 / " +
-                    formatTime(
-                        totalDuration
-                    );
-
-
-                status.textContent =
-                    "Transcribing audio...";
-
-
-                cancelButton.style.display =
-                    "inline-block";
-
-
-                cancelButton.disabled =
-                    false;
-
-
-                startElapsedTimer();
-
-
-                return;
-            }
-
-
-            // =================================================
-            // CHUNK START
-            // =================================================
-
-            if (
-                message.type ===
-                "chunk-start"
-            ) {
-
-                if (
-                    message.jobId !==
-                    activeJobId
-                ) {
-                    return;
-                }
-
-
-                status.textContent =
-                    "Transcribing chunk " +
-                    message.chunkNumber +
-                    " of " +
-                    message.totalChunks +
-                    "...";
-
-
-                chunkInfo.textContent =
-                    message.chunkNumber +
-                    " / " +
-                    message.totalChunks;
-
-
-                return;
-            }
-
-
-            // =================================================
-            // CHUNK COMPLETE
-            // =================================================
-
-            if (
-                message.type ===
-                "chunk-complete"
-            ) {
-
-                if (
-                    message.jobId !==
-                    activeJobId
-                ) {
-                    return;
-                }
-
-
-                transcript.value =
-                    message.fullText || "";
-
-
-                transcript.scrollTop =
-                    transcript.scrollHeight;
-
-
-                const percent =
-                    Math.max(
-                        0,
-                        Math.min(
-                            100,
-                            message.progress
-                        )
-                    );
-
-
-                progressBar.style.width =
-                    percent + "%";
-
-
-                progressPercent.textContent =
-                    Math.round(percent) +
-                    "%";
-
-
-                chunkInfo.textContent =
-                    message.chunkNumber +
-                    " / " +
-                    message.totalChunks;
-
-
-                processedInfo.textContent =
-                    formatTime(
-                        message.processedAudio
-                    ) +
-                    " / " +
-                    formatTime(
-                        message.duration
-                    );
-
-
-                elapsedInfo.textContent =
-                    formatTime(
-                        message.elapsed
-                    );
-
-
-                remainingInfo.textContent =
-                    formatTime(
-                        message.estimatedRemaining
-                    );
-
-
-                status.textContent =
-                    "Chunk " +
-                    message.chunkNumber +
-                    " of " +
-                    message.totalChunks +
-                    " complete.";
-
-
-                return;
-            }
-
-
-            // =================================================
-            // COMPLETE
-            // =================================================
-
-            if (
-                message.type ===
-                "transcription-complete"
-            ) {
-
-                if (
-                    message.jobId !==
-                    activeJobId
-                ) {
-                    return;
-                }
-
-
-                transcript.value =
-                    message.text ||
-                    "No speech detected.";
-
-
-                const finalTotalChunks =
-                    Number.isFinite(
-                        message.totalChunks
-                    )
-                        ? message.totalChunks
-                        : (
-                            Array.isArray(
-                                message.completedChunks
-                            )
-                                ? message.completedChunks.length
-                                : 0
-                        );
-
-
-                progressBar.style.width =
-                    "100%";
-
-
-                progressPercent.textContent =
-                    "100%";
-
-
-                chunkInfo.textContent =
-                    finalTotalChunks +
-                    " / " +
-                    finalTotalChunks;
-
-
-                processedInfo.textContent =
-                    formatTime(
-                        message.duration
-                    ) +
-                    " / " +
-                    formatTime(
-                        message.duration
-                    );
-
-
-                elapsedInfo.textContent =
-                    formatTime(
-                        message.elapsed
-                    );
-
-
-                remainingInfo.textContent =
-                    "0:00";
-
-
-                status.textContent =
-                    "Transcription complete.";
-
-
-                stopElapsedTimer();
-
-                setRunningState(false);
-
-
-                cancelButton.style.display =
-                    "none";
-
-
-                log(
-                    "FINAL TRANSCRIPT:",
-                    message.text
-                );
-
-
-                return;
-            }
-
-
-            // =================================================
-            // CANCELLED
-            // =================================================
-
-            if (
-                message.type ===
-                "transcription-cancelled"
-            ) {
-
-                if (
-                    message.jobId !==
-                    activeJobId
-                ) {
-                    return;
-                }
-
-
-                transcript.value =
-                    message.text || "";
-
-
-                status.textContent =
-                    "Transcription cancelled.";
-
-
-                chunkInfo.textContent =
-                    message.completedChunks +
-                    " / " +
-                    message.totalChunks;
-
-
-                remainingInfo.textContent =
-                    "Cancelled";
-
-
-                stopElapsedTimer();
-
-                setRunningState(false);
-
-
-                cancelButton.style.display =
-                    "none";
-
-
-                return;
-            }
-
-
-            // =================================================
-            // ERROR
-            // =================================================
-
-            if (
-                message.type ===
-                "error"
-            ) {
-
-                status.textContent =
-                    "Transcription failed: " +
-                    message.message;
-
-
-                transcript.value =
-                    "ERROR:\n\n" +
-                    message.message;
-
-
-                stopElapsedTimer();
-
-                setRunningState(false);
-
-
-                cancelButton.style.display =
-                    "none";
-
-
-                return;
-            }
-        }
-
-
-        // =====================================================
-        // DEVICE TEST
-        // =====================================================
-
-        deviceButton.addEventListener(
-
-            "click",
-
-            async function() {
-
-                try {
-
-                    const capabilities =
-                        await window
-                            .DropletVoice
-                            .detectCapabilities();
-
-
-                    deviceResults.textContent =
-                        JSON.stringify(
-                            capabilities,
-                            null,
-                            2
-                        );
-
-                } catch (error) {
-
-                    deviceResults.textContent =
-                        error.message;
-                }
-            }
-        );
-
-
-        // =====================================================
-        // MICROPHONE - START LIVE TRANSCRIPTION
-        // =====================================================
-
-        recordButton.addEventListener(
-
-            "click",
-
-            async function() {
-
-                if (
-                    liveRecordingActive ||
-                    liveStopping ||
-                    transcriptionRunning
-                ) {
-
-                    return;
-                }
-
-
-                try {
-
-                    if (
-                        !window.DropletVoice ||
-                        !window.DropletVoice
-                            .startLiveCapture ||
-                        !window.DropletVoice
-                            .startLiveTranscriptionQueue
-                    ) {
-
-                        throw new Error(
-                            "Live transcription engine is not available."
-                        );
-                    }
-
-
-                    // =============================================
-                    // RESET LIVE SESSION
-                    // =============================================
-
-                    liveRecordingActive =
-                        true;
-
-                    liveStopping =
-                        false;
-
-                    liveTranscriptText =
-                        "";
-
-                    liveSegmentCount =
-                        0;
-
-                    liveRecordedSegments =
-                        [];
-
-
-                    selectedFile =
-                        null;
-
-                    preparedAudio =
-                        null;
-
-                    audioInput.value =
-                        "";
-
-                    transcript.value =
-                        "";
-
-                    debug.textContent =
-                        "";
-
-                    resetProgress();
-
-
-                    // =============================================
-                    // UI
-                    // =============================================
-
-                    recordButton.disabled =
-                        true;
-
-                    stopRecordingButton.disabled =
-                        false;
-
-                    audioInput.disabled =
-                        true;
-
-                    transcribeButton.disabled =
-                        true;
-
-                    modelSelect.disabled =
-                        true;
-
-                    cancelButton.style.display =
-                        "inline-block";
-
-                    cancelButton.disabled =
-                        false;
-
-
-                    recordingStatus.textContent =
-                        "🎙 Starting live transcription...";
-
-
-                    audioInfo.textContent =
-                        "Live microphone session";
-
-
-                    status.textContent =
-                        "Loading Whisper for live transcription...";
-
-
-                    startRecordingTimer();
-
-                    startElapsedTimer();
-
-
-                    // =============================================
-                    // START LIVE WHISPER QUEUE
-                    // =============================================
-
-                    const model =
-                        modelSelect.value;
-
-
-                    await window.DropletVoice
-                        .startLiveTranscriptionQueue({
-
-                            model,
-
-                            device:
-                                "webgpu",
-
-
-                            onStatus(info) {
-
-                                console.log(
-                                    "[Live Queue Status]",
-                                    info
-                                );
-
-
-                                if (!info) {
-                                    return;
-                                }
-
-
-                                if (
-                                    typeof info ===
-                                    "string"
-                                ) {
-
-                                    status.textContent =
-                                        info;
-
-                                    return;
-                                }
-
-
-                                if (info.message) {
-
-                                    status.textContent =
-                                        info.message;
-                                }
-                            },
-
-
-                            onTranscript(result) {
-
-                                if (!result) {
-                                    return;
-                                }
-
-
-                                const text =
-                                    (
-                                        result.fullText ||
-                                        result.text ||
-                                        ""
-                                    ).trim();
-
-
-                                if (!text) {
-                                    return;
-                                }
-
-
-                                if (
-                                    text ===
-                                    "[BLANK_AUDIO]"
-                                ) {
-                                    return;
-                                }
-
-
-                                liveTranscriptText =
-                                    text;
-
-
-                                transcript.value =
-                                    liveTranscriptText;
-
-
-                                transcript.scrollTop =
-                                    transcript.scrollHeight;
-
-
-                                log(
-                                    "[LIVE TRANSCRIPT]",
-                                    text
-                                );
-                            },
-
-
-                            onSegmentComplete(info) {
-
-                                console.log(
-                                    "[Live Segment Complete]",
-                                    info
-                                );
-
-
-                                if (!info) {
-                                    return;
-                                }
-
-
-                                const completed =
-                                    Number(
-                                        info.segmentNumber ||
-                                        info.completed ||
-                                        0
-                                    );
-
-
-                                if (
-                                    Number.isFinite(
-                                        completed
-                                    ) &&
-                                    completed > 0
-                                ) {
-
-                                    chunkInfo.textContent =
-                                        completed +
-                                        " / " +
-                                        Math.max(
-                                            completed,
-                                            liveSegmentCount
-                                        );
-                                }
-                            },
-
-
-                            onComplete(result) {
-
-                                console.log(
-                                    "[Live Queue Complete]",
-                                    result
-                                );
-
-
-                                const text =
-                                    (
-                                        result &&
-                                        (
-                                            result.fullText ||
-                                            result.text
-                                        )
-                                    ) ||
-                                    liveTranscriptText;
-
-
-                                if (
-                                    text &&
-                                    text.trim()
-                                ) {
-
-                                    liveTranscriptText =
-                                        text.trim();
-
-
-                                    transcript.value =
-                                        liveTranscriptText;
-                                }
-                            },
-
-
-                            onError(error) {
-
-                                console.error(
-                                    "[Live Queue Error]",
-                                    error
-                                );
-
-
-                                status.textContent =
-                                    "Live transcription error: " +
-                                    (
-                                        error.message ||
-                                        error
-                                    );
-                            }
-                        });
-
-
-                    // =============================================
-                    // START MICROPHONE CAPTURE
-                    // =============================================
-
-                    await window.DropletVoice
-                        .startLiveCapture({
-
-                            async onSegment(segment) {
-
-                                try {
-
-                                    if (!segment) {
-                                        return;
-                                    }
-
-
-                                    liveSegmentCount++;
-
-
-                                    const file =
-                                        segment.file ||
-                                        segment.blob ||
-                                        segment;
-
-
-                                    if (
-                                        !file ||
-                                        typeof file.arrayBuffer !==
-                                            "function"
-                                    ) {
-
-                                        console.warn(
-                                            "[Live] Invalid segment:",
-                                            segment
-                                        );
-
-                                        return;
-                                    }
-
-
-                                    liveRecordedSegments.push(
-                                        file
-                                    );
-
-
-                                    audioInfo.textContent =
-                                        "Live recording - " +
-                                        liveSegmentCount +
-                                        (
-                                            liveSegmentCount === 1
-                                                ? " segment"
-                                                : " segments"
-                                        );
-
-
-                                    chunkInfo.textContent =
-                                        "Recording " +
-                                        liveSegmentCount;
-
-
-                                    status.textContent =
-                                        "Transcribing live audio...";
-
-
-                                    log(
-                                        "[Live] Segment captured:",
-                                        liveSegmentCount,
-                                        file.size,
-                                        "bytes"
-                                    );
-
-
-                                    await window.DropletVoice
-                                        .enqueueLiveSegment({
-
-                                            file,
-
-                                            segmentNumber:
-                                                segment.segmentNumber ||
-                                                liveSegmentCount,
-
-                                            model
-                                        });
-
-
-                                } catch (error) {
-
-                                    console.error(
-                                        "[Live Segment Error]",
-                                        error
-                                    );
-
-
-                                    log(
-                                        "[Live Segment Error]",
-                                        error.message
-                                    );
-                                }
-                            },
-
-
-                            onStatus(info) {
-
-                                console.log(
-                                    "[Live Capture Status]",
-                                    info
-                                );
-
-
-                                if (
-                                    info &&
-                                    info.message
-                                ) {
-
-                                    recordingStatus.textContent =
-                                        info.message;
-                                }
-                            }
-                        });
-
-
-                    // =============================================
-                    // RECORDING ACTIVE
-                    // =============================================
-
-                    recordingStatus.textContent =
-                        "🔴 Recording + transcribing live";
-
-
-                    status.textContent =
-                        "Listening... Start speaking.";
-
-
-                    log(
-                        "[Droplet Live] Live transcription started."
-                    );
-
-
-                } catch (error) {
-
-                    console.error(
-                        "[Live Start Error]",
-                        error
-                    );
-
-
-                    liveRecordingActive =
-                        false;
-
-                    liveStopping =
-                        false;
-
-
-                    stopRecordingTimer();
-
-                    stopElapsedTimer();
-
-
-                    recordingStatus.textContent =
-                        "Live recording failed: " +
-                        error.message;
-
-
-                    status.textContent =
-                        "Unable to start live transcription.";
-
-
-                    recordButton.disabled =
-                        false;
-
-                    stopRecordingButton.disabled =
-                        true;
-
-                    audioInput.disabled =
-                        false;
-
-                    transcribeButton.disabled =
-                        false;
-
-                    modelSelect.disabled =
-                        false;
-
-                    cancelButton.style.display =
-                        "none";
-                }
-            }
-        );
-
-
-        // =====================================================
-        // MICROPHONE - STOP LIVE TRANSCRIPTION
-        // =====================================================
-
-        stopRecordingButton.addEventListener(
-
-            "click",
-
-            async function() {
-
-                if (
-                    !liveRecordingActive ||
-                    liveStopping
-                ) {
-
-                    return;
-                }
-
-
-                liveStopping =
-                    true;
-
-
-                stopRecordingButton.disabled =
-                    true;
-
-
-                recordingStatus.textContent =
-                    "Stopping microphone...";
-
-
-                status.textContent =
-                    "Finishing final live segment...";
-
-
-                try {
-
-                    // =============================================
-                    // STOP CAPTURE
-                    // =============================================
-
-                    await window.DropletVoice
-                        .stopLiveCapture();
-
-
-                    liveRecordingActive =
-                        false;
-
-
-                    stopRecordingTimer();
-
-
-                    recordingStatus.textContent =
-                        "Microphone stopped.";
-
-
-                    status.textContent =
-                        "Finishing queued transcription...";
-
-
-                    // =============================================
-                    // DRAIN LIVE WHISPER QUEUE
-                    // =============================================
-
-                    const queueResult =
-                        await window.DropletVoice
-                            .stopLiveTranscriptionQueue();
-
-
-                    console.log(
-                        "[Live] Queue stopped:",
-                        queueResult
-                    );
-
-
-                    // =============================================
-                    // USE FINAL QUEUE TRANSCRIPT
-                    // =============================================
-
-                    if (queueResult) {
-
-                        const finalText =
-                            (
-                                queueResult.fullText ||
-                                queueResult.text ||
-                                ""
-                            ).trim();
-
-
-                        if (finalText) {
-
-                            liveTranscriptText =
-                                finalText;
-
-
-                            transcript.value =
-                                finalText;
-                        }
-                    }
-
-
-                    // =============================================
-                    // CREATE COMPLETE RECORDING FILE
-                    // =============================================
-
-                    if (
-                        liveRecordedSegments.length
-                    ) {
-
-                        const first =
-                            liveRecordedSegments[0];
-
-
-                        const mimeType =
-                            first.type ||
-                            "audio/webm";
-
-
-                        const fullBlob =
-                            new Blob(
-                                liveRecordedSegments,
-                                {
-                                    type:
-                                        mimeType
-                                }
-                            );
-
-
-                        selectedFile =
-                            new File(
-
-                                [fullBlob],
-
-                                "droplet-live-recording-" +
-                                Date.now() +
-                                ".webm",
-
-                                {
-                                    type:
-                                        mimeType
-                                }
-                            );
-
-
-                        audioInfo.textContent =
-                            "🎙 " +
-                            selectedFile.name +
-                            " - " +
-                            (
-                                selectedFile.size /
-                                1024 /
-                                1024
-                            ).toFixed(2) +
-                            " MB";
-
-
-                        log(
-                            "[Live] Complete recording created:",
-                            {
-                                name:
-                                    selectedFile.name,
-
-                                size:
-                                    selectedFile.size,
-
-                                type:
-                                    selectedFile.type,
-
-                                segments:
-                                    liveRecordedSegments.length
-                            }
-                        );
-
-                    } else {
-
-                        console.warn(
-                            "[Live] No recorded segments available."
-                        );
-                    }
-
-
-                    // =============================================
-                    // LIVE TRANSCRIPTION COMPLETE
-                    // =============================================
-
-                    progressBar.style.width =
-                        "100%";
-
-
-                    progressPercent.textContent =
-                        "100%";
-
-
-                    remainingInfo.textContent =
-                        "0:00";
-
-
-                    recordingStatus.textContent =
-                        "Live recording complete.";
-
-
-                    status.textContent =
-                        "Live transcription complete.";
-
-
-                    log(
-                        "[Droplet Live] FINAL LIVE TRANSCRIPT:",
-                        liveTranscriptText
-                    );
-
-
-                    // =============================================
-                    // BUTTONS
-                    // =============================================
-
-                    recordButton.disabled =
-                        false;
-
-                    stopRecordingButton.disabled =
-                        true;
-
-                    audioInput.disabled =
-                        false;
-
-                    modelSelect.disabled =
-                        false;
-
-
-                    // Keep this enabled because the complete recording
-                    // can now be run through Step 4D speaker diarization.
-                    transcribeButton.disabled =
-                        !selectedFile;
-
-
-                    cancelButton.style.display =
-                        "none";
-
-
-                } catch (error) {
-
-                    console.error(
-                        "[Live Stop Error]",
-                        error
-                    );
-
-
-                    liveRecordingActive =
-                        false;
-
-
-                    stopRecordingTimer();
-
-
-                    recordingStatus.textContent =
-                        "Stop failed: " +
-                        error.message;
-
-
-                    status.textContent =
-                        "Live transcription stop failed.";
-
-
-                    recordButton.disabled =
-                        false;
-
-                    stopRecordingButton.disabled =
-                        true;
-
-                    audioInput.disabled =
-                        false;
-
-                    modelSelect.disabled =
-                        false;
-
-                    transcribeButton.disabled =
-                        !selectedFile;
-
-                    cancelButton.style.display =
-                        "none";
-
-                } finally {
-
-                    liveStopping =
-                        false;
-
-                    stopElapsedTimer();
-                }
-            }
-        );
-
-
-        // =====================================================
-        // AUDIO SELECTION
-        // =====================================================
-
-        audioInput.addEventListener(
-
-            "change",
-
-            function() {
-
-                selectedFile =
-                    audioInput.files[0] ||
-                    null;
-
-
-                preparedAudio =
-                    null;
-
-
-                recordingStatus.textContent =
-                    "Microphone ready.";
-
-                recordingTimer.textContent =
-                    "00:00";
-
-
-                transcript.value =
-                    "";
-
-
-                resetProgress();
-
-
-                if (!selectedFile) {
-
-                    audioInfo.textContent =
-                        "No audio selected.";
-
-
-                    status.textContent =
-                        "Waiting for audio...";
-
-
-                    return;
-                }
-
-
-                audioInfo.textContent =
-                    selectedFile.name +
-                    " - " +
-                    (
-                        selectedFile.size /
-                        1024 /
-                        1024
-                    ).toFixed(2) +
-                    " MB";
-
-
-                status.textContent =
-                    "Audio selected. Ready.";
-            }
-        );
-
-
-        // =====================================================
-        // TRANSCRIBE WITH SPEAKER DIARIZATION
-        // STEP 4D
-        // =====================================================
-
-        transcribeButton.addEventListener(
-
-            "click",
-
-            async function() {
-
-                if (!selectedFile) {
-
-                    alert(
-                        "Please select an audio file first."
-                    );
-
-                    return;
-                }
-
-
-                setRunningState(true);
-
-                cancelButton.style.display =
-                    "inline-block";
-
-                cancelButton.disabled =
-                    false;
-
-                transcript.value =
-                    "";
-
-                debug.textContent =
-                    "";
-
-                resetProgress();
-
-                startElapsedTimer();
-
-
-                try {
-
-                    status.textContent =
-                        "Decoding and preparing audio...";
-
-
-                    log(
-                        "[Step 4D] Preparing:",
-                        selectedFile.name
-                    );
-
-
-                    preparedAudio =
-                        await window
-                            .DropletVoice
-                            .processAudioFile(
-                                selectedFile
-                            );
-
-
-                    totalDuration =
-                        preparedAudio.length /
-                        16000;
-
-
-                    log(
-                        "[Step 4D] Prepared samples:",
-                        preparedAudio.length
-                    );
-
-
-                    log(
-                        "[Step 4D] Duration:",
-                        totalDuration,
-                        "seconds"
-                    );
-
-
-                    processedInfo.textContent =
-                        "0:00 / " +
-                        formatTime(
-                            totalDuration
-                        );
-
-
-                    const model =
-                        modelSelect.value;
-
-
-                    const result =
-                        await window
-                            .DropletVoice
-                            .createSpeakerTranscript(
-
-                                preparedAudio,
-
-                                {
-
-                                    model,
-
-
-                                    onStatus(info) {
-
-                                        if (
-                                            info &&
-                                            info.message
-                                        ) {
-
-                                            status.textContent =
-                                                info.message;
-                                        }
-
-
-                                        log(
-                                            "[Step 4D Status]",
-                                            info
-                                        );
-                                    },
-
-
-                                    onProgress(info) {
-
-                                        if (!info) {
-                                            return;
-                                        }
-
-
-                                        const percent =
-                                            Number.isFinite(
-                                                info.percent
-                                            )
-                                                ? info.percent
-                                                : 0;
-
-
-                                        progressBar.style.width =
-                                            percent + "%";
-
-
-                                        progressPercent.textContent =
-                                            Math.round(
-                                                percent
-                                            ) + "%";
-
-
-                                        if (
-                                            Number.isFinite(
-                                                info.completed
-                                            ) &&
-                                            Number.isFinite(
-                                                info.total
-                                            )
-                                        ) {
-
-                                            chunkInfo.textContent =
-                                                info.completed +
-                                                " / " +
-                                                info.total;
-                                        }
-
-
-                                        processedInfo.textContent =
-                                            formatTime(
-                                                totalDuration *
-                                                (
-                                                    percent /
-                                                    100
-                                                )
-                                            ) +
-                                            " / " +
-                                            formatTime(
-                                                totalDuration
-                                            );
-                                    },
-
-
-                                    onDiarization(info) {
-
-                                        log(
-                                            "[Step 4D] Speakers detected:",
-                                            info.numSpeakers
-                                        );
-
-
-                                        log(
-                                            "[Step 4D] Speaker labels:",
-                                            info.speakerLabels
-                                        );
-
-
-                                        console.table(
-                                            info.segments
-                                        );
-
-
-                                        status.textContent =
-                                            "Found " +
-                                            info.numSpeakers +
-                                            (
-                                                info.numSpeakers === 1
-                                                    ? " speaker. "
-                                                    : " speakers. "
-                                            ) +
-                                            "Preparing speaker turns...";
-                                    },
-
-
-                                    onTurn(turn) {
-
-                                        log(
-                                            "[Step 4D Turn]",
-                                            turn
-                                        );
-
-
-                                        const existing =
-                                            transcript.value.trim();
-
-
-                                        const block =
-                                            "[" +
-                                            formatTime(
-                                                turn.start
-                                            ) +
-                                            "] " +
-                                            turn.speaker +
-                                            "\n" +
-                                            (
-                                                turn.text ||
-                                                ""
-                                            );
-
-
-                                        transcript.value =
-                                            existing
-                                                ? existing +
-                                                  "\n\n" +
-                                                  block
-                                                : block;
-
-
-                                        transcript.scrollTop =
-                                            transcript.scrollHeight;
-                                    },
-
-
-                                    onDebug(info) {
-
-                                        console.log(
-                                            "[Step 4D Debug]",
-                                            info
-                                        );
-                                    }
-                                }
-                            );
-
-
-                    transcript.value =
-                        result.text ||
-                        "No speech detected.";
-
-
-                    progressBar.style.width =
-                        "100%";
-
-
-                    progressPercent.textContent =
-                        "100%";
-
-
-                    chunkInfo.textContent =
-                        result.turns.length +
-                        " / " +
-                        result.turns.length;
-
-
-                    processedInfo.textContent =
-                        formatTime(
-                            totalDuration
-                        ) +
-                        " / " +
-                        formatTime(
-                            totalDuration
-                        );
-
-
-                    remainingInfo.textContent =
-                        "0:00";
-
-
-                    status.textContent =
-                        "Speaker transcription complete - " +
-                        result.numSpeakers +
-                        (
-                            result.numSpeakers === 1
-                                ? " speaker detected."
-                                : " speakers detected."
-                        );
-
-
-                    log(
-                        "[Step 4D] FINAL RESULT:",
-                        {
-                            speakers:
-                                result.numSpeakers,
-
-                            turns:
-                                result.turns.length,
-
-                            model:
-                                result.model
-                        }
-                    );
-
-
-                    log(
-                        "[Step 4D] FINAL TRANSCRIPT:"
-                    );
-
-
-                    log(
-                        result.text
-                    );
-
-
-                    console.table(
-                        result.turns.map(
-                            turn => ({
-                                speaker:
-                                    turn.speaker,
-
-                                start:
-                                    turn.start.toFixed(
-                                        2
-                                    ),
-
-                                end:
-                                    turn.end.toFixed(
-                                        2
-                                    ),
-
-                                text:
-                                    turn.text
-                            })
-                        )
-                    );
-
-
-                } catch (error) {
-
-                    console.error(
-                        "[Step 4D]",
-                        error
-                    );
-
-
-                    if (
-                        /cancel/i.test(
-                            error.message || ""
-                        )
-                    ) {
-
-                        status.textContent =
-                            "Speaker transcription cancelled.";
-
-                        remainingInfo.textContent =
-                            "Cancelled";
-
-                    } else {
-
-                        status.textContent =
-                            "Speaker transcription failed: " +
-                            error.message;
-
-
-                        transcript.value =
-                            "ERROR:\n\n" +
-                            error.message;
-                    }
-
-                } finally {
-
-                    preparedAudio =
-                        null;
-
-
-                    stopElapsedTimer();
-
-
-                    setRunningState(
-                        false
-                    );
-
-
-                    cancelButton.style.display =
-                        "none";
-
-
-                    cancelButton.disabled =
-                        false;
-                }
-            }
-        );
-
-
-        // =====================================================
-        // SEND AUDIO TO WORKER
-        // =====================================================
-
-        function startWorkerTranscription() {
-
-            if (
-                !worker ||
-                !preparedAudio
-            ) {
-
-                status.textContent =
-                    "Audio is not ready.";
-
-
-                setRunningState(false);
-
-
-                cancelButton.style.display =
-                    "none";
-
-
-                return;
-            }
-
-
-            jobCounter++;
-
-
-            activeJobId =
-                "job-" +
-                jobCounter;
-
-
-            const transferable =
-                preparedAudio.buffer;
-
-
-            status.textContent =
-                "Sending audio to transcription worker...";
-
-
-            worker.postMessage(
-
-                {
-
-                    type:
-                        "transcribe",
-
-                    jobId:
-                        activeJobId,
-
-                    audioBuffer:
-                        transferable
-                },
-
-                [
-                    transferable
-                ]
-            );
-
-
-            preparedAudio =
-                null;
-        }
-
-
-        // =====================================================
-        // CANCEL
-        // LIVE + STEP 4D
-        // =====================================================
-
-        cancelButton.addEventListener(
-
-            "click",
-
-            async function() {
-
-                cancelButton.disabled =
-                    true;
-
-
-                // =============================================
-                // LIVE RECORDING
-                // =============================================
-
-                if (
-                    liveRecordingActive ||
-                    liveStopping
-                ) {
-
-                    status.textContent =
-                        "Cancelling live recording...";
-
-
-                    try {
-
-                        if (
-                            window.DropletVoice
-                                .isLiveCaptureActive &&
-                            window.DropletVoice
-                                .isLiveCaptureActive()
-                        ) {
-
-                            await window.DropletVoice
-                                .stopLiveCapture();
-                        }
-
-
-                        await window.DropletVoice
-                            .stopLiveTranscriptionQueue();
-
-
-                    } catch (error) {
-
-                        console.error(
-                            "[Live Cancel]",
-                            error
-                        );
-                    }
-
-
-                    liveRecordingActive =
-                        false;
-
-                    liveStopping =
-                        false;
-
-
-                    stopRecordingTimer();
-
-                    stopElapsedTimer();
-
-
-                    recordingStatus.textContent =
-                        "Recording cancelled.";
-
-
-                    status.textContent =
-                        "Live transcription cancelled.";
-
-
-                    recordButton.disabled =
-                        false;
-
-                    stopRecordingButton.disabled =
-                        true;
-
-                    audioInput.disabled =
-                        false;
-
-                    modelSelect.disabled =
-                        false;
-
-                    transcribeButton.disabled =
-                        !selectedFile;
-
-
-                    cancelButton.style.display =
-                        "none";
-
-
-                    return;
-                }
-
-
-                // =============================================
-                // STEP 4D SPEAKER TRANSCRIPTION
-                // =============================================
-
-                if (
-                    window.DropletVoice &&
-                    window.DropletVoice
-                        .isSpeakerTranscriptRunning &&
-                    window.DropletVoice
-                        .isSpeakerTranscriptRunning()
-                ) {
-
-                    status.textContent =
-                        "Cancelling speaker transcription...";
-
-
-                    window.DropletVoice
-                        .cancelSpeakerTranscript();
-
-
-                    return;
-                }
-
-
-                // =============================================
-                // OLD WHISPER FALLBACK
-                // =============================================
-
-                if (worker) {
-
-                    status.textContent =
-                        "Cancelling transcription...";
-
-
-                    worker.postMessage({
-                        type:
-                            "cancel"
-                    });
-                }
-            }
-        );
-
-
-        // =====================================================
-        // MODEL CHANGE
-        // =====================================================
-
-        modelSelect.addEventListener(
-
-            "change",
-
-            function() {
-
-                status.textContent =
-                    "Quality changed. Ready.";
-            }
-        );
-
-
-        // =====================================================
-        // CLEANUP
-        // =====================================================
-
-        window.addEventListener(
-
-            "beforeunload",
-
-            function() {
-
-                stopElapsedTimer();
-
-                stopRecordingTimer();
-
-
-                if (worker) {
-
-                    worker.terminate();
-                }
-
-
-                if (
-                    window.DropletVoice &&
-                    window.DropletVoice
-                        .isSpeakerTranscriptRunning &&
-                    window.DropletVoice
-                        .isSpeakerTranscriptRunning()
-                ) {
-
-                    window.DropletVoice
-                        .cancelSpeakerTranscript();
-                }
-
-
-                if (
-                    window.DropletVoice &&
-                    window.DropletVoice
-                        .isLiveCaptureActive &&
-                    window.DropletVoice
-                        .isLiveCaptureActive()
-                ) {
-
-                    window.DropletVoice
-                        .stopLiveCapture();
-                }
-            }
-        );
-
-
-        // =====================================================
-        // INITIAL STATE
-        // =====================================================
-
-        resetProgress();
-
-
-    </script>
+  </details>
+
+  <details>
+    <summary>Is my audio uploaded to a server?</summary>
+    <p>
+      No. All processing happens locally in your browser. Your audio never leaves your device.
+      The only external request is to download the Whisper model file, which is cached after
+      the first load.
+    </p>
+  </details>
+
+  <details>
+    <summary>Can I use this for commercial purposes?</summary>
+    <p>
+      Yes. The transcripts you generate are yours to use however you wish. The tool itself is
+      provided as-is for personal and commercial use.
+    </p>
+  </details>
+
+  <details>
+    <summary>Why is the first transcription slow?</summary>
+    <p>
+      On the first use, the Whisper model must be downloaded (about 150 MB for the Base model).
+      After that, it's cached by your browser and subsequent transcriptions start immediately.
+    </p>
+  </details>
+
+  <details>
+    <summary>Does it support punctuation and capitalization?</summary>
+    <p>
+      The Whisper model includes basic punctuation and capitalization. For best results, speak
+      in complete sentences with natural pauses.
+    </p>
+  </details>
+
+  <details>
+    <summary>Can I edit the transcript after it's generated?</summary>
+    <p>
+      Yes. The transcript area is a standard text area — you can click anywhere and edit the
+      text directly. Changes are not saved automatically, so copy or download before closing.
+    </p>
+  </details>
+
+  <details>
+    <summary>What happens if I close the tab during transcription?</summary>
+    <p>
+      The transcription stops and any unsaved text is lost. Always copy or download your
+      transcript before closing the tab.
+    </p>
+  </details>
+
+  <details>
+    <summary>Is there a word or character limit?</summary>
+    <p>
+      No hard limit. The practical limit is your device's available memory. Very long
+      transcriptions (100,000+ words) may become sluggish to edit in the browser.
+    </p>
+  </details>
+
+</section>
+
+<!-- ============================================================ -->
+<!-- JAVASCRIPT                                                    -->
+<!-- ============================================================ -->
+<script>
+'use strict';
+
+// ============================================================
+// THEME TOGGLE
+// ============================================================
+(function() {
+  const themeToggle = document.getElementById('theme-toggle');
+  const html = document.documentElement;
+  themeToggle.textContent = html.classList.contains('dark') ? '☀️' : '🌙';
+  themeToggle.addEventListener('click', () => {
+    if (html.classList.contains('dark')) {
+      html.classList.remove('dark');
+      themeToggle.textContent = '🌙';
+      localStorage.setItem('theme', 'light');
+    } else {
+      html.classList.add('dark');
+      themeToggle.textContent = '☀️';
+      localStorage.setItem('theme', 'dark');
+    }
+  });
+})();
+
+// ============================================================
+// UTILITIES
+// ============================================================
+function showToast(text, type, duration) {
+  const el = document.getElementById('toast');
+  el.textContent = text;
+  el.className = 'toast' + (type ? ' ' + type : '');
+  el.classList.add('show');
+  clearTimeout(el._timeout);
+  el._timeout = setTimeout(() => el.classList.remove('show'), duration || 2500);
+}
+
+function backToHome() {
+  window.location.href = '/';
+}
+
+function formatTime(seconds) {
+  if (!Number.isFinite(seconds) || seconds < 0) return '--:--';
+  seconds = Math.round(seconds);
+  const h = Math.floor(seconds / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  const s = seconds % 60;
+  if (h > 0) return h + ':' + String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+  return m + ':' + String(s).padStart(2, '0');
+}
+
+// ============================================================
+// STATE
+// ============================================================
+const State = {
+  isRecording: false,
+  isProcessing: false,
+  mediaRecorder: null,
+  audioChunks: [],
+  transcriptText: '',
+  startTime: null,
+  timerInterval: null,
+  recognition: null,
+  wordCount: 0,
+  charCount: 0,
+  segmentCount: 0,
+  duration: 0,
+  audioContext: null,
+  currentFile: null,
+};
+
+// ============================================================
+// DOM REFS
+// ============================================================
+const recordBtn = document.getElementById('recordBtn');
+const stopBtn = document.getElementById('stopBtn');
+const timerDisplay = document.getElementById('timerDisplay');
+const transcriptArea = document.getElementById('transcriptArea');
+const progressBar = document.getElementById('progressBar');
+const statusMessage = document.getElementById('statusMessage');
+const statusBadge = document.getElementById('statusBadge');
+const wordCountBadge = document.getElementById('wordCountBadge');
+const progressPercentBadge = document.getElementById('progressPercentBadge');
+const uploadZone = document.getElementById('uploadZone');
+const audioInput = document.getElementById('audioInput');
+const modelSelect = document.getElementById('modelSelect');
+const languageSelect = document.getElementById('languageSelect');
+
+// Stats
+const statWords = document.getElementById('statWords');
+const statChars = document.getElementById('statChars');
+const statSegments = document.getElementById('statSegments');
+const statDuration = document.getElementById('statDuration');
+const statChunks = document.getElementById('statChunks');
+const statProcessed = document.getElementById('statProcessed');
+const statElapsed = document.getElementById('statElapsed');
+const statRemaining = document.getElementById('statRemaining');
+
+// ============================================================
+// UPDATE STATS
+// ============================================================
+function updateStats() {
+  const text = transcriptArea.value || '';
+  const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+  const chars = text.length;
+  State.wordCount = words;
+  State.charCount = chars;
+
+  statWords.textContent = words.toLocaleString();
+  statChars.textContent = chars.toLocaleString();
+  statSegments.textContent = State.segmentCount.toLocaleString();
+  statDuration.textContent = formatTime(State.duration);
+  wordCountBadge.textContent = words.toLocaleString() + ' words';
+}
+
+function updateProgress(percent, statusText) {
+  progressBar.style.width = Math.max(0, Math.min(100, percent)) + '%';
+  progressPercentBadge.textContent = Math.round(percent) + '%';
+  if (statusText) statusMessage.textContent = statusText;
+}
+
+// ============================================================
+// TIMER
+// ============================================================
+function startTimer() {
+  State.startTime = performance.now();
+  if (State.timerInterval) clearInterval(State.timerInterval);
+  State.timerInterval = setInterval(() => {
+    if (!State.startTime) return;
+    const elapsed = (performance.now() - State.startTime) / 1000;
+    timerDisplay.textContent = formatTime(elapsed);
+    statElapsed.textContent = formatTime(elapsed);
+  }, 250);
+}
+
+function stopTimer() {
+  if (State.timerInterval) {
+    clearInterval(State.timerInterval);
+    State.timerInterval = null;
+  }
+}
+
+// ============================================================
+// SPEECH RECOGNITION (Web Speech API)
+// ============================================================
+function initSpeechRecognition() {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) {
+    showToast('Speech recognition is not supported in this browser. Please use Chrome or Edge.', 'error', 4000);
+    return null;
+  }
+
+  const recognition = new SpeechRecognition();
+  recognition.continuous = true;
+  recognition.interimResults = true;
+  recognition.lang = languageSelect.value || 'en-US';
+  recognition.maxAlternatives = 1;
+
+  recognition.onresult = (event) => {
+    let interim = '';
+    let final = '';
+
+    for (let i = event.resultIndex; i < event.results.length; i++) {
+      const result = event.results[i];
+      if (result.isFinal) {
+        final += result[0].transcript + ' ';
+        State.segmentCount++;
+      } else {
+        interim += result[0].transcript;
+      }
+    }
+
+    if (final) {
+      State.transcriptText += final;
+      transcriptArea.value = State.transcriptText;
+      transcriptArea.scrollTop = transcriptArea.scrollHeight;
+    }
+
+    // Update stats
+    updateStats();
+
+    // Update progress (approximate)
+    if (State.duration > 0) {
+      const elapsed = (performance.now() - State.startTime) / 1000;
+      const pct = Math.min(95, (elapsed / State.duration) * 100);
+      updateProgress(pct, 'Listening...');
+    } else {
+      updateProgress(30, 'Listening...');
+    }
+  };
+
+  recognition.onerror = (event) => {
+    if (event.error === 'not-allowed') {
+      showToast('Microphone access denied. Please allow microphone permissions.', 'error', 4000);
+      stopRecording();
+    } else if (event.error === 'no-speech') {
+      // Ignore
+    } else if (event.error === 'aborted') {
+      // Ignore
+    } else {
+      console.warn('Speech recognition error:', event.error);
+    }
+  };
+
+  recognition.onend = () => {
+    if (State.isRecording) {
+      // Restart if still recording
+      try {
+        recognition.start();
+      } catch (e) {
+        // Already started
+      }
+    }
+  };
+
+  return recognition;
+}
+
+// ============================================================
+// START RECORDING
+// ============================================================
+async function startRecording() {
+  if (State.isRecording || State.isProcessing) return;
+
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+
+    State.isRecording = true;
+    State.audioChunks = [];
+    State.segmentCount = 0;
+    State.transcriptText = '';
+
+    recordBtn.disabled = true;
+    stopBtn.disabled = false;
+    recordBtn.textContent = '🔴 Recording...';
+    statusBadge.textContent = 'Recording';
+    statusBadge.style.background = '#fef3c7';
+    statusBadge.style.color = '#92400e';
+
+    startTimer();
+    updateProgress(0, 'Listening... Speak now.');
+
+    // Initialize speech recognition
+    State.recognition = initSpeechRecognition();
+    if (State.recognition) {
+      State.recognition.lang = languageSelect.value || 'en-US';
+      State.recognition.start();
+    }
+
+    // Also set up MediaRecorder for audio capture (backup / future use)
+    const mediaRecorder = new MediaRecorder(stream);
+    State.mediaRecorder = mediaRecorder;
+    mediaRecorder.ondataavailable = (e) => {
+      if (e.data.size > 0) State.audioChunks.push(e.data);
+    };
+    mediaRecorder.start(1000);
+
+    showToast('Recording started', 'success', 1500);
+
+  } catch (err) {
+    console.error('Recording error:', err);
+    showToast('Could not access microphone: ' + err.message, 'error', 4000);
+    stopRecording();
+  }
+}
+
+// ============================================================
+// STOP RECORDING
+// ============================================================
+function stopRecording() {
+  if (!State.isRecording) return;
+
+  State.isRecording = false;
+  State.isProcessing = true;
+
+  recordBtn.disabled = false;
+  stopBtn.disabled = true;
+  recordBtn.textContent = '🎙️ Start Recording';
+  statusBadge.textContent = 'Processing';
+  statusBadge.style.background = '#dbeafe';
+  statusBadge.style.color = '#1e40af';
+
+  stopTimer();
+  updateProgress(100, 'Processing complete.');
+
+  // Stop speech recognition
+  if (State.recognition) {
+    try { State.recognition.stop(); } catch (e) {}
+    State.recognition = null;
+  }
+
+  // Stop media recorder
+  if (State.mediaRecorder && State.mediaRecorder.state !== 'inactive') {
+    try { State.mediaRecorder.stop(); } catch (e) {}
+    State.mediaRecorder = null;
+  }
+
+  // Stop all tracks
+  if (State.audioContext) {
+    try { State.audioContext.close(); } catch (e) {}
+    State.audioContext = null;
+  }
+
+  // Update duration
+  if (State.startTime) {
+    State.duration = (performance.now() - State.startTime) / 1000;
+    statDuration.textContent = formatTime(State.duration);
+    statProcessed.textContent = formatTime(State.duration);
+  }
+
+  updateStats();
+
+  statusBadge.textContent = 'Ready';
+  statusBadge.style.background = '#dbeafe';
+  statusBadge.style.color = '#1e40af';
+  statusMessage.textContent = 'Recording stopped. Transcript ready.';
+  State.isProcessing = false;
+
+  showToast('Recording stopped', 'success', 1500);
+}
+
+// ============================================================
+// CLEAR TRANSCRIPT
+// ============================================================
+function clearTranscript() {
+  if (State.isRecording) {
+    stopRecording();
+  }
+  transcriptArea.value = '';
+  State.transcriptText = '';
+  State.wordCount = 0;
+  State.charCount = 0;
+  State.segmentCount = 0;
+  State.duration = 0;
+  updateStats();
+  updateProgress(0, 'Ready. Select a file or start recording.');
+  statusBadge.textContent = 'Ready';
+  statusBadge.style.background = '#dbeafe';
+  statusBadge.style.color = '#1e40af';
+  showToast('Transcript cleared', 'success', 1500);
+}
+
+// ============================================================
+// COPY TRANSCRIPT
+// ============================================================
+function copyTranscript() {
+  const text = transcriptArea.value;
+  if (!text.trim()) {
+    showToast('Nothing to copy', 'error', 2000);
+    return;
+  }
+  navigator.clipboard.writeText(text).then(() => {
+    showToast('Copied to clipboard', 'success', 2000);
+  }).catch(() => {
+    transcriptArea.select();
+    document.execCommand('copy');
+    showToast('Copied to clipboard', 'success', 2000);
+  });
+}
+
+// ============================================================
+// DOWNLOAD TRANSCRIPT
+// ============================================================
+function downloadTranscript(format) {
+  const text = transcriptArea.value;
+  if (!text.trim()) {
+    showToast('Nothing to download', 'error', 2000);
+    return;
+  }
+
+  let content = text;
+  let mime = 'text/plain';
+  let ext = 'txt';
+  let filename = 'dropletweb-transcript';
+
+  if (format === 'srt') {
+    // Generate simple SRT
+    const lines = text.split('\n').filter(l => l.trim());
+    let srt = '';
+    lines.forEach((line, i) => {
+      const start = i * 5;
+      const end = start + 4;
+      srt += `${i + 1}\n`;
+      srt += `${formatSrtTime(start)} --> ${formatSrtTime(end)}\n`;
+      srt += `${line}\n\n`;
+    });
+    content = srt;
+    ext = 'srt';
+    mime = 'text/plain';
+  } else if (format === 'json') {
+    content = JSON.stringify({
+      text: text,
+      words: State.wordCount,
+      characters: State.charCount,
+      segments: State.segmentCount,
+      duration: State.duration,
+      timestamp: new Date().toISOString(),
+    }, null, 2);
+    ext = 'json';
+    mime = 'application/json';
+  } else if (format === 'docx') {
+    // Simple HTML-based DOCX (Word can open HTML)
+    content = `<html><head><meta charset="UTF-8"><title>Transcript</title></head><body><pre>${text.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</pre></body></html>`;
+    ext = 'doc';
+    mime = 'application/msword';
+  }
+
+  const blob = new Blob([content], { type: mime });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename + '.' + ext;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 5000);
+  showToast(`Downloaded as .${ext}`, 'success', 2000);
+}
+
+function formatSrtTime(seconds) {
+  const h = Math.floor(seconds / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  const s = Math.floor(seconds % 60);
+  const ms = Math.floor((seconds % 1) * 1000);
+  return String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0') + ',' + String(ms).padStart(3, '0');
+}
+
+// ============================================================
+// RESET EVERYTHING
+// ============================================================
+function resetAll() {
+  if (State.isRecording) {
+    stopRecording();
+  }
+  clearTranscript();
+  State.currentFile = null;
+  audioInput.value = '';
+  showToast('Reset complete', 'success', 1500);
+}
+
+// ============================================================
+// UPLOAD HANDLING (basic — uses Web Speech API for now)
+// ============================================================
+function wireUpload() {
+  const drop = document.getElementById('uploadZone');
+  const input = document.getElementById('audioInput');
+
+  drop.ondragover = (e) => { e.preventDefault(); drop.classList.add('dragover'); };
+  drop.ondragleave = () => drop.classList.remove('dragover');
+  drop.ondrop = (e) => {
+    e.preventDefault();
+    drop.classList.remove('dragover');
+    const f = e.dataTransfer.files[0];
+    if (f) handleAudioFile(f);
+  };
+  drop.onclick = () => input.click();
+  input.onchange = () => {
+    const f = input.files[0];
+    input.value = '';
+    if (f) handleAudioFile(f);
+  };
+}
+wireUpload();
+
+function handleAudioFile(file) {
+  State.currentFile = file;
+  showToast('Audio file loaded: ' + file.name, 'success', 2000);
+  statusMessage.textContent = 'Audio file ready. Click "Start Recording" to transcribe using live speech recognition.';
+  statusBadge.textContent = 'File loaded';
+  statusBadge.style.background = '#dbeafe';
+  statusBadge.style.color = '#1e40af';
+  updateProgress(0, 'Audio file ready. Click Start Recording and play the audio.');
+}
+
+// ============================================================
+// EVENT LISTENERS
+// ============================================================
+recordBtn.addEventListener('click', startRecording);
+stopBtn.addEventListener('click', stopRecording);
+
+transcriptArea.addEventListener('input', () => {
+  updateStats();
+});
+
+languageSelect.addEventListener('change', () => {
+  if (State.recognition) {
+    State.recognition.lang = languageSelect.value;
+  }
+});
+
+// Keyboard shortcut: Ctrl+Enter to copy
+document.addEventListener('keydown', (e) => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+    e.preventDefault();
+    copyTranscript();
+  }
+  if (e.key === 'Escape' && State.isRecording) {
+    stopRecording();
+  }
+});
+
+// ============================================================
+// BOOT
+// ============================================================
+updateStats();
+updateProgress(0, 'Ready. Select a file or start recording.');
+
+// Check browser support
+if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+  statusBadge.textContent = 'Limited support';
+  statusBadge.style.background = '#fef3c7';
+  statusBadge.style.color = '#92400e';
+  statusMessage.textContent = 'Your browser does not support live speech recognition. Please use Chrome or Edge for the best experience.';
+}
+
+console.log('Voice to Text tool loaded.');
+</script>
 
 </body>
-
 </html>
