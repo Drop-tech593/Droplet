@@ -1866,14 +1866,16 @@ async function transcribeLongAudio(
         ) {
 
             // ------------------------------------------------------------
-            // STEP 17 - CONTROLLED WHISPER DECODING
+            // STEP 20 - WORD-LEVEL TIMESTAMPS
             //
-            // Baseline configuration. No generation-time
-            // repetition controls. No word timestamps.
+            // Controlled experiment: switch from segment timestamps
+            // (return_timestamps: true) to word-level timestamps
+            // (return_timestamps: "word").
             //
-            // STEP 20 DIAGNOSTIC:
-            // return_timestamps now TRUE so we can inspect
-            // Whisper's chunk-level timestamps per segment.
+            // This should produce a `chunks` array where each entry
+            // corresponds to one word with [start, end] timestamps,
+            // which will let us align Whisper output against the
+            // diarization speaker timeline.
             // ------------------------------------------------------------
 
             const result =
@@ -1882,7 +1884,7 @@ async function transcribeLongAudio(
                     {
                         do_sample: false,
                         max_new_tokens: 160,
-                        return_timestamps: true
+                        return_timestamps: "word"
                     }
                 );
 
