@@ -2025,6 +2025,633 @@ function buildSpeakerTurnAudio(turns, audio, sampleRate = 16000) {
 }
 
 // ============================================================
+// STEP 3D.4 - PREPARE WHISPER-FRIENDLY SPEAKER CLIPS
+// ============================================================
+
+function prepareSpeakerClipsForWhisper(clips) {
+
+    if (!Array.isArray(clips) || clips.length === 0) {
+        console.warn(
+            "[Droplet Step 3D.4] No speaker clips available."
+        );
+
+        return [];
+    }
+
+
+    const MAX_SAME_SPEAKER_GAP = 1.20;
+
+    const prepared = [];
+
+
+    for (const clip of clips) {
+
+        const previous =
+            prepared[prepared.length - 1];
+
+
+        if (
+            previous &&
+            previous.speaker === clip.speaker
+        ) {
+
+            const gap =
+                clip.start - previous.end;
+
+
+            if (
+                gap >= 0 &&
+                gap <= MAX_SAME_SPEAKER_GAP
+            ) {
+
+                /*
+                 * Rebuild the combined clip from the ORIGINAL
+                 * PCM instead of joining the two Float32Arrays.
+                 *
+                 * This deliberately keeps the silence between
+                 * the two speech regions. Whisper benefits from
+                 * that natural context.
+                 */
+
+                const start =
+                    previous.start;
+
+                const end =
+                    clip.end;
+
+                const startSample =
+                    Math.max(
+                        0,
+                        Math.floor(
+                            start * 16000
+                        )
+                    );
+
+                const endSample =
+                    Math.min(
+                        latestProcessedAudio.length,
+                        Math.ceil(
+                            end * 16000
+                        )
+                    );
+
+
+                previous.end =
+                    end;
+
+                previous.duration =
+                    end - start;
+
+                previous.endSample =
+                    endSample;
+
+                previous.audio =
+                    latestProcessedAudio.slice(
+                        startSample,
+                        endSample
+                    );
+
+                previous.samples =
+                    previous.audio.length;
+
+                previous.sourceTurns.push(
+                    clip.turn
+                );
+
+
+                continue;
+            }
+        }
+
+
+        prepared.push({
+
+            speaker:
+                clip.speaker,
+
+            start:
+                clip.start,
+
+            end:
+                clip.end,
+
+            duration:
+                clip.duration,
+
+            startSample:
+                clip.startSample,
+
+            endSample:
+                clip.endSample,
+
+            samples:
+                clip.samples,
+
+            audio:
+                clip.audio.slice(),
+
+            sourceTurns: [
+                clip.turn
+            ]
+
+        });
+    }
+
+
+    // Assign transcription-region numbers.
+    prepared.forEach(
+        (clip, index) => {
+            clip.region = index + 1;
+        }
+    );
+
+
+    console.log(
+        "========================================"
+    );
+
+    console.log(
+        "[Droplet Step 3D.4] WHISPER SPEAKER REGIONS"
+    );
+
+    console.log(
+        "Original speaker clips:",
+        clips.length
+    );
+
+    console.log(
+        "Prepared Whisper regions:",
+        prepared.length
+    );
+
+
+    console.table(
+        prepared.map(clip => ({
+
+            region:
+                clip.region,
+
+            speaker:
+                clip.speaker,
+
+            start:
+                clip.start.toFixed(2),
+
+            end:
+                clip.end.toFixed(2),
+
+            duration:
+                clip.duration.toFixed(2),
+
+            samples:
+                clip.samples,
+
+            sourceTurns:
+                clip.sourceTurns.join(",")
+
+        }))
+    );
+
+
+    console.log(
+        "========================================"
+    );
+
+
+    return prepared;
+}
+
+// ============================================================
+// STEP 3D.4 - START ONLY WHEN BOTH PIPELINES ARE READY
+// ============================================================
+
+function maybeStartSpeakerTurnTranscription() {
+
+    if (!baselineWhisperComplete) {
+        console.log(
+            "[Droplet Step 3D.4] Waiting for baseline Whisper..."
+        );
+
+        return;
+    }
+
+
+    if (!speakerClipsReady) {
+        console.log(
+            "[Droplet Step 3D.4] Waiting for speaker clips..."
+        );
+
+        return;
+    }
+
+
+    if (speakerTurnTranscriptionStarted) {
+        return;
+    }
+
+
+    if (
+        !latestDiarizationResult ||
+        !Array.isArray(
+            latestDiarizationResult.speakerClips
+        ) ||
+        latestDiarizationResult.speakerClips.length === 0
+    ) {
+
+        console.warn(
+            "[Droplet Step 3D.4] No usable speaker clips."
+        );
+
+        return;
+    }
+
+
+    speakerTurnTranscriptionStarted = true;
+
+
+    speakerTurnQueue =
+        prepareSpeakerClipsForWhisper(
+            latestDiarizationResult.speakerClips
+        );
+
+
+    if (speakerTurnQueue.length === 0) {
+
+        console.warn(
+            "[Droplet Step 3D.4] Speaker queue is empty."
+        );
+
+        speakerTurnTranscriptionStarted = false;
+
+        return;
+    }
+
+
+    startSpeakerTurnWhisper();
+}
+
+// ============================================================
+// STEP 3D.4 - SEQUENTIAL SPEAKER WHISPER
+// ============================================================
+
+function startSpeakerTurnWhisper() {
+
+    console.log(
+        "========================================"
+    );
+
+    console.log(
+        "[Droplet Step 3D.4] STARTING SPEAKER TRANSCRIPTION"
+    );
+
+    console.log(
+        "Regions:",
+        speakerTurnQueue.length
+    );
+
+    console.log(
+        "========================================"
+    );
+
+
+    speakerTurnResults = [];
+    currentSpeakerTurnIndex = 0;
+
+
+    if (speakerTurnWorker) {
+        speakerTurnWorker.terminate();
+        speakerTurnWorker = null;
+    }
+
+
+    speakerTurnWorker =
+        new Worker(
+            "./voice-engine/workers/whisper-worker.js?v=voice-ui-v1",
+            {
+                type: "module"
+            }
+        );
+
+
+    speakerTurnWorker.onmessage =
+        event => {
+
+            const message =
+                event.data || {};
+
+
+            // --------------------------------------------
+            // MODEL READY
+            // --------------------------------------------
+
+            if (message.type === "model-ready") {
+
+                console.log(
+                    "[Droplet Step 3D.4] Whisper model ready."
+                );
+
+
+                transcribeNextSpeakerRegion();
+
+                return;
+            }
+
+
+            // --------------------------------------------
+            // REGION COMPLETE
+            // --------------------------------------------
+
+            if (
+                message.type ===
+                "transcription-complete"
+            ) {
+
+                const expectedJobId =
+                    "speaker-turn-" +
+                    currentSpeakerTurnIndex;
+
+
+                if (
+                    message.jobId !==
+                    expectedJobId
+                ) {
+                    return;
+                }
+
+
+                const region =
+                    speakerTurnQueue[
+                        currentSpeakerTurnIndex - 1
+                    ];
+
+
+                const result = {
+
+                    region:
+                        region.region,
+
+                    speaker:
+                        region.speaker,
+
+                    start:
+                        region.start,
+
+                    end:
+                        region.end,
+
+                    duration:
+                        region.duration,
+
+                    sourceTurns:
+                        region.sourceTurns,
+
+                    text:
+                        (
+                            message.text || ""
+                        ).trim()
+
+                };
+
+
+                speakerTurnResults.push(
+                    result
+                );
+
+
+                console.log(
+                    "[Droplet Step 3D.4] Region complete:",
+                    result
+                );
+
+
+                transcribeNextSpeakerRegion();
+
+                return;
+            }
+
+
+            // --------------------------------------------
+            // ERROR
+            // --------------------------------------------
+
+            if (message.type === "error") {
+
+                console.error(
+                    "[Droplet Step 3D.4] Whisper error:",
+                    message
+                );
+
+
+                finishSpeakerTurnTranscription();
+
+                return;
+            }
+        };
+
+
+    speakerTurnWorker.onerror =
+        error => {
+
+            console.error(
+                "[Droplet Step 3D.4] Worker error:",
+                error
+            );
+
+
+            finishSpeakerTurnTranscription();
+        };
+
+
+    const model =
+        modelSelect.value;
+
+
+    speakerTurnWorker.postMessage({
+        type:
+            "load-model",
+
+        model,
+
+        device:
+            "webgpu"
+    });
+}
+
+// ============================================================
+// STEP 3D.4 - SEND ONE REGION AT A TIME
+// ============================================================
+
+function transcribeNextSpeakerRegion() {
+
+    if (
+        currentSpeakerTurnIndex >=
+        speakerTurnQueue.length
+    ) {
+
+        finishSpeakerTurnTranscription();
+
+        return;
+    }
+
+
+    const region =
+        speakerTurnQueue[
+            currentSpeakerTurnIndex
+        ];
+
+
+    currentSpeakerTurnIndex++;
+
+
+    const jobId =
+        "speaker-turn-" +
+        currentSpeakerTurnIndex;
+
+
+    /*
+     * Copy again because transferring the buffer
+     * detaches it.
+     */
+
+    const audioForWorker =
+        region.audio.slice();
+
+
+    console.log(
+        `[Droplet Step 3D.4] Transcribing region ${currentSpeakerTurnIndex}/${speakerTurnQueue.length}`,
+        {
+            jobId,
+            speaker:
+                region.speaker,
+            start:
+                region.start,
+            end:
+                region.end,
+            duration:
+                region.duration,
+            samples:
+                audioForWorker.length,
+            sourceTurns:
+                region.sourceTurns
+        }
+    );
+
+
+    const buffer =
+        audioForWorker.buffer;
+
+
+    speakerTurnWorker.postMessage(
+        {
+            type:
+                "transcribe",
+
+            jobId,
+
+            audioBuffer:
+                buffer
+        },
+        [
+            buffer
+        ]
+    );
+}
+
+// ============================================================
+// STEP 3D.4 - FINISH / DEBUG ONLY
+// ============================================================
+
+function finishSpeakerTurnTranscription() {
+
+    console.log(
+        "========================================"
+    );
+
+    console.log(
+        "[Droplet Step 3D.4] SPEAKER TRANSCRIPTION COMPLETE"
+    );
+
+
+    console.table(
+        speakerTurnResults.map(
+            result => ({
+
+                region:
+                    result.region,
+
+                speaker:
+                    result.speaker,
+
+                start:
+                    result.start.toFixed(2),
+
+                end:
+                    result.end.toFixed(2),
+
+                duration:
+                    result.duration.toFixed(2),
+
+                text:
+                    result.text
+
+            }))
+    );
+
+
+    const labelledTranscript =
+        speakerTurnResults
+            .filter(
+                result =>
+                    result.text
+            )
+            .map(
+                result =>
+                    `${result.speaker}: ${result.text}`
+            )
+            .join("\n\n");
+
+
+    console.log(
+        "[Droplet Step 3D.4] LABELLED TRANSCRIPT:"
+    );
+
+    console.log(
+        labelledTranscript
+    );
+
+
+    console.log(
+        "[Droplet Step 3D.4] BASELINE TRANSCRIPT:"
+    );
+
+    console.log(
+        latestBaselineTranscript
+    );
+
+
+    console.log(
+        "========================================"
+    );
+
+
+    /*
+     * IMPORTANT:
+     * Do NOT replace transcriptArea yet.
+     *
+     * Step 3G will compare this result against
+     * the known-good baseline first.
+     */
+
+
+    if (speakerTurnWorker) {
+
+        speakerTurnWorker.terminate();
+
+        speakerTurnWorker = null;
+    }
+}
+
+// ============================================================
 // UPLOADED AUDIO — SPEAKER DIARIZATION
 // ============================================================
 
@@ -2035,6 +2662,22 @@ let latestDiarizationResult = null;
 // Keep normalized 16 kHz PCM available after Whisper/diarization
 // transfer their own ArrayBuffers to workers.
 let latestProcessedAudio = null;
+
+// ============================================================
+// STEP 3D.4 - SPEAKER TURN TRANSCRIPTION STATE
+// ============================================================
+
+let baselineWhisperComplete = false;
+let latestBaselineTranscript = "";
+
+let speakerClipsReady = false;
+let speakerTurnTranscriptionStarted = false;
+
+let speakerTurnWorker = null;
+let speakerTurnResults = [];
+
+let speakerTurnQueue = [];
+let currentSpeakerTurnIndex = 0;
 
 function startUploadedAudioDiarization(audio) {
 
@@ -2213,6 +2856,12 @@ function startUploadedAudioDiarization(audio) {
                 );
 
 
+            speakerClipsReady =
+                latestDiarizationResult.speakerClips.length > 0;
+
+            maybeStartSpeakerTurnTranscription();
+
+
             console.log(
                 "========================================"
             );
@@ -2320,6 +2969,24 @@ async function transcribeSelectedAudio() {
   statusBadge.textContent = 'Processing';
   updateProgress(1, 'Preparing audio…');
   try {
+
+    // STEP 3D.4:
+    // Reset speaker transcription state for this new file.
+    baselineWhisperComplete = false;
+    latestBaselineTranscript = "";
+
+    speakerClipsReady = false;
+    speakerTurnTranscriptionStarted = false;
+
+    speakerTurnResults = [];
+    speakerTurnQueue = [];
+    currentSpeakerTurnIndex = 0;
+
+    if (speakerTurnWorker) {
+        speakerTurnWorker.terminate();
+        speakerTurnWorker = null;
+    }
+
     const audio = await window.DropletVoice.processAudioFile(
         State.currentFile
     );
@@ -2370,7 +3037,23 @@ async function transcribeSelectedAudio() {
         updateProgress(12 + ((m.progress || 0) * .88), 'Transcribing chunk ' + (m.chunkNumber || '') + ' of ' + (m.totalChunks || '') + '…');
         updateStats(); saveSession();
       }
-      if (m.type === 'transcription-complete' && m.jobId === jobId) finishTranscription(m.text || '');
+      if (
+          m.type === 'transcription-complete' &&
+          m.jobId === jobId
+      ) {
+
+          latestBaselineTranscript =
+              m.text || '';
+
+          baselineWhisperComplete =
+              true;
+
+          finishTranscription(
+              latestBaselineTranscript
+          );
+
+          maybeStartSpeakerTurnTranscription();
+      }
       if (m.type === 'error') failTranscription(m.message || 'Transcription failed.');
     };
     transcriptionWorker.onerror = e => failTranscription(e.message || 'Transcription worker failed.');
