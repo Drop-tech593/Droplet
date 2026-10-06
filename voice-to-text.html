@@ -1654,6 +1654,213 @@ async function restoreSession() {
 }
 
 // ============================================================
+// STEP 3C - BUILD CLEAN SPEAKER TURN TIMELINE
+// ============================================================
+
+function buildSpeakerTurnTimeline(segments) {
+
+    if (!Array.isArray(segments) || segments.length === 0) {
+        console.warn(
+            "[Droplet Step 3C] No diarization segments available."
+        );
+
+        return [];
+    }
+
+
+    // --------------------------------------------------------
+    // 1. NORMALIZE + SORT
+    // --------------------------------------------------------
+
+    const normalized = segments
+        .map((segment, index) => ({
+            index,
+
+            speaker:
+                segment.speaker || "Unknown Speaker",
+
+            start:
+                Number(segment.start),
+
+            end:
+                Number(segment.end)
+        }))
+        .filter(segment =>
+            Number.isFinite(segment.start) &&
+            Number.isFinite(segment.end) &&
+            segment.end > segment.start
+        )
+        .sort((a, b) =>
+            a.start - b.start
+        );
+
+
+    if (normalized.length === 0) {
+        console.warn(
+            "[Droplet Step 3C] No valid speaker segments."
+        );
+
+        return [];
+    }
+
+
+    // --------------------------------------------------------
+    // 2. MERGE ADJACENT SEGMENTS FROM SAME SPEAKER
+    //
+    // Sometimes diarization may produce:
+    //
+    // Speaker 1  0.50 -> 2.30
+    // Speaker 1  2.35 -> 4.80
+    //
+    // That's really one speaker turn.
+    // --------------------------------------------------------
+
+    const MAX_SAME_SPEAKER_GAP = 0.75;
+
+    const turns = [];
+
+
+    for (const segment of normalized) {
+
+        const previous =
+            turns[turns.length - 1];
+
+
+        if (
+            previous &&
+            previous.speaker === segment.speaker
+        ) {
+
+            const gap =
+                segment.start -
+                previous.end;
+
+
+            if (
+                gap <= MAX_SAME_SPEAKER_GAP
+            ) {
+
+                previous.end =
+                    Math.max(
+                        previous.end,
+                        segment.end
+                    );
+
+                previous.duration =
+                    previous.end -
+                    previous.start;
+
+                previous.sourceSegments.push(
+                    segment.index
+                );
+
+                continue;
+            }
+        }
+
+
+        turns.push({
+            speaker:
+                segment.speaker,
+
+            start:
+                segment.start,
+
+            end:
+                segment.end,
+
+            duration:
+                segment.end -
+                segment.start,
+
+            sourceSegments: [
+                segment.index
+            ]
+        });
+    }
+
+
+    // --------------------------------------------------------
+    // 3. ASSIGN TURN NUMBERS
+    // --------------------------------------------------------
+
+    const finalTurns =
+        turns.map((turn, index) => ({
+            turn:
+                index + 1,
+
+            speaker:
+                turn.speaker,
+
+            start:
+                turn.start,
+
+            end:
+                turn.end,
+
+            duration:
+                turn.duration,
+
+            sourceSegments:
+                turn.sourceSegments
+        }));
+
+
+    // --------------------------------------------------------
+    // DEBUG
+    // --------------------------------------------------------
+
+    console.log(
+        "========================================"
+    );
+
+    console.log(
+        "[Droplet Step 3C] SPEAKER TURN TIMELINE"
+    );
+
+    console.log(
+        "Raw diarization segments:",
+        segments.length
+    );
+
+    console.log(
+        "Clean speaker turns:",
+        finalTurns.length
+    );
+
+
+    console.table(
+        finalTurns.map(turn => ({
+            turn:
+                turn.turn,
+
+            speaker:
+                turn.speaker,
+
+            start:
+                turn.start.toFixed(2),
+
+            end:
+                turn.end.toFixed(2),
+
+            duration:
+                turn.duration.toFixed(2),
+
+            sourceSegments:
+                turn.sourceSegments.length
+        }))
+    );
+
+
+    console.log(
+        "========================================"
+    );
+
+
+    return finalTurns;
+}
+
+// ============================================================
 // UPLOADED AUDIO — SPEAKER DIARIZATION
 // ============================================================
 
@@ -1813,6 +2020,16 @@ function startUploadedAudioDiarization(audio) {
                 performance:
                     message.performance || {}
             };
+
+
+            // ========================================================
+            // STEP 3C - BUILD SPEAKER TURN TIMELINE
+            // ========================================================
+
+            latestDiarizationResult.speakerTurns =
+                buildSpeakerTurnTimeline(
+                    latestDiarizationResult.segments
+                );
 
 
             console.log(
