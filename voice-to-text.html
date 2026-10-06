@@ -2570,6 +2570,589 @@ function buildFinalSpeakerTranscript(results) {
 }
 
 // ============================================================
+// STEP 3F - SPEAKER REGION RELIABILITY ANALYSIS
+// ============================================================
+
+function analyzeSpeakerRegionReliability(result) {
+
+    const text =
+        typeof result?.text === "string"
+            ? result.text
+                .replace(/\s+/g, " ")
+                .trim()
+            : "";
+
+    const duration =
+        Number(result?.duration) || 0;
+
+
+    const flags = [];
+
+    let reliability = "good";
+
+
+    // ========================================================
+    // 1. EMPTY RESULT
+    // ========================================================
+
+    if (!text) {
+
+        flags.push(
+            "empty-transcript"
+        );
+
+        return {
+            reliability: "failed",
+            usable: false,
+            flags,
+            text
+        };
+    }
+
+
+    // ========================================================
+    // 2. VERY SHORT REGION
+    //
+    // Do NOT reject automatically.
+    // Real words such as "yes", "no", "okay" can be short.
+    // ========================================================
+
+    if (duration < 0.75) {
+
+        flags.push(
+            "very-short-region"
+        );
+
+        reliability = "warning";
+    }
+
+
+    // ========================================================
+    // 3. REPETITION / HALLUCINATION DETECTION
+    // ========================================================
+
+    const words =
+        text
+            .toLowerCase()
+            .replace(/[^\p{L}\p{N}'-]+/gu, " ")
+            .trim()
+            .split(/\s+/)
+            .filter(Boolean);
+
+
+    if (words.length >= 6) {
+
+        const frequencies =
+            new Map();
+
+
+        for (const word of words) {
+
+            frequencies.set(
+                word,
+                (
+                    frequencies.get(word) ||
+                    0
+                ) + 1
+            );
+        }
+
+
+        let mostRepeatedWord = "";
+        let mostRepeatedCount = 0;
+
+
+        for (
+            const [word, count]
+            of frequencies.entries()
+        ) {
+
+            if (count > mostRepeatedCount) {
+
+                mostRepeatedWord =
+                    word;
+
+                mostRepeatedCount =
+                    count;
+            }
+        }
+
+
+        const repetitionRatio =
+            mostRepeatedCount /
+            words.length;
+
+
+        if (
+            mostRepeatedCount >= 6 &&
+            repetitionRatio >= 0.60
+        ) {
+
+            flags.push(
+                `repetition-loop:${mostRepeatedWord}`
+            );
+
+            reliability = "failed";
+        }
+    }
+
+
+    // ========================================================
+    // 4. REPEATED PHRASE DETECTION
+    //
+    // Catches:
+    //
+    // "thank you thank you thank you thank you..."
+    //
+    // even if no single word dominates enough.
+    // ========================================================
+
+    if (
+        reliability !== "failed" &&
+        words.length >= 8
+    ) {
+
+        let phraseLoopDetected =
+            false;
+
+
+        for (
+            let phraseLength = 2;
+            phraseLength <= 4;
+            phraseLength++
+        ) {
+
+            if (
+                words.length <
+                phraseLength * 3
+            ) {
+                continue;
+            }
+
+
+            const firstPhrase =
+                words
+                    .slice(
+                        0,
+                        phraseLength
+                    )
+                    .join(" ");
+
+
+            let repeats =
+                1;
+
+
+            for (
+                let i = phraseLength;
+                i + phraseLength <= words.length;
+                i += phraseLength
+            ) {
+
+                const phrase =
+                    words
+                        .slice(
+                            i,
+                            i + phraseLength
+                        )
+                        .join(" ");
+
+
+                if (
+                    phrase ===
+                    firstPhrase
+                ) {
+
+                    repeats++;
+
+                } else {
+
+                    break;
+                }
+            }
+
+
+            if (repeats >= 3) {
+
+                flags.push(
+                    "repeated-phrase-loop"
+                );
+
+                reliability =
+                    "failed";
+
+                phraseLoopDetected =
+                    true;
+
+                break;
+            }
+        }
+    }
+
+
+    // ========================================================
+    // FINAL RESULT
+    // ========================================================
+
+    return {
+
+        reliability,
+
+        usable:
+            reliability !== "failed",
+
+        flags,
+
+        text
+    };
+}
+
+// ============================================================
+// STEP 3F - DETECT SPEAKER OVERLAPS
+// ============================================================
+
+function detectSpeakerOverlaps(results) {
+
+    if (!Array.isArray(results)) {
+        return [];
+    }
+
+
+    const sorted =
+        results
+            .filter(
+                result =>
+                    Number.isFinite(
+                        Number(result.start)
+                    ) &&
+                    Number.isFinite(
+                        Number(result.end)
+                    )
+            )
+            .slice()
+            .sort(
+                (a, b) =>
+                    Number(a.start) -
+                    Number(b.start)
+            );
+
+
+    const overlaps = [];
+
+
+    for (
+        let i = 0;
+        i < sorted.length;
+        i++
+    ) {
+
+        for (
+            let j = i + 1;
+            j < sorted.length;
+            j++
+        ) {
+
+            const first =
+                sorted[i];
+
+            const second =
+                sorted[j];
+
+
+            if (
+                Number(second.start) >=
+                Number(first.end)
+            ) {
+
+                break;
+            }
+
+
+            if (
+                first.speaker ===
+                second.speaker
+            ) {
+
+                continue;
+            }
+
+
+            const overlapStart =
+                Math.max(
+                    Number(first.start),
+                    Number(second.start)
+                );
+
+
+            const overlapEnd =
+                Math.min(
+                    Number(first.end),
+                    Number(second.end)
+                );
+
+
+            const overlapDuration =
+                overlapEnd -
+                overlapStart;
+
+
+            if (overlapDuration > 0) {
+
+                overlaps.push({
+
+                    firstRegion:
+                        first.region,
+
+                    secondRegion:
+                        second.region,
+
+                    firstSpeaker:
+                        first.speaker,
+
+                    secondSpeaker:
+                        second.speaker,
+
+                    start:
+                        overlapStart,
+
+                    end:
+                        overlapEnd,
+
+                    duration:
+                        overlapDuration
+
+                });
+            }
+        }
+    }
+
+
+    return overlaps;
+}
+
+// ============================================================
+// STEP 3F - APPLY RELIABILITY PROTECTION
+// ============================================================
+
+function protectSpeakerTranscriptionResults(results) {
+
+    if (!Array.isArray(results)) {
+
+        return {
+            results: [],
+            overlaps: []
+        };
+    }
+
+
+    const protectedResults =
+        results.map(result => {
+
+            const analysis =
+                analyzeSpeakerRegionReliability(
+                    result
+                );
+
+
+            return {
+
+                ...result,
+
+                text:
+                    analysis.text,
+
+                reliability:
+                    analysis.reliability,
+
+                usable:
+                    analysis.usable,
+
+                reliabilityFlags:
+                    analysis.flags
+
+            };
+        });
+
+
+    const overlaps =
+        detectSpeakerOverlaps(
+            protectedResults
+        );
+
+
+    // ========================================================
+    // MARK REGIONS INVOLVED IN OVERLAP
+    // ========================================================
+
+    for (const overlap of overlaps) {
+
+        for (
+            const result
+            of protectedResults
+        ) {
+
+            if (
+                result.region ===
+                    overlap.firstRegion ||
+                result.region ===
+                    overlap.secondRegion
+            ) {
+
+                if (
+                    !result.reliabilityFlags.includes(
+                        "speaker-overlap"
+                    )
+                ) {
+
+                    result.reliabilityFlags.push(
+                        "speaker-overlap"
+                    );
+                }
+
+
+                if (
+                    result.reliability ===
+                    "good"
+                ) {
+
+                    result.reliability =
+                        "warning";
+                }
+            }
+        }
+    }
+
+
+    // ========================================================
+    // DEBUG OUTPUT
+    // ========================================================
+
+    console.log(
+        "========================================"
+    );
+
+    console.log(
+        "[Droplet Step 3F] RELIABILITY CHECK"
+    );
+
+
+    console.log(
+        "Regions checked:",
+        protectedResults.length
+    );
+
+
+    console.log(
+        "Usable regions:",
+        protectedResults.filter(
+            result =>
+                result.usable
+        ).length
+    );
+
+
+    console.log(
+        "Failed regions:",
+        protectedResults.filter(
+            result =>
+                !result.usable
+        ).length
+    );
+
+
+    console.log(
+        "Overlaps:",
+        overlaps.length
+    );
+
+
+    console.table(
+        protectedResults.map(
+            result => ({
+
+                region:
+                    result.region,
+
+                speaker:
+                    result.speaker,
+
+                duration:
+                    Number(
+                        result.duration
+                    ).toFixed(2),
+
+                reliability:
+                    result.reliability,
+
+                usable:
+                    result.usable,
+
+                flags:
+                    result
+                        .reliabilityFlags
+                        .join(","),
+
+                text:
+                    result.text
+
+            }))
+    );
+
+
+    if (overlaps.length > 0) {
+
+        console.log(
+            "[Droplet Step 3F] SPEAKER OVERLAPS"
+        );
+
+
+        console.table(
+            overlaps.map(
+                overlap => ({
+
+                    regionA:
+                        overlap.firstRegion,
+
+                    speakerA:
+                        overlap.firstSpeaker,
+
+                    regionB:
+                        overlap.secondRegion,
+
+                    speakerB:
+                        overlap.secondSpeaker,
+
+                    start:
+                        overlap.start.toFixed(2),
+
+                    end:
+                        overlap.end.toFixed(2),
+
+                    duration:
+                        overlap.duration.toFixed(2)
+
+                })
+            )
+        );
+    }
+
+
+    console.log(
+        "========================================"
+    );
+
+
+    return {
+
+        results:
+            protectedResults,
+
+        overlaps
+
+    };
+}
+
+// ============================================================
 // STEP 3D.4 - START ONLY WHEN BOTH PIPELINES ARE READY
 // ============================================================
 
@@ -2978,12 +3561,33 @@ function finishSpeakerTurnTranscription() {
 
 
     // ========================================================
+    // STEP 3F - PROTECT SPEAKER RESULTS
+    // ========================================================
+
+    const protectedSpeakerOutput =
+        protectSpeakerTranscriptionResults(
+            speakerTurnResults
+        );
+
+
+    latestProtectedSpeakerResults =
+        protectedSpeakerOutput.results;
+
+
+    latestSpeakerOverlaps =
+        protectedSpeakerOutput.overlaps;
+
+
+    // ========================================================
     // STEP 3E - BUILD FINAL SPEAKER TRANSCRIPT
     // ========================================================
 
     const finalSpeakerOutput =
         buildFinalSpeakerTranscript(
-            speakerTurnResults
+            latestProtectedSpeakerResults.filter(
+                result =>
+                    result.usable
+            )
         );
 
 
@@ -3052,6 +3656,14 @@ let currentSpeakerTurnIndex = 0;
 let latestSpeakerTranscript = "";
 
 let latestSpeakerTranscriptTurns = [];
+
+// ============================================================
+// STEP 3F - RELIABILITY STATE
+// ============================================================
+
+let latestProtectedSpeakerResults = [];
+
+let latestSpeakerOverlaps = [];
 
 function startUploadedAudioDiarization(audio) {
 
@@ -3359,6 +3971,10 @@ async function transcribeSelectedAudio() {
     // STEP 3E
     latestSpeakerTranscript = "";
     latestSpeakerTranscriptTurns = [];
+
+    // STEP 3F
+    latestProtectedSpeakerResults = [];
+    latestSpeakerOverlaps = [];
 
     if (speakerTurnWorker) {
         speakerTurnWorker.terminate();
