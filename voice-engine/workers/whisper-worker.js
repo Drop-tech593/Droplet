@@ -1866,16 +1866,10 @@ async function transcribeLongAudio(
         ) {
 
             // ------------------------------------------------------------
-            // STEP 20 - WORD-LEVEL TIMESTAMPS
+            // STEP 17 - CONTROLLED WHISPER DECODING
             //
-            // Controlled experiment: switch from segment timestamps
-            // (return_timestamps: true) to word-level timestamps
-            // (return_timestamps: "word").
-            //
-            // This should produce a `chunks` array where each entry
-            // corresponds to one word with [start, end] timestamps,
-            // which will let us align Whisper output against the
-            // diarization speaker timeline.
+            // Baseline configuration. No generation-time
+            // repetition controls. No word timestamps.
             // ------------------------------------------------------------
 
             const result =
@@ -1884,25 +1878,9 @@ async function transcribeLongAudio(
                     {
                         do_sample: false,
                         max_new_tokens: 160,
-                        return_timestamps: "word"
+                        return_timestamps: false
                     }
                 );
-
-            console.log(
-                `[Droplet Step 20] Whisper timestamp result - Chunk ${i + 1}`,
-                result
-            );
-
-            console.table(
-                (result?.chunks || []).map(
-                    (segment, index) => ({
-                        index,
-                        text: segment.text,
-                        start: segment.timestamp?.[0],
-                        end: segment.timestamp?.[1]
-                    })
-                )
-            );
 
 
             // ------------------------------------------------------------
