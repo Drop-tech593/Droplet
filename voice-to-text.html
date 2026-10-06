@@ -2025,14 +2025,15 @@ function buildSpeakerTurnAudio(turns, audio, sampleRate = 16000) {
 }
 
 // ============================================================
-// STEP 3D.4 - PREPARE WHISPER-FRIENDLY SPEAKER CLIPS
+// STEP 3D.5 - PREPARE GAPLESS WHISPER SPEAKER REGIONS
 // ============================================================
 
 function prepareSpeakerClipsForWhisper(clips) {
 
     if (!Array.isArray(clips) || clips.length === 0) {
+
         console.warn(
-            "[Droplet Step 3D.4] No speaker clips available."
+            "[Droplet Step 3D.5] No speaker clips available."
         );
 
         return [];
@@ -2050,6 +2051,17 @@ function prepareSpeakerClipsForWhisper(clips) {
             prepared[prepared.length - 1];
 
 
+        // ====================================================
+        // SAME SPEAKER + SMALL GAP
+        //
+        // STEP 3D.5:
+        // Merge the actual speech samples directly.
+        //
+        // DO NOT reconstruct the entire original time range,
+        // because doing that also copies the silence between
+        // the two diarization segments.
+        // ====================================================
+
         if (
             previous &&
             previous.speaker === clip.speaker
@@ -2064,64 +2076,106 @@ function prepareSpeakerClipsForWhisper(clips) {
                 gap <= MAX_SAME_SPEAKER_GAP
             ) {
 
-                /*
-                 * Rebuild the combined clip from the ORIGINAL
-                 * PCM instead of joining the two Float32Arrays.
-                 *
-                 * This deliberately keeps the silence between
-                 * the two speech regions. Whisper benefits from
-                 * that natural context.
-                 */
+                const firstAudio =
+                    previous.audio;
 
-                const start =
-                    previous.start;
+                const secondAudio =
+                    clip.audio;
 
-                const end =
-                    clip.end;
 
-                const startSample =
-                    Math.max(
-                        0,
-                        Math.floor(
-                            start * 16000
-                        )
-                    );
-
-                const endSample =
-                    Math.min(
-                        latestProcessedAudio.length,
-                        Math.ceil(
-                            end * 16000
-                        )
+                const mergedAudio =
+                    new Float32Array(
+                        firstAudio.length +
+                        secondAudio.length
                     );
 
 
-                previous.end =
-                    end;
+                mergedAudio.set(
+                    firstAudio,
+                    0
+                );
 
-                previous.duration =
-                    end - start;
 
-                previous.endSample =
-                    endSample;
+                mergedAudio.set(
+                    secondAudio,
+                    firstAudio.length
+                );
+
 
                 previous.audio =
-                    latestProcessedAudio.slice(
-                        startSample,
-                        endSample
-                    );
+                    mergedAudio;
+
+
+                // Keep ORIGINAL timeline boundaries.
+                // These are useful later for speaker alignment.
+                previous.end =
+                    clip.end;
+
+
+                // This is the actual audio duration Whisper
+                // receives after removing the gap.
+                previous.audioDuration =
+                    mergedAudio.length / 16000;
+
+
+                // Timeline duration still includes the gap.
+                previous.timelineDuration =
+                    previous.end -
+                    previous.start;
+
+
+                previous.duration =
+                    previous.audioDuration;
+
 
                 previous.samples =
-                    previous.audio.length;
+                    mergedAudio.length;
+
 
                 previous.sourceTurns.push(
                     clip.turn
                 );
 
 
+                previous.removedGapSeconds +=
+                    gap;
+
+
+                console.log(
+                    "[Droplet Step 3D.5] Gapless merge:",
+                    {
+                        speaker:
+                            previous.speaker,
+
+                        sourceTurns:
+                            previous.sourceTurns.slice(),
+
+                        removedGap:
+                            gap,
+
+                        timelineDuration:
+                            previous.timelineDuration,
+
+                        audioDuration:
+                            previous.audioDuration,
+
+                        samples:
+                            previous.samples
+                    }
+                );
+
+
                 continue;
             }
         }
+
+
+        // ====================================================
+        // NEW WHISPER REGION
+        // ====================================================
+
+        const independentAudio =
+            clip.audio.slice();
 
 
         prepared.push({
@@ -2135,43 +2189,57 @@ function prepareSpeakerClipsForWhisper(clips) {
             end:
                 clip.end,
 
+            // Actual audio Whisper receives.
             duration:
-                clip.duration,
+                independentAudio.length / 16000,
 
-            startSample:
-                clip.startSample,
+            audioDuration:
+                independentAudio.length / 16000,
 
-            endSample:
-                clip.endSample,
+            // Original timeline duration.
+            timelineDuration:
+                clip.end - clip.start,
 
             samples:
-                clip.samples,
+                independentAudio.length,
 
             audio:
-                clip.audio.slice(),
+                independentAudio,
 
             sourceTurns: [
                 clip.turn
-            ]
+            ],
+
+            removedGapSeconds:
+                0
 
         });
     }
 
 
-    // Assign transcription-region numbers.
+    // ========================================================
+    // ASSIGN REGION NUMBERS
+    // ========================================================
+
     prepared.forEach(
         (clip, index) => {
-            clip.region = index + 1;
+
+            clip.region =
+                index + 1;
         }
     );
 
+
+    // ========================================================
+    // DEBUG OUTPUT
+    // ========================================================
 
     console.log(
         "========================================"
     );
 
     console.log(
-        "[Droplet Step 3D.4] WHISPER SPEAKER REGIONS"
+        "[Droplet Step 3D.5] GAPLESS WHISPER SPEAKER REGIONS"
     );
 
     console.log(
@@ -2186,30 +2254,38 @@ function prepareSpeakerClipsForWhisper(clips) {
 
 
     console.table(
-        prepared.map(clip => ({
+        prepared.map(
+            clip => ({
 
-            region:
-                clip.region,
+                region:
+                    clip.region,
 
-            speaker:
-                clip.speaker,
+                speaker:
+                    clip.speaker,
 
-            start:
-                clip.start.toFixed(2),
+                start:
+                    clip.start.toFixed(2),
 
-            end:
-                clip.end.toFixed(2),
+                end:
+                    clip.end.toFixed(2),
 
-            duration:
-                clip.duration.toFixed(2),
+                timelineDuration:
+                    clip.timelineDuration.toFixed(2),
 
-            samples:
-                clip.samples,
+                audioDuration:
+                    clip.audioDuration.toFixed(2),
 
-            sourceTurns:
-                clip.sourceTurns.join(",")
+                removedGap:
+                    clip.removedGapSeconds.toFixed(2),
 
-        }))
+                samples:
+                    clip.samples,
+
+                sourceTurns:
+                    clip.sourceTurns.join(",")
+
+            })
+        )
     );
 
 
