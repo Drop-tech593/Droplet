@@ -1870,6 +1870,10 @@ async function transcribeLongAudio(
             //
             // Baseline configuration. No generation-time
             // repetition controls. No word timestamps.
+            //
+            // STEP 20 DIAGNOSTIC:
+            // return_timestamps now TRUE so we can inspect
+            // Whisper's chunk-level timestamps per segment.
             // ------------------------------------------------------------
 
             const result =
@@ -1878,9 +1882,25 @@ async function transcribeLongAudio(
                     {
                         do_sample: false,
                         max_new_tokens: 160,
-                        return_timestamps: false
+                        return_timestamps: true
                     }
                 );
+
+            console.log(
+                `[Droplet Step 20] Whisper timestamp result - Chunk ${i + 1}`,
+                result
+            );
+
+            console.table(
+                (result?.chunks || []).map(
+                    (segment, index) => ({
+                        index,
+                        text: segment.text,
+                        start: segment.timestamp?.[0],
+                        end: segment.timestamp?.[1]
+                    })
+                )
+            );
 
 
             // ------------------------------------------------------------
