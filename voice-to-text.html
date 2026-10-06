@@ -2298,6 +2298,278 @@ function prepareSpeakerClipsForWhisper(clips) {
 }
 
 // ============================================================
+// STEP 3E - ASSEMBLE FINAL SPEAKER TRANSCRIPT
+// ============================================================
+
+function buildFinalSpeakerTranscript(results) {
+
+    if (
+        !Array.isArray(results) ||
+        results.length === 0
+    ) {
+
+        console.warn(
+            "[Droplet Step 3E] No speaker transcription results."
+        );
+
+        return {
+            turns: [],
+            text: ""
+        };
+    }
+
+
+    // ========================================================
+    // 1. CLEAN + SORT RESULTS
+    // ========================================================
+
+    const cleaned =
+        results
+            .filter(result => {
+
+                if (!result) {
+                    return false;
+                }
+
+                if (
+                    typeof result.speaker !== "string" ||
+                    !result.speaker.trim()
+                ) {
+                    return false;
+                }
+
+                if (
+                    typeof result.text !== "string" ||
+                    !result.text.trim()
+                ) {
+                    return false;
+                }
+
+                return true;
+            })
+            .map(result => ({
+
+                region:
+                    result.region,
+
+                speaker:
+                    result.speaker.trim(),
+
+                start:
+                    Number(result.start),
+
+                end:
+                    Number(result.end),
+
+                duration:
+                    Number(result.duration),
+
+                sourceTurns:
+                    Array.isArray(result.sourceTurns)
+                        ? result.sourceTurns.slice()
+                        : [],
+
+                text:
+                    result.text
+                        .replace(/\s+/g, " ")
+                        .trim()
+
+            }))
+            .sort(
+                (a, b) =>
+                    a.start - b.start
+            );
+
+
+    // ========================================================
+    // 2. MERGE CONSECUTIVE RESULTS FROM SAME SPEAKER
+    // ========================================================
+
+    const finalTurns = [];
+
+
+    for (const result of cleaned) {
+
+        const previous =
+            finalTurns[
+                finalTurns.length - 1
+            ];
+
+
+        if (
+            previous &&
+            previous.speaker === result.speaker
+        ) {
+
+            previous.text =
+                (
+                    previous.text +
+                    " " +
+                    result.text
+                )
+                    .replace(/\s+/g, " ")
+                    .trim();
+
+
+            previous.end =
+                Math.max(
+                    previous.end,
+                    result.end
+                );
+
+
+            previous.duration =
+                previous.end -
+                previous.start;
+
+
+            previous.regions.push(
+                result.region
+            );
+
+
+            previous.sourceTurns.push(
+                ...result.sourceTurns
+            );
+
+
+            continue;
+        }
+
+
+        finalTurns.push({
+
+            turn:
+                finalTurns.length + 1,
+
+            speaker:
+                result.speaker,
+
+            start:
+                result.start,
+
+            end:
+                result.end,
+
+            duration:
+                result.end -
+                result.start,
+
+            regions: [
+                result.region
+            ],
+
+            sourceTurns:
+                result.sourceTurns.slice(),
+
+            text:
+                result.text
+
+        });
+    }
+
+
+    // ========================================================
+    // 3. BUILD HUMAN-READABLE TRANSCRIPT
+    // ========================================================
+
+    const text =
+        finalTurns
+            .map(
+                turn =>
+                    `${turn.speaker}: ${turn.text}`
+            )
+            .join("\n\n");
+
+
+    // ========================================================
+    // 4. DEBUG OUTPUT
+    // ========================================================
+
+    console.log(
+        "========================================"
+    );
+
+    console.log(
+        "[Droplet Step 3E] FINAL SPEAKER TRANSCRIPT"
+    );
+
+
+    console.log(
+        "Input regions:",
+        results.length
+    );
+
+
+    console.log(
+        "Usable regions:",
+        cleaned.length
+    );
+
+
+    console.log(
+        "Final speaker turns:",
+        finalTurns.length
+    );
+
+
+    console.table(
+        finalTurns.map(
+            turn => ({
+
+                turn:
+                    turn.turn,
+
+                speaker:
+                    turn.speaker,
+
+                start:
+                    turn.start.toFixed(2),
+
+                end:
+                    turn.end.toFixed(2),
+
+                duration:
+                    turn.duration.toFixed(2),
+
+                regions:
+                    turn.regions.join(","),
+
+                sourceTurns:
+                    turn.sourceTurns.join(","),
+
+                text:
+                    turn.text
+
+            })
+        )
+    );
+
+
+    console.log(
+        "[Droplet Step 3E] ASSEMBLED TEXT:"
+    );
+
+
+    console.log(
+        text
+    );
+
+
+    console.log(
+        "========================================"
+    );
+
+
+    return {
+        turns:
+            finalTurns,
+
+        text
+    };
+}
+
+// ============================================================
 // STEP 3D.4 - START ONLY WHEN BOTH PIPELINES ARE READY
 // ============================================================
 
@@ -2705,6 +2977,24 @@ function finishSpeakerTurnTranscription() {
     );
 
 
+    // ========================================================
+    // STEP 3E - BUILD FINAL SPEAKER TRANSCRIPT
+    // ========================================================
+
+    const finalSpeakerOutput =
+        buildFinalSpeakerTranscript(
+            speakerTurnResults
+        );
+
+
+    latestSpeakerTranscriptTurns =
+        finalSpeakerOutput.turns;
+
+
+    latestSpeakerTranscript =
+        finalSpeakerOutput.text;
+
+
     console.log(
         "========================================"
     );
@@ -2754,6 +3044,14 @@ let speakerTurnResults = [];
 
 let speakerTurnQueue = [];
 let currentSpeakerTurnIndex = 0;
+
+// ============================================================
+// STEP 3E - FINAL SPEAKER TRANSCRIPT STATE
+// ============================================================
+
+let latestSpeakerTranscript = "";
+
+let latestSpeakerTranscriptTurns = [];
 
 function startUploadedAudioDiarization(audio) {
 
@@ -3057,6 +3355,10 @@ async function transcribeSelectedAudio() {
     speakerTurnResults = [];
     speakerTurnQueue = [];
     currentSpeakerTurnIndex = 0;
+
+    // STEP 3E
+    latestSpeakerTranscript = "";
+    latestSpeakerTranscriptTurns = [];
 
     if (speakerTurnWorker) {
         speakerTurnWorker.terminate();
