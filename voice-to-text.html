@@ -2979,6 +2979,12 @@ function protectSpeakerTranscriptionResults(results) {
             protectedResults
         );
 
+    // STEP 3F DEBUG — expose result to DevTools
+    window.__step3F = {
+        results: protectedResults,
+        overlaps
+    };
+
 
     // ========================================================
     // MARK REGIONS INVOLVED IN OVERLAP
