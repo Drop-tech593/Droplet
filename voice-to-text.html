@@ -1861,11 +1861,180 @@ function buildSpeakerTurnTimeline(segments) {
 }
 
 // ============================================================
+// STEP 3D - EXTRACT SPEAKER TURN AUDIO
+// ============================================================
+
+function buildSpeakerTurnAudio(turns, audio, sampleRate = 16000) {
+
+    if (!(audio instanceof Float32Array)) {
+        console.error(
+            "[Droplet Step 3D] Original PCM audio is unavailable."
+        );
+
+        return [];
+    }
+
+    if (!Array.isArray(turns) || turns.length === 0) {
+        console.error(
+            "[Droplet Step 3D] No speaker turns available."
+        );
+
+        return [];
+    }
+
+
+    const audioDuration =
+        audio.length / sampleRate;
+
+
+    const clips = [];
+
+
+    for (let i = 0; i < turns.length; i++) {
+
+        const turn =
+            turns[i];
+
+
+        const start =
+            Math.max(
+                0,
+                Number(turn.start)
+            );
+
+
+        const end =
+            Math.min(
+                audioDuration,
+                Number(turn.end)
+            );
+
+
+        if (
+            !Number.isFinite(start) ||
+            !Number.isFinite(end) ||
+            end <= start
+        ) {
+            continue;
+        }
+
+
+        const startSample =
+            Math.max(
+                0,
+                Math.floor(
+                    start * sampleRate
+                )
+            );
+
+
+        const endSample =
+            Math.min(
+                audio.length,
+                Math.ceil(
+                    end * sampleRate
+                )
+            );
+
+
+        // slice() deliberately creates an independent buffer.
+        const clipAudio =
+            audio.slice(
+                startSample,
+                endSample
+            );
+
+
+        clips.push({
+
+            turn:
+                turn.turn,
+
+            speaker:
+                turn.speaker,
+
+            start,
+
+            end,
+
+            duration:
+                end - start,
+
+            startSample,
+
+            endSample,
+
+            samples:
+                clipAudio.length,
+
+            audio:
+                clipAudio
+
+        });
+    }
+
+
+    console.log(
+        "========================================"
+    );
+
+    console.log(
+        "[Droplet Step 3D] SPEAKER AUDIO CLIPS"
+    );
+
+    console.log(
+        "Speaker turns:",
+        turns.length
+    );
+
+    console.log(
+        "Audio clips:",
+        clips.length
+    );
+
+
+    console.table(
+        clips.map(clip => ({
+            turn:
+                clip.turn,
+
+            speaker:
+                clip.speaker,
+
+            start:
+                clip.start.toFixed(2),
+
+            end:
+                clip.end.toFixed(2),
+
+            duration:
+                clip.duration.toFixed(2),
+
+            samples:
+                clip.samples
+        }))
+    );
+
+
+    console.log(
+        "========================================"
+    );
+
+
+    return clips;
+}
+
+// ============================================================
 // UPLOADED AUDIO — SPEAKER DIARIZATION
 // ============================================================
 
 let diarizationWorker = null;
 let latestDiarizationResult = null;
+
+// STEP 3D
+// Keep normalized 16 kHz PCM available after Whisper/diarization
+// transfer their own ArrayBuffers to workers.
+let latestProcessedAudio = null;
 
 function startUploadedAudioDiarization(audio) {
 
@@ -2032,6 +2201,18 @@ function startUploadedAudioDiarization(audio) {
                 );
 
 
+            // ========================================================
+            // STEP 3D - EXTRACT AUDIO FOR EACH SPEAKER TURN
+            // ========================================================
+
+            latestDiarizationResult.speakerClips =
+                buildSpeakerTurnAudio(
+                    latestDiarizationResult.speakerTurns,
+                    latestProcessedAudio,
+                    16000
+                );
+
+
             console.log(
                 "========================================"
             );
@@ -2151,6 +2332,11 @@ async function transcribeSelectedAudio() {
     // detaches it from the main thread.
     const whisperAudio = audio.slice();
     const diarizationAudio = audio.slice();
+
+    // STEP 3D:
+    // Keep the original normalized PCM for speaker-turn extraction.
+    // We do NOT transfer this buffer to either worker.
+    latestProcessedAudio = audio;
 
     console.log("[Droplet Voice] Prepared audio:", {
         samples: audio.length,
