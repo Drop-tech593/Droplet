@@ -7,7 +7,7 @@
   <!-- ===== SEO ===== -->
   <title>Droplet — Free Online File Converter | HEIC to JPG, PDF to Word, 100+ Tools</title>
   <meta name="description" content="Convert HEIC to JPG, PDF to Word, WebP to PNG and 100+ formats free — no sign-up, no uploads, no watermark. 100% browser-based, works offline. Instant, private, unlimited.">
-  <meta name="keywords" content="heic to jpg, convert heic to jpg without losing quality, free heic converter no sign in, pdf to word converter, webp to png, online file converter, private file converter, browser based converter, voice to text, speech to text">
+  <meta name="keywords" content="heic to jpg, convert heic to jpg without losing quality, free heic converter no sign in, pdf to word converter, webp to png, online file converter, private file converter, browser based converter">
   <meta name="author" content="Droplet">
   <meta name="robots" content="index, follow, max-image-preview:large">
   <link rel="canonical" href="https://dropletweb.xyz/">
@@ -60,7 +60,6 @@
       "HEIC to JPG conversion",
       "PDF to Word conversion",
       "WebP to PNG conversion",
-      "Voice to text transcription",
       "Client-side file processing",
       "No file uploads",
       "Offline capable"
@@ -162,7 +161,14 @@
     .mobile-nav-toggle {
       display: none; background: none; border: none; font-size: 1.5rem;
       cursor: pointer; color: #1e293b; padding: 0.5rem; border-radius: 8px;
+      align-items: center; justify-content: center;
+      line-height: 1;
     }
+    .mobile-nav-toggle:hover { background: #f1f5f9; }
+    /* Make the mobile hamburger icon explicitly visible in dark mode */
+    html.dark .mobile-nav-toggle { color: #f1f5f9 !important; }
+    html.dark .mobile-nav-toggle:hover { background: #1e293b !important; }
+    html.dark .mobile-nav-toggle svg { stroke: #f1f5f9 !important; }
     .mobile-nav-overlay {
       display: none; position: fixed; inset: 0;
       background: rgba(0,0,0,0.4); backdrop-filter: blur(4px); z-index: 999;
@@ -212,19 +218,30 @@
     }
 
     /* ===== SEARCH ===== */
-    /* The search wrapper creates its own stacking context so the results
-       always paint above the dropzone below it. */
     #searchWrapper {
       position: relative;
-      z-index: 5000;
+      z-index: 40;
     }
     .search-results {
-      display: none; position: absolute; top: calc(100% + 10px);
-      left: 0; right: 0; background: white; border-radius: 20px;
-      box-shadow: 0 30px 80px rgba(0,0,0,0.25);
-      border: 1px solid #e2e8f0; max-height: 420px; overflow-y: auto;
-      /* Higher than any page content so it never gets hidden */
-      z-index: 99999;
+      display: none;
+
+      position: absolute;
+      top: calc(100% + 10px);
+      left: 0;
+      right: 0;
+
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 20px;
+
+      box-shadow: 0 24px 60px rgba(15, 23, 42, 0.18);
+
+      max-height: min(420px, calc(100vh - 180px));
+      overflow-y: auto;
+      overscroll-behavior: contain;
+
+      z-index: 45;
+
       padding: 0.5rem 0;
     }
     .search-results.open { display: block; }
@@ -332,7 +349,7 @@
     /* ===== RESPONSIVE ===== */
     @media (max-width: 768px) {
       .desktop-nav { display: none !important; }
-      .mobile-nav-toggle { display: block; }
+      .mobile-nav-toggle { display: flex; }
     }
     @media (min-width: 769px) {
       .desktop-nav {
@@ -407,9 +424,15 @@
             <a href="/pdf-to-pdfa.html">PDF to PDF/A</a>
             <a href="/pdf-to-powerpoint.html">PDF to POWERPOINT</a>
             <a href="/pdf-to-excel.html">PDF to EXCEL</a>
+            <span class="category-label">Convert to PDF</span>
+            <a href="/word-to-pdf.html">WORD to PDF</a>
+            <a href="/powerpoint-to-pdf.html">POWERPOINT to PDF</a>
+            <a href="/excel-to-pdf.html">EXCEL to PDF</a>
+            <a href="/html-to-pdf.html">HTML to PDF</a>
             <span class="category-label">Image Converters</span>
             <a href="/heic-to-jpg.html">HEIC to JPG</a>
             <a href="/webp-to-jpg.html">WebP to JPG</a>
+            <a href="/webp-to-png.html">WebP to PNG</a>
             <a href="/avif-to-png.html">AVIF to PNG</a>
             <a href="/gif-to-png.html">GIF to PNG</a>
             <a href="/psd-to-png.html">PSD to PNG</a>
@@ -423,10 +446,8 @@
             <a href="/json-to-csv.html">JSON to CSV</a>
             <a href="/csv-to-json.html">CSV to JSON</a>
             <a href="/xml-to-json.html">XML to JSON</a>
-            <span class="category-label">AI, Audio &amp; Media</span>
-            <a href="/voice-to-text.html">Voice to Text</a>
-            <a href="/ai-summarizer.html">AI Summarizer</a>
-            <a href="/translate-pdf.html">Translate PDF</a>
+            <span class="category-label">PDF Intelligence</span>
+            <a href="/pdf-to-markdown.html">PDF to Markdown</a>
           </div>
         </div>
 
@@ -435,6 +456,7 @@
           <div class="dropdown-menu">
             <a href="/heic-to-jpg.html">HEIC to JPG</a>
             <a href="/webp-to-jpg.html">WebP to JPG</a>
+            <a href="/webp-to-png.html">WebP to PNG</a>
             <a href="/avif-to-png.html">AVIF to PNG</a>
             <a href="/gif-to-png.html">GIF to PNG</a>
             <a href="/psd-to-png.html">PSD to PNG</a>
@@ -444,7 +466,6 @@
             <a href="/pdf-to-jpg.html">PDF to JPG</a>
             <a href="/svg-to-png.html">SVG to PNG</a>
             <a href="/eps-to-svg.html">EPS to SVG</a>
-            <a href="/webp-to-png.html">WebP to PNG</a>
           </div>
         </div>
 
@@ -460,6 +481,11 @@
             <a href="/pdf-to-pdfa.html">PDF to PDF/A</a>
             <a href="/pdf-to-powerpoint.html">PDF to POWERPOINT</a>
             <a href="/pdf-to-excel.html">PDF to EXCEL</a>
+            <span class="category-label">Convert to PDF</span>
+            <a href="/word-to-pdf.html">WORD to PDF</a>
+            <a href="/powerpoint-to-pdf.html">POWERPOINT to PDF</a>
+            <a href="/excel-to-pdf.html">EXCEL to PDF</a>
+            <a href="/html-to-pdf.html">HTML to PDF</a>
           </div>
         </div>
 
@@ -483,16 +509,18 @@
           </div>
         </div>
 
-        <!-- 👇 NEW: Dedicated AI, Audio & Media nav dropdown -->
         <div class="nav-link-with-dropdown dropdown-group">
-          <a href="#ai-tools">AI, Audio &amp; Media</a>
+          <a href="#ai-tools">AI &amp; Data</a>
           <div class="dropdown-menu">
-            <span class="category-label">AI &amp; Audio</span>
-            <a href="/voice-to-text.html">Voice to Text</a>
+            <span class="category-label">AI Tools</span>
             <a href="/ai-summarizer.html">AI Summarizer</a>
             <a href="/translate-pdf.html">Translate PDF</a>
             <span class="category-label">PDF Intelligence</span>
             <a href="/pdf-to-markdown.html">PDF to Markdown</a>
+            <span class="category-label">Data Tools</span>
+            <a href="/json-to-csv.html">JSON to CSV</a>
+            <a href="/csv-to-json.html">CSV to JSON</a>
+            <a href="/xml-to-json.html">XML to JSON</a>
           </div>
         </div>
 
@@ -504,7 +532,13 @@
         <button id="pwa-install-btn" class="bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs px-3.5 py-2 rounded-lg items-center gap-1.5 shadow-md transition-all">
           <span>📲</span> <span class="hidden sm:inline">Install</span>
         </button>
-        <button class="mobile-nav-toggle" id="mobileNavToggle" aria-label="Toggle navigation">☰</button>
+        <button class="mobile-nav-toggle" id="mobileNavToggle" aria-label="Toggle navigation">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="4" y1="7" x2="20" y2="7"></line>
+            <line x1="4" y1="12" x2="20" y2="12"></line>
+            <line x1="4" y1="17" x2="20" y2="17"></line>
+          </svg>
+        </button>
       </div>
     </div>
   </header>
@@ -525,28 +559,42 @@
       <a href="/word-to-pdf.html" class="mobile-nav-item">Word to PDF</a>
       <a href="/pdf-to-txt.html" class="mobile-nav-item">PDF to TXT</a>
       <a href="/epub-to-pdf.html" class="mobile-nav-item">EPUB to PDF</a>
+      <a href="/txt-to-pdf.html" class="mobile-nav-item">TXT to PDF</a>
+      <a href="/pdf-to-pdfa.html" class="mobile-nav-item">PDF to PDF/A</a>
+      <a href="/pdf-to-powerpoint.html" class="mobile-nav-item">PDF to PowerPoint</a>
+      <a href="/pdf-to-excel.html" class="mobile-nav-item">PDF to Excel</a>
+      <div class="category-label">Convert to PDF</div>
+      <a href="/word-to-pdf.html" class="mobile-nav-item">WORD to PDF</a>
+      <a href="/powerpoint-to-pdf.html" class="mobile-nav-item">POWERPOINT to PDF</a>
+      <a href="/excel-to-pdf.html" class="mobile-nav-item">EXCEL to PDF</a>
+      <a href="/html-to-pdf.html" class="mobile-nav-item">HTML to PDF</a>
       <div class="category-label">Image Converters</div>
       <a href="/heic-to-jpg.html" class="mobile-nav-item">HEIC to JPG</a>
       <a href="/webp-to-jpg.html" class="mobile-nav-item">WebP to JPG</a>
+      <a href="/webp-to-png.html" class="mobile-nav-item">WebP to PNG</a>
       <a href="/svg-to-png.html" class="mobile-nav-item">SVG to PNG</a>
       <div class="category-label">Data Tools</div>
       <a href="/json-to-csv.html" class="mobile-nav-item">JSON to CSV</a>
       <a href="/csv-to-json.html" class="mobile-nav-item">CSV to JSON</a>
-      <div class="category-label">AI, Audio &amp; Media</div>
-      <a href="/voice-to-text.html" class="mobile-nav-item">Voice to Text</a>
-      <a href="/ai-summarizer.html" class="mobile-nav-item">AI Summarizer</a>
-      <a href="/translate-pdf.html" class="mobile-nav-item">Translate PDF</a>
+      <a href="/xml-to-json.html" class="mobile-nav-item">XML to JSON</a>
+      <div class="category-label">PDF Intelligence</div>
+      <a href="/pdf-to-markdown.html" class="mobile-nav-item">PDF to Markdown</a>
     </div>
 
     <div class="mobile-nav-item" onclick="toggleMobileSubmenu('sub-image')">Image Converter <span class="arrow">▾</span></div>
     <div class="mobile-submenu" id="sub-image">
       <a href="/heic-to-jpg.html" class="mobile-nav-item">HEIC to JPG</a>
       <a href="/webp-to-jpg.html" class="mobile-nav-item">WebP to JPG</a>
+      <a href="/webp-to-png.html" class="mobile-nav-item">WebP to PNG</a>
       <a href="/avif-to-png.html" class="mobile-nav-item">AVIF to PNG</a>
       <a href="/gif-to-png.html" class="mobile-nav-item">GIF to PNG</a>
       <a href="/psd-to-png.html" class="mobile-nav-item">PSD to PNG</a>
       <a href="/raw-to-jpg.html" class="mobile-nav-item">RAW to JPG</a>
+      <a href="/tiff-to-pdf.html" class="mobile-nav-item">TIFF to PDF</a>
+      <a href="/jpg-to-pdf.html" class="mobile-nav-item">JPG to PDF</a>
+      <a href="/pdf-to-jpg.html" class="mobile-nav-item">PDF to JPG</a>
       <a href="/svg-to-png.html" class="mobile-nav-item">SVG to PNG</a>
+      <a href="/eps-to-svg.html" class="mobile-nav-item">EPS to SVG</a>
     </div>
 
     <div class="mobile-nav-item" onclick="toggleMobileSubmenu('sub-document')">Documents <span class="arrow">▾</span></div>
@@ -555,7 +603,15 @@
       <a href="/word-to-pdf.html" class="mobile-nav-item">Word to PDF</a>
       <a href="/pdf-to-txt.html" class="mobile-nav-item">PDF to TXT</a>
       <a href="/epub-to-pdf.html" class="mobile-nav-item">EPUB to PDF</a>
+      <a href="/txt-to-pdf.html" class="mobile-nav-item">TXT to PDF</a>
       <a href="/pdf-to-pdfa.html" class="mobile-nav-item">PDF to PDF/A</a>
+      <a href="/pdf-to-powerpoint.html" class="mobile-nav-item">PDF to PowerPoint</a>
+      <a href="/pdf-to-excel.html" class="mobile-nav-item">PDF to Excel</a>
+      <div class="category-label">Convert to PDF</div>
+      <a href="/word-to-pdf.html" class="mobile-nav-item">WORD to PDF</a>
+      <a href="/powerpoint-to-pdf.html" class="mobile-nav-item">POWERPOINT to PDF</a>
+      <a href="/excel-to-pdf.html" class="mobile-nav-item">EXCEL to PDF</a>
+      <a href="/html-to-pdf.html" class="mobile-nav-item">HTML to PDF</a>
     </div>
 
     <div class="mobile-nav-item" onclick="toggleMobileSubmenu('sub-pdf-organize')">PDF Organize <span class="arrow">▾</span></div>
@@ -564,18 +620,28 @@
       <a href="/split-pdf.html" class="mobile-nav-item">Split PDF</a>
       <a href="/remove-pages.html" class="mobile-nav-item">Remove pages</a>
       <a href="/extract-pages.html" class="mobile-nav-item">Extract pages</a>
+      <a href="/organize-pdf.html" class="mobile-nav-item">Organize PDF</a>
+      <a href="/scan-to-pdf.html" class="mobile-nav-item">Scan to PDF</a>
       <a href="/rotate-pdf.html" class="mobile-nav-item">Rotate PDF</a>
+      <a href="/add-page-numbers.html" class="mobile-nav-item">Add page numbers</a>
+      <div class="category-label">Editing &amp; Security</div>
+      <a href="/add-watermark.html" class="mobile-nav-item">Add watermark</a>
+      <a href="/crop-pdf.html" class="mobile-nav-item">Crop PDF</a>
+      <a href="/edit-pdf.html" class="mobile-nav-item">Edit PDF</a>
+      <a href="/pdf-forms.html" class="mobile-nav-item">PDF Forms</a>
     </div>
 
-    <!-- 👇 NEW: Dedicated AI, Audio & Media mobile section -->
-    <div class="mobile-nav-item" onclick="toggleMobileSubmenu('sub-ai-tools')">AI, Audio &amp; Media <span class="arrow">▾</span></div>
+    <div class="mobile-nav-item" onclick="toggleMobileSubmenu('sub-ai-tools')">AI &amp; Data <span class="arrow">▾</span></div>
     <div class="mobile-submenu" id="sub-ai-tools">
-      <div class="category-label">AI &amp; Audio</div>
-      <a href="/voice-to-text.html" class="mobile-nav-item">🎤 Voice to Text</a>
+      <div class="category-label">AI Tools</div>
       <a href="/ai-summarizer.html" class="mobile-nav-item">🤖 AI Summarizer</a>
       <a href="/translate-pdf.html" class="mobile-nav-item">🌍 Translate PDF</a>
       <div class="category-label">PDF Intelligence</div>
       <a href="/pdf-to-markdown.html" class="mobile-nav-item">📝 PDF to Markdown</a>
+      <div class="category-label">Data Tools</div>
+      <a href="/json-to-csv.html" class="mobile-nav-item">JSON to CSV</a>
+      <a href="/csv-to-json.html" class="mobile-nav-item">CSV to JSON</a>
+      <a href="/xml-to-json.html" class="mobile-nav-item">XML to JSON</a>
     </div>
 
     <a href="#faq" class="mobile-nav-item">Help</a>
@@ -614,7 +680,7 @@
   <main id="main" class="flex-grow">
 
     <!-- HERO -->
-    <section class="relative overflow-hidden">
+    <section class="relative">
       <div class="absolute inset-0 -z-10 overflow-hidden">
         <div class="blob absolute top-0 left-1/4 w-[500px] h-[500px] bg-blue-300/20 rounded-full blur-3xl"></div>
         <div class="blob blob-2 absolute top-20 right-1/4 w-[500px] h-[500px] bg-indigo-300/15 rounded-full blur-3xl"></div>
@@ -650,7 +716,7 @@
     </section>
 
     <!-- DROPZONE -->
-    <section class="max-w-2xl mx-auto px-4 mt-4 mb-10">
+    <section class="relative z-0 max-w-2xl mx-auto px-4 mt-4 mb-10">
       <div id="dropzone" class="relative group bg-gradient-to-b from-white to-slate-50 border-2 border-dashed border-slate-300 hover:border-blue-500 transition-all rounded-3xl p-8 md:p-12 text-center cursor-pointer shadow-lg shadow-slate-200/50">
         <div class="relative w-20 h-20 mx-auto mb-5">
           <div class="absolute inset-0 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-3xl rotate-6 group-hover:rotate-12 transition-transform duration-300 shadow-lg shadow-blue-500/30"></div>
@@ -957,7 +1023,7 @@
         <a href="/psd-to-png.html" class="text-sm bg-white border border-slate-200 hover:border-blue-500 hover:text-blue-600 px-4 py-2 rounded-full transition">PSD to PNG</a>
         <a href="/raw-to-jpg.html" class="text-sm bg-white border border-slate-200 hover:border-blue-500 hover:text-blue-600 px-4 py-2 rounded-full transition">RAW to JPG</a>
         <a href="/pdf-to-jpg.html" class="text-sm bg-white border border-slate-200 hover:border-blue-500 hover:text-blue-600 px-4 py-2 rounded-full transition">PDF to JPG</a>
-        <a href="/voice-to-text.html" class="text-sm bg-white border border-slate-200 hover:border-blue-500 hover:text-blue-600 px-4 py-2 rounded-full transition">🎤 Voice to Text</a>
+        <a href="/pdf-to-markdown.html" class="text-sm bg-white border border-slate-200 hover:border-blue-500 hover:text-blue-600 px-4 py-2 rounded-full transition">PDF to Markdown</a>
       </div>
     </section>
 
@@ -1063,6 +1129,7 @@
     // 1. TOOLS DATABASE
     // ============================================
     const allTools = [
+      // Core Documents
       { name: 'PDF to DOCX (Word)', page: '/pdf-to-word.html', category: 'Core Documents', emoji: '📝', keywords: ['pdf','word','docx','convert','edit','document'] },
       { name: 'Word (DOCX) to PDF', page: '/word-to-pdf.html', category: 'Core Documents', emoji: '🔄', keywords: ['word','docx','pdf','convert','document'] },
       { name: 'PDF to TXT', page: '/pdf-to-txt.html', category: 'Core Documents', emoji: '📃', keywords: ['pdf','txt','text','extract','plain'] },
@@ -1071,8 +1138,15 @@
       { name: 'PDF to PDF/A', page: '/pdf-to-pdfa.html', category: 'Core Documents', emoji: '📄', keywords: ['pdf','pdfa','archive','preserve'] },
       { name: 'PDF to POWERPOINT', page: '/pdf-to-powerpoint.html', category: 'Core Documents', emoji: '📊', keywords: ['pdf','powerpoint','ppt','slides'] },
       { name: 'PDF to EXCEL', page: '/pdf-to-excel.html', category: 'Core Documents', emoji: '📈', keywords: ['pdf','excel','xlsx','spreadsheet'] },
+      // Convert to PDF
+      { name: 'WORD to PDF', page: '/word-to-pdf.html', category: 'Convert to PDF', emoji: '📝', keywords: ['word','pdf','docx'] },
+      { name: 'POWERPOINT to PDF', page: '/powerpoint-to-pdf.html', category: 'Convert to PDF', emoji: '📊', keywords: ['powerpoint','pdf','ppt'] },
+      { name: 'EXCEL to PDF', page: '/excel-to-pdf.html', category: 'Convert to PDF', emoji: '📈', keywords: ['excel','pdf','xlsx'] },
+      { name: 'HTML to PDF', page: '/html-to-pdf.html', category: 'Convert to PDF', emoji: '🌐', keywords: ['html','pdf','webpage'] },
+      // Image Converters
       { name: 'HEIC to JPG', page: '/heic-to-jpg.html', category: 'Image Converters', emoji: '🍎', keywords: ['heic','jpg','jpeg','apple','iphoto','convert'] },
       { name: 'WebP to JPG', page: '/webp-to-jpg.html', category: 'Image Converters', emoji: '🌐', keywords: ['webp','jpg','jpeg','google'] },
+      { name: 'WebP to PNG', page: '/webp-to-png.html', category: 'Image Converters', emoji: '🖼️', keywords: ['webp','png','google'] },
       { name: 'AVIF to PNG', page: '/avif-to-png.html', category: 'Image Converters', emoji: '🖼️', keywords: ['avif','png','image'] },
       { name: 'GIF to PNG', page: '/gif-to-png.html', category: 'Image Converters', emoji: '🎞️', keywords: ['gif','png','animated'] },
       { name: 'PSD to PNG', page: '/psd-to-png.html', category: 'Image Converters', emoji: '🎨', keywords: ['psd','png','photoshop'] },
@@ -1082,15 +1156,15 @@
       { name: 'PDF to JPG', page: '/pdf-to-jpg.html', category: 'Image Converters', emoji: '🖼️', keywords: ['pdf','jpg','jpeg'] },
       { name: 'SVG to PNG', page: '/svg-to-png.html', category: 'Image Converters', emoji: '📐', keywords: ['svg','png','vector'] },
       { name: 'EPS to SVG', page: '/eps-to-svg.html', category: 'Image Converters', emoji: '✏️', keywords: ['eps','svg','vector'] },
-      { name: 'WebP to PNG', page: '/webp-to-png.html', category: 'Image Converters', emoji: '🖼️', keywords: ['webp','png','google'] },
+      // Data & Dev Tools
       { name: 'JSON to CSV', page: '/json-to-csv.html', category: 'Data & Dev Tools', emoji: '📋', keywords: ['json','csv','data'] },
       { name: 'CSV to JSON', page: '/csv-to-json.html', category: 'Data & Dev Tools', emoji: '📈', keywords: ['csv','json','data'] },
       { name: 'XML to JSON', page: '/xml-to-json.html', category: 'Data & Dev Tools', emoji: '🔗', keywords: ['xml','json','data'] },
-      // AI, Audio & Media tools
-      { name: 'Voice to Text', page: '/voice-to-text.html', category: 'AI, Audio & Media', emoji: '🎤', keywords: ['voice','speech','dictation','transcribe','transcription','microphone','audio','speech to text','voice to text','record'] },
-      { name: 'AI Summarizer', page: '/ai-summarizer.html', category: 'AI, Audio & Media', emoji: '🤖', keywords: ['ai','summarize','pdf','summary','artificial intelligence'] },
-      { name: 'Translate PDF', page: '/translate-pdf.html', category: 'AI, Audio & Media', emoji: '🌍', keywords: ['translate','pdf','language','translation'] },
-      { name: 'PDF to Markdown', page: '/pdf-to-markdown.html', category: 'AI, Audio & Media', emoji: '📝', keywords: ['pdf','markdown','md','convert'] },
+      // AI Tools
+      { name: 'AI Summarizer', page: '/ai-summarizer.html', category: 'AI Tools', emoji: '🤖', keywords: ['ai','summarize','pdf','summary','artificial intelligence'] },
+      { name: 'Translate PDF', page: '/translate-pdf.html', category: 'AI Tools', emoji: '🌍', keywords: ['translate','pdf','language','translation'] },
+      { name: 'PDF to Markdown', page: '/pdf-to-markdown.html', category: 'PDF Intelligence', emoji: '📝', keywords: ['pdf','markdown','md','convert'] },
+      // PDF Organize
       { name: 'Merge PDF', page: '/merge-pdf.html', category: 'PDF Organize', emoji: '🔗', keywords: ['merge','pdf','combine'] },
       { name: 'Split PDF', page: '/split-pdf.html', category: 'PDF Organize', emoji: '✂️', keywords: ['split','pdf','separate'] },
       { name: 'Remove pages', page: '/remove-pages.html', category: 'PDF Organize', emoji: '🗑️', keywords: ['remove','pdf','delete'] },
@@ -1099,14 +1173,11 @@
       { name: 'Scan to PDF', page: '/scan-to-pdf.html', category: 'PDF Organize', emoji: '📷', keywords: ['scan','pdf','document'] },
       { name: 'Rotate PDF', page: '/rotate-pdf.html', category: 'PDF Organize', emoji: '🔄', keywords: ['rotate','pdf','orientation'] },
       { name: 'Add page numbers', page: '/add-page-numbers.html', category: 'PDF Organize', emoji: '🔢', keywords: ['page numbers','pdf','numbering'] },
+      // PDF Editing & Security
       { name: 'Add watermark', page: '/add-watermark.html', category: 'PDF Editing & Security', emoji: '💧', keywords: ['watermark','pdf','protect'] },
       { name: 'Crop PDF', page: '/crop-pdf.html', category: 'PDF Editing & Security', emoji: '✂️', keywords: ['crop','pdf','trim'] },
       { name: 'Edit PDF', page: '/edit-pdf.html', category: 'PDF Editing & Security', emoji: '✏️', keywords: ['edit','pdf','modify'] },
-      { name: 'PDF Forms', page: '/pdf-forms.html', category: 'PDF Editing & Security', emoji: '📋', keywords: ['forms','pdf','fill'] },
-      { name: 'WORD to PDF', page: '/word-to-pdf.html', category: 'Convert to PDF', emoji: '📝', keywords: ['word','pdf','docx'] },
-      { name: 'POWERPOINT to PDF', page: '/powerpoint-to-pdf.html', category: 'Convert to PDF', emoji: '📊', keywords: ['powerpoint','pdf','ppt'] },
-      { name: 'EXCEL to PDF', page: '/excel-to-pdf.html', category: 'Convert to PDF', emoji: '📈', keywords: ['excel','pdf','xlsx'] },
-      { name: 'HTML to PDF', page: '/html-to-pdf.html', category: 'Convert to PDF', emoji: '🌐', keywords: ['html','pdf','webpage'] }
+      { name: 'PDF Forms', page: '/pdf-forms.html', category: 'PDF Editing & Security', emoji: '📋', keywords: ['forms','pdf','fill'] }
     ];
 
     // ============================================
@@ -1152,7 +1223,7 @@
 
     function displayResults(results, query) {
       if (results.length === 0) {
-        searchResults.innerHTML = `<div class="no-results"><span class="emoji">🔍</span>No tools found for "${query}"<p style="font-size:0.75rem;margin-top:0.5rem;color:#94a3b8;">Try: PDF, Word, JPG, JSON, HEIC, Voice</p></div>`;
+        searchResults.innerHTML = `<div class="no-results"><span class="emoji">🔍</span>No tools found for "${query}"<p style="font-size:0.75rem;margin-top:0.5rem;color:#94a3b8;">Try: PDF, Word, JPG, JSON, HEIC</p></div>`;
         searchResults.classList.add('open');
         return;
       }
