@@ -3159,6 +3159,429 @@ function protectSpeakerTranscriptionResults(results) {
 }
 
 // ============================================================
+// STEP 3G - TRANSCRIPT ACCURACY COMPARISON
+// ============================================================
+
+function normalizeTranscriptForComparison(text) {
+
+    return String(text || "")
+        .toLowerCase()
+        .replace(/[^\p{L}\p{N}'\s-]/gu, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+}
+
+
+function transcriptWords(text) {
+
+    const normalized =
+        normalizeTranscriptForComparison(text);
+
+    return normalized
+        ? normalized.split(" ")
+        : [];
+}
+
+
+// ============================================================
+// LEVENSHTEIN WORD DISTANCE
+// ============================================================
+
+function wordEditDistance(wordsA, wordsB) {
+
+    const previous =
+        new Array(wordsB.length + 1);
+
+    const current =
+        new Array(wordsB.length + 1);
+
+
+    for (
+        let j = 0;
+        j <= wordsB.length;
+        j++
+    ) {
+        previous[j] = j;
+    }
+
+
+    for (
+        let i = 1;
+        i <= wordsA.length;
+        i++
+    ) {
+
+        current[0] = i;
+
+
+        for (
+            let j = 1;
+            j <= wordsB.length;
+            j++
+        ) {
+
+            const substitutionCost =
+                wordsA[i - 1] === wordsB[j - 1]
+                    ? 0
+                    : 1;
+
+
+            current[j] =
+                Math.min(
+
+                    previous[j] + 1,
+
+                    current[j - 1] + 1,
+
+                    previous[j - 1] +
+                        substitutionCost
+                );
+        }
+
+
+        for (
+            let j = 0;
+            j <= wordsB.length;
+            j++
+        ) {
+            previous[j] =
+                current[j];
+        }
+    }
+
+
+    return previous[
+        wordsB.length
+    ];
+}
+
+
+// ============================================================
+// LONGEST COMMON WORD SUBSEQUENCE
+// ============================================================
+
+function longestCommonWordSubsequence(wordsA, wordsB) {
+
+    const rows =
+        wordsA.length + 1;
+
+    const cols =
+        wordsB.length + 1;
+
+
+    const table =
+        Array.from(
+            { length: rows },
+            () =>
+                new Uint16Array(cols)
+        );
+
+
+    for (
+        let i = 1;
+        i < rows;
+        i++
+    ) {
+
+        for (
+            let j = 1;
+            j < cols;
+            j++
+        ) {
+
+            if (
+                wordsA[i - 1] ===
+                wordsB[j - 1]
+            ) {
+
+                table[i][j] =
+                    table[i - 1][j - 1] + 1;
+
+            } else {
+
+                table[i][j] =
+                    Math.max(
+                        table[i - 1][j],
+                        table[i][j - 1]
+                    );
+            }
+        }
+    }
+
+
+    return table[
+        wordsA.length
+    ][
+        wordsB.length
+    ];
+}
+
+// ============================================================
+// STEP 3G - SPEAKER TRANSCRIPT TEXT ONLY
+// ============================================================
+
+function getSpeakerTranscriptTextOnly(turns) {
+
+    if (!Array.isArray(turns)) {
+        return "";
+    }
+
+
+    return turns
+        .map(
+            turn =>
+                String(
+                    turn.text || ""
+                ).trim()
+        )
+        .filter(Boolean)
+        .join(" ");
+}
+
+// ============================================================
+// STEP 3G - COMPARE BASELINE VS SPEAKER TRANSCRIPT
+// ============================================================
+
+function compareTranscriptOutputs(
+    baselineText,
+    speakerText,
+    protectedResults
+) {
+
+    const baselineWords =
+        transcriptWords(
+            baselineText
+        );
+
+    const speakerWords =
+        transcriptWords(
+            speakerText
+        );
+
+
+    const editDistance =
+        wordEditDistance(
+            baselineWords,
+            speakerWords
+        );
+
+
+    const lcsWords =
+        longestCommonWordSubsequence(
+            baselineWords,
+            speakerWords
+        );
+
+
+    const longestLength =
+        Math.max(
+            baselineWords.length,
+            speakerWords.length,
+            1
+        );
+
+
+    const agreementPercent =
+        Math.max(
+            0,
+            (
+                1 -
+                editDistance /
+                longestLength
+            ) * 100
+        );
+
+
+    const commonWordPercent =
+        (
+            lcsWords /
+            longestLength
+        ) * 100;
+
+
+    const usableRegions =
+        Array.isArray(protectedResults)
+            ? protectedResults.filter(
+                result =>
+                    result.usable
+            ).length
+            : 0;
+
+
+    const failedRegions =
+        Array.isArray(protectedResults)
+            ? protectedResults.filter(
+                result =>
+                    !result.usable
+            ).length
+            : 0;
+
+
+    const warningRegions =
+        Array.isArray(protectedResults)
+            ? protectedResults.filter(
+                result =>
+                    result.reliability ===
+                    "warning"
+            ).length
+            : 0;
+
+
+    const comparison = {
+
+        baselineWordCount:
+            baselineWords.length,
+
+        speakerWordCount:
+            speakerWords.length,
+
+        wordCountDifference:
+            speakerWords.length -
+            baselineWords.length,
+
+        editDistance,
+
+        agreementPercent,
+
+        commonWords:
+            lcsWords,
+
+        commonWordPercent,
+
+        usableRegions,
+
+        warningRegions,
+
+        failedRegions,
+
+        baselineText:
+            String(
+                baselineText || ""
+            ).trim(),
+
+        speakerText:
+            String(
+                speakerText || ""
+            ).trim()
+
+    };
+
+
+    console.log(
+        "========================================"
+    );
+
+    console.log(
+        "[Droplet Step 3G] ACCURACY COMPARISON"
+    );
+
+
+    console.table([
+        {
+            metric:
+                "Baseline words",
+
+            value:
+                comparison.baselineWordCount
+        },
+
+        {
+            metric:
+                "Speaker words",
+
+            value:
+                comparison.speakerWordCount
+        },
+
+        {
+            metric:
+                "Word difference",
+
+            value:
+                comparison.wordCountDifference
+        },
+
+        {
+            metric:
+                "Word edit distance",
+
+            value:
+                comparison.editDistance
+        },
+
+        {
+            metric:
+                "Transcript agreement",
+
+            value:
+                comparison
+                    .agreementPercent
+                    .toFixed(1) + "%"
+        },
+
+        {
+            metric:
+                "Common-word coverage",
+
+            value:
+                comparison
+                    .commonWordPercent
+                    .toFixed(1) + "%"
+        },
+
+        {
+            metric:
+                "Usable speaker regions",
+
+            value:
+                comparison.usableRegions
+        },
+
+        {
+            metric:
+                "Warning regions",
+
+            value:
+                comparison.warningRegions
+        },
+
+        {
+            metric:
+                "Failed regions",
+
+            value:
+                comparison.failedRegions
+        }
+    ]);
+
+
+    console.log(
+        "[Droplet Step 3G] BASELINE:"
+    );
+
+    console.log(
+        comparison.baselineText
+    );
+
+
+    console.log(
+        "[Droplet Step 3G] SPEAKER VERSION:"
+    );
+
+    console.log(
+        comparison.speakerText
+    );
+
+
+    console.log(
+        "========================================"
+    );
+
+
+    return comparison;
+}
+
+// ============================================================
 // STEP 3D.4 - START ONLY WHEN BOTH PIPELINES ARE READY
 // ============================================================
 
@@ -3605,6 +4028,29 @@ function finishSpeakerTurnTranscription() {
         finalSpeakerOutput.text;
 
 
+    // ========================================================
+    // STEP 3G - COMPARE BASELINE VS SPEAKER TRANSCRIPTION
+    // ========================================================
+
+    const speakerTextOnly =
+        getSpeakerTranscriptTextOnly(
+            latestSpeakerTranscriptTurns
+        );
+
+
+    latestAccuracyComparison =
+        compareTranscriptOutputs(
+            latestBaselineTranscript,
+            speakerTextOnly,
+            latestProtectedSpeakerResults
+        );
+
+
+    // Temporary DevTools access
+    window.__step3G =
+        latestAccuracyComparison;
+
+
     console.log(
         "========================================"
     );
@@ -3614,8 +4060,10 @@ function finishSpeakerTurnTranscription() {
      * IMPORTANT:
      * Do NOT replace transcriptArea yet.
      *
-     * Step 3G will compare this result against
-     * the known-good baseline first.
+     * Step 3H will decide whether the speaker-
+     * labelled transcript should replace the
+     * baseline transcript in the UI, based on
+     * the accuracy comparison above.
      */
 
 
@@ -3670,6 +4118,12 @@ let latestSpeakerTranscriptTurns = [];
 let latestProtectedSpeakerResults = [];
 
 let latestSpeakerOverlaps = [];
+
+// ============================================================
+// STEP 3G - ACCURACY COMPARISON STATE
+// ============================================================
+
+let latestAccuracyComparison = null;
 
 function startUploadedAudioDiarization(audio) {
 
@@ -3981,6 +4435,9 @@ async function transcribeSelectedAudio() {
     // STEP 3F
     latestProtectedSpeakerResults = [];
     latestSpeakerOverlaps = [];
+
+    // STEP 3G
+    latestAccuracyComparison = null;
 
     if (speakerTurnWorker) {
         speakerTurnWorker.terminate();
