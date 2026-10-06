@@ -1654,6 +1654,263 @@ async function restoreSession() {
 }
 
 // ============================================================
+// UPLOADED AUDIO — SPEAKER DIARIZATION
+// ============================================================
+
+let diarizationWorker = null;
+let latestDiarizationResult = null;
+
+function startUploadedAudioDiarization(audio) {
+
+    console.log(
+        "[Droplet Voice] Starting uploaded-audio diarization..."
+    );
+
+    if (diarizationWorker) {
+        diarizationWorker.terminate();
+        diarizationWorker = null;
+    }
+
+    latestDiarizationResult = null;
+
+    diarizationWorker = new Worker(
+        "./voice-engine/workers/diarization-worker.js?v=upload-diarization-v1",
+        {
+            type: "module"
+        }
+    );
+
+
+    diarizationWorker.onmessage = event => {
+
+        const message = event.data || {};
+
+        console.log(
+            "[Diarization Worker]",
+            message
+        );
+
+
+        // ----------------------------------------------------
+        // Worker loaded
+        // ----------------------------------------------------
+
+        if (message.type === "worker-ready") {
+
+            console.log(
+                "[Diarization] Worker ready."
+            );
+
+            diarizationWorker.postMessage({
+                type: "load-models",
+                device: "webgpu"
+            });
+
+            return;
+        }
+
+
+        // ----------------------------------------------------
+        // Model loading
+        // ----------------------------------------------------
+
+        if (message.type === "model-progress") {
+
+            if (message.message) {
+
+                console.log(
+                    "[Diarization]",
+                    message.message
+                );
+            }
+
+            return;
+        }
+
+
+        // ----------------------------------------------------
+        // Models ready
+        // ----------------------------------------------------
+
+        if (message.type === "model-ready") {
+
+            console.log(
+                "[Diarization] Models ready.",
+                {
+                    device: message.device,
+                    cached: message.cached
+                }
+            );
+
+            const buffer = audio.buffer;
+
+            diarizationWorker.postMessage(
+                {
+                    type: "diarize",
+                    audioBuffer: buffer,
+                    sampleRate: 16000
+                },
+                [buffer]
+            );
+
+            return;
+        }
+
+
+        // ----------------------------------------------------
+        // Analysis started
+        // ----------------------------------------------------
+
+        if (message.type === "diarization-start") {
+
+            console.log(
+                "[Diarization] Analysis started.",
+                {
+                    samples: message.samples,
+                    sampleRate: message.sampleRate,
+                    duration: message.duration
+                }
+            );
+
+            return;
+        }
+
+
+        // ----------------------------------------------------
+        // Progress
+        // ----------------------------------------------------
+
+        if (message.type === "diarization-progress") {
+
+            console.log(
+                "[Diarization] Progress:",
+                message.progress
+            );
+
+            return;
+        }
+
+
+        // ----------------------------------------------------
+        // FINAL RESULT
+        // ----------------------------------------------------
+
+        if (message.type === "diarization-complete") {
+
+            latestDiarizationResult = {
+                numSpeakers:
+                    message.numSpeakers || 0,
+
+                speakerLabels:
+                    message.speakerLabels || [],
+
+                segments:
+                    message.segments || [],
+
+                metrics:
+                    message.metrics || {},
+
+                performance:
+                    message.performance || {}
+            };
+
+
+            console.log(
+                "========================================"
+            );
+
+            console.log(
+                "[UPLOAD DIARIZATION COMPLETE]"
+            );
+
+            console.log(
+                "Speakers detected:",
+                latestDiarizationResult.numSpeakers
+            );
+
+            console.log(
+                "Speaker labels:",
+                latestDiarizationResult.speakerLabels
+            );
+
+
+            console.table(
+                latestDiarizationResult.segments.map(
+                    segment => ({
+                        speaker:
+                            segment.speaker,
+
+                        start:
+                            Number(
+                                segment.start
+                            ).toFixed(2),
+
+                        end:
+                            Number(
+                                segment.end
+                            ).toFixed(2),
+
+                        duration:
+                            Number(
+                                segment.duration
+                            ).toFixed(2)
+                    })
+                )
+            );
+
+
+            console.log(
+                "Performance:",
+                latestDiarizationResult.performance
+            );
+
+            console.log(
+                "========================================"
+            );
+
+
+            diarizationWorker.terminate();
+            diarizationWorker = null;
+
+            return;
+        }
+
+
+        // ----------------------------------------------------
+        // Error
+        // ----------------------------------------------------
+
+        if (message.type === "error") {
+
+            console.error(
+                "[Diarization Error]",
+                message.error ||
+                message
+            );
+
+            if (diarizationWorker) {
+                diarizationWorker.terminate();
+                diarizationWorker = null;
+            }
+        }
+    };
+
+
+    diarizationWorker.onerror = error => {
+
+        console.error(
+            "[Diarization Worker Error]",
+            error
+        );
+
+        if (diarizationWorker) {
+            diarizationWorker.terminate();
+            diarizationWorker = null;
+        }
+    };
+}
+
+// ============================================================
 // UPLOAD / RECORDED AUDIO TRANSCRIPTION
 // ============================================================
 let transcriptionWorker = null;
@@ -1665,9 +1922,28 @@ async function transcribeSelectedAudio() {
   statusBadge.textContent = 'Processing';
   updateProgress(1, 'Preparing audio…');
   try {
-    const audio = await window.DropletVoice.processAudioFile(State.currentFile);
+    const audio = await window.DropletVoice.processAudioFile(
+        State.currentFile
+    );
+
     State.duration = audio.length / 16000;
     statDuration.textContent = formatTime(State.duration);
+
+    // IMPORTANT:
+    // Each worker gets its own copy because transferring an ArrayBuffer
+    // detaches it from the main thread.
+    const whisperAudio = audio.slice();
+    const diarizationAudio = audio.slice();
+
+    console.log("[Droplet Voice] Prepared audio:", {
+        samples: audio.length,
+        sampleRate: 16000,
+        duration: State.duration
+    });
+
+    // Start speaker detection.
+    startUploadedAudioDiarization(diarizationAudio);
+
     const model = modelSelect.value;
     transcriptionJobId++;
     const jobId = 'ui-' + transcriptionJobId;
@@ -1678,7 +1954,7 @@ async function transcribeSelectedAudio() {
       if (m.type === 'status' && m.message) statusMessage.textContent = m.message;
       if (m.type === 'model-ready') {
         updateProgress(12, 'Transcribing audio…');
-        const buf = audio.buffer;
+        const buf = whisperAudio.buffer;
         transcriptionWorker.postMessage({type:'transcribe', jobId, audioBuffer:buf}, [buf]);
       }
       if (m.type === 'chunk-complete' && m.jobId === jobId) {
