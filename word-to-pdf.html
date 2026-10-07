@@ -1013,15 +1013,50 @@
         const orient = orientation.value;
         const qual = parseFloat(quality.value);
 
+        // ============================================================
+        // MATCH HTML RENDER AREA TO THE SELECTED PDF PAGE SIZE
+        // ============================================================
+
+        const PAGE_DIMENSIONS = {
+          a4: {
+            width: 210,
+            height: 297
+          },
+
+          letter: {
+            width: 215.9,
+            height: 279.4
+          },
+
+          legal: {
+            width: 215.9,
+            height: 355.6
+          }
+        };
+
+        let pageWidthMM =
+          PAGE_DIMENSIONS[size]?.width || 210;
+
+        let pageHeightMM =
+          PAGE_DIMENSIONS[size]?.height || 297;
+
+
+        // Swap dimensions for landscape
+        if (orient === 'landscape') {
+          [pageWidthMM, pageHeightMM] =
+            [pageHeightMM, pageWidthMM];
+        }
+
         setProgress(15, 'Preparing layout', 'Creating page...');
 
         host.innerHTML = '';
+        host.style.width = `${pageWidthMM}mm`;
 
         const root = document.createElement('div');
         root.className = 'pdf-render-root';
-        root.style.width = '100%';
-        root.style.minHeight = '297mm';
-        root.style.padding = '20mm 20mm';
+        root.style.width = `${pageWidthMM}mm`;
+        root.style.minHeight = `${pageHeightMM}mm`;
+        root.style.padding = '20mm';
         root.style.margin = '0';
         root.style.boxSizing = 'border-box';
         root.style.position = 'relative';
@@ -1080,8 +1115,13 @@
           el.style.breakAfter = 'avoid';
         });
 
-        // Avoid breaking inside tables, rows and images
-        contentWrapper.querySelectorAll('table, tr, img').forEach(el => {
+        // ============================================================
+        // PROTECT CONTENT FROM BEING CUT ACROSS PDF PAGE BOUNDARIES
+        // ============================================================
+
+        contentWrapper.querySelectorAll(
+          'p, li, blockquote, table, tr, img, h1, h2, h3, h4, h5, h6'
+        ).forEach(el => {
           el.style.pageBreakInside = 'avoid';
           el.style.breakInside = 'avoid';
         });
@@ -1138,8 +1178,22 @@
             hotfixes: ['px_scaling']
           },
           pagebreak: {
-            mode: ['css', 'legacy'],
-            avoid: ['img', 'table', 'tr', 'h1', 'h2', 'h3']
+            mode: ['avoid-all', 'css', 'legacy'],
+
+            avoid: [
+              'p',
+              'li',
+              'blockquote',
+              'img',
+              'table',
+              'tr',
+              'h1',
+              'h2',
+              'h3',
+              'h4',
+              'h5',
+              'h6'
+            ]
           }
         };
 
