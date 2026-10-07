@@ -41,6 +41,87 @@
       opacity: 0;
     }
 
+    /* Each manually-paginated page */
+    .pdf-page {
+      width: 210mm;
+      min-height: 297mm;
+      padding: 20mm;
+      box-sizing: border-box;
+      background: #ffffff;
+      color: #111111;
+      font-family: "Times New Roman", Georgia, serif;
+      font-size: 11pt;
+      line-height: 1.6;
+      position: relative;
+      page-break-after: always;
+      break-after: page;
+      overflow: hidden;
+    }
+    .pdf-page:last-child {
+      page-break-after: auto;
+      break-after: auto;
+    }
+    .pdf-page > *:first-child {
+      margin-top: 0 !important;
+    }
+
+    /* Content wrapper inside each page */
+    .pdf-page-content {
+      width: 100%;
+      max-width: 100%;
+      overflow: visible;
+      overflow-wrap: anywhere;
+      word-break: normal;
+    }
+
+    /* Tables inside paginated pages */
+    .pdf-page table {
+      width: 100%;
+      max-width: 100%;
+      border-collapse: collapse;
+      table-layout: auto;
+      margin: 8pt 0;
+    }
+    .pdf-page td,
+    .pdf-page th {
+      border: 1px solid #aaa;
+      padding: 4pt 8pt;
+      vertical-align: top;
+      overflow-wrap: anywhere;
+      word-break: normal;
+      white-space: normal;
+    }
+
+    /* Images */
+    .pdf-page img {
+      max-width: 100%;
+      height: auto;
+      display: block;
+      margin: 6pt auto;
+      object-fit: contain;
+    }
+
+    /* Headings: keep with next when possible */
+    .pdf-page h1,
+    .pdf-page h2,
+    .pdf-page h3,
+    .pdf-page h4,
+    .pdf-page h5,
+    .pdf-page h6 {
+      page-break-after: avoid;
+      break-after: avoid;
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
+
+    /* Paragraphs and lists: don't split across pages */
+    .pdf-page p,
+    .pdf-page li,
+    .pdf-page blockquote {
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
+
     .preview-box {
       max-height: 450px;
       overflow-y: auto;
@@ -58,16 +139,16 @@
     .preview-box::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 8px; }
     .preview-box::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 8px; }
     .preview-box::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-    .preview-box h1 { font-size: 18pt; font-weight: bold; margin: 16pt 0 8pt; color: #0f172a; transition: color 0.2s; }
-    .preview-box h2 { font-size: 15pt; font-weight: bold; margin: 14pt 0 6pt; color: #0f172a; transition: color 0.2s; }
-    .preview-box h3 { font-size: 12pt; font-weight: bold; margin: 12pt 0 4pt; color: #0f172a; transition: color 0.2s; }
-    .preview-box p { margin: 6pt 0; color: #1e293b; transition: color 0.2s; }
+    .preview-box h1 { font-size: 18pt; font-weight: bold; margin: 16pt 0 8pt; color: #0f172a; }
+    .preview-box h2 { font-size: 15pt; font-weight: bold; margin: 14pt 0 6pt; color: #0f172a; }
+    .preview-box h3 { font-size: 12pt; font-weight: bold; margin: 12pt 0 4pt; color: #0f172a; }
+    .preview-box p { margin: 6pt 0; color: #1e293b; }
     .preview-box table { width: 100%; border-collapse: collapse; margin: 8pt 0; }
-    .preview-box td, .preview-box th { border: 1px solid #e2e8f0; padding: 6px 8px; transition: border-color 0.2s; }
+    .preview-box td, .preview-box th { border: 1px solid #e2e8f0; padding: 6px 8px; }
     .preview-box img { max-width: 100%; height: auto; }
     .preview-box ul, .preview-box ol { padding-left: 2em; }
-    .preview-box blockquote { border-left: 4px solid #3b82f6; padding-left: 16px; margin: 8pt 0; font-style: italic; color: #475569; transition: color 0.2s; }
-    .preview-box .preview-info { font-size: 10pt; color: #94a3b8; text-align: center; padding: 8pt 0; border-top: 1px solid #e2e8f0; margin-top: 12pt; transition: color 0.2s, border-color 0.2s; }
+    .preview-box blockquote { border-left: 4px solid #3b82f6; padding-left: 16px; margin: 8pt 0; font-style: italic; color: #475569; }
+    .preview-box .preview-info { font-size: 10pt; color: #94a3b8; text-align: center; padding: 8pt 0; border-top: 1px solid #e2e8f0; margin-top: 12pt; }
 
     .file-item {
       display: flex;
@@ -82,12 +163,10 @@
     .file-item:hover { border-color: #94a3b8; }
     .file-item .icon { font-size: 28px; }
     .file-item .info { flex: 1; }
-    .file-item .info .name { font-weight: 600; color: #1e293b; transition: color 0.2s; }
-    .file-item .info .size { font-size: 12px; color: #94a3b8; transition: color 0.2s; }
+    .file-item .info .name { font-weight: 600; color: #1e293b; }
+    .file-item .info .size { font-size: 12px; color: #94a3b8; }
 
-    /* ============================================ */
-    /* SEO CONTENT                                   */
-    /* ============================================ */
+    /* SEO CONTENT */
     .seo-content {
       max-width: 42rem;
       margin: 2.5rem auto 1rem;
@@ -109,9 +188,7 @@
       margin-bottom: 1rem;
       font-size: 0.95rem;
     }
-    .seo-content li {
-      margin-bottom: 0.3rem;
-    }
+    .seo-content li { margin-bottom: 0.3rem; }
     .seo-content table {
       width: 100%;
       border-collapse: collapse;
@@ -148,7 +225,6 @@
       border-radius: 0.75rem;
       padding: 0.75rem 1.25rem;
       margin-bottom: 0.6rem;
-      transition: background 0.2s, border-color 0.2s;
     }
     .faq-section summary {
       font-weight: 700;
@@ -165,11 +241,8 @@
       content: "➕";
       font-size: 0.8rem;
       color: #94a3b8;
-      transition: transform 0.2s;
     }
-    .faq-section details[open] summary::after {
-      content: "➖";
-    }
+    .faq-section details[open] summary::after { content: "➖"; }
     .faq-section details p {
       margin-top: 0.6rem;
       font-size: 0.9rem;
@@ -177,58 +250,30 @@
       line-height: 1.6;
     }
 
-    /* ============================================ */
-    /* DARK MODE OVERRIDES */
-    /* ============================================ */
-    html.dark body {
-      background: #0f172a;
-      color: #e2e8f0;
-    }
-    html.dark header {
-      background: #1e293b;
-      border-color: #334155;
-    }
+    /* DARK MODE */
+    html.dark body { background: #0f172a; color: #e2e8f0; }
+    html.dark header { background: #1e293b; border-color: #334155; }
     html.dark header h1 { color: #f1f5f9; }
     html.dark header p { color: #60a5fa !important; }
     html.dark header nav a { color: #94a3b8; }
     html.dark header nav a:hover { color: #f1f5f9; }
     
-    html.dark #dropzone {
-      background: #1e293b;
-      border-color: #475569;
-    }
+    html.dark #dropzone { background: #1e293b; border-color: #475569; }
     html.dark #dropzone:hover { border-color: #3b82f6; }
     html.dark #dropzone h3 { color: #f1f5f9; }
     html.dark #dropzone p { color: #94a3b8; }
     html.dark #dropzone .bg-blue-50 { background: #1e3a5f !important; }
     
-    html.dark .file-item {
-      background: #0f172a;
-      border-color: #334155;
-    }
+    html.dark .file-item { background: #0f172a; border-color: #334155; }
     html.dark .file-item .info .name { color: #f1f5f9; }
     html.dark .file-item .info .size { color: #94a3b8; }
     
-    html.dark #controlsSection .bg-white {
-      background: #1e293b !important;
-      border-color: #334155;
-    }
+    html.dark #controlsSection .bg-white { background: #1e293b !important; border-color: #334155; }
     html.dark #controlsSection label { color: #e2e8f0; }
-    html.dark #controlsSection select {
-      background: #0f172a;
-      border-color: #334155;
-      color: #f1f5f9;
-    }
-    html.dark #controlsSection select option {
-      background: #1e293b;
-      color: #f1f5f9;
-    }
+    html.dark #controlsSection select { background: #0f172a; border-color: #334155; color: #f1f5f9; }
+    html.dark #controlsSection select option { background: #1e293b; color: #f1f5f9; }
     
-    html.dark .preview-box {
-      background: #1e293b;
-      border-color: #334155;
-      color: #e2e8f0;
-    }
+    html.dark .preview-box { background: #1e293b; border-color: #334155; color: #e2e8f0; }
     html.dark .preview-box h1,
     html.dark .preview-box h2,
     html.dark .preview-box h3 { color: #f1f5f9; }
@@ -237,25 +282,16 @@
     html.dark .preview-box th { border-color: #475569; color: #e2e8f0; }
     html.dark .preview-box blockquote { color: #94a3b8; }
     html.dark .preview-box .preview-info { color: #64748b; border-top-color: #334155; }
-    html.dark .preview-box::-webkit-scrollbar-track { background: #0f172a; }
-    html.dark .preview-box::-webkit-scrollbar-thumb { background: #475569; }
-    html.dark .preview-box::-webkit-scrollbar-thumb:hover { background: #64748b; }
     
-    html.dark #resultSection .bg-green-50 {
-      background: #0f172a !important;
-      border-color: #334155;
-    }
+    html.dark #resultSection .bg-green-50 { background: #0f172a !important; border-color: #334155; }
     html.dark #resultSection .border-green-200 { border-color: #334155 !important; }
     html.dark #resultSection h3 { color: #f1f5f9; }
     html.dark #resultSection .text-slate-600 { color: #94a3b8; }
-    html.dark #resultSection .bg-green-100 {
-      background: #1e3a5f !important;
-      color: #93c5fd !important;
-    }
+    html.dark #resultSection .bg-green-100 { background: #1e3a5f !important; color: #93c5fd !important; }
     
     html.dark .bg-white { background: #1e293b !important; }
     html.dark .border-slate-100 { border-color: #334155 !important; }
-    html.dark .text-slate-500 { color: #94a3b8 !important; }
+    html.dark .text-slate-500,
     html.dark .text-slate-600 { color: #94a3b8 !important; }
     html.dark .text-slate-700 { color: #cbd5e1 !important; }
     html.dark .text-slate-900 { color: #f1f5f9 !important; }
@@ -265,10 +301,7 @@
     html.dark .text-blue-900 { color: #93c5fd !important; }
     html.dark .bg-slate-50 { background: #0f172a !important; }
     
-    html.dark footer {
-      background: #0f172a !important;
-      border-color: #334155 !important;
-    }
+    html.dark footer { background: #0f172a !important; border-color: #334155 !important; }
     html.dark footer a { color: #94a3b8; }
     html.dark footer a:hover { color: #f1f5f9; }
     html.dark footer p { color: #94a3b8 !important; }
@@ -276,22 +309,14 @@
     html.dark .shadow-sm { box-shadow: 0 1px 2px 0 rgba(0,0,0,0.3) !important; }
     html.dark .shadow-md { box-shadow: 0 4px 6px -1px rgba(0,0,0,0.4) !important; }
     
-    html.dark .back-home-btn {
-      background: #1e293b !important;
-      border-color: #475569 !important;
-      color: #e2e8f0 !important;
-    }
-    html.dark .back-home-btn:hover {
-      background: #334155 !important;
-      border-color: #3b82f6 !important;
-    }
+    html.dark .back-home-btn { background: #1e293b !important; border-color: #475569 !important; color: #e2e8f0 !important; }
+    html.dark .back-home-btn:hover { background: #334155 !important; border-color: #3b82f6 !important; }
     
     html.dark .bg-green-600 { background: #059669 !important; }
     html.dark .bg-green-600:hover { background: #047857 !important; }
     html.dark .bg-blue-600 { background: #2563eb !important; }
     html.dark .bg-blue-600:hover { background: #1d4ed8 !important; }
 
-    /* SEO + FAQ dark mode */
     html.dark .seo-content { color: #cbd5e1; }
     html.dark .seo-content h2 { color: #f1f5f9; }
     html.dark .seo-content th { background: #1e293b; color: #f1f5f9; border-color: #334155; }
@@ -301,7 +326,6 @@
     html.dark .faq-section summary { color: #f1f5f9; }
     html.dark .faq-section details p { color: #94a3b8; }
 
-    /* Theme toggle in header */
     #theme-toggle {
       background: none;
       border: none;
@@ -485,128 +509,65 @@
       </div>
     </div>
 
-    <!-- ============================================================ -->
-    <!-- SEO CONTENT — DOCX rendering, fonts, tables, images, layout   -->
-    <!-- ============================================================ -->
+    <!-- SEO CONTENT -->
     <section class="seo-content">
       <h2>How Word to PDF Conversion Works</h2>
       <p>
         This tool reads your <code>.docx</code> file in the browser using the open-source Mammoth
-        library, converts the document structure into HTML, and then renders that HTML into a PDF
-        using html2pdf. The result is a PDF that looks like the Word document and preserves most
-        of its formatting.
+        library, converts the document structure into HTML, then paginates the content into real
+        A4/Letter/Legal pages before rendering them into a PDF.
       </p>
       <p>
-        The process runs in three stages: parse the DOCX, build the HTML, then rasterise the HTML
-        page by page into the final PDF. Everything happens locally on your device.
+        Unlike simple HTML-to-PDF converters, this tool measures every block — headings, paragraphs,
+        images, and table rows — and decides where each page boundary should fall. That produces
+        clean pagination without mid-sentence cuts or giant blank areas.
       </p>
 
       <h2>DOCX Rendering and Fonts</h2>
       <p>
-        Word documents use the fonts that were set by the document's author. When the file is
-        converted in your browser, those fonts must be available on your machine for the PDF to
-        render correctly. If you created the DOCX on a computer with a custom font that is not
-        installed on the machine running the conversion, the browser substitutes a similar font.
+        Word documents use the fonts that were set by the author. When the file is converted in
+        your browser, those fonts must be available on your machine for the PDF to render
+        correctly. If you created the DOCX with a custom font that is not installed locally, the
+        browser substitutes a similar font.
       </p>
       <p>
-        The converter applies a clean serif fallback — Times New Roman for body text, Georgia for
-        the preview — so the PDF remains readable even when the original font is missing. Headings
-        keep their size hierarchy: level 1 headings render at 18 pt, level 2 at 15 pt, and level 3
-        at 12 pt.
-      </p>
-      <p>
-        Font styling that survives: bold, italic, underline, size, and colour for headings.
-        Font styling that may not survive perfectly: exact kerning, ligatures, and fonts that are
-        embedded in the DOCX but not installed on your system.
+        The converter applies a clean serif fallback — Times New Roman for body text — so the PDF
+        remains readable even when the original font is missing. Headings keep their size hierarchy:
+        level 1 renders at 18 pt, level 2 at 15 pt, and level 3 at 12 pt.
       </p>
 
       <h2>Tables</h2>
       <p>
-        Tables in the DOCX are parsed by Mammoth and rebuilt as HTML tables. The converter then
-        applies consistent styling: 1-pixel borders, padding, and a header background where the
-        DOCX specified one.
+        Tables are parsed by Mammoth and rebuilt as HTML tables. During pagination, a table that
+        doesn't fully fit in the remaining space on a page continues onto the next page — split
+        cleanly between rows. Individual rows are never chopped in half.
       </p>
       <p>
-        Simple tables convert cleanly. Tables with:
-      </p>
-      <ul>
-        <li>Fixed column widths set in the DOCX — the widths are approximated but may not match exactly.</li>
-        <li>Merged cells — the merge is preserved as a colspan or rowspan in HTML.</li>
-        <li>Nested tables — usually render, though complex nesting can occasionally break.</li>
-        <li>Shading, borders, or conditional formatting — only basic borders and background colours are preserved.</li>
-      </ul>
-      <p>
-        Tables are configured to avoid splitting across pages when possible, so a table that fits
-        on one page usually stays on one page in the PDF.
+        Simple tables convert cleanly. Tables with fixed column widths, merged cells, or nested
+        tables usually render, but very complex layouts may have minor visual differences from the
+        original DOCX.
       </p>
 
       <h2>Images</h2>
       <p>
-        Images embedded in the DOCX are extracted by Mammoth and re-embedded into the HTML as
-        base64 data URLs, so they do not depend on any external file. They then render into the
-        PDF at their native resolution.
-      </p>
-      <p>
-        Images are constrained to a maximum width of 100% of the content area, so they never
-        overflow the page. Very large images are scaled down proportionally. Small images stay at
-        their original size, centred on the page.
-      </p>
-      <p>
-        What does <strong>not</strong> work: linked images (where the DOCX references an external
-        file path), and images inside headers or footers, which are not part of the body content
-        and are usually stripped by the DOCX parser.
+        Images embedded in the DOCX are extracted and re-embedded into the HTML as base64 data
+        URLs. They render into the PDF at their native resolution, scaled to fit the content area
+        so they never overflow the page.
       </p>
 
       <h2>Page Layout — What Changes</h2>
-      <p>
-        Word is a reflowable format: text flows and wraps based on the page size, margins, and
-        available fonts. The converter approximates Word's layout but will not reproduce it
-        exactly.
-      </p>
       <table>
         <thead>
-          <tr>
-            <th>Element</th>
-            <th>What Happens</th>
-          </tr>
+          <tr><th>Element</th><th>What Happens</th></tr>
         </thead>
         <tbody>
-          <tr>
-            <td>Page size</td>
-            <td>You choose A4, Letter, or Legal. The DOCX's original page size is not read.</td>
-          </tr>
-          <tr>
-            <td>Orientation</td>
-            <td>Portrait or landscape, your choice. The DOCX's orientation is not read.</td>
-          </tr>
-          <tr>
-            <td>Margins</td>
-            <td>20 mm on all sides. The DOCX's custom margins are not preserved.</td>
-          </tr>
-          <tr>
-            <td>Line breaks</td>
-            <td>Soft line breaks (from word wrap) are recalculated. Hard line breaks (from Enter) are preserved.</td>
-          </tr>
-          <tr>
-            <td>Page breaks</td>
-            <td>Explicit page breaks in the DOCX are preserved. Automatic page breaks are recalculated.</td>
-          </tr>
-          <tr>
-            <td>Columns</td>
-            <td>Multi-column layouts are not supported. Content reflows into a single column.</td>
-          </tr>
-          <tr>
-            <td>Headers and footers</td>
-            <td>Not preserved. The PDF does not include header or footer content from the DOCX.</td>
-          </tr>
-          <tr>
-            <td>Footnotes and endnotes</td>
-            <td>May appear inline at the end of the document rather than as linked notes.</td>
-          </tr>
-          <tr>
-            <td>Styles and themes</td>
-            <td>Word style names are not preserved. Direct formatting (bold, italic, size) is.</td>
-          </tr>
+          <tr><td>Page size</td><td>You choose A4, Letter, or Legal. The DOCX's original size is not read.</td></tr>
+          <tr><td>Orientation</td><td>Portrait or landscape, your choice.</td></tr>
+          <tr><td>Margins</td><td>20 mm on all sides.</td></tr>
+          <tr><td>Line breaks</td><td>Soft line breaks are recalculated. Hard line breaks are preserved.</td></tr>
+          <tr><td>Page breaks</td><td>Explicit page breaks in the DOCX are preserved. Automatic page breaks are recalculated by the pagination engine.</td></tr>
+          <tr><td>Headers / footers</td><td>Not preserved.</td></tr>
+          <tr><td>Footnotes / endnotes</td><td>May appear inline at the end of the document.</td></tr>
         </tbody>
       </table>
 
@@ -614,54 +575,27 @@
       <ul>
         <li><strong>.doc (legacy Word format)</strong> — only <code>.docx</code> is supported.</li>
         <li><strong>Password-protected DOCX</strong> — remove the password first.</li>
-        <li><strong>Track changes and comments</strong> — the accepted version is converted; tracked changes and comment bubbles are not.</li>
-        <li><strong>Embedded fonts</strong> — if the DOCX embeds a font that is not installed on your machine, the browser substitutes it.</li>
-        <li><strong>Macros and VBA</strong> — DOCM files with macros are not executed and may not parse.</li>
-        <li><strong>Charts and SmartArt</strong> — these are stored as separate objects in the DOCX and are not rendered into the PDF.</li>
+        <li><strong>Track changes and comments</strong> — the accepted version is converted.</li>
+        <li><strong>Macros and VBA</strong> — DOCM files may not parse.</li>
+        <li><strong>Charts and SmartArt</strong> — stored as separate objects and not rendered.</li>
       </ul>
 
       <h2>Quality and File Size</h2>
       <p>
-        The quality setting controls how much JPEG compression is applied to the rendered pages.
-        Standard (0.6) produces the smallest files. High (0.85) is the default and works well for
-        most documents. Maximum (0.95) is best for printing or when the document contains fine
-        detail.
-      </p>
-      <p>
-        Because the PDF is built from rasterised page images, file size depends mostly on page
-        count and quality. A 10-page document at Maximum quality can be several megabytes.
+        The quality setting controls JPEG compression on each rendered page. Standard (0.6)
+        produces the smallest files. High (0.85) is the default and works well for most documents.
+        Maximum (0.95) is best for printing or when the document contains fine detail.
       </p>
 
       <h2>Privacy — Client-Side Conversion</h2>
       <p>
-        DOCX parsing uses the open-source Mammoth library and PDF generation uses html2pdf. Both
-        run entirely in your browser. Your file is read into memory and never transmitted. The
-        only external resources loaded are the libraries themselves from a CDN.
-      </p>
-
-      <h2>Practical Examples</h2>
-      <p>
-        <strong>Sharing a report as a PDF:</strong> Upload the DOCX, choose A4, Portrait, and High
-        quality. The result is a professional-looking PDF that preserves headings, paragraphs, and
-        tables.
-      </p>
-      <p>
-        <strong>Submitting a CV or resume:</strong> Upload the DOCX, choose A4, and High quality.
-        Fonts render cleanly because they are usually standard fonts that are installed everywhere.
-      </p>
-      <p>
-        <strong>Archiving a document with images:</strong> Upload the DOCX, choose Letter or A4,
-        and Maximum quality. Images are embedded at full resolution.
-      </p>
-      <p>
-        <strong>Creating a printable handout:</strong> Upload the DOCX, choose A4, Portrait, Wide
-        margins via the page size defaults, and Maximum quality.
+        DOCX parsing uses Mammoth and PDF generation uses html2pdf with a custom pagination
+        engine. Both run entirely in your browser. Your file is read into memory and never
+        transmitted.
       </p>
     </section>
 
-    <!-- ============================================================ -->
-    <!-- FAQ SECTION                                                   -->
-    <!-- ============================================================ -->
+    <!-- FAQ SECTION -->
     <section class="faq-section">
       <h2>Word to PDF Questions</h2>
 
@@ -677,97 +611,79 @@
       <details>
         <summary>Will the PDF look exactly like the Word document?</summary>
         <p>
-          No. Word is reflowable and the PDF is built from a rasterised approximation of the
-          document. Headings, paragraphs, tables, and images keep their structure, but exact
-          line breaks, page breaks, and font metrics will differ. Fonts that are not installed on
-          your machine are substituted.
+          No. Word is reflowable and the PDF is a paginated approximation. Headings, paragraphs,
+          tables, and images keep their structure, but exact line breaks, page breaks, and font
+          metrics will differ.
         </p>
       </details>
 
       <details>
         <summary>What file types are supported?</summary>
-        <p>
-          Only <code>.docx</code> (Word 2007 and later). The legacy <code>.doc</code> format is
-          not supported. If you have a <code>.doc</code> file, save it as <code>.docx</code> in
-          Word first.
-        </p>
+        <p>Only <code>.docx</code> (Word 2007 and later).</p>
       </details>
 
       <details>
         <summary>Are tables preserved?</summary>
         <p>
-          Yes, simple and moderately complex tables are preserved. Cell borders, padding, and
-          header rows render cleanly. Very complex tables — with merged cells spanning many rows,
-          nested tables, or conditional formatting — may have minor visual differences.
+          Yes. Tables are split between rows across pages — no row is chopped in half, and no
+          table is forced to move as one giant block. Header rows may or may not repeat depending
+          on the source DOCX.
         </p>
       </details>
 
       <details>
         <summary>Are images preserved?</summary>
         <p>
-          Yes. Embedded images are extracted and re-inserted at their native resolution. Images
-          are scaled to fit the content width, so they never overflow the page. Linked images
-          (where the DOCX references an external file path) are not preserved.
+          Yes. Embedded images are extracted and re-inserted at their native resolution, scaled
+          to fit the content area.
         </p>
       </details>
 
       <details>
         <summary>Will my custom fonts be preserved?</summary>
         <p>
-          Only if the font is installed on the machine running the conversion. If the DOCX uses a
-          custom font that is not installed on your system, the browser substitutes a similar one.
-          The PDF remains readable, but the exact letterforms may differ.
+          Only if the font is installed on the machine running the conversion. Otherwise the
+          browser substitutes a similar one.
         </p>
       </details>
 
       <details>
         <summary>Are headers and footers preserved?</summary>
-        <p>
-          No. Headers, footers, and their content (page numbers, running titles, logos) are not
-          part of the body content and are not converted. The PDF does not include them.
-        </p>
+        <p>No. Headers, footers, and their content are not converted.</p>
       </details>
 
       <details>
         <summary>Is my document uploaded to a server?</summary>
-        <p>
-          No. All parsing and PDF generation happen locally in your browser using Mammoth and
-          html2pdf. Your file never leaves your device.
-        </p>
+        <p>No. Everything runs locally in your browser.</p>
       </details>
 
       <details>
         <summary>Can I convert a password-protected DOCX?</summary>
-        <p>
-          No. Remove the password first using Word or a dedicated tool, then upload the file here.
-        </p>
+        <p>No. Remove the password first.</p>
       </details>
 
       <details>
         <summary>What about charts and SmartArt?</summary>
         <p>
-          Charts and SmartArt are stored as separate objects in the DOCX and are not rendered into
-          the PDF. If your document relies on them, export it to PDF directly from Word instead.
+          Charts and SmartArt are not rendered into the PDF. Export the document directly from
+          Word if you need those preserved.
         </p>
       </details>
 
       <details>
         <summary>Can I choose the page size?</summary>
         <p>
-          Yes. A4, Letter, and Legal are available, in portrait or landscape orientation. The
-          DOCX's original page size and orientation are not read; the PDF uses the size you choose.
+          Yes. A4, Letter, and Legal are available, in portrait or landscape orientation.
         </p>
       </details>
 
       <details>
         <summary>How can I improve the output quality?</summary>
         <p>
-          Use the Maximum quality setting, ensure that any custom fonts used in the document are
-          installed on your machine, and keep the original page size (A4 or Letter) matching what
-          the document was designed for.
+          Use the Maximum quality setting, install any custom fonts locally, and match the page
+          size to what the document was designed for.
         </p>
       </details>
-
     </section>
   </main>
 
@@ -816,7 +732,7 @@
     });
 
     // ============================================
-    // CONVERTER LOGIC
+    // CONVERTER STATE
     // ============================================
     let currentFile = null;
     let htmlContent = '';
@@ -865,15 +781,20 @@
       if (status) statusText.textContent = status;
     }
 
+    function nextFrame() {
+      return new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+    }
+
+    // ============================================
+    // FILE PICKING
+    // ============================================
     dropzone.addEventListener('dragover', (e) => {
       e.preventDefault();
       dropzone.classList.add('dropzone-active');
     });
-
     dropzone.addEventListener('dragleave', () => {
       dropzone.classList.remove('dropzone-active');
     });
-
     dropzone.addEventListener('drop', (e) => {
       e.preventDefault();
       dropzone.classList.remove('dropzone-active');
@@ -884,17 +805,14 @@
         alert('Please drop a .docx file.');
       }
     });
-
     dropzone.addEventListener('click', () => {
       if (!fileSection.classList.contains('hidden')) return;
       fileInput.click();
     });
-
     document.getElementById('chooseBtn').addEventListener('click', (e) => {
       e.stopPropagation();
       fileInput.click();
     });
-
     fileInput.addEventListener('change', (e) => {
       if (e.target.files.length) {
         handleFile(e.target.files[0]);
@@ -903,15 +821,8 @@
     });
 
     async function handleFile(file) {
-      if (!isDocx(file)) {
-        alert('Please select a .docx file.');
-        return;
-      }
-
-      if (file.size > 50 * 1024 * 1024) {
-        alert('File is too large. Please use a file under 50MB.');
-        return;
-      }
+      if (!isDocx(file)) { alert('Please select a .docx file.'); return; }
+      if (file.size > 50 * 1024 * 1024) { alert('File is too large. Please use a file under 50MB.'); return; }
 
       currentFile = file;
       fileName.textContent = file.name;
@@ -940,16 +851,14 @@
 
         htmlContent = result.value || '<p>No content found.</p>';
         
-        // Count words for page estimation
         const text = htmlContent.replace(/<[^>]*>/g, ' ');
         wordCount = text.split(/\s+/).filter(Boolean).length;
-        pageCount = Math.max(1, Math.ceil(wordCount / 250));
+        pageCount = Math.max(1, Math.ceil(wordCount / 500));
         
         previewContent.innerHTML = htmlContent + `<div class="preview-info">📊 ${wordCount.toLocaleString()} words • ~${pageCount} pages</div>`;
-        previewStats.textContent = `${wordCount.toLocaleString()} words • ${pageCount} pages`;
+        previewStats.textContent = `${wordCount.toLocaleString()} words • ~${pageCount} pages`;
         previewSection.classList.remove('hidden');
         controlsSection.classList.remove('hidden');
-
       } catch (error) {
         console.error('Preview error:', error);
         previewContent.innerHTML = '<p class="text-red-500">⚠️ Could not preview this file.</p>';
@@ -981,24 +890,390 @@
       downloadLink.href = '#';
     }
 
+    // ============================================================
+    // MANUAL PAGINATION ENGINE
+    // ============================================================
+    //
+    // The old approach handed the entire HTML doc to html2pdf and
+    // let the library decide where pages broke. That produced both
+    // mid-sentence cuts and huge blank areas because the library's
+    // heuristics couldn't reliably measure block heights across
+    // fonts, tables, and images.
+    //
+    // This engine does the pagination itself:
+    //
+    //   1. Build a hidden "measuring" DOM at the target page width.
+    //   2. Walk the block-level children of the document body.
+    //   3. Accumulate their real measured heights (getBoundingClientRect).
+    //   4. When the next block would overflow the usable page height,
+    //      start a new page.
+    //   5. For tables, walk row-by-row. Rows are atomic — a row that
+    //      doesn't fit moves to the next page. If a table continues,
+    //      clone the <thead> so the header repeats.
+    //   6. Return an array of page wrapper <div>s.
+    //
+    // The renderer then simply feeds those pages to html2pdf, which
+    // just rasterises them 1-to-1. No pagebreak heuristics needed.
+
+    const PAGE_DIMENSIONS = {
+      a4:     { width: 210,   height: 297   },
+      letter: { width: 215.9, height: 279.4 },
+      legal:  { width: 215.9, height: 355.6 }
+    };
+
+    const PAGE_PADDING_MM = 20;
+
+    function mmToPx(mm) {
+      // 1 mm = 96 / 25.4 CSS pixels at 1x zoom
+      return mm * (96 / 25.4);
+    }
+
+    function getPageMetrics(size, orient) {
+      const dims = PAGE_DIMENSIONS[size] || PAGE_DIMENSIONS.a4;
+      let wMM = dims.width;
+      let hMM = dims.height;
+      if (orient === 'landscape') [wMM, hMM] = [hMM, wMM];
+      const padPx = mmToPx(PAGE_PADDING_MM);
+      return {
+        widthMM: wMM,
+        heightMM: hMM,
+        widthPx: mmToPx(wMM),
+        heightPx: mmToPx(hMM),
+        contentWidthPx: mmToPx(wMM) - padPx * 2,
+        contentHeightPx: mmToPx(hMM) - padPx * 2,
+        paddingPx: padPx
+      };
+    }
+
+    function createMeasuringHost(metrics) {
+      // A hidden host wide enough for the content area. We measure
+      // children inside THIS host, then move them into page wrappers.
+      const host = document.createElement('div');
+      host.style.position = 'absolute';
+      host.style.left = '-100000px';
+      host.style.top = '0';
+      host.style.width = metrics.contentWidthPx + 'px';
+      host.style.background = '#ffffff';
+      host.style.color = '#111111';
+      host.style.fontFamily = '"Times New Roman", Georgia, serif';
+      host.style.fontSize = '11pt';
+      host.style.lineHeight = '1.6';
+      host.style.overflow = 'visible';
+      host.setAttribute('data-droplet-measure', '1');
+      document.body.appendChild(host);
+      return host;
+    }
+
+    function applyContentStyles(el) {
+      // Same styling used for both measuring and rendering.
+      el.style.maxWidth = '100%';
+      el.style.overflowWrap = 'anywhere';
+      el.style.wordBreak = 'normal';
+    }
+
+    function styleTables(root) {
+      root.querySelectorAll('table').forEach(t => {
+        t.style.width = '100%';
+        t.style.maxWidth = '100%';
+        t.style.tableLayout = 'auto';
+        t.style.borderCollapse = 'collapse';
+        t.style.margin = '8pt 0';
+      });
+      root.querySelectorAll('td, th').forEach(c => {
+        c.style.border = '1px solid #aaa';
+        c.style.padding = '4pt 8pt';
+        c.style.overflow = 'visible';
+        c.style.overflowWrap = 'anywhere';
+        c.style.wordBreak = 'normal';
+        c.style.whiteSpace = 'normal';
+        c.style.verticalAlign = 'top';
+      });
+      root.querySelectorAll('img').forEach(img => {
+        img.style.maxWidth = '100%';
+        img.style.height = 'auto';
+        img.style.display = 'block';
+        img.style.margin = '6pt auto';
+        img.style.objectFit = 'contain';
+      });
+    }
+
+    function makePageWrapper(metrics) {
+      const page = document.createElement('div');
+      page.className = 'pdf-page';
+      page.style.width = metrics.widthMM + 'mm';
+      page.style.minHeight = metrics.heightMM + 'mm';
+      page.style.padding = PAGE_PADDING_MM + 'mm';
+      page.style.boxSizing = 'border-box';
+      page.style.background = '#ffffff';
+      page.style.color = '#111111';
+      page.style.fontFamily = '"Times New Roman", Georgia, serif';
+      page.style.fontSize = '11pt';
+      page.style.lineHeight = '1.6';
+      page.style.position = 'relative';
+      page.style.overflow = 'hidden';
+
+      const content = document.createElement('div');
+      content.className = 'pdf-page-content';
+      content.style.width = '100%';
+      content.style.maxWidth = '100%';
+      content.style.overflowWrap = 'anywhere';
+      content.style.wordBreak = 'normal';
+      page.appendChild(content);
+      page._content = content;
+
+      return page;
+    }
+
+    function blockIsEmpty(el) {
+      if (!el) return true;
+      if (el.nodeType === Node.COMMENT_NODE) return true;
+      if (el.nodeType === Node.TEXT_NODE) {
+        return !el.textContent || !el.textContent.trim();
+      }
+      // Element node: empty if no visible text and no img/table/hr descendants
+      if (el.querySelector && el.querySelector('img, table, hr, svg, iframe')) return false;
+      const t = (el.textContent || '').replace(/\s+/g, '');
+      return t.length === 0;
+    }
+
+    // Measure an element's outer height including margins.
+    function measureOuterHeight(el) {
+      const rect = el.getBoundingClientRect();
+      const cs = window.getComputedStyle(el);
+      const mt = parseFloat(cs.marginTop) || 0;
+      const mb = parseFloat(cs.marginBottom) || 0;
+      return rect.height + mt + mb;
+    }
+
+    // Full pagination pass
+    async function paginateContent(sourceHtml, metrics) {
+      // 1. Build the measuring host and inject the HTML.
+      const measureHost = createMeasuringHost(metrics);
+      measureHost.innerHTML = sourceHtml;
+      styleTables(measureHost);
+
+      // Reflow + wait for images
+      await nextFrame();
+      const imgs = measureHost.querySelectorAll('img');
+      await Promise.all(Array.from(imgs).map(img => {
+        if (img.complete) return Promise.resolve();
+        return new Promise(res => {
+          img.onload = res;
+          img.onerror = res;
+        });
+      }));
+      await nextFrame();
+
+      // 2. Prepare output
+      const pages = [];
+      let currentPage = makePageWrapper(metrics);
+      let currentHeight = 0;
+      const usable = metrics.contentHeightPx;
+
+      function pushPage() {
+        pages.push(currentPage);
+        currentPage = makePageWrapper(metrics);
+        currentHeight = 0;
+      }
+
+      // 3. Walk the top-level block children of the measured host.
+      const topLevel = Array.from(measureHost.childNodes).filter(node => {
+        if (node.nodeType === Node.TEXT_NODE) {
+          // Wrap stray text in a <p> so it becomes a real block
+          const txt = node.textContent;
+          if (!txt || !txt.trim()) return false;
+          const p = document.createElement('p');
+          p.textContent = txt;
+          node.parentNode.replaceChild(p, node);
+          return true;
+        }
+        return node.nodeType === Node.ELEMENT_NODE;
+      });
+
+      for (const el of topLevel) {
+        if (blockIsEmpty(el)) continue;
+
+        // Special handling for tables: paginate row-by-row
+        if (el.tagName === 'TABLE') {
+          await paginateTable({
+            table: el,
+            metrics,
+            pages,
+            state: {
+              get currentPage() { return currentPage; },
+              set currentPage(v) { currentPage = v; },
+              get currentHeight() { return currentHeight; },
+              set currentHeight(v) { currentHeight = v; }
+            },
+            pushPage: () => pushPage(),
+            usable
+          });
+          continue;
+        }
+
+        // Normal block: measure and place.
+        // Temporarily attach to the current page's content to get an
+        // accurate measurement inside the real page width. We clone
+        // because we may need to try again on a fresh page.
+        const clone = el.cloneNode(true);
+        applyContentStyles(clone);
+        clone.style.marginTop = window.getComputedStyle(el).marginTop;
+        clone.style.marginBottom = window.getComputedStyle(el).marginBottom;
+
+        // Measure in the current page context
+        currentPage._content.appendChild(clone);
+        await nextFrame();
+        const h = measureOuterHeight(clone);
+
+        // Does it fit on the current page?
+        const isFirstElementOnPage = currentPage._content.childNodes.length === 1;
+        const wouldOverflow = currentHeight + h > usable && !isFirstElementOnPage;
+
+        if (wouldOverflow) {
+          // Pull the clone back out and start a new page
+          currentPage._content.removeChild(clone);
+          pushPage();
+          currentPage._content.appendChild(clone);
+          currentHeight = h;
+        } else {
+          currentHeight += h;
+        }
+
+        // If the block is taller than the whole page (rare — e.g. a
+        // very long paragraph), let it overflow. The alternative
+        // would be text splitting and we explicitly avoid that.
+
+        // Wait for any images inside the newly-placed clone
+        const innerImgs = clone.querySelectorAll('img');
+        if (innerImgs.length) {
+          await Promise.all(Array.from(innerImgs).map(img => {
+            if (img.complete) return Promise.resolve();
+            return new Promise(res => {
+              img.onload = res;
+              img.onerror = res;
+            });
+          }));
+          await nextFrame();
+        }
+      }
+
+      // Push the trailing page if it has content
+      if (currentPage._content.childNodes.length > 0) {
+        pages.push(currentPage);
+      }
+
+      // Clean up
+      document.body.removeChild(measureHost);
+
+      if (pages.length === 0) {
+        // Empty document — produce one blank page
+        pages.push(makePageWrapper(metrics));
+      }
+
+      return pages;
+    }
+
+    // Paginate a table across pages, splitting between rows.
+    async function paginateTable({ table, metrics, pages, state, pushPage, usable }) {
+      // Clone the table's structure once, then move rows into page
+      // copies on demand. A "row" here is a <tr> that sits inside
+      // <tbody> (or directly inside <table> if no tbody).
+      const thead = table.querySelector('thead');
+      const tbody = table.querySelector('tbody') || table;
+      const allRows = Array.from(tbody.querySelectorAll(':scope > tr'));
+
+      // Helper: build a fresh table for a page, cloning thead if present
+      function makeEmptyTable() {
+        const t = document.createElement('table');
+        t.style.width = '100%';
+        t.style.maxWidth = '100%';
+        t.style.tableLayout = 'auto';
+        t.style.borderCollapse = 'collapse';
+        t.style.margin = '8pt 0';
+
+        if (thead) {
+          const clonedThead = thead.cloneNode(true);
+          clonedThead.querySelectorAll('td, th').forEach(c => {
+            c.style.border = '1px solid #aaa';
+            c.style.padding = '4pt 8pt';
+            c.style.overflowWrap = 'anywhere';
+            c.style.wordBreak = 'normal';
+            c.style.whiteSpace = 'normal';
+            c.style.verticalAlign = 'top';
+          });
+          t.appendChild(clonedThead);
+        }
+        const newTbody = document.createElement('tbody');
+        t.appendChild(newTbody);
+        return { table: t, tbody: newTbody };
+      }
+
+      let { table: currentTable, tbody: currentTbody } = makeEmptyTable();
+
+      // Insert the current table copy into the current page, measure it
+      state.currentPage._content.appendChild(currentTable);
+      await nextFrame();
+
+      let currentTableHeight = measureOuterHeight(currentTable);
+      const isFirstOnPage = state.currentPage._content.childNodes.length === 1;
+      let pageRemaining = isFirstOnPage ? usable : usable - state.currentHeight;
+      state.currentHeight += currentTableHeight;
+
+      for (const row of allRows) {
+        if (blockIsEmpty(row)) continue;
+
+        const clonedRow = row.cloneNode(true);
+        clonedRow.querySelectorAll('td, th').forEach(c => {
+          c.style.border = '1px solid #aaa';
+          c.style.padding = '4pt 8pt';
+          c.style.overflowWrap = 'anywhere';
+          c.style.wordBreak = 'normal';
+          c.style.whiteSpace = 'normal';
+          c.style.verticalAlign = 'top';
+        });
+        currentTbody.appendChild(clonedRow);
+        await nextFrame();
+
+        const newHeight = measureOuterHeight(currentTable);
+        const rowDelta = newHeight - currentTableHeight;
+        currentTableHeight = newHeight;
+
+        if (rowDelta > pageRemaining && currentTbody.children.length > 1) {
+          // This row doesn't fit — roll it back and start a new page
+          // with a fresh table that has the header row (if any).
+          currentTbody.removeChild(clonedRow);
+
+          // Close out the current page
+          state.currentHeight += measureOuterHeight(currentTable) - measureOuterHeight(currentTable);
+          pushPage();
+
+          // New table on new page
+          const fresh = makeEmptyTable();
+          currentTable = fresh.table;
+          currentTbody = fresh.tbody;
+          state.currentPage._content.appendChild(currentTable);
+          await nextFrame();
+
+          // Re-add this row
+          currentTbody.appendChild(clonedRow);
+          await nextFrame();
+
+          currentTableHeight = measureOuterHeight(currentTable);
+          state.currentHeight = currentTableHeight;
+          pageRemaining = usable;
+        } else {
+          pageRemaining -= rowDelta;
+        }
+      }
+    }
+
     // ============================================
-    // CONVERSION FUNCTION
+    // CONVERSION (uses manual pagination)
     // ============================================
     async function convertToPDF() {
-      if (!currentFile) {
-        alert('Please select a Word file first.');
-        return;
-      }
-
-      if (!htmlContent) {
-        alert('No content to convert. Please try again.');
-        return;
-      }
-
-      if (typeof html2pdf === 'undefined') {
-        alert('PDF library not loaded. Please refresh the page.');
-        return;
-      }
+      if (!currentFile) { alert('Please select a Word file first.'); return; }
+      if (!htmlContent) { alert('No content to convert. Please try again.'); return; }
+      if (typeof html2pdf === 'undefined') { alert('PDF library not loaded. Please refresh the page.'); return; }
 
       progressSection.classList.remove('hidden');
       resultSection.classList.add('hidden');
@@ -1013,144 +1288,20 @@
         const orient = orientation.value;
         const qual = parseFloat(quality.value);
 
-        // ============================================================
-        // MATCH HTML RENDER AREA TO THE SELECTED PDF PAGE SIZE
-        // ============================================================
+        const metrics = getPageMetrics(size, orient);
 
-        const PAGE_DIMENSIONS = {
-          a4: {
-            width: 210,
-            height: 297
-          },
+        setProgress(20, 'Paginating', 'Measuring blocks and building pages...');
+        await nextFrame();
 
-          letter: {
-            width: 215.9,
-            height: 279.4
-          },
+        const pages = await paginateContent(htmlContent, metrics);
 
-          legal: {
-            width: 215.9,
-            height: 355.6
-          }
-        };
-
-        let pageWidthMM =
-          PAGE_DIMENSIONS[size]?.width || 210;
-
-        let pageHeightMM =
-          PAGE_DIMENSIONS[size]?.height || 297;
-
-
-        // Swap dimensions for landscape
-        if (orient === 'landscape') {
-          [pageWidthMM, pageHeightMM] =
-            [pageHeightMM, pageWidthMM];
-        }
-
-        setProgress(15, 'Preparing layout', 'Creating page...');
-
+        // Render all pages into the host
         host.innerHTML = '';
-        host.style.width = `${pageWidthMM}mm`;
+        host.style.width = metrics.widthMM + 'mm';
+        pages.forEach(p => host.appendChild(p));
 
-        const root = document.createElement('div');
-        root.className = 'pdf-render-root';
-        root.style.width = `${pageWidthMM}mm`;
-        root.style.minHeight = `${pageHeightMM}mm`;
-        root.style.padding = '20mm';
-        root.style.margin = '0';
-        root.style.boxSizing = 'border-box';
-        root.style.position = 'relative';
-        root.style.left = '0';
-        root.style.top = '0';
-        root.style.background = '#ffffff';
-        root.style.color = '#111111';
-        
-        const contentWrapper = document.createElement('div');
-        contentWrapper.style.width = '100%';
-        contentWrapper.style.maxWidth = '100%';
-        contentWrapper.style.overflow = 'visible';
-        contentWrapper.style.wordWrap = 'normal';
-        contentWrapper.style.overflowWrap = 'anywhere';
-        contentWrapper.style.wordBreak = 'normal';
-        contentWrapper.style.fontFamily = '"Times New Roman", Georgia, serif';
-        contentWrapper.style.fontSize = '11pt';
-        contentWrapper.style.lineHeight = '1.6';
-        contentWrapper.innerHTML = htmlContent;
-        
-        // Style tables for PDF
-        contentWrapper.querySelectorAll('table').forEach(t => {
-          t.style.width = '100%';
-          t.style.maxWidth = '100%';
-          t.style.tableLayout = 'auto';
-          t.style.borderCollapse = 'collapse';
-          t.style.margin = '8pt 0';
-        });
-        contentWrapper.querySelectorAll('td, th').forEach(cell => {
-          cell.style.border = '1px solid #aaa';
-          cell.style.padding = '4pt 8pt';
-          cell.style.overflow = 'visible';
-          cell.style.overflowWrap = 'anywhere';
-          cell.style.wordBreak = 'normal';
-          cell.style.whiteSpace = 'normal';
-        });
-        contentWrapper.querySelectorAll('img').forEach(img => {
-          img.style.maxWidth = '100%';
-          img.style.height = 'auto';
-          img.style.display = 'block';
-          img.style.margin = '6pt auto';
-          img.style.objectFit = 'contain';
-          img.style.pageBreakInside = 'avoid';
-        });
-
-        // Additional safety for paragraphs, lists and inline elements
-        contentWrapper.querySelectorAll('p, li, div, span').forEach(el => {
-          el.style.maxWidth = '100%';
-          el.style.overflowWrap = 'anywhere';
-          el.style.wordBreak = 'normal';
-        });
-
-        // Avoid page breaks right after headings
-        contentWrapper.querySelectorAll('h1, h2, h3, h4').forEach(el => {
-          el.style.pageBreakAfter = 'avoid';
-          el.style.breakAfter = 'avoid';
-        });
-
-        // ============================================================
-        // PROTECT CONTENT FROM BEING CUT ACROSS PDF PAGE BOUNDARIES
-        // ============================================================
-
-        contentWrapper.querySelectorAll(
-          'p, li, blockquote, table, tr, img, h1, h2, h3, h4, h5, h6'
-        ).forEach(el => {
-          el.style.pageBreakInside = 'avoid';
-          el.style.breakInside = 'avoid';
-        });
-        
-        root.appendChild(contentWrapper);
-        host.appendChild(root);
-
-        await new Promise(r => {
-          requestAnimationFrame(() => {
-            requestAnimationFrame(() => {
-              setTimeout(r, 400);
-            });
-          });
-        });
-
-        const images = root.querySelectorAll('img');
-        await Promise.all(Array.from(images).map(img => {
-          if (img.complete) return Promise.resolve();
-          return new Promise(resolve => {
-            img.onload = resolve;
-            img.onerror = resolve;
-          });
-        }));
-
-        const rect = root.getBoundingClientRect();
-        const actualWidth = rect.width || 794;
-        const actualHeight = Math.max(rect.height, 1123);
-
-        setProgress(40, 'Rendering...', 'Converting the document to PDF...');
+        setProgress(50, 'Rendering pages', `${pages.length} page(s) built. Converting to PDF...`);
+        await nextFrame();
 
         const opt = {
           margin: 0,
@@ -1161,14 +1312,10 @@
             useCORS: true,
             backgroundColor: '#ffffff',
             logging: false,
-            width: actualWidth,
-            height: actualHeight,
-            windowWidth: actualWidth,
-            windowHeight: actualHeight,
             scrollX: 0,
             scrollY: 0,
-            x: 0,
-            y: 0
+            windowWidth: metrics.widthPx,
+            windowHeight: metrics.heightPx
           },
           jsPDF: {
             unit: 'mm',
@@ -1177,33 +1324,18 @@
             compress: true,
             hotfixes: ['px_scaling']
           },
-          pagebreak: {
-            mode: ['avoid-all', 'css', 'legacy'],
-
-            avoid: [
-              'p',
-              'li',
-              'blockquote',
-              'img',
-              'table',
-              'tr',
-              'h1',
-              'h2',
-              'h3',
-              'h4',
-              'h5',
-              'h6'
-            ]
-          }
+          // No pagebreak heuristics — html2pdf gets pre-made pages.
+          pagebreak: { mode: [] }
         };
 
         const pdfBlob = await html2pdf()
           .set(opt)
-          .from(root)
+          .from(host)
           .outputPdf('blob');
 
         host.innerHTML = '';
         convertedBlob = pdfBlob;
+        pageCount = pages.length;
 
         setProgress(100, 'Done!', '✅ Conversion complete!');
 
@@ -1211,7 +1343,7 @@
           const url = URL.createObjectURL(pdfBlob);
           downloadLink.href = url;
           downloadLink.download = 'Dropletweb.pdf';
-          resultPages.textContent = `${pageCount || '?'} pages`;
+          resultPages.textContent = `${pageCount} page${pageCount === 1 ? '' : 's'}`;
           resultSize.textContent = formatSize(pdfBlob.size);
           resultSection.classList.remove('hidden');
           convertBtn.disabled = false;
@@ -1225,12 +1357,7 @@
         statusText.textContent = '❌ Error: ' + error.message;
         convertBtn.disabled = false;
         convertBtn.textContent = '🔄 Convert to PDF';
-        
-        let errorMsg = 'Conversion failed: ' + error.message;
-        if (error.message.includes('html2canvas')) {
-          errorMsg = 'PDF rendering failed. Please try again or use a simpler document.';
-        }
-        alert(errorMsg);
+        alert('Conversion failed: ' + error.message);
       }
     }
 
@@ -1240,7 +1367,7 @@
       }
     });
 
-    console.log('📝 Word to PDF Converter loaded');
+    console.log('📝 Word to PDF Converter loaded (manual pagination)');
   </script>
 </body>
 </html>
