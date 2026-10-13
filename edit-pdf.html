@@ -976,10 +976,10 @@
 // ============================================================
 pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-const BASE_RENDER_SCALE = 1.5;      // Fixed multiplier applied to page size when rendering
+const BASE_RENDER_SCALE = 1.5;
 const HIT_TOLERANCE = 6;
 const MIN_TEXT_ITEMS_FOR_DIGITAL = 5;
-const THUMB_CACHE = new Map();       // pdfPageNumber -> thumbnail canvas
+const THUMB_CACHE = new Map();
 
 function uid() { return 'o' + Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4); }
 function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
@@ -1026,8 +1026,8 @@ const state = {
   interaction: null,
   undoStack: [],
   redoStack: [],
-  pageCanvasCache: {},   // key -> canvas of rendered page at current zoom
-  renderedAtZoom: {}     // key -> zoom value the cache was captured at
+  pageCanvasCache: {},
+  renderedAtZoom: {}
 };
 
 const toolDefaults = {
@@ -1298,7 +1298,6 @@ async function reconstructPageText(page, pdfPageNumber) {
   }
   lines.sort((a, b) => a.y - b.y);
 
-  // Body size histogram
   const sizeBuckets = {};
   for (const L of lines) {
     const s = Math.round(L.fontSize * 2) / 2;
@@ -1309,7 +1308,6 @@ async function reconstructPageText(page, pdfPageNumber) {
     if (w > bestWeight) { bestWeight = w; bodySize = parseFloat(s); }
   }
 
-  // Paragraph blocks
   const blocks = [];
   let cur = null;
   for (let i = 0; i < lines.length; i++) {
@@ -1447,7 +1445,7 @@ function sampleBackgroundColor(page, obj) {
 }
 
 // ============================================================
-// PAGE RENDERER — fixes double-zoom bug
+// PAGE RENDERER
 // ============================================================
 async function renderCurrentPage() {
   const wrap = el.singlePageWrapper;
@@ -1458,14 +1456,10 @@ async function renderCurrentPage() {
   const container = document.createElement('div');
   container.className = 'page-container';
 
-  // FIX: previously cssW = page.width * RENDER_SCALE * zoom, and pdf viewport was
-  // ALSO scaled by RENDER_SCALE * zoom — meaning the render was double-scaled.
-  // Now: CSS size is display size, and canvas backing store is a fixed multiple
-  // of that display size (device pixel ratio of 2 for crispness).
   const displayScale = state.zoom;
   const cssW = Math.round(page.width * displayScale);
   const cssH = Math.round(page.height * displayScale);
-  const renderMultiplier = 2;   // Fixed — for crisp rendering regardless of zoom
+  const renderMultiplier = 2;
 
   container.style.width = cssW + 'px';
   container.style.height = cssH + 'px';
@@ -1508,7 +1502,6 @@ async function renderCurrentPage() {
   const objectScale = displayScale * renderMultiplier;
   const interactionScale = displayScale;
 
-  // Render PDF page (or white background)
   if (page.blank) {
     const ctx = pdfCanvas.getContext('2d');
     ctx.fillStyle = '#ffffff';
@@ -1518,8 +1511,6 @@ async function renderCurrentPage() {
   } else if (state.pdfDoc) {
     try {
       const p = await state.pdfDoc.getPage(page.pdfPageNumber);
-      // PDF viewport scale: page units * (zoom * renderMultiplier * BASE_RENDER_SCALE_wouldBeOverkill)
-      // We render at 2× the display size directly:
       const pdfViewportScale = displayScale * renderMultiplier;
       let extraRotation = page._extraRotation || 0;
       const rotation = (p.rotate + extraRotation + 360) % 360;
@@ -1771,7 +1762,7 @@ function dismissScanNotice(btn) {
 }
 
 // ============================================================
-// LAZY RECONSTRUCTION (with page-switch race fix)
+// LAZY RECONSTRUCTION
 // ============================================================
 async function ensurePageReconstructed(page) {
   if (!page || page.reconstructed || page.reconStatus === 'working') return;
@@ -1779,7 +1770,7 @@ async function ensurePageReconstructed(page) {
   if (!state.pdfDoc) return;
 
   page.reconStatus = 'working';
-  const pageAtStart = page;   // capture to compare on completion
+  const pageAtStart = page;
   showReconToast('Converting text to editable objects…');
 
   try {
@@ -1798,7 +1789,6 @@ async function ensurePageReconstructed(page) {
     page.reconStatus = 'idle';
   } finally {
     hideReconToast();
-    // Only re-render if we are still on the page that finished
     if (currentPageData() === pageAtStart) {
       await renderCurrentPage();
       renderThumbnails();
@@ -1823,18 +1813,12 @@ function hideReconToast() {
 }
 
 // ============================================================
-// OVERLAY INTERACTION
+// OVERLAY INTERACTION (with image aspect ratio fix)
 // ============================================================
 function attachOverlayHandlers(overlay, overlayCanvas, page, scale) {
   const toPageCoords = (clientX, clientY) => {
     const rect = overlayCanvas.getBoundingClientRect();
     return { x: (clientX - rect.left) / scale, y: (clientY - rect.top) / scale };
-  };
-  const refresh = () => {
-    // For drawing we use the overlayCanvas at the object-scale.
-    const objScale = scale * (overlayCanvas.width / overlayCanvas.getBoundingClientRect().width);
-    renderObjectsToOverlay(overlayCanvas, page, objScale);
-    if (state.selectedObjectId) drawSelectionOutline(overlayCanvas, page, objScale);
   };
   const objScale = () => overlayCanvas.width / overlayCanvas.getBoundingClientRect().width;
 
@@ -1891,6 +1875,7 @@ function attachOverlayHandlers(overlay, overlayCanvas, page, scale) {
       return;
     }
 
+    // FIX: Image and signature insertion now preserves aspect ratio and constrains width.
     if (state.tool === 'image' || state.tool === 'sign') {
       const inputId = state.tool === 'image' ? 'imageInput' : 'signInput';
       const input = document.getElementById(inputId);
@@ -1899,10 +1884,13 @@ function attachOverlayHandlers(overlay, overlayCanvas, page, scale) {
         if (!f) return;
         const dataUrl = await readFileAsDataURL(f);
         const img = await loadImage(dataUrl);
-        const maxW = 240;
-        const ratio = img.naturalHeight / img.naturalWidth;
-        const w = Math.min(maxW, img.naturalWidth / 2);
-        const h = w * ratio;
+        // Preserve aspect ratio, max width 240, max height 240
+        const maxDim = 240;
+        let w = img.naturalWidth;
+        let h = img.naturalHeight;
+        const scaleFactor = Math.min(1, maxDim / Math.max(w, h));
+        w = Math.max(20, w * scaleFactor);
+        h = Math.max(20, h * scaleFactor);
         const o = createObject(state.tool === 'image' ? 'image' : 'sign', x, y, w, h,
           { dataUrl, naturalW: img.naturalWidth, naturalH: img.naturalHeight, opacity: 1 });
         o._img = img;
@@ -1912,6 +1900,7 @@ function attachOverlayHandlers(overlay, overlayCanvas, page, scale) {
         renderObjectsToOverlay(overlayCanvas, page, s);
         renderProps();
         input.value = '';
+        toast('Image inserted. Use properties panel to fine‑tune size.', 2000);
       };
       input.click();
       return;
@@ -2548,7 +2537,6 @@ function deletePage() {
   updateStatusBar();
 }
 
-// FIX: rotatePage now also rotates the underlying PDF render.
 function rotatePage(degrees) {
   const page = currentPageData();
   if (!page) return;
@@ -2585,7 +2573,6 @@ function rotatePage(degrees) {
     const t = page.width; page.width = page.height; page.height = t;
   }
   page._extraRotation = ((page._extraRotation || 0) + degrees + 360) % 360;
-  // Invalidate caches so re-render picks up new orientation
   const key = page.pdfPageNumber || 'blank-' + state.currentPage;
   delete state.pageCanvasCache[key];
   delete state.renderedAtZoom[key];
@@ -2672,7 +2659,6 @@ async function renderThumbnails() {
       const cacheKey = (p.pdfPageNumber || 'blank-' + i) + '@' + (p._extraRotation || 0);
       if (THUMB_CACHE.has(cacheKey)) {
         canvas = THUMB_CACHE.get(cacheKey);
-        // Clone so the same canvas is not inserted twice
         const clone = document.createElement('canvas');
         clone.width = canvas.width; clone.height = canvas.height;
         clone.getContext('2d').drawImage(canvas, 0, 0);
@@ -2793,7 +2779,7 @@ function loadScript(src) {
 }
 
 // ============================================================
-// EXPORT — PDF (with dropletweb- prefix and cached source)
+// EXPORT — PDF
 // ============================================================
 async function exportPDF() {
   if (typeof PDFLib === 'undefined') { toast('PDF export library not loaded.'); return; }
@@ -2815,7 +2801,6 @@ async function exportPDF() {
     const fontBoldItalic = await outDoc.embedFont(StandardFonts.HelveticaBoldOblique);
     const imgCache = new Map();
 
-    // FIX: load source PDF once for the whole loop, not once per page.
     let srcDoc = null;
     if (state.pdfBytes) {
       srcDoc = await PDFDocument.load(state.pdfBytes, { ignoreEncryption: true });
@@ -2834,7 +2819,6 @@ async function exportPDF() {
       for (const o of p.objects) {
         if (o.source === 'pdf' && o.type === 'text' && !o._masked && !o._revealed) continue;
         try {
-          // Draw the mask underneath if we sampled one
           if (o._masked && o._maskColor) {
             const mc = hexToRgb(o._maskColor);
             newPage.drawRectangle({
@@ -2979,13 +2963,11 @@ async function exportDOCX() {
       const p = state.pages[i];
       const children = [];
 
-      // Page heading
       children.push(new Paragraph({
         children: [new TextRun({ text: `Page ${i + 1}`, bold: true, size: 24, color: '94a3b8' })],
         spacing: { after: 200 }
       }));
 
-      // Sort objects by y, then x, for reading order
       const sorted = [...p.objects].sort((a, b) => Math.abs(a.y - b.y) > 5 ? a.y - b.y : a.x - b.x);
 
       for (const o of sorted) {
@@ -3001,7 +2983,7 @@ async function exportDOCX() {
               bold: o.fontWeight === 'bold',
               italics: o.fontStyle === 'italic',
               underline: o.textDecoration === 'underline' ? {} : undefined,
-              size: Math.round((o.fontSize || 14) * 2),   // DOCX uses half-points
+              size: Math.round((o.fontSize || 14) * 2),
               color: (o.color || '#1e293b').replace('#',''),
               font: (o.fontFamily || 'Helvetica').split(',')[0].replace(/['"]/g,'')
             }));
@@ -3022,7 +3004,7 @@ async function exportDOCX() {
               const bytes = new Uint8Array(bin.length);
               for (let k = 0; k < bin.length; k++) bytes[k] = bin.charCodeAt(k);
               const ext = o.dataUrl.startsWith('data:image/png') ? 'png' : 'jpg';
-              const w = Math.round(o.w * 2); // 1 unit ≈ 0.5pt at 96dpi
+              const w = Math.round(o.w * 2);
               const h = Math.round(o.h * 2);
               children.push(new Paragraph({
                 children: [new ImageRun({
@@ -3095,7 +3077,6 @@ async function exportXLSX() {
   try {
     const wb = XLSX.utils.book_new();
 
-    // Summary sheet
     const summaryAoA = [
       ['Document', docTitle || 'Untitled PDF'],
       ['Pages', state.pages.length],
@@ -3120,7 +3101,6 @@ async function exportXLSX() {
     summaryWs['!cols'] = [{ wch: 30 }, { wch: 10 }, { wch: 12 }, { wch: 10 }, { wch: 10 }, { wch: 12 }, { wch: 10 }];
     XLSX.utils.book_append_sheet(wb, summaryWs, 'Summary');
 
-    // One sheet per page
     for (let i = 0; i < state.pages.length; i++) {
       const p = state.pages[i];
       const rows = [
@@ -3227,8 +3207,6 @@ document.addEventListener('click', (e) => {
 function updateSEOVisibility() {
   const seo = document.getElementById('seoSection');
   if (!seo) return;
-  // Show the SEO section underneath the app shell only when a document is loaded.
-  // It scrolls with the workspace, invisible until the user scrolls.
   seo.style.display = state.pages.length ? 'block' : 'none';
 }
 
