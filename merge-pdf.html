@@ -184,6 +184,13 @@
     .seo-content li {
       margin-bottom: 0.3rem;
     }
+    .seo-content code {
+      background: #f1f5f9;
+      padding: 0.1rem 0.35rem;
+      border-radius: 0.25rem;
+      font-size: 0.85rem;
+      color: #0f172a;
+    }
     .faq-section {
       max-width: 42rem;
       margin: 2rem auto;
@@ -275,6 +282,7 @@
     html.dark .action-btn:hover { background: #334155; }
     html.dark .seo-content { color: #cbd5e1; }
     html.dark .seo-content h2 { color: #f1f5f9; }
+    html.dark .seo-content code { background: #334155; color: #f1f5f9; }
     html.dark .faq-section h2 { color: #f1f5f9; }
     html.dark .faq-section details { background: #1e293b; border-color: #334155; }
     html.dark .faq-section summary { color: #f1f5f9; }
@@ -327,7 +335,7 @@
       <div class="flex flex-col items-center">
         <div class="w-16 h-16 md:w-20 md:h-20 bg-blue-50 rounded-2xl flex items-center justify-center mb-4 text-3xl md:text-4xl">📁</div>
         <h3 class="text-lg md:text-xl font-bold text-slate-900 mb-1">Drop your PDF files here</h3>
-        <p class="text-slate-400 text-sm mb-4">or click to browse</p>
+        <p class="text-slate-400 text-sm mb-4">or click to browse — select multiple files at once</p>
         <input type="file" id="fileInput" accept=".pdf,application/pdf" multiple class="hidden">
         <button type="button" id="selectBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-3 rounded-xl text-sm shadow-md shadow-blue-500/20 transition-all active:scale-95">
           Select PDF Files
@@ -380,13 +388,13 @@
 
             <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-6">
               <p class="text-xs text-blue-900 leading-relaxed">
-                💡 <strong>Tip:</strong> To change the order, drag and drop the files as you want.
+                💡 <strong>Tip:</strong> Drag the file cards to change the merge order. The order you see is the order you get.
               </p>
             </div>
 
             <div class="space-y-2 text-xs text-slate-500 mb-6">
               <p class="flex items-center gap-2"><span class="text-green-500">✓</span> Original page sizes preserved</p>
-              <p class="flex items-center gap-2"><span class="text-green-500">✓</span> Text & vector content preserved</p>
+              <p class="flex items-center gap-2"><span class="text-green-500">✓</span> Text &amp; vector content preserved</p>
               <p class="flex items-center gap-2"><span class="text-green-500">✓</span> Merged in displayed order</p>
             </div>
 
@@ -428,20 +436,32 @@
       </div>
       <div class="bg-white p-4 rounded-xl border border-slate-100 text-center transition-colors duration-200">
         <div class="text-2xl mb-1">⚡</div>
-        <h4 class="font-bold text-sm">Fast & Free</h4>
+        <h4 class="font-bold text-sm">Fast &amp; Free</h4>
         <p class="text-xs text-slate-500">No sign-up required</p>
       </div>
       <div class="bg-white p-4 rounded-xl border border-slate-100 text-center transition-colors duration-200">
         <div class="text-2xl mb-1">📝</div>
         <h4 class="font-bold text-sm">Preserves Quality</h4>
-        <p class="text-xs text-slate-500">Original page sizes & vectors</p>
+        <p class="text-xs text-slate-500">Original page sizes &amp; vectors</p>
       </div>
     </div>
 
     <!-- ============================================================ -->
-    <!-- SEO CONTENT — Merge PDF long-tail keywords                    -->
+    <!-- QUICK START / SAMPLE USE CASE                                 -->
     <!-- ============================================================ -->
     <section class="seo-content">
+      <h2>Quick Start — Combine Invoices in 30 Seconds</h2>
+      <ol style="padding-left:1.4rem;font-size:0.95rem;line-height:1.9;">
+        <li><strong>Select your invoice PDFs.</strong> Click “Select PDF Files” or drag them onto the dropzone. You can pick as many as you need — January, February, March, and so on.</li>
+        <li><strong>Reorder if necessary.</strong> Drag the file cards so January is at the top, February in the middle, and March at the bottom. The list order is the merge order.</li>
+        <li><strong>Click “Merge PDF”.</strong> The tool copies every page from each file, in order, into one new document.</li>
+        <li><strong>Download the result.</strong> Click the green “Download PDF” button. The file is saved as <code>Dropletweb-merge.pdf</code>.</li>
+      </ol>
+      <p>
+        That's it — a single invoice packet, ready to send, with no uploads and no account. The same
+        workflow works for contracts, reports, scanned letters, or any other collection of PDFs.
+      </p>
+
       <h2>How Document Order Works</h2>
       <p>
         The final merged PDF is built by reading your file list from top to bottom. The first file
@@ -501,30 +521,6 @@
         your changes, or Cancel to discard them and return to the previous state.
       </p>
 
-      <h2>Adding Pages From Another PDF</h2>
-      <p>
-        Inside the page editor, click "Add Pages" to open the insertion dialog. You can choose:
-      </p>
-      <ul>
-        <li><strong>An already-uploaded PDF</strong> — any other file in your current workspace.</li>
-        <li><strong>A PDF from your device</strong> — the dialog lets you pick a file from your
-            local storage and adds it to the workspace at the same time.</li>
-      </ul>
-      <p>
-        Then choose where to insert the pages:
-      </p>
-      <ul>
-        <li><strong>At beginning</strong> — the source PDF's pages become the first pages of the
-            current file.</li>
-        <li><strong>At end</strong> — the source pages are appended after the last page.</li>
-        <li><strong>After selected page</strong> — the source pages are inserted immediately after
-            the currently selected page.</li>
-      </ul>
-      <p>
-        After insertion, you can reorder, rotate, or delete the newly added pages just like any
-        other page in the file.
-      </p>
-
       <h2>What Remains Intact in the Merge</h2>
       <p>
         The merge is a true PDF-level operation. Pages are copied from their source documents using
@@ -544,31 +540,58 @@
             You can still fill them in after merging.</li>
         <li><strong>Rotation state</strong> — a page that was already rotated in the source PDF keeps
             its rotation, and additional rotations you apply in the editor are layered on top.</li>
-        <li><strong>Metadata on individual pages</strong> — page labels and annotations are copied
-            with the page.</li>
+        <li><strong>Page orientation</strong> — portrait and landscape pages keep their orientation.
+            You can merge a portrait contract with a landscape appendix with no distortion.</li>
       </ul>
+
+      <h2>File Limits and Local Processing</h2>
       <p>
-        This is fundamentally different from raster-based merging, where each page would be
-        rendered as an image before combining. Here, the pages are moved as live PDF objects.
+        All merging runs entirely inside your browser using the pdf-lib JavaScript library. Your
+        files are never uploaded to any server. You can verify this by opening your browser's
+        developer tools and watching the Network tab — no requests are made when you add files,
+        reorder them, or merge.
+      </p>
+      <p>
+        The practical file size limit is around <strong>100 MB total</strong> across all files. The
+        real constraint is your device's available memory, because the entire merge happens in
+        RAM. On a modern phone with 4 GB of RAM, a 50–100 MB collection usually works. On a desktop
+        with 8 GB or more, you can push higher.
+      </p>
+      <p>
+        Workspace metadata (file names, page order, rotations) is saved to your browser's
+        IndexedDB so a page refresh doesn't lose your arrangement. The PDF binary data itself is
+        also stored locally in IndexedDB. Nothing leaves your device. Clicking “Start Over” or
+        clearing browser storage removes it.
       </p>
 
-      <h2>What Is Not Carried Over</h2>
+      <h2>Handling Encrypted, Corrupted, and Large PDFs</h2>
+      <p>
+        The tool is designed to be forgiving, but there are limits:
+      </p>
       <ul>
-        <li><strong>Document-level metadata</strong> — the merged PDF starts with fresh metadata
-            (title, author, producer). The individual source files' metadata is not preserved.</li>
-        <li><strong>Bookmarks and outlines</strong> — bookmark trees are stored at the document
-            level, not the page level, so they are not copied into the merged PDF.</li>
-        <li><strong>AcroForm field names</strong> — if two source PDFs use the same field name,
-            the merged output may have naming conflicts. This is a limitation of the PDF spec,
-            not of this tool.</li>
-        <li><strong>Digital signatures</strong> — a signed PDF's signature becomes invalid once the
-            page is moved into a new document. The signature appearance may remain visible, but it
-            will not verify.</li>
-        <li><strong>Encrypted PDFs</strong> — files that require a password cannot be merged. Remove
-            the password first with a dedicated tool.</li>
+        <li><strong>Encrypted PDFs.</strong> If a PDF requires a password to open, it cannot be
+            merged. You'll see a message saying the file could not be parsed. Remove the password
+            with a dedicated PDF tool first, then try again.</li>
+        <li><strong>Corrupted or malformed PDFs.</strong> If a file is truncated or has a broken
+            cross-reference table, pdf-lib may fail. The tool tries two loading strategies
+            (<code>ignoreEncryption</code> and a sanitized byte slice) before giving up. Files that
+            still fail are skipped with a clear error dialog — other files in the list continue to
+            work.</li>
+        <li><strong>Files with junk before the PDF header.</strong> Some PDFs have stray bytes
+            before the <code>%PDF-</code> marker. The sanitizer scans the first 1 KB, finds the
+            header, and slices from there, so these files load correctly.</li>
+        <li><strong>Very large files.</strong> Merging is sequential and progress is reported per
+            page. A 500-page file will take longer than a 5-page file, but the UI stays responsive
+            and you can see the percentage climb. If your device runs out of memory, the browser
+            will typically kill the tab — reduce the number of files or split the merge into
+            smaller batches.</li>
       </ul>
 
       <h2>Practical Uses</h2>
+      <p>
+        <strong>Combining monthly invoices:</strong> Upload January through December, drag them
+        into chronological order, merge. One PDF for the accountant.
+      </p>
       <p>
         <strong>Combining a signed contract and its appendix:</strong> Upload both PDFs, drag the
         appendix above or below as needed, and merge. Signatures remain visible.
@@ -579,49 +602,12 @@
       </p>
       <p>
         <strong>Assembling a packet with a custom cover page:</strong> Upload the cover as a
-        single-page PDF and place it first in the file list. Merge produces a packet with the cover
-        at the front.
+        single-page PDF and place it first in the file list.
       </p>
       <p>
         <strong>Extracting and combining selected pages from multiple documents:</strong> Open each
-        file's page editor, delete the pages you don't want, then merge the reduced files. The
-        output contains only the pages you kept.
+        file's page editor, delete the pages you don't want, then merge the reduced files.
       </p>
-      <p>
-        <strong>Rotating a scanned page and inserting it into a report:</strong> Upload the report,
-        open Manage Pages, use Add Pages to insert the scanned page from a second PDF, rotate it
-        as needed, and reposition it. Merge produces the combined document.
-      </p>
-
-      <h2>Privacy — Client-Side Merging</h2>
-      <p>
-        PDF parsing uses the open-source PDF.js library and merging uses pdf-lib. Both run entirely
-        in your browser. Your files are read into memory and never transmitted. The only external
-        resources loaded are the libraries themselves from a CDN.
-      </p>
-      <p>
-        Your workspace is saved to IndexedDB in your browser so that a page refresh does not lose
-        your progress. This data lives only on your device and is cleared when you click Start Over
-        or clear your browser storage.
-      </p>
-
-      <h2>Limitations You Should Know</h2>
-      <ul>
-        <li><strong>Encrypted PDFs are rejected.</strong> PDFs that require a password to open
-            cannot be read. Remove the password first.</li>
-        <li><strong>Very large files may be slow.</strong> Merging is done in memory. A collection
-            totalling several hundred megabytes will be slow on low-memory devices.</li>
-        <li><strong>Some malformed PDFs cannot be read.</strong> If a file is truncated or has a
-            broken cross-reference table, pdf-lib may fail to open it. The tool tries a fallback
-            path with <code>ignoreEncryption</code>, but some files are simply unreadable.</li>
-        <li><strong>Drag-and-drop does not work on all mobile browsers.</strong> The page editor
-            relies on Sortable.js, which uses touch events. It works on modern iOS Safari and
-            Chrome for Android, but older browsers may not support it. If dragging fails, you can
-            still reorder by deleting and re-adding pages in the desired sequence.</li>
-        <li><strong>No undo.</strong> Page deletions, rotations, and duplications are applied to the
-            working copy immediately. If you make a mistake, click Cancel to close the editor
-            without saving, then reopen it to start from the saved state.</li>
-      </ul>
     </section>
 
     <!-- ============================================================ -->
@@ -683,28 +669,19 @@
       </details>
 
       <details>
-        <summary>What happens to bookmarks and outlines?</summary>
-        <p>
-          Bookmark trees and document outlines are stored at the document level, not the page level.
-          They are not copied into the merged PDF. If the source PDFs had bookmarks, those are lost
-          in the merge.
-        </p>
-      </details>
-
-      <details>
-        <summary>Are AcroForm fields preserved?</summary>
-        <p>
-          Form fields are copied with their pages and remain interactive in the merged output. Note
-          that if two source PDFs use the same internal field name, there may be naming conflicts —
-          this is a limitation of the PDF specification, not of this tool.
-        </p>
-      </details>
-
-      <details>
         <summary>Can I merge password-protected PDFs?</summary>
         <p>
           No. The tool can only read PDFs that open without a password. If your PDF requires a
           password, remove the protection first using a dedicated PDF tool, then merge it here.
+        </p>
+      </details>
+
+      <details>
+        <summary>What happens if one of my PDFs is corrupted?</summary>
+        <p>
+          The tool tries two loading strategies before giving up. If a file still cannot be read,
+          it is skipped and an error dialog tells you which file failed. The other files in your
+          list continue to work and can still be merged.
         </p>
       </details>
 
@@ -718,11 +695,11 @@
       </details>
 
       <details>
-        <summary>Is there an undo?</summary>
+        <summary>Are AcroForm fields preserved?</summary>
         <p>
-          Not directly. Page edits inside the editor are applied to a working copy immediately. If
-          you make a mistake, click Cancel to close the editor without saving, then reopen it to
-          start from the last saved state.
+          Form fields are copied with their pages and remain interactive in the merged output. Note
+          that if two source PDFs use the same internal field name, there may be naming conflicts —
+          this is a limitation of the PDF specification, not of this tool.
         </p>
       </details>
 
@@ -732,6 +709,15 @@
           About 100 MB total across all files. The practical limit depends on your device's memory,
           since the merge happens entirely in the browser. Very large collections may take a while
           to process.
+        </p>
+      </details>
+
+      <details>
+        <summary>Do my files stay on my device?</summary>
+        <p>
+          Yes. Files are read into browser memory, merged in browser memory, and the output is
+          generated as a Blob in the browser. Workspace metadata is saved to IndexedDB on your
+          device only. Nothing is transmitted to any server.
         </p>
       </details>
 
@@ -1075,7 +1061,7 @@
     const insertPositionHint = document.getElementById('insertPositionHint');
 
     // ============================================
-    // PDF SANITIZER
+    // PDF SANITIZER — finds %PDF- header within first 1KB
     // ============================================
     function sanitizePdfBytes(uint8Array) {
       const searchLimit = Math.min(1024, uint8Array.length);
@@ -1102,7 +1088,7 @@
     }
 
     // ============================================
-    // FILE HANDLING
+    // FILE HANDLING — supports multiple selection
     // ============================================
     async function handleFiles(files) {
       if (!files || files.length === 0) return;
@@ -1112,8 +1098,13 @@
       );
       
       if (pdfFiles.length === 0) {
-        alert('Please select valid PDF files.');
+        alert('Please select valid PDF files. Only .pdf files are supported.');
         return;
+      }
+
+      const skipped = Array.from(files).length - pdfFiles.length;
+      if (skipped > 0) {
+        console.warn(`Skipped ${skipped} non-PDF file(s).`);
       }
 
       dropzone.classList.add('hidden');
@@ -1126,8 +1117,17 @@
         mobileBar.classList.add('hidden');
       }
 
+      let successCount = 0;
+      let failCount = 0;
+
       for (const file of pdfFiles) {
-        await addFile(file);
+        const ok = await addFile(file);
+        if (ok) successCount++;
+        else failCount++;
+      }
+
+      if (successCount > 0) {
+        toast(`Added ${successCount} file${successCount > 1 ? 's' : ''}${failCount > 0 ? `, ${failCount} failed` : ''}.`, 2500);
       }
 
       updateSummary();
@@ -1166,6 +1166,9 @@
         }
 
         const pageCount = pdfDoc.getPageCount();
+        if (pageCount === 0) {
+          throw new Error('This PDF has no pages.');
+        }
         
         let thumbnail = null;
         if (typeof pdfjsLib !== 'undefined') {
@@ -1205,10 +1208,27 @@
         renderFileCard(fileObj);
         
         dbPut('file-' + fileId, file).catch(e => console.warn('Blob save failed:', e));
+        return true;
       } catch (e) {
         console.error('Error adding file:', e);
         alert(`Could not load "${file.name}".\n\nReason: ${e.message}`);
+        return false;
       }
+    }
+
+    function toast(msg, ms) {
+      const existing = document.getElementById('droplet-toast');
+      if (existing) existing.remove();
+      const t = document.createElement('div');
+      t.id = 'droplet-toast';
+      t.textContent = msg;
+      t.style.cssText = 'position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:#0f172a;color:#fff;padding:10px 20px;border-radius:10px;font-size:13px;z-index:9999;box-shadow:0 10px 30px rgba(0,0,0,0.25);opacity:0;transition:opacity 0.25s;';
+      document.body.appendChild(t);
+      requestAnimationFrame(() => t.style.opacity = '1');
+      setTimeout(() => {
+        t.style.opacity = '0';
+        setTimeout(() => t.remove(), 300);
+      }, ms || 2200);
     }
 
     async function saveWorkspace() {
@@ -1999,6 +2019,14 @@
     closeAddPagesBtn.addEventListener('click', closeAddPagesModal);
     cancelAddPagesBtn.addEventListener('click', closeAddPagesModal);
     confirmAddPagesBtn.addEventListener('click', confirmAddPages);
+
+    // Update hint text when position changes
+    insertPositionSelect.addEventListener('change', () => {
+      const v = insertPositionSelect.value;
+      if (v === 'start') insertPositionHint.textContent = 'The source PDF\'s pages will be inserted at the very beginning of this file.';
+      else if (v === 'end') insertPositionHint.textContent = 'The source PDF\'s pages will be appended after the last page of this file.';
+      else insertPositionHint.textContent = 'The source PDF\'s pages will be inserted after the currently selected page.';
+    });
 
     window.addEventListener('resize', updateResponsiveUI);
 
