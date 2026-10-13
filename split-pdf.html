@@ -143,6 +143,55 @@
       background: #1d4ed8;
     }
 
+    /* Range validation styles */
+    .input-error {
+      border-color: #ef4444 !important;
+      background: #fef2f2 !important;
+    }
+    html.dark .input-error {
+      background: #450a0a !important;
+      border-color: #ef4444 !important;
+    }
+    .error-message {
+      color: #ef4444;
+      font-size: 11px;
+      margin-top: 4px;
+      display: none;
+    }
+    .error-message.show {
+      display: block;
+    }
+    .range-preview {
+      font-size: 11px;
+      color: #64748b;
+      margin-top: 6px;
+      padding: 6px 10px;
+      background: #f8fafc;
+      border-radius: 6px;
+      border: 1px solid #e2e8f0;
+      max-height: 100px;
+      overflow-y: auto;
+    }
+    html.dark .range-preview {
+      background: #0f172a;
+      border-color: #334155;
+      color: #94a3b8;
+    }
+    .range-preview .range-chip {
+      display: inline-block;
+      background: #dbeafe;
+      color: #1e40af;
+      padding: 1px 8px;
+      border-radius: 10px;
+      margin: 2px 4px 2px 0;
+      font-weight: 600;
+      font-size: 10px;
+    }
+    html.dark .range-preview .range-chip {
+      background: #1e3a5f;
+      color: #93c5fd;
+    }
+
     /* ===== SEO CONTENT ===== */
     .seo-content {
       max-width: 42rem;
@@ -167,6 +216,30 @@
     }
     .seo-content li {
       margin-bottom: 0.3rem;
+    }
+    .seo-content code {
+      background: #f1f5f9;
+      padding: 0.1rem 0.35rem;
+      border-radius: 0.25rem;
+      font-size: 0.85rem;
+      color: #0f172a;
+    }
+    .seo-content .comparison-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0;
+      font-size: 0.9rem;
+    }
+    .seo-content .comparison-table th,
+    .seo-content .comparison-table td {
+      border: 1px solid #e2e8f0;
+      padding: 0.5rem 0.75rem;
+      text-align: left;
+    }
+    .seo-content .comparison-table th {
+      background: #f8fafc;
+      font-weight: 700;
+      color: #0f172a;
     }
     .faq-section {
       max-width: 42rem;
@@ -371,6 +444,15 @@
     /* Dark mode for SEO content */
     html.dark .seo-content { color: #cbd5e1; }
     html.dark .seo-content h2 { color: #f1f5f9; }
+    html.dark .seo-content code { background: #334155; color: #f1f5f9; }
+    html.dark .seo-content .comparison-table th,
+    html.dark .seo-content .comparison-table td {
+      border-color: #334155;
+    }
+    html.dark .seo-content .comparison-table th {
+      background: #1e293b;
+      color: #f1f5f9;
+    }
     html.dark .faq-section h2 { color: #f1f5f9; }
     html.dark .faq-section details { background: #1e293b; border-color: #334155; }
     html.dark .faq-section summary { color: #f1f5f9; }
@@ -468,13 +550,17 @@
         </div>
         <div id="rangesContainer" class="hidden">
           <label class="block text-xs font-medium text-slate-700 mb-1">📋 Page Ranges</label>
-          <input type="text" id="pageRanges" placeholder="1-3, 5, 7-9" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white transition-colors duration-200">
+          <input type="text" id="pageRanges" placeholder="e.g. 1-3, 5, 8-10" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white transition-colors duration-200">
+          <p class="error-message" id="rangeError"></p>
         </div>
         <div id="extractContainer" class="hidden">
           <label class="block text-xs font-medium text-slate-700 mb-1">👆 Select pages below</label>
           <p class="text-xs text-slate-400">Click on pages to select/deselect</p>
         </div>
       </div>
+
+      <!-- Range Preview (shown only in ranges mode) -->
+      <div id="rangePreview" class="range-preview hidden"></div>
 
       <!-- Page Grid -->
       <div id="pageGridContainer" class="hidden mt-4 border-t border-slate-200 pt-4 transition-colors duration-200">
@@ -570,6 +656,47 @@
         and personal documents stay on your device.
       </p>
 
+      <h2>Splitting vs. Extracting — What's the Difference?</h2>
+      <p>
+        These two operations sound similar but produce different results. Understanding the
+        difference helps you pick the right mode:
+      </p>
+      <table class="comparison-table">
+        <thead>
+          <tr>
+            <th>Operation</th>
+            <th>What it does</th>
+            <th>Example input</th>
+            <th>Output</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Split</strong></td>
+            <td>Divides the document into contiguous chunks. Every page appears in exactly one output.</td>
+            <td>Every 3 pages, 10-page PDF</td>
+            <td>4 files: pages 1–3, 4–6, 7–9, 10</td>
+          </tr>
+          <tr>
+            <td><strong>Split by range</strong></td>
+            <td>Divides the document into the exact ranges you specify. Pages outside the ranges are dropped.</td>
+            <td>Ranges: 1-3, 7-9</td>
+            <td>2 files: pages 1–3 and 7–9. Pages 4–6 and 10 are excluded.</td>
+          </tr>
+          <tr>
+            <td><strong>Extract</strong></td>
+            <td>Pulls out only the pages you select. Consecutive selections become one file; non-consecutive selections become separate files.</td>
+            <td>Selected: 1, 2, 3, 7, 8</td>
+            <td>2 files: pages 1–3 and pages 7–8</td>
+          </tr>
+        </tbody>
+      </table>
+      <p>
+        In short: <strong>split</strong> partitions the whole document, while <strong>extract</strong>
+        picks out specific pages and discards the rest. Use split when you want every page preserved;
+        use extract when you only want some pages.
+      </p>
+
       <h2>Split by Every N Pages</h2>
       <p>
         The simplest mode. Enter a number — for example, <strong>1</strong> to split every page into
@@ -581,7 +708,7 @@
         of equal length or breaking a long report into sections for emailing.
       </p>
 
-      <h2>Split by Custom Ranges</h2>
+      <h2>Split by Custom Ranges — Validation Rules</h2>
       <p>
         Custom ranges give you precise control. Type one or more ranges separated by commas, using
         a hyphen for a span and a single number for an individual page. Some examples:
@@ -593,9 +720,23 @@
         <li><strong>2-5, 12-15, 20-22</strong> — three files, each covering a different section.</li>
       </ul>
       <p>
-        Each range becomes its own PDF. This is useful when a document contains several logical
-        sections that you want to separate — for example, splitting an invoice packet into one file
-        per invoice.
+        The tool <strong>validates every range before splitting</strong>. If any of the following
+        problems are detected, you'll see an error message and the split will not start:
+      </p>
+      <ul>
+        <li><strong>Out-of-range pages.</strong> A page number greater than the total page count, or
+            a start page of 0 or less.</li>
+        <li><strong>Reversed ranges.</strong> A range like <code>5-2</code> where the start is after
+            the end.</li>
+        <li><strong>Malformed input.</strong> Non-numeric characters, empty ranges, or missing
+            numbers around a hyphen (e.g. <code>1-</code> or <code>-3</code>).</li>
+        <li><strong>Overlapping ranges.</strong> Two ranges that share pages, such as
+            <code>1-5, 3-7</code>. Overlapping ranges would produce duplicate pages in different
+            output files, so they are rejected.</li>
+      </ul>
+      <p>
+        A live preview shows the valid ranges as chips and the total page count they cover, so you
+        can confirm the split before clicking the button.
       </p>
 
       <h2>Extract Individual Pages</h2>
@@ -607,7 +748,7 @@
       <p>
         For example, if you select pages 1, 2, 3, 7, and 8, you get two output files: one containing
         pages 1–3 and another containing pages 7–8. If you want each selected page as its own file,
-        select them one at a time and split repeatedly, or use Custom Ranges with single page numbers.
+        use Custom Ranges with single page numbers, like <code>1, 5, 9</code>.
       </p>
 
       <h2>Page Preview and Selection</h2>
@@ -624,6 +765,10 @@
         its filename, page count, and the range of pages it contains. You can download files
         individually, or click <strong>Download All (ZIP)</strong> to receive every result in a single
         ZIP archive. The ZIP is generated in your browser using JSZip — again, nothing is uploaded.
+      </p>
+      <p>
+        When there is only one output file, the “Download All” button downloads that single PDF
+        directly instead of wrapping it in a ZIP, which is more convenient for the common case.
       </p>
 
       <h2>Privacy — Client-Side Splitting</h2>
@@ -648,7 +793,7 @@
       </p>
       <p>
         <strong>Separating invoices from a combined statement:</strong> Use Custom Ranges and enter
-        the page span for each invoice.
+        the page span for each invoice, e.g. <code>1-2, 3-4, 5-6</code>.
       </p>
     </section>
 
@@ -668,11 +813,42 @@
       </details>
 
       <details>
+        <summary>What's the difference between splitting and extracting pages?</summary>
+        <p>
+          <strong>Splitting</strong> divides the whole document into contiguous chunks — every page
+          ends up in exactly one output file. <strong>Extracting</strong> pulls out only the pages
+          you select and discards the rest. If you want all pages preserved, use split; if you only
+          want some pages, use extract.
+        </p>
+      </details>
+
+      <details>
         <summary>Can I split a PDF by specific page ranges?</summary>
         <p>
           Yes. Choose Custom Ranges and enter the ranges using commas and hyphens. For example,
           <code>1-3, 5, 8-10</code> produces three files: pages 1–3, page 5, and pages 8–10. Each
-          range becomes its own PDF.
+          range becomes its own PDF. The tool validates your input and rejects out-of-range,
+          reversed, or overlapping ranges before splitting.
+        </p>
+      </details>
+
+      <details>
+        <summary>What happens if my range is invalid?</summary>
+        <p>
+          The tool checks every range before splitting. If a page number is beyond the document's
+          page count, a range is reversed (like <code>5-2</code>), a range overlaps another range,
+          or the input is malformed, you'll see a clear error message and the split will not start.
+          Fix the range and try again.
+        </p>
+      </details>
+
+      <details>
+        <summary>Can I use overlapping ranges?</summary>
+        <p>
+          No. Overlapping ranges would produce duplicate pages in different output files, which is
+          almost never what you want. The tool rejects overlapping ranges and shows an error so you
+          can adjust them. If you genuinely need a page in two files, split once and repeat the
+          operation on the relevant output.
         </p>
       </details>
 
@@ -709,7 +885,7 @@
         <p>
           Yes. After splitting, click <strong>Download All (ZIP)</strong> to receive every output
           PDF inside a single ZIP archive. The ZIP is generated in your browser — nothing is
-          uploaded.
+          uploaded. If there's only one output file, the button downloads that PDF directly.
         </p>
       </details>
 
@@ -823,6 +999,7 @@
     let splitResults = [];
     let totalPages = 0;
     let pdfDoc = null;
+    let currentRanges = [];   // cached validated ranges
 
     // DOM Elements
     const dropzone = document.getElementById('dropzone');
@@ -852,9 +1029,147 @@
     const everyNContainer = document.getElementById('everyNContainer');
     const rangesContainer = document.getElementById('rangesContainer');
     const extractContainer = document.getElementById('extractContainer');
+    const rangeError = document.getElementById('rangeError');
+    const rangePreview = document.getElementById('rangePreview');
 
     // Set PDF.js worker
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+    // ============================================
+    // RANGE VALIDATION & PARSING
+    // ============================================
+    /**
+     * Parses a range string like "1-3, 5, 8-10" into an array of {start, end} objects.
+     * Throws an Error with a human-readable message if the input is invalid.
+     */
+    function parseRanges(input, maxPage) {
+      const trimmed = String(input || '').trim();
+      if (!trimmed) {
+        throw new Error('Please enter at least one page range.');
+      }
+
+      const parts = trimmed.split(',').map(p => p.trim()).filter(Boolean);
+      if (parts.length === 0) {
+        throw new Error('Please enter at least one page range.');
+      }
+
+      const ranges = [];
+      for (const part of parts) {
+        if (part.includes('-')) {
+          // Reject things like "1-", "-3", "1--3", "1-3-5"
+          const segs = part.split('-');
+          if (segs.length !== 2) {
+            throw new Error(`Malformed range "${part}". Use format like "1-3".`);
+          }
+          const startStr = segs[0].trim();
+          const endStr = segs[1].trim();
+          if (!/^\d+$/.test(startStr) || !/^\d+$/.test(endStr)) {
+            throw new Error(`Malformed range "${part}". Both sides of the hyphen must be numbers.`);
+          }
+          const start = parseInt(startStr, 10);
+          const end = parseInt(endStr, 10);
+          if (start < 1) {
+            throw new Error(`Page ${start} is invalid. Pages start at 1.`);
+          }
+          if (end > maxPage) {
+            throw new Error(`Page ${end} is out of range. This PDF has ${maxPage} page${maxPage === 1 ? '' : 's'}.`);
+          }
+          if (start > end) {
+            throw new Error(`Range "${part}" is reversed. The start must be less than or equal to the end.`);
+          }
+          ranges.push({ start, end });
+        } else {
+          if (!/^\d+$/.test(part)) {
+            throw new Error(`"${part}" is not a valid page number.`);
+          }
+          const page = parseInt(part, 10);
+          if (page < 1) {
+            throw new Error(`Page ${page} is invalid. Pages start at 1.`);
+          }
+          if (page > maxPage) {
+            throw new Error(`Page ${page} is out of range. This PDF has ${maxPage} page${maxPage === 1 ? '' : 's'}.`);
+          }
+          ranges.push({ start: page, end: page });
+        }
+      }
+
+      // Check for overlaps
+      const sorted = [...ranges].sort((a, b) => a.start - b.start);
+      for (let i = 1; i < sorted.length; i++) {
+        if (sorted[i].start <= sorted[i - 1].end) {
+          throw new Error(
+            `Ranges ${sorted[i - 1].start}-${sorted[i - 1].end} and ${sorted[i].start}-${sorted[i].end} overlap. ` +
+            `Overlapping ranges would duplicate pages.`
+          );
+        }
+      }
+
+      return ranges;
+    }
+
+    /**
+     * Renders the parsed ranges as chips in the preview panel.
+     */
+    function renderRangePreview(ranges) {
+      if (!ranges || ranges.length === 0) {
+        rangePreview.classList.add('hidden');
+        rangePreview.innerHTML = '';
+        return;
+      }
+      let totalPagesInRanges = 0;
+      let html = '<strong>Parsed ranges:</strong> ';
+      for (const r of ranges) {
+        const count = r.end - r.start + 1;
+        totalPagesInRanges += count;
+        const label = r.start === r.end ? `${r.start}` : `${r.start}–${r.end}`;
+        html += `<span class="range-chip">${label}</span>`;
+      }
+      html += `<div style="margin-top:6px;">${ranges.length} output file${ranges.length === 1 ? '' : 's'} · ${totalPagesInRanges} page${totalPagesInRanges === 1 ? '' : 's'} total</div>`;
+      rangePreview.innerHTML = html;
+      rangePreview.classList.remove('hidden');
+    }
+
+    function clearRangePreview() {
+      rangePreview.classList.add('hidden');
+      rangePreview.innerHTML = '';
+    }
+
+    function showRangeError(msg) {
+      if (msg) {
+        rangeError.textContent = '⚠️ ' + msg;
+        rangeError.classList.add('show');
+        pageRanges.classList.add('input-error');
+        clearRangePreview();
+        currentRanges = [];
+        splitBtn.disabled = true;
+      } else {
+        rangeError.textContent = '';
+        rangeError.classList.remove('show');
+        pageRanges.classList.remove('input-error');
+      }
+    }
+
+    // Live validation on input
+    pageRanges.addEventListener('input', () => {
+      if (splitMode.value !== 'ranges' || totalPages === 0) return;
+      const val = pageRanges.value.trim();
+      if (!val) {
+        showRangeError('');
+        clearRangePreview();
+        currentRanges = [];
+        splitBtn.disabled = false;
+        return;
+      }
+      try {
+        const ranges = parseRanges(val, totalPages);
+        showRangeError('');
+        currentRanges = ranges;
+        renderRangePreview(ranges);
+        splitBtn.disabled = false;
+      } catch (e) {
+        showRangeError(e.message);
+      }
+    });
 
     // Toggle split mode UI
     splitMode.addEventListener('change', function() {
@@ -862,7 +1177,55 @@
       rangesContainer.classList.toggle('hidden', this.value !== 'ranges');
       extractContainer.classList.toggle('hidden', this.value !== 'extract');
       pageGridContainer.classList.toggle('hidden', this.value !== 'extract');
+
+      // Reset range validation when leaving ranges mode
+      if (this.value !== 'ranges') {
+        showRangeError('');
+        clearRangePreview();
+        currentRanges = [];
+      } else if (totalPages > 0) {
+        // Re-validate if there's existing input
+        const val = pageRanges.value.trim();
+        if (val) {
+          try {
+            const ranges = parseRanges(val, totalPages);
+            showRangeError('');
+            currentRanges = ranges;
+            renderRangePreview(ranges);
+          } catch (e) {
+            showRangeError(e.message);
+          }
+        }
+      }
+
+      // Reset extract selection when leaving extract mode
+      if (this.value !== 'extract') {
+        selectedPages.clear();
+        document.querySelectorAll('.page-thumb').forEach(el => el.classList.remove('selected'));
+        updateSelectedCount();
+      }
+
+      updateSplitButtonState();
     });
+
+    // Update pagesPerFile validation
+    pagesPerFile.addEventListener('input', updateSplitButtonState);
+
+    function updateSplitButtonState() {
+      if (!currentFile || totalPages === 0) {
+        splitBtn.disabled = true;
+        return;
+      }
+      const mode = splitMode.value;
+      if (mode === 'every') {
+        const n = parseInt(pagesPerFile.value, 10);
+        splitBtn.disabled = !(n >= 1 && n <= totalPages);
+      } else if (mode === 'ranges') {
+        splitBtn.disabled = currentRanges.length === 0;
+      } else if (mode === 'extract') {
+        splitBtn.disabled = selectedPages.size === 0;
+      }
+    }
 
     // ============================================
     // FILE HANDLING
@@ -929,6 +1292,13 @@
       progressContainer.classList.add('hidden');
       splitBtn.disabled = false;
 
+      // Clear previous state
+      selectedPages.clear();
+      currentRanges = [];
+      showRangeError('');
+      clearRangePreview();
+      updateSelectedCount();
+
       await loadPDF(file);
     }
 
@@ -943,6 +1313,12 @@
         pdfDoc = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
         totalPages = pdfDoc.numPages;
         pageCount.textContent = `📄 ${totalPages} pages`;
+
+        // Clamp pagesPerFile default
+        pagesPerFile.max = totalPages;
+        if (parseInt(pagesPerFile.value, 10) > totalPages) {
+          pagesPerFile.value = totalPages;
+        }
 
         pdfPages = [];
         selectedPages = new Set();
@@ -972,6 +1348,7 @@
           `;
 
           thumb.addEventListener('click', function() {
+            if (splitMode.value !== 'extract') return;
             const pageNum = parseInt(this.dataset.page);
             if (selectedPages.has(pageNum)) {
               selectedPages.delete(pageNum);
@@ -981,16 +1358,30 @@
               this.classList.add('selected');
             }
             updateSelectedCount();
+            updateSplitButtonState();
           });
 
           pageGrid.appendChild(thumb);
         }
 
-        pageGridContainer.classList.remove('hidden');
+        pageGridContainer.classList.toggle('hidden', splitMode.value !== 'extract');
         updateSelectedCount();
 
         progressContainer.classList.add('hidden');
         statusText.textContent = '✅ Ready to split';
+        updateSplitButtonState();
+
+        // If ranges mode, validate any pre-existing input
+        if (splitMode.value === 'ranges' && pageRanges.value.trim()) {
+          try {
+            currentRanges = parseRanges(pageRanges.value, totalPages);
+            showRangeError('');
+            renderRangePreview(currentRanges);
+          } catch (e) {
+            showRangeError(e.message);
+          }
+        }
+        updateSplitButtonState();
 
       } catch (error) {
         console.error('Error loading PDF:', error);
@@ -1012,6 +1403,7 @@
         el.classList.add('selected');
       });
       updateSelectedCount();
+      updateSplitButtonState();
     }
 
     function deselectAllPages() {
@@ -1020,6 +1412,7 @@
         el.classList.remove('selected');
       });
       updateSelectedCount();
+      updateSplitButtonState();
     }
 
     function clearFile() {
@@ -1028,6 +1421,7 @@
       selectedPages = new Set();
       splitResults = [];
       pdfDoc = null;
+      currentRanges = [];
       fileInput.value = '';
       fileInfo.classList.add('hidden');
       dropzone.classList.remove('hidden');
@@ -1037,6 +1431,8 @@
       progressBar.style.width = '0%';
       progressText.textContent = '0%';
       splitBtn.disabled = true;
+      showRangeError('');
+      clearRangePreview();
     }
 
     function resetConverter() {
@@ -1058,9 +1454,9 @@
       let pageRangesList = [];
 
       if (mode === 'every') {
-        const n = parseInt(pagesPerFile.value) || 1;
-        if (n < 1) {
-          alert('Please enter a valid number of pages per file.');
+        const n = parseInt(pagesPerFile.value, 10) || 1;
+        if (n < 1 || n > totalPages) {
+          alert(`Please enter a number between 1 and ${totalPages}.`);
           return;
         }
         for (let i = 1; i <= totalPages; i += n) {
@@ -1068,15 +1464,11 @@
           pageRangesList.push({ start: i, end: end });
         }
       } else if (mode === 'ranges') {
-        const input = pageRanges.value.trim();
-        if (!input) {
-          alert('Please enter page ranges (e.g., 1-3, 5, 7-9)');
-          return;
-        }
         try {
-          pageRangesList = parseRanges(input);
+          pageRangesList = parseRanges(pageRanges.value, totalPages);
         } catch (e) {
-          alert('Invalid page range format. Use format like: 1-3, 5, 7-9');
+          showRangeError(e.message);
+          alert('Invalid page ranges:\n\n' + e.message);
           return;
         }
       } else if (mode === 'extract') {
@@ -1139,11 +1531,11 @@
           const pdfBlob = await createPDFFromImages(pageImages);
           
           const baseName = currentFile.name.replace(/\.pdf$/i, '');
-          const fileName = `${baseName}_part_${r + 1}.pdf`;
+          const outFileName = `${baseName}_part_${r + 1}.pdf`;
           
           splitResults.push({
             blob: pdfBlob,
-            name: fileName,
+            name: outFileName,
             pages: pageImages.length,
             range: `${range.start}-${range.end}`
           });
@@ -1172,27 +1564,6 @@
         splitBtn.textContent = '✂️ Split PDF';
         alert('Split failed. Please try again.\n\nError: ' + error.message);
       }
-    }
-
-    function parseRanges(input) {
-      const ranges = [];
-      const parts = input.split(',').map(p => p.trim());
-      for (const part of parts) {
-        if (part.includes('-')) {
-          const [start, end] = part.split('-').map(p => parseInt(p.trim()));
-          if (isNaN(start) || isNaN(end) || start < 1 || end > totalPages || start > end) {
-            throw new Error('Invalid range');
-          }
-          ranges.push({ start: start, end: end });
-        } else {
-          const page = parseInt(part);
-          if (isNaN(page) || page < 1 || page > totalPages) {
-            throw new Error('Invalid page number');
-          }
-          ranges.push({ start: page, end: page });
-        }
-      }
-      return ranges;
     }
 
     async function createPDFFromImages(pageImages) {
@@ -1238,12 +1609,12 @@
     }
 
     function showResults() {
-      resultBadgeFiles.textContent = `${splitResults.length} files`;
+      resultBadgeFiles.textContent = `${splitResults.length} file${splitResults.length === 1 ? '' : 's'}`;
       let totalPgs = 0;
       for (const result of splitResults) {
         totalPgs += result.pages;
       }
-      resultBadgePages.textContent = `${totalPgs} pages`;
+      resultBadgePages.textContent = `${totalPgs} page${totalPgs === 1 ? '' : 's'}`;
 
       splitResultsContainer.innerHTML = '';
       for (let i = 0; i < splitResults.length; i++) {
@@ -1252,20 +1623,42 @@
         div.className = 'split-result-item';
         div.innerHTML = `
           <div class="info">
-            <span class="name">${result.name}</span>
-            <span class="pages">📄 ${result.pages} pages</span>
+            <span class="name">${escapeHtml(result.name)}</span>
+            <span class="pages">📄 ${result.pages} page${result.pages === 1 ? '' : 's'}</span>
             <span class="range">Pages ${result.range}</span>
           </div>
-          <button class="download-btn" onclick="downloadSplit(${i})">📥 Download</button>
+          <button class="download-btn" data-index="${i}">📥 Download</button>
         `;
         splitResultsContainer.appendChild(div);
+      }
+
+      // Wire up download buttons
+      splitResultsContainer.querySelectorAll('.download-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const idx = parseInt(btn.dataset.index, 10);
+          downloadSplit(idx);
+        });
+      });
+
+      // Update button label depending on output count
+      if (splitResults.length === 1) {
+        downloadAllBtn.textContent = '📥 Download PDF';
+      } else {
+        downloadAllBtn.textContent = '📥 Download All (ZIP)';
       }
 
       resultSection.classList.remove('hidden');
     }
 
+    function escapeHtml(str) {
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+
     function downloadSplit(index) {
       const result = splitResults[index];
+      if (!result) return;
       const url = URL.createObjectURL(result.blob);
       const link = document.createElement('a');
       link.href = url;
@@ -1273,7 +1666,7 @@
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      URL.revokeObjectURL(url);
+      setTimeout(() => URL.revokeObjectURL(url), 5000);
     }
 
     function downloadAllSplits() {
@@ -1282,11 +1675,13 @@
         return;
       }
 
+      // Single output: download directly
       if (splitResults.length === 1) {
         downloadSplit(0);
         return;
       }
 
+      // Multiple outputs: bundle as ZIP if JSZip is available
       if (typeof JSZip !== 'undefined') {
         const zip = new JSZip();
         for (const result of splitResults) {
@@ -1301,9 +1696,16 @@
           document.body.appendChild(link);
           link.click();
           document.body.removeChild(link);
-          URL.revokeObjectURL(url);
+          setTimeout(() => URL.revokeObjectURL(url), 5000);
+        }).catch(err => {
+          console.error('ZIP generation failed:', err);
+          alert('Could not build ZIP. Downloading files individually instead.');
+          for (let i = 0; i < splitResults.length; i++) {
+            setTimeout(() => downloadSplit(i), i * 400);
+          }
         });
       } else {
+        // Fallback: download individually with a short delay between each
         for (let i = 0; i < splitResults.length; i++) {
           setTimeout(() => {
             downloadSplit(i);
@@ -1314,11 +1716,15 @@
 
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' && !splitBtn.disabled && !splitBtn.textContent.includes('⏳')) {
-        splitPDF();
+        // Only trigger Enter when focus is inside the file info panel
+        const active = document.activeElement;
+        if (active && fileInfo.contains(active)) {
+          splitPDF();
+        }
       }
     });
 
-    console.log('Split PDF tool loaded successfully!');
+    console.log('✂️ Split PDF tool loaded successfully — 100% client-side.');
   </script>
 
 </body>
