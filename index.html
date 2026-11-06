@@ -7,7 +7,7 @@
   <!-- ===== SEO ===== -->
   <title>Droplet — Free Online File Converter | HEIC to JPG, PDF to Word, 100+ Tools</title>
   <meta name="description" content="Convert HEIC to JPG, PDF to Word, WebP to PNG and 100+ formats free — no sign-up, no uploads, no watermark. 100% browser-based, works offline. Instant, private, unlimited.">
-  <meta name="keywords" content="heic to jpg, convert heic to jpg without losing quality, free heic converter no sign in, pdf to word converter, webp to png, online file converter, private file converter, browser based converter">
+  <meta name="keywords" content="heic to jpg, convert heic to jpg without losing quality, free heic converter no sign in, pdf to word converter, webp to png, online file converter, private file converter, browser based converter, voice to text">
   <meta name="author" content="Droplet">
   <meta name="robots" content="index, follow, max-image-preview:large">
   <link rel="canonical" href="https://dropletweb.xyz/">
@@ -60,6 +60,7 @@
       "HEIC to JPG conversion",
       "PDF to Word conversion",
       "WebP to PNG conversion",
+      "Voice to Text transcription",
       "Client-side file processing",
       "No file uploads",
       "Offline capable"
@@ -77,7 +78,8 @@
       { "@type": "Question", "name": "Are my files uploaded to a server?", "acceptedAnswer": { "@type": "Answer", "text": "No. Droplet is fully client-side. Files are processed using JavaScript and WebAssembly inside your browser, so nothing is ever uploaded, stored, or shared." } },
       { "@type": "Question", "name": "Is there a file size limit?", "acceptedAnswer": { "@type": "Answer", "text": "There is no server-side limit because files never leave your device. Practical limits depend on your device's RAM — most modern browsers handle files up to 2GB." } },
       { "@type": "Question", "name": "Can I convert HEIC to JPG on iPhone or Android?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. Droplet works in any modern mobile browser (Safari, Chrome, Firefox). You can install it as a PWA for an app-like experience on iPhone and Android." } },
-      { "@type": "Question", "name": "Do I need to install software to convert files?", "acceptedAnswer": { "@type": "Answer", "text": "No installation required. Droplet runs entirely in your web browser. Optionally, you can install it as a Progressive Web App (PWA) for offline use." } }
+      { "@type": "Question", "name": "Do I need to install software to convert files?", "acceptedAnswer": { "@type": "Answer", "text": "No installation required. Droplet runs entirely in your web browser. Optionally, you can install it as a Progressive Web App (PWA) for offline use." } },
+      { "@type": "Question", "name": "Can I convert voice to text for free?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. Droplet's Voice to Text tool runs in your browser and transcribes audio to text without uploading your recordings. Free, private, and no sign-in required." } }
     ]
   }
   </script>
@@ -442,6 +444,8 @@
             <a href="/pdf-to-jpg.html">PDF to JPG</a>
             <a href="/svg-to-png.html">SVG to PNG</a>
             <a href="/eps-to-svg.html">EPS to SVG</a>
+            <span class="category-label">AI Tools</span>
+            <a href="/voice-to-text.html">Voice to Text</a>
             <span class="category-label">Data Tools</span>
             <a href="/json-to-csv.html">JSON to CSV</a>
             <a href="/csv-to-json.html">CSV to JSON</a>
@@ -513,6 +517,7 @@
           <a href="#ai-tools">AI &amp; Data</a>
           <div class="dropdown-menu">
             <span class="category-label">AI Tools</span>
+            <a href="/voice-to-text.html">Voice to Text</a>
             <a href="/ai-summarizer.html">AI Summarizer</a>
             <a href="/translate-pdf.html">Translate PDF</a>
             <span class="category-label">PDF Intelligence</span>
@@ -573,6 +578,8 @@
       <a href="/webp-to-jpg.html" class="mobile-nav-item">WebP to JPG</a>
       <a href="/webp-to-png.html" class="mobile-nav-item">WebP to PNG</a>
       <a href="/svg-to-png.html" class="mobile-nav-item">SVG to PNG</a>
+      <div class="category-label">AI Tools</div>
+      <a href="/voice-to-text.html" class="mobile-nav-item">🎤 Voice to Text</a>
       <div class="category-label">Data Tools</div>
       <a href="/json-to-csv.html" class="mobile-nav-item">JSON to CSV</a>
       <a href="/csv-to-json.html" class="mobile-nav-item">CSV to JSON</a>
@@ -634,6 +641,7 @@
     <div class="mobile-nav-item" onclick="toggleMobileSubmenu('sub-ai-tools')">AI &amp; Data <span class="arrow">▾</span></div>
     <div class="mobile-submenu" id="sub-ai-tools">
       <div class="category-label">AI Tools</div>
+      <a href="/voice-to-text.html" class="mobile-nav-item">🎤 Voice to Text</a>
       <a href="/ai-summarizer.html" class="mobile-nav-item">🤖 AI Summarizer</a>
       <a href="/translate-pdf.html" class="mobile-nav-item">🌍 Translate PDF</a>
       <div class="category-label">PDF Intelligence</div>
@@ -741,6 +749,7 @@
           <span class="text-[11px] font-semibold bg-slate-100 text-slate-600 px-3 py-1 rounded-full">JPG</span>
           <span class="text-[11px] font-semibold bg-slate-100 text-slate-600 px-3 py-1 rounded-full">PNG</span>
           <span class="text-[11px] font-semibold bg-slate-100 text-slate-600 px-3 py-1 rounded-full">WebP</span>
+          <span class="text-[11px] font-semibold bg-slate-100 text-slate-600 px-3 py-1 rounded-full">MP3</span>
           <span class="text-[11px] font-semibold bg-slate-100 text-slate-600 px-3 py-1 rounded-full">JSON</span>
           <span class="text-[11px] font-semibold bg-slate-100 text-slate-600 px-3 py-1 rounded-full">+50 more</span>
         </div>
@@ -777,6 +786,15 @@
       </div>
 
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+
+        <a href="/voice-to-text.html" class="group relative bg-white rounded-2xl p-5 border border-slate-200 hover:border-blue-400 hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-300 hover:-translate-y-1 overflow-hidden">
+          <div class="absolute inset-x-0 top-0 h-1 bg-blue-500 scale-x-0 group-hover:scale-x-100 transition-transform origin-left"></div>
+          <div class="w-12 h-12 rounded-xl bg-blue-500 flex items-center justify-center text-white mb-3 shadow-md shadow-blue-500/20 group-hover:scale-110 transition">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+          </div>
+          <span class="text-[10px] font-bold uppercase tracking-wider text-blue-600">AI Audio</span>
+          <h3 class="font-extrabold text-slate-900 text-base mt-0.5">Voice to Text</h3>
+        </a>
 
         <a href="/heic-to-jpg.html" class="group relative bg-white rounded-2xl p-5 border border-slate-200 hover:border-blue-400 hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-300 hover:-translate-y-1 overflow-hidden">
           <div class="absolute inset-x-0 top-0 h-1 bg-blue-500 scale-x-0 group-hover:scale-x-100 transition-transform origin-left"></div>
@@ -943,6 +961,14 @@
 
         <details class="group bg-white rounded-2xl border border-slate-200 p-5 hover:border-blue-300 transition">
           <summary class="flex items-center justify-between cursor-pointer list-none">
+            <h3 class="font-bold text-slate-900 pr-4">Can I convert voice to text for free?</h3>
+            <span class="text-slate-400 group-open:rotate-180 transition-transform text-xl">▾</span>
+          </summary>
+          <p class="text-slate-600 text-sm mt-3">Yes. Droplet's <a href="/voice-to-text.html" class="text-blue-600 underline">Voice to Text</a> tool transcribes audio to text right in your browser — no uploads, no sign-in, no watermarks. Free and private.</p>
+        </details>
+
+        <details class="group bg-white rounded-2xl border border-slate-200 p-5 hover:border-blue-300 transition">
+          <summary class="flex items-center justify-between cursor-pointer list-none">
             <h3 class="font-bold text-slate-900 pr-4">Are my files uploaded to a server?</h3>
             <span class="text-slate-400 group-open:rotate-180 transition-transform text-xl">▾</span>
           </summary>
@@ -978,7 +1004,7 @@
             <h3 class="font-bold text-slate-900 pr-4">What other formats does Droplet support?</h3>
             <span class="text-slate-400 group-open:rotate-180 transition-transform text-xl">▾</span>
           </summary>
-          <p class="text-slate-600 text-sm mt-3">Over 100+ formats including PDF, DOCX, HEIC, WebP, AVIF, PNG, JPG, SVG, PSD, RAW, TIFF, EPUB, TXT, JSON, CSV, XML, and more. <a href="#all-tools" class="text-blue-600 underline">Browse all converters</a>.</p>
+          <p class="text-slate-600 text-sm mt-3">Over 100+ formats including PDF, DOCX, HEIC, WebP, AVIF, PNG, JPG, SVG, PSD, RAW, TIFF, EPUB, TXT, JSON, CSV, XML, MP3, WAV, and more. <a href="#all-tools" class="text-blue-600 underline">Browse all converters</a>.</p>
         </details>
 
         <details class="group bg-white rounded-2xl border border-slate-200 p-5 hover:border-blue-300 transition">
@@ -1011,6 +1037,7 @@
     <section class="max-w-5xl mx-auto px-4 pb-16">
       <h2 class="text-2xl font-black text-slate-900 mb-6 text-center">Explore more converters</h2>
       <div class="flex flex-wrap justify-center gap-2">
+        <a href="/voice-to-text.html" class="text-sm bg-white border border-slate-200 hover:border-blue-500 hover:text-blue-600 px-4 py-2 rounded-full transition">Voice to Text</a>
         <a href="/pdf-to-word.html" class="text-sm bg-white border border-slate-200 hover:border-blue-500 hover:text-blue-600 px-4 py-2 rounded-full transition">PDF to Word</a>
         <a href="/word-to-pdf.html" class="text-sm bg-white border border-slate-200 hover:border-blue-500 hover:text-blue-600 px-4 py-2 rounded-full transition">Word to PDF</a>
         <a href="/heic-to-jpg.html" class="text-sm bg-white border border-slate-200 hover:border-blue-500 hover:text-blue-600 px-4 py-2 rounded-full transition">HEIC to JPG</a>
@@ -1053,6 +1080,7 @@
         <div>
           <h4 class="text-white font-bold text-sm mb-4 uppercase tracking-wider">Popular Converters</h4>
           <ul class="space-y-2 text-sm">
+            <li><a href="/voice-to-text.html" class="hover:text-white transition">Voice to Text</a></li>
             <li><a href="/heic-to-jpg.html" class="hover:text-white transition">HEIC to JPG</a></li>
             <li><a href="/pdf-to-word.html" class="hover:text-white transition">PDF to Word</a></li>
             <li><a href="/word-to-pdf.html" class="hover:text-white transition">Word to PDF</a></li>
@@ -1066,6 +1094,7 @@
           <ul class="space-y-2 text-sm">
             <li><a href="#all-tools" class="hover:text-white transition">Image Converters</a></li>
             <li><a href="#all-tools" class="hover:text-white transition">Document Tools</a></li>
+            <li><a href="#all-tools" class="hover:text-white transition">AI Tools</a></li>
             <li><a href="#all-tools" class="hover:text-white transition">Data Tools</a></li>
             <li><a href="#all-tools" class="hover:text-white transition">PDF Organize</a></li>
             <li><a href="#faq" class="hover:text-white transition">FAQ &amp; Help</a></li>
@@ -1161,6 +1190,7 @@
       { name: 'CSV to JSON', page: '/csv-to-json.html', category: 'Data & Dev Tools', emoji: '📈', keywords: ['csv','json','data'] },
       { name: 'XML to JSON', page: '/xml-to-json.html', category: 'Data & Dev Tools', emoji: '🔗', keywords: ['xml','json','data'] },
       // AI Tools
+      { name: 'Voice to Text', page: '/voice-to-text.html', category: 'AI Tools', emoji: '🎤', keywords: ['voice','speech','audio','transcribe','transcription','dictation','microphone','stt','mp3','wav'] },
       { name: 'AI Summarizer', page: '/ai-summarizer.html', category: 'AI Tools', emoji: '🤖', keywords: ['ai','summarize','pdf','summary','artificial intelligence'] },
       { name: 'Translate PDF', page: '/translate-pdf.html', category: 'AI Tools', emoji: '🌍', keywords: ['translate','pdf','language','translation'] },
       { name: 'PDF to Markdown', page: '/pdf-to-markdown.html', category: 'PDF Intelligence', emoji: '📝', keywords: ['pdf','markdown','md','convert'] },
@@ -1223,7 +1253,7 @@
 
     function displayResults(results, query) {
       if (results.length === 0) {
-        searchResults.innerHTML = `<div class="no-results"><span class="emoji">🔍</span>No tools found for "${query}"<p style="font-size:0.75rem;margin-top:0.5rem;color:#94a3b8;">Try: PDF, Word, JPG, JSON, HEIC</p></div>`;
+        searchResults.innerHTML = `<div class="no-results"><span class="emoji">🔍</span>No tools found for "${query}"<p style="font-size:0.75rem;margin-top:0.5rem;color:#94a3b8;">Try: PDF, Word, JPG, JSON, HEIC, Voice</p></div>`;
         searchResults.classList.add('open');
         return;
       }
@@ -1444,7 +1474,13 @@
       'image/x-canon-cr2': [{ name: 'RAW to JPG', page: '/raw-to-jpg.html', emoji: '📸', desc: 'Convert to JPG' }],
       'image/x-nikon-nef': [{ name: 'RAW to JPG', page: '/raw-to-jpg.html', emoji: '📸', desc: 'Convert to JPG' }],
       'image/x-sony-arw': [{ name: 'RAW to JPG', page: '/raw-to-jpg.html', emoji: '📸', desc: 'Convert to JPG' }],
-      'image/x-adobe-dng': [{ name: 'RAW to JPG', page: '/raw-to-jpg.html', emoji: '📸', desc: 'Convert to JPG' }]
+      'image/x-adobe-dng': [{ name: 'RAW to JPG', page: '/raw-to-jpg.html', emoji: '📸', desc: 'Convert to JPG' }],
+      'audio/mpeg': [{ name: 'Voice to Text', page: '/voice-to-text.html', emoji: '🎤', desc: 'Transcribe audio to text' }],
+      'audio/wav': [{ name: 'Voice to Text', page: '/voice-to-text.html', emoji: '🎤', desc: 'Transcribe audio to text' }],
+      'audio/x-wav': [{ name: 'Voice to Text', page: '/voice-to-text.html', emoji: '🎤', desc: 'Transcribe audio to text' }],
+      'audio/mp4': [{ name: 'Voice to Text', page: '/voice-to-text.html', emoji: '🎤', desc: 'Transcribe audio to text' }],
+      'audio/webm': [{ name: 'Voice to Text', page: '/voice-to-text.html', emoji: '🎤', desc: 'Transcribe audio to text' }],
+      'audio/ogg': [{ name: 'Voice to Text', page: '/voice-to-text.html', emoji: '🎤', desc: 'Transcribe audio to text' }]
     };
 
     const extensionMap = {
@@ -1454,7 +1490,8 @@
       '.docx':'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
       '.epub':'application/epub+zip','.txt':'text/plain','.json':'application/json',
       '.csv':'text/csv','.xml':'application/xml','.svg':'image/svg+xml',
-      '.cr2':'image/x-canon-cr2','.nef':'image/x-nikon-nef','.arw':'image/x-sony-arw','.dng':'image/x-adobe-dng'
+      '.cr2':'image/x-canon-cr2','.nef':'image/x-nikon-nef','.arw':'image/x-sony-arw','.dng':'image/x-adobe-dng',
+      '.mp3':'audio/mpeg','.wav':'audio/wav','.m4a':'audio/mp4','.webm':'audio/webm','.ogg':'audio/ogg'
     };
 
     function getConversions(file) {
@@ -1467,7 +1504,8 @@
     function handleFile(file) {
       const iconMap = {
         'application/pdf':'📄','image/':'🖼️','text/':'📝','application/json':'📋',
-        'application/xml':'🔗','text/csv':'📊','image/svg+xml':'📐','application/epub+zip':'📚'
+        'application/xml':'🔗','text/csv':'📊','image/svg+xml':'📐','application/epub+zip':'📚',
+        'audio/':'🎤'
       };
       let icon = '📄';
       for (const [key, val] of Object.entries(iconMap)) {
