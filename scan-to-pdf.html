@@ -985,7 +985,7 @@
     <div class="icon">📁</div>
     <h3>Drop images here</h3>
     <p>or click to browse — JPG, PNG, HEIC, WEBP</p>
-    <input type="file" id="uploadInput" accept="image/*" multiple style="display:none;">
+    <input type="file" id="uploadInput" accept="image/*,.jpg,.jpeg,.png,.webp" multiple style="display:none;" data-droplet-handoff>
     <button class="btn btn-primary" style="margin-top:12px;" onclick="document.getElementById('uploadInput').click()">Select Images</button>
   </div>
 
@@ -1442,8 +1442,20 @@ function hideCameraMessage() {
 // ============================================================
 // BOOT
 // ============================================================
+wireUploadScreen();
 (async function boot() {
   await new Promise(r => setTimeout(r, 300));
+
+  if (App.importingFiles || App.pages.length) {
+    refreshPageCountIndicators();
+    return;
+  }
+  let pendingTransfer = false;
+  try { pendingTransfer = !!sessionStorage.getItem('droplet-transfer-token'); } catch (_) {}
+  if (pendingTransfer) {
+    showScreen('screen-upload');
+    return;
+  }
 
   if (App.isMobile && navigator.mediaDevices && window.isSecureContext) {
     showScreen('screen-camera');
@@ -1498,7 +1510,7 @@ async function startCamera() {
     console.error('Camera error:', e);
     showCameraMessage('Camera unavailable — falling back to upload', 'warning', 3000);
     setTimeout(() => {
-      showScreen('screen-upload');
+      if (!App.importingFiles && !App.pages.length) showScreen('screen-upload');
       wireUploadScreen();
     }, 1500);
   }
@@ -1737,12 +1749,13 @@ async function capturePhoto() {
 function openGallery() {
   document.getElementById('galleryInput').click();
 }
-document.getElementById('galleryInput').addEventListener('change', async (e) => {
+async function importSelectedImages(e) {
   const files = Array.from(e.target.files || []);
   if (!files.length) return;
   e.target.value = '';
   await importFiles(files);
-});
+}
+document.getElementById('galleryInput').addEventListener('change', importSelectedImages);
 
 // ============================================================
 // CROP SCREEN — one workspace shared by canvas, overlay, handles
@@ -2574,6 +2587,8 @@ function wireUploadScreen() {
 
 async function importFiles(files) {
   if (!files.length) return;
+  App.importingFiles = true;
+  const originalCount = App.pages.length;
   showProcessing('Importing…', `Processing ${files.length} image${files.length === 1 ? '' : 's'}`);
   let done = 0;
   for (const file of files) {
@@ -2612,10 +2627,12 @@ async function importFiles(files) {
     done++;
     setProcessing(`Importing ${done} of ${files.length}`, (done / files.length) * 100);
   }
+  App.importingFiles = false;
   hideProcessing();
   refreshPageGrid();
-  showScreen('screen-pages');
-  showToast(`${done} image${done === 1 ? '' : 's'} imported.`, 'success');
+  const added = App.pages.length - originalCount;
+  showScreen(App.pages.length ? 'screen-pages' : 'screen-upload');
+  showToast(added ? `${added} image${added === 1 ? '' : 's'} imported.${added < files.length ? ` ${files.length - added} could not be read.` : ''}` : 'No readable images were found. Choose JPG, PNG or WebP images.', added ? 'success' : 'error');
 }
 
 function backToHome() {

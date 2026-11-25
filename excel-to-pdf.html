@@ -505,7 +505,7 @@
         <div class="w-20 h-20 bg-blue-50 rounded-2xl flex items-center justify-center mb-4 text-4xl transition-colors duration-200" aria-hidden="true">📁</div>
         <h2 class="text-xl font-bold text-slate-900 mb-1">Drop your Excel file here</h2>
         <p class="text-slate-400 text-sm mb-4">or click to browse</p>
-        <input type="file" id="fileInput" accept=".xlsx,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel" class="hidden" aria-label="Choose Excel file">
+        <input type="file" id="fileInput" accept=".xlsx,.xls,.csv,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel" class="hidden" aria-label="Choose Excel file" data-droplet-handoff>
         <button onclick="document.getElementById('fileInput').click()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-3 rounded-xl text-sm shadow-md shadow-blue-500/20 transition-all active:scale-95">
           Select Excel File
         </button>
@@ -941,8 +941,8 @@
         'application/vnd.ms-excel'
       ];
       const ext = '.' + file.name.split('.').pop().toLowerCase();
-      if (!validTypes.includes(file.type) && !['.xlsx', '.xls'].includes(ext)) {
-        alert('Please select a valid Excel file (.xlsx or .xls).');
+      if (!validTypes.includes(file.type) && !['.xlsx', '.xls', '.csv'].includes(ext)) {
+        alert('Please select an Excel or CSV file (.xlsx, .xls or .csv).');
         return;
       }
       if (file.size > 50 * 1024 * 1024) {

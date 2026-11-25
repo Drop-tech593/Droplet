@@ -89,10 +89,10 @@
   const formatSize = bytes => bytes < 1024 ? `${bytes} B` : bytes < 1024 * 1024 ? `${(bytes / 1024).toFixed(1)} KB` : `${(bytes / 1024 / 1024).toFixed(1)} MB`;
   const extension = file => (file.name.match(/\.[^.]+$/)?.[0] || '').toLowerCase();
   function optionsFor(files) {
-    return tools.filter(tool => files.every(file => tool.extensions.includes(extension(file)) || tool.mimeTypes.some(type => type.endsWith('/') ? file.type.startsWith(type) : type === file.type)));
+    return tools.filter(tool => (files.length === 1 || tool.multiple) && files.every(file => tool.extensions.includes(extension(file)) || tool.mimeTypes.some(type => type.endsWith('/') ? file.type.startsWith(type) : type === file.type)));
   }
   function chooseFiles(files) {
-    selectedFiles = Array.from(files || []).slice(0, 20);
+    selectedFiles = Array.from(files || []);
     if (!selectedFiles.length) return;
     closeResults();
     transferStatus.textContent = '';
@@ -100,17 +100,18 @@
     document.getElementById('open-directly').hidden = true;
     document.getElementById('selected-file').textContent = selectedFiles.map(file => `${file.name} (${formatSize(file.size)})`).join(', ');
     conversionList.replaceChildren();
-    const options = optionsFor(selectedFiles);
+    const tooMany = selectedFiles.length > 20;
+    const options = tooMany ? [] : optionsFor(selectedFiles);
     if (!options.length) {
       const message = document.createElement('p');
-      message.textContent = 'No matching tool was found for this selection. Choose one file type at a time, or browse the complete tool directory below.';
+      message.textContent = tooMany ? 'Choose up to 20 files at a time. No files have been transferred.' : 'No matching tool was found for this selection. Some tools accept one file at a time. Choose a single file, or select matching files for a tool that accepts multiple files.';
       conversionList.append(message);
     }
     for (const tool of options) {
       const choice = document.createElement('button');
       choice.type = 'button'; choice.className = 'conversion-choice';
       const name = document.createElement('span'); name.textContent = tool.name;
-      const description = document.createElement('small'); description.textContent = tool.maxMB ? `${tool.description} · Up to ${tool.maxMB} MB per file` : `${tool.description} · Check the tool’s size limits`;
+      const description = document.createElement('small'); description.textContent = `${tool.description} · ${tool.multiple ? 'Supports multiple files' : 'One file at a time'} · ${tool.maxMB ? `Up to ${tool.maxMB} MB per file` : 'Check the tool’s size limits'}`;
       choice.append(name, description);
       choice.addEventListener('click', () => startTransfer(tool));
       conversionList.append(choice);
@@ -145,7 +146,7 @@
   document.getElementById('open-directly').addEventListener('click', () => { if (selectedTool) location.assign(selectedTool.page); });
   document.getElementById('select-file').addEventListener('click', () => picker.click());
   picker.addEventListener('change', () => chooseFiles(picker.files));
-  fileDialog.addEventListener('close', () => { picker.value = ''; sending = false; });
+  fileDialog.addEventListener('close', () => { picker.value = ''; selectedFiles = []; selectedTool = undefined; sending = false; });
   document.getElementById('file-dialog-close').addEventListener('click', () => fileDialog.close());
   dropzone.addEventListener('dragover', event => { event.preventDefault(); dropzone.classList.add('dragging'); });
   dropzone.addEventListener('dragleave', event => { if (!dropzone.contains(event.relatedTarget)) dropzone.classList.remove('dragging'); });
@@ -156,4 +157,14 @@
   document.getElementById('mobile-menu-close').addEventListener('click', () => menu.close());
   menu.addEventListener('close', () => menuButton.setAttribute('aria-expanded', 'false'));
   for (const link of menu.querySelectorAll('a')) link.addEventListener('click', () => menu.close());
+  window.addEventListener('pageshow', event => {
+    if (!event.persisted) return;
+    sending = false;
+    selectedFiles = [];
+    selectedTool = undefined;
+    picker.value = '';
+    for (const choice of conversionList.querySelectorAll('button')) choice.disabled = false;
+    if (fileDialog.open) fileDialog.close();
+    transferStatus.textContent = '';
+  });
 })();

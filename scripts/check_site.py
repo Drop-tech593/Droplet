@@ -5,7 +5,7 @@ from urllib.parse import urlsplit, unquote
 from lxml import html
 import json, subprocess, concurrent.futures, sys, re
 ROOT=Path(__file__).resolve().parents[1]
-SITE=ROOT/'dist' if (ROOT/'dist').exists() else ROOT
+SITE=ROOT/'dist' if '--dist' in sys.argv else ROOT
 issues=[]; scripts=[]; documents={}
 for path in SITE.glob('*.html'):
  source=path.read_text(); doc=html.fromstring(source); documents[path.name]=doc
@@ -46,15 +46,30 @@ def check_js(entry):
 with concurrent.futures.ThreadPoolExecutor(max_workers=6) as pool:
  for result in pool.map(check_js,scripts):
   if result:issues.append('JavaScript syntax: '+str(result))
-for name in ('home.js','droplet-runtime.js','theme.js'):
+for name in ('home.js','droplet-runtime.js','theme.js','summarizer-import.js'):
  result=subprocess.run(['node','--check',str(SITE/'assets'/name)],capture_output=True,text=True)
  if result.returncode:issues.append(name+': '+result.stderr)
 tools=json.loads((SITE/'assets/tools.json').read_text())
 assert len(tools)==len({x['page'] for x in tools})==42
 assert all(x['extensions'] for x in tools)
+embedded=documents['index.html'].xpath('//script[@id="tool-data"]/text()')
+if not documents['index.html'].xpath('//input[@id="file-picker"][@multiple]'):issues.append('Homepage file picker must support multiple files')
+if len(embedded)!=1 or json.loads(embedded[0])!=tools:issues.append('Homepage tool data differs from assets/tools.json')
+for tool in tools:
+ name=tool['page'].lstrip('/')+'.html'
+ doc=documents.get(name)
+ if doc is None:issues.append(f'{name}: missing tool page');continue
+ if len(doc.xpath('//script[@src="/assets/droplet-runtime.js"]'))!=1:issues.append(f'{name}: missing shared handoff script')
+ inputs=doc.xpath('//input[@type="file"][@data-droplet-handoff]')
+ if len(inputs)!=1:issues.append(f'{name}: expected one explicit handoff receiver');continue
+ receiver=inputs[0]
+ if not isinstance(tool.get('multiple'),bool) or tool['multiple']!=(receiver.get('multiple') is not None):issues.append(f'{name}: multiple-file routing differs from receiver')
+ accepted=[value.strip().lower() for value in (receiver.get('accept') or '').split(',') if value.strip()]
+ for extension in tool['extensions']:
+  if extension.lower() not in accepted:issues.append(f'{name}: advertised extension {extension} missing from receiver accept list')
 assert {'/excel-to-pdf','/powerpoint-to-pdf','/html-to-pdf','/eps-to-svg'}<={x['page'] for x in tools}
 assert (SITE/'og-image.png').exists() and (SITE/'ads.txt').read_text().strip()=='google.com, pub-4006702663328202, DIRECT, f08c47fec0942fa0'
 assert 'cdn.tailwindcss.com' not in ''.join(p.read_text() for p in SITE.glob('*.html'))
 if issues:
  print(json.dumps(issues,indent=2));sys.exit(1)
-print(f'PASS: {len(documents)} pages, 42 unique tools, local resources, fragments, metadata, schema and {len(scripts)} inline scripts checked.')
+print(f'PASS: {len(documents)} pages, 42 handoff receivers, matching homepage file maps, local resources, fragments, metadata, schema and {len(scripts)} inline scripts checked.')

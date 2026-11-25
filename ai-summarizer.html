@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>AI Summarizer Online Free – Extractive Text Summarizer | Droplet</title>
-<meta name="description" content="Create an extractive summary of document text. Free to use, with no account required. Open the tool to check supported formats, size limits and.">
+<meta name="description" content="Summarize pasted text or import TXT and PDF files up to 10 MB. Extractive summaries run locally in your browser, with no account required.">
 <meta name="theme-color" content="#ffffff">
 <link rel="canonical" href="https://dropletweb.xyz/ai-summarizer">
 
@@ -887,7 +887,7 @@
   html.dark .faq-section summary { color: #f1f5f9; }
   html.dark .faq-section details p { color: #94a3b8; }
 </style>
-<script src="/assets/theme.js"></script><link rel="stylesheet" href="/assets/droplet-fixes.css"><script defer src="/assets/droplet-runtime.js"></script></head>
+<script src="/assets/theme.js"></script><link rel="stylesheet" href="/assets/droplet-fixes.css"><script defer src="/assets/droplet-runtime.js"></script><script defer src="/assets/vendor/5a2fe4830d-pdf.min.js"></script><script defer src="/assets/summarizer-import.js"></script></head>
 <body>
 
 <div class="page">
@@ -966,6 +966,12 @@
         <span class="char-count" id="charCount">0 characters</span>
       </div>
       <textarea id="inputText" placeholder="Paste your article, document, or any long text here…" spellcheck="false"></textarea>
+      <input type="file" id="fileInput" accept=".txt,.pdf,text/plain,application/pdf" hidden data-droplet-handoff>
+      <div class="actions">
+        <button class="btn btn-secondary" id="import-file" type="button">Import TXT or PDF</button>
+        <span>Up to 10 MB · processed on your device</span>
+      </div>
+      <p id="import-status" role="status" aria-live="polite"></p>
 
       <div class="options-row">
         <div class="opt-group">
@@ -1070,9 +1076,9 @@
     <section class="seo-content">
       <h2>What Gets Processed</h2>
       <p>
-        The summarizer reads plain text that you paste into the input box. It does not open PDFs,
-        Word documents, images, or web pages directly. To summarize a PDF, first copy its text
-        (or use the Droplet PDF to TXT converter), then paste the text here. To summarize an
+        The summarizer reads pasted text, TXT files and PDFs with selectable text. Import a TXT
+        or PDF file up to 10 MB, review the extracted text, then choose Summarize. For a scanned
+        PDF, use the Droplet PDF to TXT converter with OCR first. To summarize an
         article, copy the article body and paste it in.
       </p>
       <p>
@@ -1168,8 +1174,9 @@
       <details>
         <summary>Can I summarize a PDF or Word document?</summary>
         <p>
-          Not directly. Copy the text out of the PDF or Word file and paste it into the input
-          box. For PDFs, the Droplet PDF to TXT converter can extract the text for you first.
+          Import a PDF with selectable text using the Import TXT or PDF button. For scanned
+          PDFs, use PDF to TXT with OCR first. Copy text from a Word document and paste it here,
+          or convert it to a PDF with selectable text before importing it.
         </p>
       </details>
 

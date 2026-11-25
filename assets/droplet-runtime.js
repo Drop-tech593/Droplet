@@ -91,16 +91,18 @@
       const request = store.get(id);
       request.onsuccess = () => result(request.result);
     });
-    if (!payload) { sessionStorage.removeItem(SESSION_KEY); return; }
+    if (!payload) {
+      sessionStorage.removeItem(SESSION_KEY);
+      announce('Your temporary file transfer is no longer available. Please select the file again.', 'warning');
+      return;
+    }
     if (Date.now() - payload.createdAt >= TTL) {
       await clearPending();
       announce('Your temporary file transfer expired. Please select the file again.', 'warning');
       return;
     }
     if (normalizeRoute(location.pathname) !== payload.route) return;
-    const inputs = Array.from(document.querySelectorAll('input[type="file"]'));
-    const preferred = document.getElementById('fileInput') || document.getElementById('file-input') || document.getElementById('recording');
-    const input = preferred || inputs.find(element => !element.accept.includes('image')) || inputs[0];
+    const input = document.querySelector('input[type="file"][data-droplet-handoff]');
     if (!input) {
       await clearPending();
       announce('Open this tool’s file picker to select your file.', 'warning');
@@ -108,7 +110,19 @@
     }
     try {
       const transfer = new DataTransfer();
-      const files = input.multiple ? payload.files : payload.files.slice(0, 1);
+      const files = payload.files;
+      if (files.length > 1 && !input.multiple) {
+        await clearPending();
+        announce('This tool accepts one file at a time. Please choose a single file; no files were loaded.', 'warning');
+        return;
+      }
+      const accepted = input.accept.toLowerCase().split(',').map(value => value.trim()).filter(Boolean);
+      const supported = entry => accepted.length === 0 || accepted.some(type => type.startsWith('.') ? entry.name.toLowerCase().endsWith(type) : type.endsWith('/*') ? entry.type.toLowerCase().startsWith(type.slice(0, -1)) : entry.type.toLowerCase() === type);
+      if (!files.every(supported)) {
+        await clearPending();
+        announce('This tool does not support every selected file type. Please choose a supported file; no files were loaded.', 'warning');
+        return;
+      }
       for (const entry of files) transfer.items.add(new File([entry.blob], entry.name, { type: entry.type, lastModified: entry.lastModified }));
       input.files = transfer.files;
       await clearPending();
@@ -156,4 +170,11 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot, { once: true });
   else boot();
   window.addEventListener('pagehide', () => clearInterval(cleanupTimer));
+  window.addEventListener('pageshow', event => {
+    if (event.persisted) {
+      cleanup().then(consume).catch(() => {});
+      clearInterval(cleanupTimer);
+      cleanupTimer = setInterval(() => cleanup().catch(() => {}), TTL);
+    }
+  });
 })();
