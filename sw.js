@@ -1,5 +1,5 @@
 /* Droplet: cache pages and resources after use; online services still need internet. */
-const CACHE = 'droplet-site-2026-11-25-v8';
+const CACHE = 'droplet-site-2026-11-25-v9';
 const CORE = ['/', '/offline', '/faq', '/contact', '/assets/home.css', '/assets/droplet-fixes.css', '/assets/home.js', '/assets/theme.js', '/assets/droplet-runtime.js', '/favicon-96x96.png', '/site.webmanifest'];
 const LIBRARY_HOSTS = new Set(['cdn.jsdelivr.net', 'cdnjs.cloudflare.com', 'unpkg.com']);
 const MAX_ENTRIES = 150;

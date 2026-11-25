@@ -588,7 +588,7 @@
       <div class="bg-white p-4 rounded-xl border border-slate-100 text-center transition-colors duration-200">
         <div class="text-2xl mb-1">🏷️</div>
         <h4 class="font-bold text-sm">Attribute Support</h4>
-        <p class="text-xs text-slate-500">Preserves XML attributes as `_attributes`</p>
+        <p class="text-xs text-slate-500">Preserves XML attributes as `$`</p>
       </div>
       <div class="bg-white p-4 rounded-xl border border-slate-100 text-center transition-colors duration-200">
         <div class="text-2xl mb-1">⚡</div>
@@ -628,11 +628,11 @@
         preserved at every level, so a five-level XML tree produces a five-level JSON tree.
       </p>
 
-      <h2>Attributes — Stored Under _attributes</h2>
+      <h2>Attributes — Stored Under $</h2>
       <p>
         XML attributes are stored inside the opening tag, like <code>id="123"</code>. JSON has no
         equivalent concept, so the converter groups all of an element's attributes into a special
-        object called <code>_attributes</code>. That object sits alongside the element's other keys.
+        object called <code>$</code>. That object sits alongside the element's other keys.
       </p>
       <pre><code>&lt;person id="123" role="admin"&gt;
   &lt;name&gt;Alice&lt;/name&gt;
@@ -641,17 +641,17 @@
     →
 
 "person": {
-  "_attributes": {
+  "$": {
     "id": 123,
     "role": "admin"
   },
   "name": "Alice"
 }</code></pre>
       <p>
-        The underscore prefix is a convention that makes attributes easy to identify and avoids
+        The dollar-sign key is a convention that makes attributes easy to identify and avoids
         collisions with real child elements. If an element has both an attribute called
         <code>name</code> and a child element called <code>name</code>, the attribute is inside
-        <code>_attributes.name</code> and the child element is at <code>name</code> — no conflict.
+        <code>$.name</code> and the child element is at <code>name</code> — no conflict.
       </p>
 
       <h2>Repeated Elements Become Arrays</h2>
@@ -733,18 +733,18 @@
           <h4>Output JSON</h4>
           <pre><code>{
   "company": {
-    "_attributes": {
+    "$": {
       "name": "Acme"
     },
     "employee": [
       {
-        "_attributes": { "id": 1 },
+        "$": { "id": 1 },
         "name": "Alice",
         "role": "Engineer",
         "active": true
       },
       {
-        "_attributes": { "id": 2 },
+        "$": { "id": 2 },
         "name": "Bob",
         "role": "Designer",
         "active": false
@@ -756,7 +756,7 @@
       </div>
       <p>
         Notice four things: the root element <code>&lt;company&gt;</code> became the top-level key
-        <code>company</code>; its attribute <code>name</code> is inside <code>_attributes</code>;
+        <code>company</code>; its attribute <code>name</code> is inside <code>$</code>;
         the two <code>&lt;employee&gt;</code> siblings became an array; and the numeric <code>id</code>
         attribute and boolean <code>active</code> values were typed as number and boolean rather
         than as strings.
@@ -808,15 +808,14 @@
         XML namespaces, declared with <code>xmlns:</code> attributes, are preserved. An element
         like <code>&lt;xs:element&gt;</code> appears in the JSON as a key called
         <code>xs:element</code>. The namespace declarations themselves appear as attributes under
-        <code>_attributes</code> with the literal key <code>xmlns:xs</code>. This preserves the
+        <code>$</code> with the literal key <code>xmlns:xs</code>. This preserves the
         information without imposing any namespace resolution logic.
       </p>
 
       <h2>Privacy — Client-Side Conversion</h2>
       <p>
         XML parsing uses the open-source xml2js library, which runs entirely in your browser. Your
-        data is read into memory and never transmitted. The only external resources loaded are the
-        libraries themselves from a CDN. You can disconnect from the internet after the page loads
+        data is read into memory and never transmitted. The conversion libraries are served by Droplet and run locally. You can disconnect from the internet after the page loads
         and the tool will continue to work.
       </p>
 
@@ -855,9 +854,9 @@
       <details>
         <summary>How are XML attributes handled?</summary>
         <p>
-          Attributes are grouped into a special <code>_attributes</code> object that sits alongside
+          Attributes are grouped into a special <code>$</code> object that sits alongside
           the element's other keys. For example, <code>&lt;person id="123"&gt;</code> becomes
-          <code>{"person": {"_attributes": {"id": 123}}}</code>. The underscore prefix avoids
+          <code>{"person": {"$": {"id": 123}}}</code>. The dollar-sign key avoids
           collisions with real child elements.
         </p>
       </details>
@@ -920,7 +919,7 @@
         <p>
           Yes. Prefixed tag names like <code>&lt;xs:element&gt;</code> appear as keys with the
           prefix intact, for example <code>"xs:element"</code>. Namespace declarations appear as
-          attributes under <code>_attributes</code>. The tool does not resolve namespaces to URIs.
+          attributes under <code>$</code>. The tool does not resolve namespaces to URIs.
         </p>
       </details>
 
@@ -937,7 +936,7 @@
         <p>
           This tool only converts one direction: XML to JSON. For the reverse, use a JSON-to-XML
           tool or write a small script. The round trip is not always lossless because of the
-          <code>_attributes</code> and <code>_</code> conventions.
+          <code>$</code> and <code>_</code> conventions.
         </p>
       </details>
 
@@ -1201,23 +1200,21 @@
       let nodes = 0;
       let attrs = 0;
 
-      function traverse(item) {
-        if (typeof item === 'object' && item !== null) {
-          nodes++;
-          if (item.$) {
-            attrs += Object.keys(item.$).length;
+      function countElement(item) {
+        if (Array.isArray(item)) {
+          item.forEach(countElement);
+          return;
+        }
+        nodes++;
+        if (item && typeof item === 'object') {
+          attrs += Object.keys(item.$ || {}).length;
+          for (const [key, value] of Object.entries(item)) {
+            if (key !== '$' && key !== '_') countElement(value);
           }
-          for (let key in item) {
-            if (key !== '$') {
-              traverse(item[key]);
-            }
-          }
-        } else if (Array.isArray(item)) {
-          item.forEach(traverse);
         }
       }
 
-      traverse(obj);
+      Object.values(obj).forEach(countElement);
       return { nodes, attrs };
     }
 

@@ -65,7 +65,7 @@
       element.addEventListener('click', () => location.assign(tool.page));
       results.append(element);
     }
-    status.textContent = `${matches.length} matching tools. Use the arrow keys, then Enter to open one.`;
+    status.textContent = `${matches.length} matching ${matches.length === 1 ? 'tool' : 'tools'}. Use the arrow keys, then Enter to open one.`;
   }
   search.addEventListener('input', runSearch);
   search.addEventListener('focus', () => { if (search.value.trim()) runSearch(); });
