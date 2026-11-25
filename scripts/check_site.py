@@ -9,6 +9,7 @@ SITE=ROOT/'dist' if '--dist' in sys.argv else ROOT
 issues=[]; scripts=[]; documents={}
 for path in SITE.glob('*.html'):
  source=path.read_text(); doc=html.fromstring(source); documents[path.name]=doc
+ if any(token in source for token in ['adsbygoogle','googlesyndication','data-ad-slot']):issues.append(f'{path.name}: advertising code or commented advertising code remains')
  if len(doc.xpath('//h1'))!=1:issues.append(f'{path.name}: expected one H1')
  descriptions=doc.xpath('//meta[@name="description"]/@content')
  if len(descriptions)!=1 or not 25<=len(descriptions[0])<=160:issues.append(f'{path.name}: invalid meta description')
@@ -46,7 +47,7 @@ def check_js(entry):
 with concurrent.futures.ThreadPoolExecutor(max_workers=6) as pool:
  for result in pool.map(check_js,scripts):
   if result:issues.append('JavaScript syntax: '+str(result))
-for name in ('home.js','droplet-runtime.js','theme.js','summarizer-import.js'):
+for name in ('home.js','droplet-runtime.js','theme.js','summarizer-import.js','site-ui.js','pdf-output.js','pdf-fonts.js','pdf-editor-engine.js','editor-upgrade.js','psd-merged.js'):
  result=subprocess.run(['node','--check',str(SITE/'assets'/name)],capture_output=True,text=True)
  if result.returncode:issues.append(name+': '+result.stderr)
 tools=json.loads((SITE/'assets/tools.json').read_text())
@@ -59,7 +60,7 @@ for tool in tools:
  name=tool['page'].lstrip('/')+'.html'
  doc=documents.get(name)
  if doc is None:issues.append(f'{name}: missing tool page');continue
- if len(doc.xpath('//script[@src="/assets/droplet-runtime.js"]'))!=1:issues.append(f'{name}: missing shared handoff script')
+ if len([node for node in doc.xpath('//script[@src]') if urlsplit(node.get('src')).path=='/assets/droplet-runtime.js'])!=1:issues.append(f'{name}: missing shared handoff script')
  inputs=doc.xpath('//input[@type="file"][@data-droplet-handoff]')
  if len(inputs)!=1:issues.append(f'{name}: expected one explicit handoff receiver');continue
  receiver=inputs[0]
@@ -68,7 +69,10 @@ for tool in tools:
  for extension in tool['extensions']:
   if extension.lower() not in accepted:issues.append(f'{name}: advertised extension {extension} missing from receiver accept list')
 assert {'/excel-to-pdf','/powerpoint-to-pdf','/html-to-pdf','/eps-to-svg'}<={x['page'] for x in tools}
-assert (SITE/'og-image.png').exists() and (SITE/'ads.txt').read_text().strip()=='google.com, pub-4006702663328202, DIRECT, f08c47fec0942fa0'
+assert (SITE/'og-image.png').exists()
+assert 'google.com' not in (SITE/'ads.txt').read_text()
+for name,doc in documents.items():
+ if doc.xpath('//script[contains(@src,"googlesyndication") or contains(text(),"adsbygoogle")] | //ins[contains(@class,"adsbygoogle")]'):issues.append(f'{name}: advertising code remains')
 assert 'cdn.tailwindcss.com' not in ''.join(p.read_text() for p in SITE.glob('*.html'))
 if issues:
  print(json.dumps(issues,indent=2));sys.exit(1)

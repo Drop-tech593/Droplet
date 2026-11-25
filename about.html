@@ -251,11 +251,46 @@
       background: #334155;
     }
   </style>
-<link rel="canonical" href="https://dropletweb.xyz/about"><script src="/assets/theme.js"></script><link rel="stylesheet" href="/assets/droplet-fixes.css"><script defer src="/assets/droplet-runtime.js"></script></head>
-<body class="bg-slate-50 text-slate-800 font-sans antialiased transition-colors duration-200 min-h-screen flex flex-col">
+<link rel="canonical" href="https://dropletweb.xyz/about"><script src="/assets/theme.js"></script><link rel="stylesheet" href="/assets/droplet-fixes.css"><script defer src="/assets/droplet-runtime.js"></script><link rel="stylesheet" href="/assets/home.css"><link rel="stylesheet" href="/assets/site-ui.css"><script defer src="/assets/site-ui.js"></script></head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased transition-colors duration-200 min-h-screen flex flex-col droplet-tool-page" data-tool-route="/about">
 
-  <!-- Header -->
-  <header class="bg-white border-b border-slate-200 py-4 px-6 sticky top-0 z-50 transition-colors duration-200">
+  <header class="site-header">
+<div class="wrap header-row">
+<a class="brand" href="/">
+<img src="/favicon-96x96.png" width="36" height="36" alt="">
+<span>Droplet</span>
+</a>
+<nav class="desktop-nav" aria-label="Main navigation">
+<a href="/#all-tools">All tools</a>
+<a href="/#image-tools">Images</a>
+<a href="/#doc-tools">Documents</a>
+<a href="/#pdf-organize">PDF tools</a>
+<a href="/faq">Help</a>
+</nav>
+<div class="header-actions">
+<button type="button" class="quiet-button" data-droplet-theme aria-label="Toggle dark mode">Dark mode</button>
+<button class="quiet-button mobile-toggle" id="mobile-menu-button" type="button" aria-haspopup="dialog" aria-controls="mobile-menu" aria-expanded="false">Menu</button>
+</div>
+</div>
+</header>
+<dialog id="mobile-menu" class="file-dialog mobile-dialog" aria-labelledby="menu-title">
+<div class="dialog-header">
+<h2 id="menu-title">Browse Droplet</h2>
+<button class="dialog-close" id="mobile-menu-close" type="button" aria-label="Close navigation">×</button>
+</div>
+<nav class="mobile-links" aria-label="Mobile navigation">
+<a href="/#all-tools">All tools</a>
+<a href="/#image-tools">Images</a>
+<a href="/#doc-tools">Documents</a>
+<a href="/#pdf-organize">PDF tools</a>
+<a href="/faq">Help</a>
+<a href="/#ai-tools">Audio &amp; AI</a>
+<a href="/#data-tools">Data tools</a>
+<a href="/contact">Contact</a>
+</nav>
+</dialog>
+<!-- Header -->
+  <header class="bg-white border-b border-slate-200 py-4 px-6 sticky top-0 z-50 transition-colors duration-200 droplet-legacy-header">
     <div class="max-w-4xl mx-auto flex justify-between items-center">
       <a href="/" class="flex items-center gap-3 group">
         <img src="/favicon-96x96.png" alt="Droplet Logo" class="h-9 w-auto rounded-xl shadow-sm group-hover:scale-105 transition-transform">
@@ -264,32 +299,24 @@
           <p class="text-[9px] text-blue-600 font-extrabold tracking-widest uppercase mt-0.5">DRAG, DROP AND CONVERT.</p>
         </div>
       </a>
-      <button id="theme-toggle" aria-label="Toggle theme">🌙</button>
+      <button id="theme-toggle" aria-label="Toggle theme" class="droplet-legacy-theme">🌙</button>
     </div>
   </header>
 
   <!-- Main Content -->
-  <main class="max-w-4xl mx-auto px-4 py-8 md:py-12 flex-grow w-full">
+  <main class="max-w-4xl mx-auto px-4 py-8 md:py-12 flex-grow w-full" id="main">
 
-    <!-- Back Button (prominent & visible) -->
+    <section class="tool-intro" aria-labelledby="tool-title"><nav class="tool-breadcrumb" aria-label="Breadcrumb"><a href="/">Home</a><span aria-hidden="true">/</span><a href="/#all-tools">All tools</a><span aria-hidden="true">/</span><span class="breadcrumb-current">About Droplet</span></nav><p class="tool-eyebrow">Droplet information</p><h1 id="tool-title">About Droplet</h1><p class="tool-description">Simple browser tools for everyday files.</p><div class="tool-facts"></div></section><!-- Back Button (prominent & visible) -->
     <div class="max-w-4xl mx-auto mb-6 flex justify-start">
-      <a href="/" class="back-home-btn inline-flex items-center gap-2 bg-white hover:bg-slate-50 border border-slate-200 shadow-sm rounded-full px-5 py-2.5 text-sm font-medium text-slate-700 transition-all hover:shadow-md hover:border-slate-300 active:scale-95">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+      <a href="/" class="back-home-btn inline-flex items-center gap-2 bg-white hover:bg-slate-50 border border-slate-200 shadow-sm rounded-full px-5 py-2.5 text-sm font-medium text-slate-700 transition-all hover:shadow-md hover:border-slate-300 active:scale-95 droplet-legacy-back">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewbox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
         </svg>
         Back to Home
       </a>
     </div>
 
     <!-- ===== HERO SECTION ===== -->
-    <div class="text-center mb-10">
-      <div class="inline-flex items-center justify-center w-16 h-16 bg-blue-50 rounded-2xl mb-4 transition-colors duration-200">
-        <span class="text-3xl">💧</span>
-      </div>
-      <h1 class="text-3xl md:text-5xl font-black text-slate-900 tracking-tight leading-tight">About Droplet</h1>
-      <p class="text-lg md:text-xl font-semibold text-blue-600 mt-3">Simple file tools. Built with privacy in mind.</p>
-    </div>
-
     <!-- ===== MAIN CONTENT CARD ===== -->
     <div class="bg-white rounded-2xl shadow-sm p-8 md:p-12 border border-slate-100 transition-colors duration-200">
       <div class="about-content">
@@ -465,7 +492,7 @@
   </main>
 
   <!-- Footer -->
-  <footer class="border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-500 mt-auto transition-colors duration-200">
+  <footer class="border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-500 mt-auto transition-colors duration-200 droplet-legacy-footer">
     <div class="max-w-4xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-3">
       <p>© Droplet. 100% Client-Side Privacy First File Utility.</p>
       <div class="space-x-4">
@@ -508,5 +535,73 @@
     });
   </script>
 
+<footer class="site-footer">
+<div class="wrap">
+<div class="footer-grid">
+<div>
+<a class="brand" href="/">
+<img src="/favicon-96x96.png" width="36" height="36" alt="">
+<span>Droplet</span>
+</a>
+<p>Free tools for PDFs, images, documents and data. Processing details and limits are shown by each tool.</p>
+</div>
+<div>
+<h2>Browse tools</h2>
+<ul>
+<li>
+<a href="/#image-tools">Images</a>
+</li>
+<li>
+<a href="/#doc-tools">Documents</a>
+</li>
+<li>
+<a href="/#pdf-organize">PDF tools</a>
+</li>
+<li>
+<a href="/#ai-tools">Audio &amp; AI</a>
+</li>
+<li>
+<a href="/#data-tools">Data tools</a>
+</li>
+</ul>
+</div>
+<div>
+<h2>Help</h2>
+<ul>
+<li>
+<a href="/faq">Questions &amp; answers</a>
+</li>
+<li>
+<a href="/contact">Contact</a>
+</li>
+<li>
+<a href="/about">About</a>
+</li>
+<li>
+<a href="/sitemap.xml">Sitemap</a>
+</li>
+</ul>
+</div>
+<div>
+<h2>Information</h2>
+<ul>
+<li>
+<a href="/privacy">Privacy</a>
+</li>
+<li>
+<a href="/terms">Terms</a>
+</li>
+<li>
+<a href="https://www.reddit.com/user/Dropletweb/" rel="noopener" target="_blank">Reddit</a>
+</li>
+<li>
+<a href="https://www.linkedin.com/company/dropletweb/" rel="noopener" target="_blank">LinkedIn</a>
+</li>
+</ul>
+</div>
+</div>
+<div class="footer-bottom">© <span data-current-year>2026</span> Droplet. Free browser tools.</div>
+</div>
+</footer>
 </body>
 </html>

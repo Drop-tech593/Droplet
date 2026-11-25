@@ -1,4 +1,40 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Voice to Text — Audio Transcription | Droplet</title><link rel="stylesheet" href="/layout.css"><meta name="description" content="Transcribe audio on your device after a model download. Free to use, with no account required. Open the tool to check supported formats, size limits and."><link rel="canonical" href="https://dropletweb.xyz/voice-to-text"><script src="/assets/theme.js"></script><link rel="stylesheet" href="/assets/droplet-fixes.css"><script defer src="/assets/droplet-runtime.js"></script></head><body><div class="app">
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Voice to Text — Audio Transcription | Droplet</title><link rel="stylesheet" href="/layout.css"><meta name="description" content="Transcribe audio on your device after a model download. Choose options, check the result and download your file. Free to use, with no account required."><link rel="canonical" href="https://dropletweb.xyz/voice-to-text"><script src="/assets/theme.js"></script><link rel="stylesheet" href="/assets/droplet-fixes.css"><script defer src="/assets/droplet-runtime.js"></script><link rel="stylesheet" href="/assets/home.css"><link rel="stylesheet" href="/assets/site-ui.css"><script defer src="/assets/site-ui.js"></script></head><body class="droplet-studio-page" data-tool-route="/voice-to-text"><header class="site-header">
+<div class="wrap header-row">
+<a class="brand" href="/">
+<img src="/favicon-96x96.png" width="36" height="36" alt="">
+<span>Droplet</span>
+</a>
+<nav class="desktop-nav" aria-label="Main navigation">
+<a href="/#all-tools">All tools</a>
+<a href="/#image-tools">Images</a>
+<a href="/#doc-tools">Documents</a>
+<a href="/#pdf-organize">PDF tools</a>
+<a href="/faq">Help</a>
+</nav>
+<div class="header-actions">
+<button type="button" class="quiet-button" data-droplet-theme aria-label="Toggle dark mode">Dark mode</button>
+<button class="quiet-button mobile-toggle" id="mobile-menu-button" type="button" aria-haspopup="dialog" aria-controls="mobile-menu" aria-expanded="false">Menu</button>
+</div>
+</div>
+</header>
+<dialog id="mobile-menu" class="file-dialog mobile-dialog" aria-labelledby="menu-title">
+<div class="dialog-header">
+<h2 id="menu-title">Browse Droplet</h2>
+<button class="dialog-close" id="mobile-menu-close" type="button" aria-label="Close navigation">×</button>
+</div>
+<nav class="mobile-links" aria-label="Mobile navigation">
+<a href="/#all-tools">All tools</a>
+<a href="/#image-tools">Images</a>
+<a href="/#doc-tools">Documents</a>
+<a href="/#pdf-organize">PDF tools</a>
+<a href="/faq">Help</a>
+<a href="/#ai-tools">Audio &amp; AI</a>
+<a href="/#data-tools">Data tools</a>
+<a href="/contact">Contact</a>
+</nav>
+</dialog>
+<div class="app">
   <!-- ============================================================ -->
   <!-- HEADER                                                        -->
   <!-- ============================================================ -->
@@ -11,7 +47,7 @@
     <button class="header-btn" id="clearBtn" data-action="clear">Clear</button>
     <button class="header-btn strong" id="copyBtn" data-action="copy">Copy</button>
     <button class="header-btn" id="guideOpen" aria-haspopup="dialog">Guide</button>
-    <button id="theme-toggle" aria-label="Toggle theme">🌙</button>
+    <button id="theme-toggle" aria-label="Toggle theme" class="droplet-legacy-theme">🌙</button>
   </div>
 
   <!-- ============================================================ -->
@@ -204,4 +240,72 @@
 <h3>Transcribe a recording</h3><p>Drop an audio file into the upload box, or tap the folder to browse. To make a new recording, select <b>Record Audio</b>, speak, then press <b>Stop Recording</b>. Check the selected filename and press <b>Transcribe Audio</b>. Each file can be up to two hours 30 minutes long. Keep this tab open. Cancelling keeps completed text.</p>
 <h3>Choose a processing method</h3><p><b>Browser speech service</b> processes files at playback speed on supported browsers. Audio may be sent to the browser provider. <b>On-device model</b> downloads a speech model and processes the file locally. Start with Fast on a low-powered laptop. Larger models need more memory and time. These quality settings apply only to on-device files.</p>
 <h3>Edit, save and export</h3><p>Starting a new live or file transcription clears the previous transcript. Download it first if you need a copy. Press Edit to type corrections, then Done to lock the text again. Automatic live reconnections continue the same transcript. The draft is saved in this browser. Choose <b>DOCX</b> for editable Word text, <b>TXT</b> for plain text, or <b>PDF</b> for fixed-layout pages. PDF pages are images. Download a copy before clearing browser data.</p>
-<h3>Conversation formatting and timestamps</h3><p>Questions start separate blocks, followed by their answers. Brief exchanges stay separate; longer explanations form paragraphs, with a readability break after about 100 words or five sentences. Each block has its available timestamp above it. There is no fixed 30-second interval. These are punctuation-based formatting clues, not speaker identification or topic detection.</p><p>Live times approximate when results arrive. On-device files currently provide the start of each 25-second audio chunk, so several blocks within a chunk can share the same time. Exact question timings and reliable speaker changes are not available. Formatting cannot correct misheard words or recover missing audio.</p><h3>Readable paragraphs</h3><p>Select Format conversation to tidy an existing transcript without changing its words. Copy and downloads preserve the displayed blocks. Use Edit to adjust breaks or add speaker names. Older saved text retains only its saved timestamp positions.</p><h3>Conversations and languages</h3><p>Live dictation uses the single language selected in Settings. Automatic switching between languages, speaker labels and separation of overlapping voices are not available. For a video or meeting, uploading the original audio lets you retry processing without replaying it through a microphone. Speech during a live-service disconnection is not captured.</p><h3>If something goes wrong</h3><p><b>Microphone denied?</b> Open Droplet Voice in its own browser tab, open the permissions beside the site address, allow Microphone and reload. <b>Incorrect words?</b> Check the spoken language and the microphone selected on your device. <b>File processing stalls?</b> Check the status under Transcribe Audio. Cancel and try a different method, or try Fast for on-device processing. Completed text stays after cancellation or an error. Starting a new transcription clears it.</p></dialog><script src="paragraphs.js"></script><script src="app.js"></script><script src="studio.js"></script><script type="module" src="upload.js"></script></body></html>
+<h3>Conversation formatting and timestamps</h3><p>Questions start separate blocks, followed by their answers. Brief exchanges stay separate; longer explanations form paragraphs, with a readability break after about 100 words or five sentences. Each block has its available timestamp above it. There is no fixed 30-second interval. These are punctuation-based formatting clues, not speaker identification or topic detection.</p><p>Live times approximate when results arrive. On-device files currently provide the start of each 25-second audio chunk, so several blocks within a chunk can share the same time. Exact question timings and reliable speaker changes are not available. Formatting cannot correct misheard words or recover missing audio.</p><h3>Readable paragraphs</h3><p>Select Format conversation to tidy an existing transcript without changing its words. Copy and downloads preserve the displayed blocks. Use Edit to adjust breaks or add speaker names. Older saved text retains only its saved timestamp positions.</p><h3>Conversations and languages</h3><p>Live dictation uses the single language selected in Settings. Automatic switching between languages, speaker labels and separation of overlapping voices are not available. For a video or meeting, uploading the original audio lets you retry processing without replaying it through a microphone. Speech during a live-service disconnection is not captured.</p><h3>If something goes wrong</h3><p><b>Microphone denied?</b> Open Droplet Voice in its own browser tab, open the permissions beside the site address, allow Microphone and reload. <b>Incorrect words?</b> Check the spoken language and the microphone selected on your device. <b>File processing stalls?</b> Check the status under Transcribe Audio. Cancel and try a different method, or try Fast for on-device processing. Completed text stays after cancellation or an error. Starting a new transcription clears it.</p></dialog><script src="paragraphs.js"></script><script src="app.js"></script><script src="studio.js"></script><script type="module" src="upload.js"></script><footer class="site-footer">
+<div class="wrap">
+<div class="footer-grid">
+<div>
+<a class="brand" href="/">
+<img src="/favicon-96x96.png" width="36" height="36" alt="">
+<span>Droplet</span>
+</a>
+<p>Free tools for PDFs, images, documents and data. Processing details and limits are shown by each tool.</p>
+</div>
+<div>
+<h2>Browse tools</h2>
+<ul>
+<li>
+<a href="/#image-tools">Images</a>
+</li>
+<li>
+<a href="/#doc-tools">Documents</a>
+</li>
+<li>
+<a href="/#pdf-organize">PDF tools</a>
+</li>
+<li>
+<a href="/#ai-tools">Audio &amp; AI</a>
+</li>
+<li>
+<a href="/#data-tools">Data tools</a>
+</li>
+</ul>
+</div>
+<div>
+<h2>Help</h2>
+<ul>
+<li>
+<a href="/faq">Questions &amp; answers</a>
+</li>
+<li>
+<a href="/contact">Contact</a>
+</li>
+<li>
+<a href="/about">About</a>
+</li>
+<li>
+<a href="/sitemap.xml">Sitemap</a>
+</li>
+</ul>
+</div>
+<div>
+<h2>Information</h2>
+<ul>
+<li>
+<a href="/privacy">Privacy</a>
+</li>
+<li>
+<a href="/terms">Terms</a>
+</li>
+<li>
+<a href="https://www.reddit.com/user/Dropletweb/" rel="noopener" target="_blank">Reddit</a>
+</li>
+<li>
+<a href="https://www.linkedin.com/company/dropletweb/" rel="noopener" target="_blank">LinkedIn</a>
+</li>
+</ul>
+</div>
+</div>
+<div class="footer-bottom">© <span data-current-year>2026</span> Droplet. Free browser tools.</div>
+</div>
+</footer>
+</body></html>

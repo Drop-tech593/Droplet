@@ -4,12 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Add Page Numbers to PDF Online Free – Custom Numbering | Droplet</title>
-  <meta name="description" content="Add page numbers to a PDF. Free to use, with no account required. Open the tool to check supported formats, size limits and processing details.">
+  <meta name="description" content="Add page numbers to a PDF. Choose options, check the result and download your file. Free to use, with no account required.">
   <link rel="canonical" href="https://dropletweb.xyz/add-page-numbers">
-
-  <!-- Google AdSense -->
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4006702663328202"
-     crossorigin="anonymous"></script>
 
   <link rel="stylesheet" href="/assets/toolkit.css">
   <script src="/assets/vendor/13891e810b-pdf-lib.min.js"></script>
@@ -378,11 +374,46 @@
     html.dark .faq-section summary { color: #f1f5f9; }
     html.dark .faq-section details p { color: #94a3b8; }
   </style>
-<script src="/assets/theme.js"></script><link rel="stylesheet" href="/assets/droplet-fixes.css"><script defer src="/assets/droplet-runtime.js"></script></head>
-<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col antialiased transition-colors duration-200">
+<script src="/assets/theme.js"></script><link rel="stylesheet" href="/assets/droplet-fixes.css"><script defer src="/assets/droplet-runtime.js"></script><link rel="stylesheet" href="/assets/home.css"><link rel="stylesheet" href="/assets/site-ui.css"><script defer src="/assets/site-ui.js"></script></head>
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col antialiased transition-colors duration-200 droplet-tool-page" data-tool-route="/add-page-numbers">
 
-  <!-- Navigation -->
-  <header class="bg-white border-b border-slate-200 py-3.5 px-4 md:px-6 sticky top-0 z-40 transition-colors duration-200">
+  <header class="site-header">
+<div class="wrap header-row">
+<a class="brand" href="/">
+<img src="/favicon-96x96.png" width="36" height="36" alt="">
+<span>Droplet</span>
+</a>
+<nav class="desktop-nav" aria-label="Main navigation">
+<a href="/#all-tools">All tools</a>
+<a href="/#image-tools">Images</a>
+<a href="/#doc-tools">Documents</a>
+<a href="/#pdf-organize">PDF tools</a>
+<a href="/faq">Help</a>
+</nav>
+<div class="header-actions">
+<button type="button" class="quiet-button" data-droplet-theme aria-label="Toggle dark mode">Dark mode</button>
+<button class="quiet-button mobile-toggle" id="mobile-menu-button" type="button" aria-haspopup="dialog" aria-controls="mobile-menu" aria-expanded="false">Menu</button>
+</div>
+</div>
+</header>
+<dialog id="mobile-menu" class="file-dialog mobile-dialog" aria-labelledby="menu-title">
+<div class="dialog-header">
+<h2 id="menu-title">Browse Droplet</h2>
+<button class="dialog-close" id="mobile-menu-close" type="button" aria-label="Close navigation">×</button>
+</div>
+<nav class="mobile-links" aria-label="Mobile navigation">
+<a href="/#all-tools">All tools</a>
+<a href="/#image-tools">Images</a>
+<a href="/#doc-tools">Documents</a>
+<a href="/#pdf-organize">PDF tools</a>
+<a href="/faq">Help</a>
+<a href="/#ai-tools">Audio &amp; AI</a>
+<a href="/#data-tools">Data tools</a>
+<a href="/contact">Contact</a>
+</nav>
+</dialog>
+<!-- Navigation -->
+  <header class="bg-white border-b border-slate-200 py-3.5 px-4 md:px-6 sticky top-0 z-40 transition-colors duration-200 droplet-legacy-header">
     <div class="max-w-6xl mx-auto flex justify-between items-center">
       <a href="/" class="flex items-center gap-3 group">
         <img src="/favicon-96x96.png" alt="Droplet Logo" class="h-9 w-auto rounded-xl shadow-sm group-hover:scale-105 transition-transform">
@@ -392,7 +423,7 @@
         </div>
       </a>
       <div class="flex items-center gap-3">
-        <button id="theme-toggle" aria-label="Toggle theme">🌙</button>
+        <button id="theme-toggle" aria-label="Toggle theme" class="droplet-legacy-theme">🌙</button>
         <nav class="hidden md:flex items-center space-x-6 text-xs font-bold text-slate-600">
           <a href="/" class="hover:text-blue-600 transition-colors">← Back</a>
         </nav>
@@ -401,29 +432,19 @@
   </header>
 
   <!-- Main -->
-  <main class="max-w-6xl mx-auto px-4 py-6 md:py-12 flex-grow w-full">
+  <main class="max-w-6xl mx-auto px-4 py-6 md:py-12 flex-grow w-full" id="main">
     
-    <!-- Back Button -->
+    <section class="tool-intro" aria-labelledby="tool-title"><nav class="tool-breadcrumb" aria-label="Breadcrumb"><a href="/">Home</a><span aria-hidden="true">/</span><a href="/#all-tools">All tools</a><span aria-hidden="true">/</span><span class="breadcrumb-current">Add page numbers</span></nav><p class="tool-eyebrow">PDF organization &amp; editing</p><h1 id="tool-title">Add page numbers</h1><p class="tool-description">Add page numbers to a PDF.</p><div class="tool-facts"><span>No account required</span><span>Processed on your device</span><span>Up to 100 MB per file</span><span>One file at a time</span></div></section><!-- Back Button -->
     <div class="max-w-2xl mx-auto mb-4 flex justify-start">
       <a href="/" class="inline-flex items-center gap-2 bg-white hover:bg-slate-50 border border-slate-200 shadow-sm rounded-full px-4 py-2.5 text-sm font-medium text-slate-700 transition-all hover:shadow-md hover:border-slate-300 active:scale-95">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewbox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
         </svg>
         Back to Home
       </a>
     </div>
 
     <!-- Page Header -->
-    <div class="text-center mb-6 md:mb-8">
-      <div class="inline-block p-3 bg-blue-50 rounded-2xl mb-3 md:mb-4">
-        <span class="text-3xl md:text-4xl">🔢</span>
-      </div>
-      <h1 class="text-2xl md:text-4xl font-black text-slate-900 tracking-tight">Add Page Numbers to PDF</h1>
-      <p class="text-slate-500 text-sm md:text-base mt-2 max-w-lg mx-auto px-2">
-        Add page numbers with custom position, format, size, and color. <strong>100% client-side</strong>.
-      </p>
-    </div>
-
     <!-- Dropzone -->
     <div id="dropzone" class="bg-white border-2 border-dashed border-slate-300 hover:border-blue-400 transition-all rounded-3xl p-6 md:p-12 text-center shadow-lg max-w-2xl mx-auto cursor-pointer mb-6 md:mb-8">
       <div class="flex flex-col items-center">
@@ -473,8 +494,8 @@
               <p id="fileMeta" class="text-xs text-slate-500"></p>
             </div>
             <button id="clearFileBtn" class="text-slate-400 hover:text-red-500 transition-colors p-2 flex-shrink-0 -mr-1">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewbox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
               </svg>
             </button>
           </div>
@@ -566,7 +587,7 @@
           <!-- Apply Button (Sticky on mobile) -->
           <div class="mobile-sticky-bar md:!static md:!p-0 md:!m-0 md:!shadow-none md:!border-0 md:!bg-transparent">
             <button id="applyBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl transition-all shadow-md shadow-blue-500/20 active:scale-95">
-              🔢 Add Page Numbers & Download
+              🔢 Add Page Numbers &amp; Download
             </button>
             
             <div id="progressContainer" class="hidden mt-3">
@@ -592,20 +613,20 @@
       </div>
       <div class="bg-white p-4 rounded-xl border border-slate-100 text-center">
         <div class="text-2xl mb-1">⚡</div>
-        <h4 class="font-bold text-sm text-slate-900">Fast & Free</h4>
+        <h4 class="font-bold text-sm text-slate-900">Fast &amp; Free</h4>
         <p class="text-xs text-slate-500">No sign-up required</p>
       </div>
       <div class="bg-white p-4 rounded-xl border border-slate-100 text-center">
         <div class="text-2xl mb-1">📝</div>
         <h4 class="font-bold text-sm text-slate-900">Preserves Quality</h4>
-        <p class="text-xs text-slate-500">Original text & vector content kept</p>
+        <p class="text-xs text-slate-500">Original text &amp; vector content kept</p>
       </div>
     </div>
 
     <!-- ============================================================ -->
     <!-- SEO CONTENT — Add Page Numbers long-tail keywords             -->
     <!-- ============================================================ -->
-    <section class="seo-content">
+    <details class="tool-guide"><summary>How this tool works</summary><section class="seo-content">
       <h2>Page Position — Where the Number Appears</h2>
       <p>
         The position setting controls where the page number is drawn on each page. Six standard
@@ -723,10 +744,10 @@
       </p>
     </section>
 
-    <!-- ============================================================ -->
+    </details><!-- ============================================================ -->
     <!-- FAQ SECTION                                                   -->
     <!-- ============================================================ -->
-    <section class="faq-section">
+    <details class="tool-guide"><summary>Questions &amp; answers</summary><section class="faq-section">
       <h2>Add Page Numbers — Questions</h2>
 
       <details>
@@ -838,10 +859,10 @@
       </details>
 
     </section>
-  </main>
+  </details><section class="related-tools"><h2>More from Droplet</h2><div class="related-tool-links"><a href="/merge-pdf">Merge PDF</a><a href="/split-pdf">Split PDF</a><a href="/remove-pages">Remove pages</a><a href="/#all-tools">Browse all 42 tools</a></div></section></main>
 
   <!-- Footer -->
-  <footer class="border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-500 mt-auto transition-colors duration-200">
+  <footer class="border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-500 mt-auto transition-colors duration-200 droplet-legacy-footer">
     <div class="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-3">
       <p class="font-medium">© Droplet. 100% Client-Side Privacy First File Utility.</p>
       <div class="space-x-4">
@@ -1299,5 +1320,73 @@
       pdfjsLib.GlobalWorkerOptions.workerSrc = '/assets/vendor/c0a5848ab2-pdf.worker.min.js';
     }
   </script>
+<footer class="site-footer">
+<div class="wrap">
+<div class="footer-grid">
+<div>
+<a class="brand" href="/">
+<img src="/favicon-96x96.png" width="36" height="36" alt="">
+<span>Droplet</span>
+</a>
+<p>Free tools for PDFs, images, documents and data. Processing details and limits are shown by each tool.</p>
+</div>
+<div>
+<h2>Browse tools</h2>
+<ul>
+<li>
+<a href="/#image-tools">Images</a>
+</li>
+<li>
+<a href="/#doc-tools">Documents</a>
+</li>
+<li>
+<a href="/#pdf-organize">PDF tools</a>
+</li>
+<li>
+<a href="/#ai-tools">Audio &amp; AI</a>
+</li>
+<li>
+<a href="/#data-tools">Data tools</a>
+</li>
+</ul>
+</div>
+<div>
+<h2>Help</h2>
+<ul>
+<li>
+<a href="/faq">Questions &amp; answers</a>
+</li>
+<li>
+<a href="/contact">Contact</a>
+</li>
+<li>
+<a href="/about">About</a>
+</li>
+<li>
+<a href="/sitemap.xml">Sitemap</a>
+</li>
+</ul>
+</div>
+<div>
+<h2>Information</h2>
+<ul>
+<li>
+<a href="/privacy">Privacy</a>
+</li>
+<li>
+<a href="/terms">Terms</a>
+</li>
+<li>
+<a href="https://www.reddit.com/user/Dropletweb/" rel="noopener" target="_blank">Reddit</a>
+</li>
+<li>
+<a href="https://www.linkedin.com/company/dropletweb/" rel="noopener" target="_blank">LinkedIn</a>
+</li>
+</ul>
+</div>
+</div>
+<div class="footer-bottom">© <span data-current-year>2026</span> Droplet. Free browser tools.</div>
+</div>
+</footer>
 </body>
 </html>

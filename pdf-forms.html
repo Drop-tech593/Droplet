@@ -4,12 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Fill and Add Form Fields to PDF Online Free – Droplet</title>
-  <meta name="description" content="Fill or add supported PDF form content. Free to use, with no account required. Open the tool to check supported formats, size limits and processing.">
+  <meta name="description" content="Fill or add supported PDF form content. Choose options, check the result and download your file. Free to use, with no account required.">
   <link rel="canonical" href="https://dropletweb.xyz/pdf-forms">
-
-  <!-- Google AdSense -->
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4006702663328202"
-     crossorigin="anonymous"></script>
 
   <!-- Tailwind CSS -->
   <link rel="stylesheet" href="/assets/toolkit.css">
@@ -18,8 +14,6 @@
   <script src="/assets/vendor/5a2fe4830d-pdf.min.js"></script>
 
   <!-- html2pdf for PDF generation -->
-  <script src="/assets/vendor/b6cc17e291-html2pdf.bundle.min.js"></script>
-
   <style>
     .dropzone-highlight {
       border-color: #3b82f6 !important;
@@ -444,11 +438,46 @@
     html.dark #theme-toggle { color: #e2e8f0; }
     html.dark #theme-toggle:hover { background: #334155; }
   </style>
-<script src="/assets/theme.js"></script><link rel="stylesheet" href="/assets/droplet-fixes.css"><script defer src="/assets/droplet-runtime.js"></script></head>
-<body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen flex flex-col transition-colors duration-200">
+<script src="/assets/theme.js"></script><link rel="stylesheet" href="/assets/droplet-fixes.css"><script defer src="/assets/droplet-runtime.js"></script><link rel="stylesheet" href="/assets/home.css"><link rel="stylesheet" href="/assets/site-ui.css"><script defer src="/assets/site-ui.js"></script><script defer src="/assets/pdf-output.js"></script><script defer src="/assets/vendor/13891e810b-pdf-lib.min.js"></script><script defer src="/assets/pdf-fonts.js"></script></head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen flex flex-col transition-colors duration-200 droplet-tool-page" data-tool-route="/pdf-forms">
 
-  <!-- Navigation -->
-  <header class="bg-white border-b border-slate-200 py-3.5 px-6 sticky top-0 z-50 transition-colors duration-200">
+  <header class="site-header">
+<div class="wrap header-row">
+<a class="brand" href="/">
+<img src="/favicon-96x96.png" width="36" height="36" alt="">
+<span>Droplet</span>
+</a>
+<nav class="desktop-nav" aria-label="Main navigation">
+<a href="/#all-tools">All tools</a>
+<a href="/#image-tools">Images</a>
+<a href="/#doc-tools">Documents</a>
+<a href="/#pdf-organize">PDF tools</a>
+<a href="/faq">Help</a>
+</nav>
+<div class="header-actions">
+<button type="button" class="quiet-button" data-droplet-theme aria-label="Toggle dark mode">Dark mode</button>
+<button class="quiet-button mobile-toggle" id="mobile-menu-button" type="button" aria-haspopup="dialog" aria-controls="mobile-menu" aria-expanded="false">Menu</button>
+</div>
+</div>
+</header>
+<dialog id="mobile-menu" class="file-dialog mobile-dialog" aria-labelledby="menu-title">
+<div class="dialog-header">
+<h2 id="menu-title">Browse Droplet</h2>
+<button class="dialog-close" id="mobile-menu-close" type="button" aria-label="Close navigation">×</button>
+</div>
+<nav class="mobile-links" aria-label="Mobile navigation">
+<a href="/#all-tools">All tools</a>
+<a href="/#image-tools">Images</a>
+<a href="/#doc-tools">Documents</a>
+<a href="/#pdf-organize">PDF tools</a>
+<a href="/faq">Help</a>
+<a href="/#ai-tools">Audio &amp; AI</a>
+<a href="/#data-tools">Data tools</a>
+<a href="/contact">Contact</a>
+</nav>
+</dialog>
+<!-- Navigation -->
+  <header class="bg-white border-b border-slate-200 py-3.5 px-6 sticky top-0 z-50 transition-colors duration-200 droplet-legacy-header">
     <div class="max-w-6xl mx-auto flex justify-between items-center">
       <a href="/" class="flex items-center gap-3 group">
         <img src="/favicon-96x96.png" alt="Droplet Logo" class="h-9 w-auto rounded-xl shadow-sm group-hover:scale-105 transition-transform">
@@ -458,7 +487,7 @@
         </div>
       </a>
       <div class="flex items-center gap-3">
-        <button id="theme-toggle" aria-label="Toggle theme">🌙</button>
+        <button id="theme-toggle" aria-label="Toggle theme" class="droplet-legacy-theme">🌙</button>
         <nav class="hidden md:flex items-center space-x-6 text-xs font-bold text-slate-600">
           <a href="/" class="hover:text-blue-600 transition-colors">← Back</a>
         </nav>
@@ -467,36 +496,26 @@
   </header>
 
   <!-- Main Content -->
-  <main class="max-w-5xl mx-auto px-4 py-8 md:py-12 flex-grow w-full">
+  <main class="max-w-5xl mx-auto px-4 py-8 md:py-12 flex-grow w-full" id="main">
 
-    <!-- Back Button -->
+    <section class="tool-intro" aria-labelledby="tool-title"><nav class="tool-breadcrumb" aria-label="Breadcrumb"><a href="/">Home</a><span aria-hidden="true">/</span><a href="/#all-tools">All tools</a><span aria-hidden="true">/</span><span class="breadcrumb-current">PDF Forms</span></nav><p class="tool-eyebrow">PDF organization &amp; editing</p><h1 id="tool-title">PDF Forms</h1><p class="tool-description">Fill or add supported PDF form content.</p><div class="tool-facts"><span>No account required</span><span>Processed on your device</span><span>Up to 100 MB per file</span><span>One file at a time</span></div></section><!-- Back Button -->
     <div class="max-w-3xl mx-auto mb-4 flex justify-start">
-      <a href="/" class="back-home-btn inline-flex items-center gap-2 bg-white hover:bg-slate-50 border border-slate-200 shadow-sm rounded-full px-5 py-2.5 text-sm font-medium text-slate-700 transition-all hover:shadow-md hover:border-slate-300 active:scale-95">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+      <a href="/" class="back-home-btn inline-flex items-center gap-2 bg-white hover:bg-slate-50 border border-slate-200 shadow-sm rounded-full px-5 py-2.5 text-sm font-medium text-slate-700 transition-all hover:shadow-md hover:border-slate-300 active:scale-95 droplet-legacy-back">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewbox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
         </svg>
         Back to Home
       </a>
     </div>
 
     <!-- Page Header -->
-    <div class="text-center mb-8">
-      <div class="inline-block p-3 bg-blue-50 rounded-2xl mb-4 transition-colors duration-200">
-        <span class="text-4xl">📋</span>
-      </div>
-      <h1 class="text-3xl md:text-4xl font-black text-slate-900 tracking-tight">PDF Forms</h1>
-      <p class="text-slate-500 text-sm md:text-base mt-2 max-w-lg mx-auto">
-        Add form fields to any PDF, then fill them in and export. <strong>100% client-side</strong> — your files never leave your browser.
-      </p>
-    </div>
-
     <!-- Info Box -->
     <div class="max-w-3xl mx-auto mb-8 bg-blue-50 border border-blue-200 rounded-xl p-4 transition-colors duration-200">
       <div class="flex items-start gap-3">
         <span class="text-2xl">📝</span>
         <div>
           <h4 class="font-bold text-sm text-blue-900">What this tool does</h4>
-          <p class="text-xs text-blue-700 mt-1">You can place new form fields on top of any PDF — text inputs, checkboxes, radio buttons, dropdowns, date fields, and signature placeholders. Fill them in, then export the PDF with the values rendered on top. This is not an AcroForm editor: it does not read or write native PDF form fields.</p>
+          <p class="text-xs text-blue-700 mt-1">Place text inputs, checkboxes, radio buttons, dropdowns, dates and signature placeholders on a PDF. Download editable PDF form fields or choose a flattened copy. Original page sizes and text are preserved. Signature placeholders contain typed text.</p>
         </div>
       </div>
     </div>
@@ -602,7 +621,7 @@
 
           <!-- Actions -->
           <div id="actionsPanel" class="hidden mt-4 pt-4 border-t border-slate-200 space-y-2">
-            <button onclick="exportPDF()" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2.5 rounded-lg text-sm transition-all active:scale-95 shadow-md shadow-green-500/20">
+            <label class="block mt-4">PDF output<select id="formExportMode" class="w-full p-2 border"><option value="editable">Editable form fields</option><option value="flat">Flatten fields for viewing</option></select></label><button onclick="exportPDF()" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2.5 rounded-lg text-sm transition-all active:scale-95 shadow-md shadow-green-500/20">
               💾 Export PDF
             </button>
             <button onclick="clearAllFields()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium py-2 rounded-lg text-sm transition-all">
@@ -656,7 +675,7 @@
       </div>
       <div class="bg-white p-4 rounded-xl border border-slate-100 text-center transition-colors duration-200">
         <div class="text-2xl mb-1">⚡</div>
-        <h4 class="font-bold text-sm">Fast & Free</h4>
+        <h4 class="font-bold text-sm">Fast &amp; Free</h4>
         <p class="text-xs text-slate-500">No sign-up required</p>
       </div>
     </div>
@@ -664,143 +683,19 @@
     <!-- ============================================================ -->
     <!-- SEO CONTENT — Field types, filling vs creating, export        -->
     <!-- ============================================================ -->
-    <section class="seo-content">
-      <h2>Supported Field Types</h2>
-      <p>
-        You can place six different kinds of fields on top of any page in your PDF:
-      </p>
-      <ul>
-        <li><strong>Text input</strong> — a single-line box for names, addresses, account numbers,
-            or any short answer. Default size is 200×32 pixels; you can resize it in the editor.</li>
-        <li><strong>Checkbox</strong> — a small box that toggles between checked and unchecked.
-            Useful for “I agree” statements and multi-select lists.</li>
-        <li><strong>Radio button</strong> — a round selector for mutually exclusive choices. Each
-            radio is independent in this tool, so place one per option and label them clearly.</li>
-        <li><strong>Dropdown</strong> — a select-style field with a list of options that you define
-            in the editor. Options are entered one per line.</li>
-        <li><strong>Date field</strong> — a text field labelled for date entry. You type the date
-            yourself; there is no calendar popup.</li>
-        <li><strong>Signature placeholder</strong> — a wider box with a cursive font for typing a
-            name as a signature. This is a visual placeholder, not a cryptographic signature.</li>
-      </ul>
-
-      <h2>Filling an Existing PDF Form vs. Creating New Fields</h2>
-      <p>
-        This tool does <strong>not</strong> read or write native PDF AcroForm fields. If your PDF
-        was created with a real form (the kind you can tab through in Adobe Reader), those fields
-        are not detected or editable here.
-      </p>
-      <p>
-        Instead, the tool works visually. You place new fields on top of the rendered page at the
-        positions where you want them. This is the right approach for:
-      </p>
-      <ul>
-        <li>Flat PDFs (scans, exports, print-to-PDF) that have no interactive fields.</li>
-        <li>Forms that were never created as AcroForms in the first place.</li>
-        <li>Adding extra fields — like a signature line or a date stamp — to a form that already
-            has some fields.</li>
-        <li>Building a fillable overlay on top of any PDF, regardless of how it was made.</li>
-      </ul>
-      <p>
-        Because the fields are visual overlays, they behave like annotations. They do not become
-        part of the PDF's form structure, and they are not tab-navigable in a reader. They are,
-        however, fully visible and printable in the exported PDF.
-      </p>
-
-      <h2>Placing and Moving Fields</h2>
-      <p>
-        Click any field type in the toolbar to add a field. It appears in the centre of the
-        current page and opens an editor where you can set the label, value, width, height, and
-        (for dropdowns) the option list.
-      </p>
-      <p>
-        Once placed, you can drag a field to reposition it anywhere on the page. Click a field
-        again to reopen the editor and change its properties. The field list on the right shows
-        every field in the document; clicking an entry selects it and jumps to its page.
-      </p>
-
-      <h2>Multi-Page Documents</h2>
-      <p>
-        Each field is assigned to the page where you created it. When you navigate between pages
-        with the arrow buttons, only the fields for the current page are shown. Fields on other
-        pages remain stored and are rendered in the export.
-      </p>
-      <p>
-        If you move a field and later change the page, the field stays with its original page.
-        To move a field to a different page, delete it and recreate it on the target page.
-      </p>
-
-      <h2>Export — What the Output PDF Contains</h2>
-      <p>
-        When you click Export, the tool renders every page of the source PDF at high resolution
-        and draws each field on top as a coloured rectangle with the label or value inside. The
-        result is a new PDF where the fields are visible exactly where you placed them, styled
-        consistently with the preview.
-      </p>
-      <p>
-        The exported PDF is <strong>flat</strong>. The fields are drawn as content, not as
-        interactive widgets. Anyone opening the file will see the filled values, but they cannot
-        click into the fields and change them. This is the right behaviour for a completed form
-        that you want to send as a final copy.
-      </p>
-      <p>
-        If you need the recipient to be able to fill the form themselves, export without values,
-        or use a dedicated AcroForm authoring tool instead.
-      </p>
-
-      <h2>Privacy — Everything Runs Locally</h2>
-      <p>
-        PDF rendering uses the open-source PDF.js library and PDF generation uses html2pdf, both
-        of which run entirely in your browser. Your PDF is read into memory and never transmitted.
-        The conversion libraries are served by Droplet and run locally.
-      </p>
-
-      <h2>Practical Examples</h2>
-      <p>
-        <strong>Adding a signature line to a scanned contract:</strong> Load the scanned PDF,
-        navigate to the signature page, add a Signature field near the bottom, type the signer's
-        name, and export.
-      </p>
-      <p>
-        <strong>Creating a simple order form from a plain PDF:</strong> Add text fields for name,
-        address, and quantity, a dropdown for product selection, and a checkbox for terms
-        acceptance. Export when done.
-      </p>
-      <p>
-        <strong>Stamping a date on every page of a report:</strong> Add a Date field to page 1,
-        navigate to the next page, add another Date field, and repeat. Each page gets its own
-        date placeholder.
-      </p>
-      <p>
-        <strong>Adding radio-style choices to a questionnaire:</strong> Place one radio field per
-        option in a row, label each one, and leave them unchecked for the recipient to complete
-        on paper or in the exported PDF.
-      </p>
-    </section>
-
-    <!-- ============================================================ -->
+    <details class="tool-guide"><summary>How this tool works</summary><section class="seo-content"><div><h2>Add fields to a PDF</h2><p>Open a PDF, choose a field type, and fill in its label and value. Drag the field to position it. Use the page controls to add fields on other pages.</p><h3>Choose your export</h3><p>Editable form fields creates native PDF text fields, checkboxes, radio buttons and dropdowns. A date or signature placeholder is a text field. Flatten fields for viewing makes the values permanent page content. Both options preserve the original page sizes, graphics and selectable text.</p><h3>Existing fields and signatures</h3><p>Existing PDF fields remain in the document. This placement interface adds new fields; it does not expose existing fields for editing. Typed signature placeholders are visible text, not certificate-based digital signatures.</p></div></section></details><!-- ============================================================ -->
     <!-- FAQ SECTION                                                   -->
     <!-- ============================================================ -->
-    <section class="faq-section">
+    <details class="tool-guide"><summary>Questions &amp; answers</summary><section class="faq-section">
       <h2>PDF Forms Questions</h2>
 
       <details>
         <summary>Does this tool read existing PDF form fields?</summary>
-        <p>
-          No. This tool does not detect or edit native AcroForm fields. It places new fields as
-          visual overlays on top of the rendered page. If your PDF has interactive fields, they
-          will appear in the background image but cannot be filled here.
-        </p>
-      </details>
+        <p>Existing fields stay in the exported document. This interface adds new fields and does not list existing fields for editing.</p></details>
 
       <details>
         <summary>Are the exported fields interactive?</summary>
-        <p>
-          No. The exported PDF is flat. Fields are drawn as visible content with their values, but
-          they cannot be clicked or edited in a PDF reader. This is intentional — it makes the
-          exported file a finished copy rather than an editable form.
-        </p>
-      </details>
+        <p>Yes, when you choose Editable form fields. Choose Flatten fields for viewing when you want values saved as page content.</p></details>
 
       <details>
         <summary>What field types are supported?</summary>
@@ -873,28 +768,17 @@
 
       <details>
         <summary>Why is the exported file a flat PDF instead of a fillable form?</summary>
-        <p>
-          Creating a real fillable form requires writing AcroForm structures into the PDF, which
-          is a different operation from drawing visible content. This tool focuses on the visual
-          overlay approach because it works with any PDF — including scans and flat exports that
-          have no existing form structure.
-        </p>
-      </details>
+        <p>Choose PDF output before exporting. Editable form fields keeps the fields fillable; Flatten fields for viewing saves their visible values permanently.</p></details>
 
       <details>
         <summary>Can I edit the exported PDF afterwards?</summary>
-        <p>
-          The exported PDF is a normal PDF file. You can open it in any reader or editor. However,
-          the fields are drawn as content, so you cannot click into them and change the values.
-          To change a value, go back to this tool, adjust the field, and export again.
-        </p>
-      </details>
+        <p>Editable fields can be filled in a compatible PDF reader. A flattened copy preserves values as page content.</p></details>
 
     </section>
-  </main>
+  </details><section class="related-tools"><h2>More from Droplet</h2><div class="related-tool-links"><a href="/merge-pdf">Merge PDF</a><a href="/split-pdf">Split PDF</a><a href="/remove-pages">Remove pages</a><a href="/#all-tools">Browse all 42 tools</a></div></section></main>
 
   <!-- Footer -->
-  <footer class="border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-500 mt-auto transition-colors duration-200">
+  <footer class="border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-500 mt-auto transition-colors duration-200 droplet-legacy-footer">
     <div class="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-3">
       <p class="font-medium">© Droplet. 100% Client-Side Privacy First File Utility.</p>
       <div class="space-x-4">
@@ -1049,8 +933,8 @@
       
       // Position the overlay
       const overlay = document.getElementById('fieldOverlay');
-      overlay.style.width = viewport.width + 'px';
-      overlay.style.height = viewport.height + 'px';
+      overlay.style.width = canvas.getBoundingClientRect().width + 'px';
+      overlay.style.height = canvas.getBoundingClientRect().height + 'px';
       
       renderFieldOverlays();
       document.getElementById('currentPageLabel').textContent = `Page ${pageNum} / ${totalPages}`;
@@ -1079,11 +963,12 @@
       const def = defaults[type] || defaults.text;
       
       // Center the new field
-      const x = Math.round((canvas.width - def.width) / 2);
-      const y = Math.round((canvas.height - def.height) / 2);
+      const x = Math.max(0,Math.round((canvas.getBoundingClientRect().width - def.width) / 2));
+      const y = Math.max(0,Math.round((canvas.getBoundingClientRect().height - def.height) / 2));
       
       const newField = {
         id: fieldId,
+        coordWidth:canvas.getBoundingClientRect().width,coordHeight:canvas.getBoundingClientRect().height,
         type: type,
         page: currentPage,
         x: x,
@@ -1137,12 +1022,12 @@
           el.style.padding = '0';
         } else if (field.type === 'signature') {
           el.innerHTML = field.value ? 
-            `<span style="font-family:cursive;font-size:18px;">${field.value}</span>` : 
+            `<span style="font-family:cursive;font-size:18px;">${escapeAttr(field.value)}</span>` : 
             `<span style="opacity:0.6;">✍️ Sign here</span>`;
         } else if (field.type === 'date') {
-          el.innerHTML = field.value || '📅 ' + field.label;
+          el.textContent = field.value || '📅 ' + field.label;
         } else {
-          el.innerHTML = field.value || field.label;
+          el.textContent = field.value || field.label;
         }
         
         // Click handler
@@ -1261,7 +1146,7 @@
       list.innerHTML = formFields.map(field => `
         <div class="field-item ${field.id === selectedFieldId ? 'selected' : ''}" data-field-id="${field.id}" onclick="selectFieldFromList('${field.id}')">
           <span class="field-icon">${iconMap[field.type] || '📝'}</span>
-          <span class="field-label">${field.value || field.label}</span>
+          <span class="field-label">${escapeAttr(field.value || field.label)}</span>
           <span class="field-type">${field.type}</span>
         </div>
       `).join('');
@@ -1444,127 +1329,36 @@ Option 3">${(field.options || []).join('\n')}</textarea>
     // ============================================
     // EXPORT PDF
     // ============================================
-    async function exportPDF() {
-      if (!pdfDoc) return;
-      
-      showProgress(true, 'Exporting PDF...');
-      setProgress(10, 'Preparing document...');
-      
-      try {
-        const host = document.getElementById('pdfRenderHost');
-        host.innerHTML = '';
-        
-        const container = document.createElement('div');
-        container.style.width = '210mm';
-        container.style.background = '#ffffff';
-        
-        // Render each page
-        for (let pageNum = 1; pageNum <= totalPages; pageNum++) {
-          const page = await pdfDoc.getPage(pageNum);
-          const viewport = page.getViewport({ scale: 2 });
-          
-          setProgress(10 + Math.round((pageNum / totalPages) * 60), `Rendering page ${pageNum} of ${totalPages}...`);
-          
-          const canvas = document.createElement('canvas');
-          canvas.width = viewport.width;
-          canvas.height = viewport.height;
-          const ctx = canvas.getContext('2d');
-          await page.render({ canvasContext: ctx, viewport }).promise;
-          
-          const imgData = canvas.toDataURL('image/jpeg', 0.92);
-          
-          const pageDiv = document.createElement('div');
-          pageDiv.style.width = '100%';
-          pageDiv.style.pageBreakAfter = pageNum < totalPages ? 'always' : 'auto';
-          pageDiv.style.position = 'relative';
-          pageDiv.style.background = 'white';
-          
-          const img = document.createElement('img');
-          img.src = imgData;
-          img.style.width = '100%';
-          img.style.display = 'block';
-          pageDiv.appendChild(img);
-          
-          // Overlay form fields for this page
-          const fieldsOnPage = formFields.filter(f => f.page === pageNum);
-          fieldsOnPage.forEach(field => {
-            const fieldEl = document.createElement('div');
-            fieldEl.style.position = 'absolute';
-            fieldEl.style.left = (field.x / pdfScale / viewport.width * 100) + '%';
-            fieldEl.style.top = (field.y / pdfScale / viewport.height * 100) + '%';
-            fieldEl.style.width = (field.width / pdfScale / viewport.width * 100) + '%';
-            fieldEl.style.height = (field.height / pdfScale / viewport.height * 100) + '%';
-            fieldEl.style.boxSizing = 'border-box';
-            fieldEl.style.display = 'flex';
-            fieldEl.style.alignItems = 'center';
-            fieldEl.style.padding = '4px 8px';
-            fieldEl.style.border = '2px solid #2563eb';
-            fieldEl.style.borderRadius = '4px';
-            fieldEl.style.background = field.value ? 'rgba(34, 197, 94, 0.1)' : 'rgba(37, 99, 235, 0.08)';
-            fieldEl.style.fontSize = Math.max(10, field.height * 0.4) + 'px';
-            fieldEl.style.color = field.value ? '#15803d' : '#1e40af';
-            fieldEl.style.fontFamily = field.type === 'signature' ? 'cursive' : 'Arial, sans-serif';
-            fieldEl.style.fontWeight = '500';
-            fieldEl.style.overflow = 'hidden';
-            fieldEl.style.textOverflow = 'ellipsis';
-            fieldEl.style.whiteSpace = 'nowrap';
-            
-            if (field.type === 'checkbox') {
-              fieldEl.textContent = field.value ? '☑' : '☐';
-              fieldEl.style.justifyContent = 'center';
-              fieldEl.style.fontSize = '20px';
-            } else if (field.type === 'radio') {
-              fieldEl.textContent = field.value ? '●' : '○';
-              fieldEl.style.justifyContent = 'center';
-              fieldEl.style.fontSize = '20px';
-            } else {
-              fieldEl.textContent = field.value || field.label;
-            }
-            
-            pageDiv.appendChild(fieldEl);
-          });
-          
-          container.appendChild(pageDiv);
+    async function exportPDF(){
+      if(!pdfDoc||!currentFile)return;
+      showProgress(true,'Preparing PDF fields…');let failed=false;
+      try{
+        const doc=await PDFLib.PDFDocument.load(await currentFile.arrayBuffer());const form=doc.getForm();
+        const allText=formFields.map(field=>[field.value,field.label,...(field.options||[])].filter(value=>typeof value==='string').join(' ')).join(' ');
+        const font=await DropletFonts.forText(doc,{text:allText});
+        for(const field of formFields){
+          const page=doc.getPage(field.page-1),source=await pdfDoc.getPage(field.page),view=source.getViewport({scale:1}),[a,b,c,d,e,f]=view.transform,det=a*d-b*c;
+          const scaleX=view.width/(field.coordWidth||view.width*pdfScale),scaleY=view.height/(field.coordHeight||view.height*pdfScale);
+          const transform=(x,y)=>({x:(d*(x-e)-c*(y-f))/det,y:(-b*(x-e)+a*(y-f))/det});
+          const points=[[field.x,field.y],[field.x+field.width,field.y],[field.x,field.y+field.height],[field.x+field.width,field.y+field.height]].map(([x,y])=>transform(x*scaleX,y*scaleY));
+          const xs=points.map(p=>p.x),ys=points.map(p=>p.y);const bounds={x:Math.min(...xs),y:Math.min(...ys),width:Math.max(...xs)-Math.min(...xs),height:Math.max(...ys)-Math.min(...ys),rotate:PDFLib.degrees(source.rotate),borderWidth:1,borderColor:PDFLib.rgb(.35,.45,.6),backgroundColor:PDFLib.rgb(1,1,1),font};
+          const name='Droplet_'+field.id;let created;
+          if(field.type==='checkbox'){created=form.createCheckBox(name);created.addToPage(page,bounds);if(field.value)created.check();}
+          else if(field.type==='radio'){created=form.createRadioGroup(name);created.addOptionToPage('Yes',page,bounds);if(field.value)created.select('Yes');}
+          else if(field.type==='dropdown'){created=form.createDropdown(name);const options=(field.options||[]).filter(Boolean);created.addOptions(options.length?options:['Choose an option']);if(field.value&&options.includes(field.value))created.select(field.value);created.addToPage(page,bounds);}
+          else {created=form.createTextField(name);created.setText(String(field.value||''));created.addToPage(page,bounds);created.setFontSize(Math.max(8,Math.min(18,13*scaleX)));}
+          if(field.required)created.enableRequired();
         }
-        
-        host.appendChild(container);
-        
-        setProgress(80, 'Generating PDF file...');
-        
-        await new Promise(r => setTimeout(r, 300));
-        
-        const pdfBlob = await html2pdf()
-          .set({
-            margin: 0,
-            filename: currentFile.name.replace(/\.pdf$/i, '') + '-filled.pdf',
-            image: { type: 'jpeg', quality: 0.92 },
-            html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
-            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-            pagebreak: { mode: ['css', 'legacy'] }
-          })
-          .from(container)
-          .outputPdf('blob');
-        
-        host.innerHTML = '';
-        
-        setProgress(100, '✅ Complete!');
-        
-        setTimeout(() => {
-          const url = URL.createObjectURL(pdfBlob);
-          const downloadLink = document.getElementById('downloadLink');
-          downloadLink.href = url;
-          downloadLink.download = currentFile.name.replace(/\.pdf$/i, '') + '-filled.pdf';
-          
-          document.getElementById('resultSection').classList.remove('hidden');
-          showProgress(false);
-          document.getElementById('resultSection').scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }, 400);
-        
-      } catch (error) {
-        console.error('Export error:', error);
-        showProgress(false);
-        alert('Export failed: ' + error.message);
-      }
+        form.updateFieldAppearances(font);
+        if(document.getElementById('formExportMode').value==='flat'){
+          const refs=new Set(form.getFields().flatMap(field=>field.acroField.getWidgets().map(widget=>doc.context.getObjectRef(widget.dict)?.toString())).filter(Boolean));
+          form.flatten({updateFieldAppearances:false});
+          // pdf-lib leaves the deleted widget references in /Annots; remove those references too.
+          for(const page of doc.getPages()){const annotations=page.node.Annots();if(annotations)for(let index=annotations.size()-1;index>=0;index--)if(refs.has(annotations.get(index).toString()))annotations.remove(index);}
+        }
+        const blob=new Blob([await doc.save()],{type:'application/pdf'}),link=document.getElementById('downloadLink');if(link.href.startsWith('blob:'))URL.revokeObjectURL(link.href);link.href=URL.createObjectURL(blob);link.download=currentFile.name.replace(/\.pdf$/i,'')+'-filled.pdf';document.getElementById('resultSection').classList.remove('hidden');setProgress(100,'Ready to download');
+      }catch(error){failed=true;setProgress(0,'Export failed: '+error.message);return;}
+      finally{if(!failed)showProgress(false);}
     }
 
     // ============================================
@@ -1601,7 +1395,7 @@ Option 3">${(field.options || []).join('\n')}</textarea>
 
     function resetAll() {
       clearFile();
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      window.scrollTo({ top: 0, behavior: 'auto' });
     }
 
     // ============================================
@@ -1618,5 +1412,73 @@ Option 3">${(field.options || []).join('\n')}</textarea>
     console.log('📋 PDF Forms tool loaded');
     console.log('🔒 All processing happens locally in your browser');
   </script>
+<footer class="site-footer">
+<div class="wrap">
+<div class="footer-grid">
+<div>
+<a class="brand" href="/">
+<img src="/favicon-96x96.png" width="36" height="36" alt="">
+<span>Droplet</span>
+</a>
+<p>Free tools for PDFs, images, documents and data. Processing details and limits are shown by each tool.</p>
+</div>
+<div>
+<h2>Browse tools</h2>
+<ul>
+<li>
+<a href="/#image-tools">Images</a>
+</li>
+<li>
+<a href="/#doc-tools">Documents</a>
+</li>
+<li>
+<a href="/#pdf-organize">PDF tools</a>
+</li>
+<li>
+<a href="/#ai-tools">Audio &amp; AI</a>
+</li>
+<li>
+<a href="/#data-tools">Data tools</a>
+</li>
+</ul>
+</div>
+<div>
+<h2>Help</h2>
+<ul>
+<li>
+<a href="/faq">Questions &amp; answers</a>
+</li>
+<li>
+<a href="/contact">Contact</a>
+</li>
+<li>
+<a href="/about">About</a>
+</li>
+<li>
+<a href="/sitemap.xml">Sitemap</a>
+</li>
+</ul>
+</div>
+<div>
+<h2>Information</h2>
+<ul>
+<li>
+<a href="/privacy">Privacy</a>
+</li>
+<li>
+<a href="/terms">Terms</a>
+</li>
+<li>
+<a href="https://www.reddit.com/user/Dropletweb/" rel="noopener" target="_blank">Reddit</a>
+</li>
+<li>
+<a href="https://www.linkedin.com/company/dropletweb/" rel="noopener" target="_blank">LinkedIn</a>
+</li>
+</ul>
+</div>
+</div>
+<div class="footer-bottom">© <span data-current-year>2026</span> Droplet. Free browser tools.</div>
+</div>
+</footer>
 </body>
 </html>

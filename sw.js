@@ -1,6 +1,6 @@
 /* Droplet: cache pages and resources after use; online services still need internet. */
-const CACHE = 'droplet-site-2026-11-25-v10';
-const CORE = ['/', '/offline', '/faq', '/contact', '/assets/home.css', '/assets/droplet-fixes.css', '/assets/home.js', '/assets/theme.js', '/assets/droplet-runtime.js', '/favicon-96x96.png', '/site.webmanifest'];
+const CACHE = 'droplet-site-2026-11-25-v11';
+const CORE = ['/', '/offline', '/faq', '/contact', '/assets/home.css', '/assets/site-ui.css', '/assets/site-ui.js', '/assets/droplet-fixes.css', '/assets/home.js', '/assets/theme.js', '/assets/droplet-runtime.js', '/favicon-96x96.png', '/site.webmanifest'];
 const LIBRARY_HOSTS = new Set(['cdn.jsdelivr.net', 'cdnjs.cloudflare.com', 'unpkg.com']);
 const MAX_ENTRIES = 150;
 
@@ -34,6 +34,11 @@ self.addEventListener('fetch', event => {
       event.waitUntil(keep(request, response).catch(() => {}));
       return response;
     }).catch(async () => await caches.match(request, { ignoreSearch: true }) || await caches.match('/offline') || new Response('You are offline. Reconnect to open this tool.', { status: 503, headers: { 'Content-Type': 'text/plain' } })));
+    return;
+  }
+  // Revalidate editable UI code; immutable vendor files keep the fast offline cache.
+  if(local && /\.(?:js|css)$/.test(url.pathname) && !url.pathname.startsWith('/assets/vendor/')) {
+    event.respondWith(fetch(request).then(response=>{event.waitUntil(keep(request,response).catch(()=>{}));return response;}).catch(async()=>await caches.match(request)||Response.error()));
     return;
   }
   event.respondWith(caches.match(request).then(cached => cached || fetch(request).then(response => {

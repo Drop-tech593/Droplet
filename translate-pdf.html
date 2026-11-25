@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Translate PDF — Free Online Document Translator | Droplet</title>
-<meta name="description" content="Translate extracted text using an online service. Free to use, with no account required. Open the tool to check supported formats, size limits and.">
+<meta name="description" content="Translate extracted text using an online service. Choose options, check the result and download your file. Free to use, with no account required.">
 <meta name="keywords" content="translate pdf, pdf translator, translate pdf online, free pdf translator, pdf to spanish, pdf to french, pdf to german, document translation, translate document, client-side pdf translate, pdf language converter">
 <meta name="author" content="Droplet">
 <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
@@ -15,14 +15,14 @@
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Droplet">
 <meta property="og:title" content="Translate PDF — Free, Fast, 14 Languages | Droplet">
-<meta property="og:description" content="Translate PDF documents. Extracts paragraphs, translates text, exports to PDF, DOCX, or XLSX.">
+<meta property="og:description" content="Translate extracted text using an online service. Choose options, check the result and download your file. Free to use, with no account required.">
 <meta property="og:url" content="https://dropletweb.xyz/translate-pdf">
 <meta property="og:image" content="https://dropletweb.xyz/og-image.png">
 <meta property="og:locale" content="en_ZA">
 
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Translate PDF — Free, Fast, 14 Languages">
-<meta name="twitter:description" content="Translate PDF documents. Extracts paragraphs, translates text, exports to PDF, DOCX, or XLSX.">
+<meta name="twitter:description" content="Translate extracted text using an online service. Choose options, check the result and download your file. Free to use, with no account required.">
 <meta name="twitter:image" content="https://dropletweb.xyz/og-image.png">
 
 <link rel="icon" href="/favicon-96x96.png" type="image/png">
@@ -35,9 +35,6 @@
     } catch (e) {}
   })();
 </script>
-
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4006702663328202"
-   crossorigin="anonymous"></script>
 
 <link rel="stylesheet" href="/assets/toolkit.css">
 <script src="/assets/vendor/5a2fe4830d-pdf.min.js"></script>
@@ -406,10 +403,45 @@
   html.dark #processingOverlay p { color: #94a3b8; }
   html.dark #processingOverlay .bar { background: #334155; }
 </style>
-<script src="/assets/theme.js"></script><link rel="stylesheet" href="/assets/droplet-fixes.css"><script defer src="/assets/droplet-runtime.js"></script></head>
-<body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen flex flex-col transition-colors duration-200">
+<script src="/assets/theme.js"></script><link rel="stylesheet" href="/assets/droplet-fixes.css"><script defer src="/assets/droplet-runtime.js"></script><link rel="stylesheet" href="/assets/home.css"><link rel="stylesheet" href="/assets/site-ui.css"><script defer src="/assets/site-ui.js"></script><script defer src="/assets/pdf-fonts.js"></script></head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen flex flex-col transition-colors duration-200 droplet-tool-page" data-tool-route="/translate-pdf">
 
-  <header class="bg-white border-b border-slate-200 py-3.5 px-6 sticky top-0 z-50 transition-colors duration-200">
+  <header class="site-header">
+<div class="wrap header-row">
+<a class="brand" href="/">
+<img src="/favicon-96x96.png" width="36" height="36" alt="">
+<span>Droplet</span>
+</a>
+<nav class="desktop-nav" aria-label="Main navigation">
+<a href="/#all-tools">All tools</a>
+<a href="/#image-tools">Images</a>
+<a href="/#doc-tools">Documents</a>
+<a href="/#pdf-organize">PDF tools</a>
+<a href="/faq">Help</a>
+</nav>
+<div class="header-actions">
+<button type="button" class="quiet-button" data-droplet-theme aria-label="Toggle dark mode">Dark mode</button>
+<button class="quiet-button mobile-toggle" id="mobile-menu-button" type="button" aria-haspopup="dialog" aria-controls="mobile-menu" aria-expanded="false">Menu</button>
+</div>
+</div>
+</header>
+<dialog id="mobile-menu" class="file-dialog mobile-dialog" aria-labelledby="menu-title">
+<div class="dialog-header">
+<h2 id="menu-title">Browse Droplet</h2>
+<button class="dialog-close" id="mobile-menu-close" type="button" aria-label="Close navigation">×</button>
+</div>
+<nav class="mobile-links" aria-label="Mobile navigation">
+<a href="/#all-tools">All tools</a>
+<a href="/#image-tools">Images</a>
+<a href="/#doc-tools">Documents</a>
+<a href="/#pdf-organize">PDF tools</a>
+<a href="/faq">Help</a>
+<a href="/#ai-tools">Audio &amp; AI</a>
+<a href="/#data-tools">Data tools</a>
+<a href="/contact">Contact</a>
+</nav>
+</dialog>
+<header class="bg-white border-b border-slate-200 py-3.5 px-6 sticky top-0 z-50 transition-colors duration-200 droplet-legacy-header">
     <div class="max-w-6xl mx-auto flex justify-between items-center">
       <a href="/" class="flex items-center gap-3 group" aria-label="Droplet home">
         <img src="/favicon-96x96.png" alt="Droplet logo" class="h-9 w-auto rounded-xl shadow-sm group-hover:scale-105 transition-transform">
@@ -420,30 +452,20 @@
       </a>
       <div class="flex items-center gap-3">
         <a href="/" class="home-btn"><span>←</span><span>Home</span></a>
-        <button id="theme-toggle" aria-label="Toggle dark mode">🌙</button>
+        <button id="theme-toggle" aria-label="Toggle dark mode" class="droplet-legacy-theme">🌙</button>
       </div>
     </div>
   </header>
 
-  <main class="max-w-4xl mx-auto px-4 py-8 md:py-12 flex-grow w-full">
+  <main class="max-w-4xl mx-auto px-4 py-8 md:py-12 flex-grow w-full" id="main">
 
-    <div class="max-w-2xl mx-auto mb-4 flex justify-start">
-      <a href="/" class="back-home-btn inline-flex items-center gap-2 bg-white hover:bg-slate-50 border border-slate-200 shadow-sm rounded-full px-5 py-2.5 text-sm font-medium text-slate-700 transition-all hover:shadow-md hover:border-slate-300 active:scale-95">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+    <section class="tool-intro" aria-labelledby="tool-title"><nav class="tool-breadcrumb" aria-label="Breadcrumb"><a href="/">Home</a><span aria-hidden="true">/</span><a href="/#all-tools">All tools</a><span aria-hidden="true">/</span><span class="breadcrumb-current">Translate PDF</span></nav><p class="tool-eyebrow">Audio &amp; AI</p><h1 id="tool-title">Translate PDF</h1><p class="tool-description">Translate extracted text using an online service.</p><div class="tool-facts"><span>No account required</span><span>Online translation with consent</span><span>Up to 50 MB per file</span><span>One file at a time</span></div></section><div class="max-w-2xl mx-auto mb-4 flex justify-start">
+      <a href="/" class="back-home-btn inline-flex items-center gap-2 bg-white hover:bg-slate-50 border border-slate-200 shadow-sm rounded-full px-5 py-2.5 text-sm font-medium text-slate-700 transition-all hover:shadow-md hover:border-slate-300 active:scale-95 droplet-legacy-back">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewbox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
         </svg>
         Back to Home
       </a>
-    </div>
-
-    <div class="text-center mb-8">
-      <div class="inline-block p-3 bg-blue-50 rounded-2xl mb-4">
-        <span class="text-4xl">🌐</span>
-      </div>
-      <h1 class="text-3xl md:text-4xl font-black text-slate-900 tracking-tight">Translate PDF</h1>
-      <p class="text-slate-500 text-sm md:text-base mt-2 max-w-lg mx-auto">
-        Extract text from a PDF and translate it into 14 languages. <strong>Your PDF stays in your browser</strong>; only the text is sent to the translation engine.
-      </p>
     </div>
 
     <section class="max-w-2xl mx-auto mb-8 bg-amber-50 border border-amber-200 rounded-xl p-4">
@@ -636,9 +658,9 @@
         </details>
       </div>
     </section>
-  </main>
+  <section class="related-tools"><h2>More from Droplet</h2><div class="related-tool-links"><a href="/voice-to-text">Voice to Text</a><a href="/ai-summarizer">AI Summarizer</a><a href="/#all-tools">Browse all 42 tools</a></div></section></main>
 
-  <footer class="border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-500 mt-auto transition-colors duration-200">
+  <footer class="border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-500 mt-auto transition-colors duration-200 droplet-legacy-footer">
     <div class="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-3">
       <p class="font-medium">© Droplet. Browser PDF tools. Online translation uses MyMemory.</p>
       <div class="space-x-4">
@@ -1109,7 +1131,7 @@
         // Show result section
         const totalChars = State.pages.reduce((sum, p) =>
           sum + p.paragraphs.reduce((s, par) => s + (par.translated ? par.translated.length : 0), 0), 0);
-        resultBadgeLang.textContent = `English → ${langName}`;
+        resultBadgeLang.textContent = `${document.getElementById('sourceLang').selectedOptions[0].textContent} → ${langName}`;
         resultBadgePages.textContent = `${State.totalPages} pages`;
         resultBadgeChars.textContent = `${totalChars.toLocaleString()} chars`;
         resultSummary.textContent = `${done} paragraphs translated to ${langName}.`;
@@ -1132,7 +1154,7 @@
       try {
         const { PDFDocument, StandardFonts, rgb } = PDFLib;
         const doc = await PDFDocument.create();
-        const font = await doc.embedFont(StandardFonts.Helvetica);
+        const font = await DropletFonts.forText(doc,{text:State.pages.flatMap(page=>page.paragraphs.map(para=>para.translated||para.original)).join(' ')});
 
         const pageWidth = 595.28; // A4
         const pageHeight = 841.89;
@@ -1175,9 +1197,8 @@
             }
             y -= lineHeight * 0.5;
           }
-          // Page break after each source page
-          page = doc.addPage([pageWidth, pageHeight]);
-          y = pageHeight - margin;
+          // Separate source pages without leaving an empty trailing page.
+          if(pageData!==State.pages[State.pages.length-1]){page = doc.addPage([pageWidth, pageHeight]);y = pageHeight - margin;}
         }
 
         const bytes = await doc.save();
@@ -1363,5 +1384,73 @@
       if (e.dataTransfer.files.length > 0) handleFile(e.dataTransfer.files[0]);
     });
   </script>
+<footer class="site-footer">
+<div class="wrap">
+<div class="footer-grid">
+<div>
+<a class="brand" href="/">
+<img src="/favicon-96x96.png" width="36" height="36" alt="">
+<span>Droplet</span>
+</a>
+<p>Free tools for PDFs, images, documents and data. Processing details and limits are shown by each tool.</p>
+</div>
+<div>
+<h2>Browse tools</h2>
+<ul>
+<li>
+<a href="/#image-tools">Images</a>
+</li>
+<li>
+<a href="/#doc-tools">Documents</a>
+</li>
+<li>
+<a href="/#pdf-organize">PDF tools</a>
+</li>
+<li>
+<a href="/#ai-tools">Audio &amp; AI</a>
+</li>
+<li>
+<a href="/#data-tools">Data tools</a>
+</li>
+</ul>
+</div>
+<div>
+<h2>Help</h2>
+<ul>
+<li>
+<a href="/faq">Questions &amp; answers</a>
+</li>
+<li>
+<a href="/contact">Contact</a>
+</li>
+<li>
+<a href="/about">About</a>
+</li>
+<li>
+<a href="/sitemap.xml">Sitemap</a>
+</li>
+</ul>
+</div>
+<div>
+<h2>Information</h2>
+<ul>
+<li>
+<a href="/privacy">Privacy</a>
+</li>
+<li>
+<a href="/terms">Terms</a>
+</li>
+<li>
+<a href="https://www.reddit.com/user/Dropletweb/" rel="noopener" target="_blank">Reddit</a>
+</li>
+<li>
+<a href="https://www.linkedin.com/company/dropletweb/" rel="noopener" target="_blank">LinkedIn</a>
+</li>
+</ul>
+</div>
+</div>
+<div class="footer-bottom">© <span data-current-year>2026</span> Droplet. Free browser tools.</div>
+</div>
+</footer>
 </body>
 </html>

@@ -30,11 +30,8 @@
 <link rel="stylesheet" href="/assets/droplet-fixes.css">
 <script defer src="/assets/droplet-runtime.js">
 </script>
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4006702663328202" crossorigin="anonymous">
-</script>
-</head>
-<body>
-<a class="skip-link" href="#main">Skip to content</a>
+<link rel="stylesheet" href="/assets/site-ui.css"><script defer src="/assets/site-ui.js"></script></head>
+<body class="droplet-tool-page" data-tool-route="/contact">
 <header class="site-header">
 <div class="wrap header-row">
 <a class="brand" href="/">
@@ -65,14 +62,49 @@
 <a href="/#doc-tools">Documents</a>
 <a href="/#pdf-organize">PDF tools</a>
 <a href="/faq">Help</a>
-<a href="/#ai-tools">Audio & AI</a>
+<a href="/#ai-tools">Audio &amp; AI</a>
+<a href="/#data-tools">Data tools</a>
+<a href="/contact">Contact</a>
+</nav>
+</dialog>
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header droplet-legacy-header">
+<div class="wrap header-row">
+<a class="brand" href="/">
+<img src="/favicon-96x96.png" width="36" height="36" alt="">
+<span>Droplet</span>
+</a>
+<nav class="desktop-nav" aria-label="Main navigation">
+<a href="/#all-tools">All tools</a>
+<a href="/#image-tools">Images</a>
+<a href="/#doc-tools">Documents</a>
+<a href="/#pdf-organize">PDF tools</a>
+<a href="/faq">Help</a>
+</nav>
+<div class="header-actions">
+<button type="button" class="quiet-button" data-droplet-theme aria-label="Toggle dark mode">Dark mode</button>
+<button class="quiet-button mobile-toggle" id="mobile-menu-button" type="button" aria-haspopup="dialog" aria-controls="mobile-menu" aria-expanded="false">Menu</button>
+</div>
+</div>
+</header>
+<dialog id="mobile-menu" class="file-dialog mobile-dialog" aria-labelledby="menu-title">
+<div class="dialog-header">
+<h2 id="menu-title">Browse Droplet</h2>
+<button class="dialog-close" id="mobile-menu-close" type="button" aria-label="Close navigation">×</button>
+</div>
+<nav class="mobile-links" aria-label="Mobile navigation">
+<a href="/#all-tools">All tools</a>
+<a href="/#image-tools">Images</a>
+<a href="/#doc-tools">Documents</a>
+<a href="/#pdf-organize">PDF tools</a>
+<a href="/faq">Help</a>
+<a href="/#ai-tools">Audio &amp; AI</a>
 <a href="/#data-tools">Data tools</a>
 <a href="/contact">Contact</a>
 </nav>
 </dialog>
 <main id="main" class="prose-page">
-<h1>Contact Droplet</h1>
-<p>Start with the <a href="/faq">help page</a> for file limits, browser storage and conversion questions.</p>
+<section class="tool-intro" aria-labelledby="tool-title"><nav class="tool-breadcrumb" aria-label="Breadcrumb"><a href="/">Home</a><span aria-hidden="true">/</span><a href="/#all-tools">All tools</a><span aria-hidden="true">/</span><span class="breadcrumb-current">Contact Droplet</span></nav><p class="tool-eyebrow">Droplet information</p><h1 id="tool-title">Contact Droplet</h1><p class="tool-description">Get help or report a problem with a Droplet tool.</p><div class="tool-facts"></div></section><p>Start with the <a href="/faq">help page</a> for file limits, browser storage and conversion questions.</p>
 <h2>Privacy questions</h2>
 <p>The privacy contact published in Droplet’s existing policy is <a href="mailto:privacy@dropletweb.xyz">privacy@dropletweb.xyz</a>.</p>
 <h2>Public profiles</h2>
@@ -83,7 +115,7 @@
 <h2>Reporting a problem</h2>
 <p>Include the tool name, your browser, the file format, and the steps that caused the problem. Describe any error message. You do not need to send your document to explain a website problem.</p>
 </main>
-<footer class="site-footer">
+<footer class="site-footer droplet-legacy-footer">
 <div class="wrap">
 <div class="footer-grid">
 <div>
@@ -106,7 +138,7 @@
 <a href="/#pdf-organize">PDF tools</a>
 </li>
 <li>
-<a href="/#ai-tools">Audio & AI</a>
+<a href="/#ai-tools">Audio &amp; AI</a>
 </li>
 <li>
 <a href="/#data-tools">Data tools</a>
@@ -117,7 +149,7 @@
 <h2>Help</h2>
 <ul>
 <li>
-<a href="/faq">Questions & answers</a>
+<a href="/faq">Questions &amp; answers</a>
 </li>
 <li>
 <a href="/contact">Contact</a>
@@ -152,5 +184,73 @@
 </div>
 </footer>
 <script>const menu=document.getElementById('mobile-menu'),toggle=document.getElementById('mobile-menu-button');toggle.addEventListener('click',()=>{menu.showModal();toggle.setAttribute('aria-expanded','true')});document.getElementById('mobile-menu-close').addEventListener('click',()=>menu.close());menu.addEventListener('close',()=>toggle.setAttribute('aria-expanded','false'));for(const link of menu.querySelectorAll('a'))link.addEventListener('click',()=>menu.close());</script>
+<footer class="site-footer">
+<div class="wrap">
+<div class="footer-grid">
+<div>
+<a class="brand" href="/">
+<img src="/favicon-96x96.png" width="36" height="36" alt="">
+<span>Droplet</span>
+</a>
+<p>Free tools for PDFs, images, documents and data. Processing details and limits are shown by each tool.</p>
+</div>
+<div>
+<h2>Browse tools</h2>
+<ul>
+<li>
+<a href="/#image-tools">Images</a>
+</li>
+<li>
+<a href="/#doc-tools">Documents</a>
+</li>
+<li>
+<a href="/#pdf-organize">PDF tools</a>
+</li>
+<li>
+<a href="/#ai-tools">Audio &amp; AI</a>
+</li>
+<li>
+<a href="/#data-tools">Data tools</a>
+</li>
+</ul>
+</div>
+<div>
+<h2>Help</h2>
+<ul>
+<li>
+<a href="/faq">Questions &amp; answers</a>
+</li>
+<li>
+<a href="/contact">Contact</a>
+</li>
+<li>
+<a href="/about">About</a>
+</li>
+<li>
+<a href="/sitemap.xml">Sitemap</a>
+</li>
+</ul>
+</div>
+<div>
+<h2>Information</h2>
+<ul>
+<li>
+<a href="/privacy">Privacy</a>
+</li>
+<li>
+<a href="/terms">Terms</a>
+</li>
+<li>
+<a href="https://www.reddit.com/user/Dropletweb/" rel="noopener" target="_blank">Reddit</a>
+</li>
+<li>
+<a href="https://www.linkedin.com/company/dropletweb/" rel="noopener" target="_blank">LinkedIn</a>
+</li>
+</ul>
+</div>
+</div>
+<div class="footer-bottom">© <span data-current-year>2026</span> Droplet. Free browser tools.</div>
+</div>
+</footer>
 </body>
 </html>

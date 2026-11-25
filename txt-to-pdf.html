@@ -4,19 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>TXT to PDF Converter Online Free – Convert Text to PDF | Droplet</title>
-  <meta name="description" content="Create a PDF from a plain text file. Free to use, with no account required. Open the tool to check supported formats, size limits and processing details.">
+  <meta name="description" content="Create a PDF from a plain text file. Choose options, check the result and download your file. Free to use, with no account required.">
   <link rel="canonical" href="https://dropletweb.xyz/txt-to-pdf">
 
   <!-- ===== GOOGLE ADSENSE ===== -->
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4006702663328202"
-     crossorigin="anonymous"></script>
-
   <!-- Tailwind CSS -->
   <link rel="stylesheet" href="/assets/toolkit.css">
 
   <!-- html2pdf for PDF generation -->
-  <script src="/assets/vendor/b6cc17e291-html2pdf.bundle.min.js" integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-
   <style>
     .dropzone-highlight {
       border-color: #3b82f6 !important;
@@ -329,11 +324,46 @@
     html.dark #theme-toggle { color: #e2e8f0; }
     html.dark #theme-toggle:hover { background: #334155; }
   </style>
-<script src="/assets/theme.js"></script><link rel="stylesheet" href="/assets/droplet-fixes.css"><script defer src="/assets/droplet-runtime.js"></script></head>
-<body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen flex flex-col transition-colors duration-200">
+<script src="/assets/theme.js"></script><link rel="stylesheet" href="/assets/droplet-fixes.css"><script defer src="/assets/droplet-runtime.js"></script><link rel="stylesheet" href="/assets/home.css"><link rel="stylesheet" href="/assets/site-ui.css"><script defer src="/assets/site-ui.js"></script><script defer src="/assets/pdf-output.js"></script><script defer src="/assets/vendor/13891e810b-pdf-lib.min.js"></script><script defer src="/assets/pdf-fonts.js"></script></head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen flex flex-col transition-colors duration-200 droplet-tool-page" data-tool-route="/txt-to-pdf">
 
-  <!-- Navigation -->
-  <header class="bg-white border-b border-slate-200 py-3.5 px-6 sticky top-0 z-50 transition-colors duration-200">
+  <header class="site-header">
+<div class="wrap header-row">
+<a class="brand" href="/">
+<img src="/favicon-96x96.png" width="36" height="36" alt="">
+<span>Droplet</span>
+</a>
+<nav class="desktop-nav" aria-label="Main navigation">
+<a href="/#all-tools">All tools</a>
+<a href="/#image-tools">Images</a>
+<a href="/#doc-tools">Documents</a>
+<a href="/#pdf-organize">PDF tools</a>
+<a href="/faq">Help</a>
+</nav>
+<div class="header-actions">
+<button type="button" class="quiet-button" data-droplet-theme aria-label="Toggle dark mode">Dark mode</button>
+<button class="quiet-button mobile-toggle" id="mobile-menu-button" type="button" aria-haspopup="dialog" aria-controls="mobile-menu" aria-expanded="false">Menu</button>
+</div>
+</div>
+</header>
+<dialog id="mobile-menu" class="file-dialog mobile-dialog" aria-labelledby="menu-title">
+<div class="dialog-header">
+<h2 id="menu-title">Browse Droplet</h2>
+<button class="dialog-close" id="mobile-menu-close" type="button" aria-label="Close navigation">×</button>
+</div>
+<nav class="mobile-links" aria-label="Mobile navigation">
+<a href="/#all-tools">All tools</a>
+<a href="/#image-tools">Images</a>
+<a href="/#doc-tools">Documents</a>
+<a href="/#pdf-organize">PDF tools</a>
+<a href="/faq">Help</a>
+<a href="/#ai-tools">Audio &amp; AI</a>
+<a href="/#data-tools">Data tools</a>
+<a href="/contact">Contact</a>
+</nav>
+</dialog>
+<!-- Navigation -->
+  <header class="bg-white border-b border-slate-200 py-3.5 px-6 sticky top-0 z-50 transition-colors duration-200 droplet-legacy-header">
     <div class="max-w-6xl mx-auto flex justify-between items-center">
       <a href="/" class="flex items-center gap-3 group">
         <img src="/favicon-96x96.png" alt="Droplet Logo" class="h-9 w-auto rounded-xl shadow-sm group-hover:scale-105 transition-transform">
@@ -343,7 +373,7 @@
         </div>
       </a>
       <div class="flex items-center gap-3">
-        <button id="theme-toggle" aria-label="Toggle theme">🌙</button>
+        <button id="theme-toggle" aria-label="Toggle theme" class="droplet-legacy-theme">🌙</button>
         <nav class="hidden md:flex items-center space-x-6 text-xs font-bold text-slate-600">
           <a href="/" class="hover:text-blue-600 transition-colors">← Back</a>
         </nav>
@@ -352,29 +382,19 @@
   </header>
 
   <!-- Main Content -->
-  <main class="max-w-4xl mx-auto px-4 py-8 md:py-12 flex-grow w-full">
+  <main class="max-w-4xl mx-auto px-4 py-8 md:py-12 flex-grow w-full" id="main">
 
-    <!-- Back Button (prominent & visible) -->
+    <section class="tool-intro" aria-labelledby="tool-title"><nav class="tool-breadcrumb" aria-label="Breadcrumb"><a href="/">Home</a><span aria-hidden="true">/</span><a href="/#all-tools">All tools</a><span aria-hidden="true">/</span><span class="breadcrumb-current">TXT to PDF</span></nav><p class="tool-eyebrow">Documents</p><h1 id="tool-title">TXT to PDF</h1><p class="tool-description">Create a PDF from a plain text file.</p><div class="tool-facts"><span>No account required</span><span>Processed on your device</span><span>Up to 10 MB per file</span><span>One file at a time</span></div></section><!-- Back Button (prominent & visible) -->
     <div class="max-w-2xl mx-auto mb-4 flex justify-start">
-      <a href="/" class="back-home-btn inline-flex items-center gap-2 bg-white hover:bg-slate-50 border border-slate-200 shadow-sm rounded-full px-5 py-2.5 text-sm font-medium text-slate-700 transition-all hover:shadow-md hover:border-slate-300 active:scale-95">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+      <a href="/" class="back-home-btn inline-flex items-center gap-2 bg-white hover:bg-slate-50 border border-slate-200 shadow-sm rounded-full px-5 py-2.5 text-sm font-medium text-slate-700 transition-all hover:shadow-md hover:border-slate-300 active:scale-95 droplet-legacy-back">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewbox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
         </svg>
         Back to Home
       </a>
     </div>
 
     <!-- Page Header -->
-    <div class="text-center mb-8">
-      <div class="inline-block p-3 bg-blue-50 rounded-2xl mb-4 transition-colors duration-200">
-        <span class="text-4xl">✏️</span>
-      </div>
-      <h1 class="text-3xl md:text-4xl font-black text-slate-900 tracking-tight">TXT to PDF Converter</h1>
-      <p class="text-slate-500 text-sm md:text-base mt-2 max-w-lg mx-auto">
-        Convert your plain text files to professional PDFs. <strong>100% client-side</strong> — your files never leave your browser.
-      </p>
-    </div>
-
     <!-- What is TXT to PDF Info -->
     <div class="max-w-2xl mx-auto mb-8 bg-blue-50 border border-blue-200 rounded-xl p-4 transition-colors duration-200">
       <div class="flex items-start gap-3">
@@ -416,6 +436,12 @@
         <button onclick="clearFile()" class="text-slate-400 hover:text-red-500 transition-colors">✕</button>
       </div>
 
+      <div id="optionsSection" class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
+        <label>Page size<select id="pageSize" class="w-full p-2 border"><option value="a4">A4</option><option value="letter">Letter</option><option value="legal">Legal</option></select></label>
+        <label>Font size<select id="fontSize" class="w-full p-2 border"><option>10</option><option>11</option><option selected>12</option><option>14</option><option>16</option></select></label>
+        <label>Line spacing<select id="lineSpacing" class="w-full p-2 border"><option selected>1.5</option><option>1.8</option><option>2.0</option></select></label>
+        <label>Title page<select id="includeTitle" class="w-full p-2 border"><option value="no" selected>No</option><option value="yes">Yes</option></select></label>
+      </div>
       <div class="mt-4 flex flex-wrap gap-3">
         <button onclick="convertTXTtoPDF()" id="convertBtn" class="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-xl transition-all active:scale-95 shadow-md shadow-green-500/20">
           🔄 Convert to PDF
@@ -490,7 +516,7 @@
       </div>
       <div class="bg-white p-4 rounded-xl border border-slate-100 text-center transition-colors duration-200">
         <div class="text-2xl mb-1">⚡</div>
-        <h4 class="font-bold text-sm">Fast & Free</h4>
+        <h4 class="font-bold text-sm">Fast &amp; Free</h4>
         <p class="text-xs text-slate-500">No sign-up required</p>
       </div>
       <div class="bg-white p-4 rounded-xl border border-slate-100 text-center transition-colors duration-200">
@@ -503,7 +529,7 @@
     <!-- ============================================================ -->
     <!-- SEO CONTENT — Fonts, page size, margins, wrapping, Unicode    -->
     <!-- ============================================================ -->
-    <section class="seo-content">
+    <details class="tool-guide"><summary>How this tool works</summary><section class="seo-content">
       <h2>What the Converter Does</h2>
       <p>
         The tool reads your plain text file, parses its structure line by line, and renders it as a
@@ -736,10 +762,10 @@
       </p>
     </section>
 
-    <!-- ============================================================ -->
+    </details><!-- ============================================================ -->
     <!-- FAQ SECTION                                                   -->
     <!-- ============================================================ -->
-    <section class="faq-section">
+    <details class="tool-guide"><summary>Questions &amp; answers</summary><section class="faq-section">
       <h2>TXT to PDF Questions</h2>
 
       <details>
@@ -851,10 +877,10 @@
       </details>
 
     </section>
-  </main>
+  </details><section class="related-tools"><h2>More from Droplet</h2><div class="related-tool-links"><a href="/pdf-to-word">PDF to DOCX (Word)</a><a href="/word-to-pdf">Word (DOCX) to PDF</a><a href="/pdf-to-txt">PDF to TXT</a><a href="/#all-tools">Browse all 42 tools</a></div></section></main>
 
   <!-- Footer -->
-  <footer class="border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-500 mt-auto transition-colors duration-200">
+  <footer class="border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-500 mt-auto transition-colors duration-200 droplet-legacy-footer">
     <div class="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-3">
       <p class="font-medium">© Droplet. 100% Client-Side Privacy First File Utility.</p>
       <div class="space-x-4">
@@ -1034,271 +1060,111 @@
 
     // Main Conversion Function
     async function convertTXTtoPDF() {
-      if (!currentFile) {
-        alert('Please select a text file first.');
-        return;
-      }
-
-      // Check if html2pdf is available
-      if (typeof html2pdf === 'undefined') {
-        alert('PDF library not loaded. Please refresh the page and try again.');
-        return;
-      }
-
-      // Show progress
-      progressContainer.classList.remove('hidden');
-      resultSection.classList.add('hidden');
-      convertBtn.disabled = true;
-      convertBtn.textContent = '⏳ Converting...';
-      progressBar.style.width = '10%';
-      progressText.textContent = '10%';
-      statusText.textContent = 'Preparing document...';
-
-      try {
-        // Get user options
-        const pageSizeValue = pageSize.value;
-        const fontSizeValue = fontSize.value;
-        const lineSpacingValue = lineSpacing.value;
-        const includeTitleValue = includeTitle.value;
-
-        // Format the text content
-        const lines = fileContent.split('\n');
-        let formattedContent = '';
-
-        // Process text to detect headings (lines in all caps or with === or --- underlines)
-        let inHeading = false;
-        for (let i = 0; i < lines.length; i++) {
-          let line = lines[i];
-          let trimmed = line.trim();
-
-          // Skip empty lines at start
-          if (trimmed === '') {
-            formattedContent += '<br>';
-            continue;
-          }
-
-          // Check if this is a heading (all caps or underlined)
-          const isAllCaps = trimmed === trimmed.toUpperCase() && trimmed.length > 3;
-          const hasUnderline = i < lines.length - 1 && (lines[i + 1].trim().match(/^[=\-]{3,}$/));
-          const isUnderline = trimmed.match(/^[=\-]{3,}$/);
-
-          if (isUnderline) {
-            continue; // Skip underline lines
-          }
-
-          if (isAllCaps || hasUnderline) {
-            formattedContent += `<h2>${trimmed}</h2>`;
-            if (hasUnderline) {
-              i++; // Skip the underline line
-            }
-          } else if (trimmed.startsWith('# ')) {
-            formattedContent += `<h2>${trimmed.substring(2)}</h2>`;
-          } else if (trimmed.startsWith('## ')) {
-            formattedContent += `<h2>${trimmed.substring(3)}</h2>`;
-          } else if (trimmed.startsWith('### ')) {
-            formattedContent += `<h3>${trimmed.substring(4)}</h3>`;
-          } else if (trimmed.startsWith('- ') || trimmed.startsWith('* ')) {
-            formattedContent += `<li>${trimmed.substring(2)}</li>`;
-          } else if (trimmed.match(/^\d+\.\s/)) {
-            formattedContent += `<li>${trimmed.replace(/^\d+\.\s/, '')}</li>`;
-          } else {
-            formattedContent += `<p>${trimmed}</p>`;
-          }
+      if(!currentFile||!fileContent.trim())return;
+      convertBtn.disabled=true;convertBtn.textContent='Preparing PDF…';
+      progressContainer.classList.remove('hidden');resultSection.classList.add('hidden');
+      try{
+        const doc=await PDFLib.PDFDocument.create();
+        const size=Number(fontSize.value)||12,spacing=size*(Number(lineSpacing.value)||1.5);
+        const dimensions=({a4:[595.28,841.89],letter:[612,792],legal:[612,1008]})[pageSize.value]||[595.28,841.89];
+        const margin=48,width=dimensions[0]-2*margin;
+        const font=await DropletFonts.forText(doc,{text:fileContent+' '+currentFile.name});
+        const baseName=currentFile.name.replace(/\.txt$/i,'');
+        if(includeTitle.value==='yes'){
+          const cover=doc.addPage(dimensions);let top=dimensions[1]*.65;
+          for(const line of DropletFonts.lines(baseName,font,24,width)){cover.drawText(line,{x:margin,y:top,size:24,font,color:PDFLib.rgb(.15,.39,.92)});top-=32;}
+          cover.drawText('Created with Droplet',{x:margin,y:top-30,size:11,font});
         }
-
-        progressBar.style.width = '30%';
-        progressText.textContent = '30%';
-        statusText.textContent = 'Rendering document...';
-
-        // Get filename without extension for title
-        const baseName = currentFile.name.replace(/\.txt$/i, '');
-
-        // Build the HTML for PDF
-        const pageSizes = {
-          'a4': { width: '210mm', height: '297mm' },
-          'letter': { width: '8.5in', height: '11in' },
-          'legal': { width: '8.5in', height: '14in' }
-        };
-        const pageSizeObj = pageSizes[pageSizeValue] || pageSizes['a4'];
-
-        const titlePageHtml = includeTitleValue === 'yes' ? `
-          <div class="title-page">
-            <h2>${baseName}</h2>
-            <p class="author">${currentFile.name}</p>
-            <p style="margin-top: 30pt; font-size: 10pt; color: #999;">Converted by Droplet</p>
-            <p style="font-size: 9pt; color: #bbb;">${new Date().toLocaleDateString()}</p>
-          </div>
-          <div class="page-break"></div>
-        ` : '';
-
-        const printHtml = `
-          <!DOCTYPE html>
-          <html>
-          <head>
-            <meta charset="UTF-8">
-            <style>
-              @page { 
-                size: ${pageSizeObj.width} ${pageSizeObj.height}; 
-                margin: 20mm 25mm;
-              }
-              @media print {
-                * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-                .page-break { page-break-after: always; }
-              }
-              body {
-                font-family: Georgia, 'Times New Roman', serif;
-                font-size: ${fontSizeValue}pt;
-                line-height: ${lineSpacingValue};
-                color: #1a1a1a;
-                background: white;
-                padding: 20px;
-                max-width: 160mm;
-                margin: 0 auto;
-              }
-              h1 { 
-                font-size: ${parseInt(fontSizeValue) + 14}pt; 
-                margin: 1em 0 0.5em; 
-                font-weight: bold;
-                text-align: center;
-              }
-              h2 { 
-                font-size: ${parseInt(fontSizeValue) + 8}pt; 
-                margin: 1em 0 0.5em; 
-                font-weight: bold;
-              }
-              h3 { 
-                font-size: ${parseInt(fontSizeValue) + 4}pt; 
-                margin: 0.8em 0 0.4em; 
-                font-weight: bold;
-              }
-              p { 
-                margin: 0.5em 0; 
-                text-align: justify;
-                text-justify: inter-word;
-                text-indent: 2em;
-              }
-              p:first-of-type {
-                text-indent: 0;
-              }
-              ul, ol { 
-                padding-left: 2em; 
-                margin: 0.5em 0;
-              }
-              li {
-                margin: 0.25em 0;
-              }
-              .title-page {
-                text-align: center;
-                padding: 80pt 0 40pt;
-              }
-              .title-page h1 {
-                font-size: ${parseInt(fontSizeValue) + 18}pt;
-                margin-bottom: 20pt;
-                text-align: center;
-              }
-              .title-page .author {
-                font-size: ${parseInt(fontSizeValue) + 4}pt;
-                color: #555;
-              }
-              .page-break {
-                page-break-after: always;
-                border: none;
-                margin: 0;
-                padding: 0;
-                height: 0;
-              }
-            </style>
-          </head>
-          <body>
-            ${titlePageHtml}
-            ${formattedContent}
-          </body>
-          </html>
-        `;
-
-        progressBar.style.width = '60%';
-        progressText.textContent = '60%';
-        statusText.textContent = 'Generating PDF...';
-
-        // Create a temporary container for PDF generation
-        const tempContainer = document.createElement('div');
-        tempContainer.innerHTML = printHtml;
-        tempContainer.style.position = 'fixed';
-        tempContainer.style.left = '-9999px';
-        tempContainer.style.top = '0';
-        tempContainer.style.width = pageSizeObj.width;
-        tempContainer.style.background = 'white';
-        tempContainer.style.zIndex = '-9999';
-        document.body.appendChild(tempContainer);
-
-        // Generate PDF
-        const opt = {
-          margin: 10,
-          filename: 'converted.pdf',
-          image: { type: 'jpeg', quality: 0.98 },
-          html2canvas: {
-            scale: 3,
-            useCORS: true,
-            letterRendering: true,
-            width: tempContainer.scrollWidth || 794,
-            height: tempContainer.scrollHeight || 1123
-          },
-          jsPDF: {
-            unit: 'mm',
-            format: pageSizeValue,
-            orientation: 'portrait'
-          },
-          pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
-        };
-
-        progressBar.style.width = '80%';
-        progressText.textContent = '80%';
-        statusText.textContent = 'Finalizing PDF...';
-
-        const pdf = await html2pdf()
-          .set(opt)
-          .from(tempContainer)
-          .outputPdf('blob');
-
-        // Clean up
-        document.body.removeChild(tempContainer);
-
-        progressBar.style.width = '100%';
-        progressText.textContent = '100%';
-        statusText.textContent = '✅ Conversion complete!';
-
-        // Show result
-        setTimeout(() => {
-          const url = URL.createObjectURL(pdf);
-          downloadLink.href = url;
-          downloadLink.download = baseName + '.pdf';
-          resultSection.classList.remove('hidden');
-
-          // Show PDF preview
-          const previewHtml = printHtml.replace(/<style>.*?<\/style>/s, '');
-          pdfPreviewContent.innerHTML = previewHtml;
-
-          convertBtn.disabled = false;
-          convertBtn.textContent = '🔄 Convert to PDF';
-          progressContainer.classList.add('hidden');
-        }, 500);
-
-      } catch (error) {
-        console.error('Conversion error:', error);
-        statusText.textContent = '❌ Conversion failed: ' + error.message;
-        convertBtn.disabled = false;
-        convertBtn.textContent = '🔄 Convert to PDF';
-        alert('Conversion failed. Please try again or use a different text file.\n\nError: ' + error.message);
-      }
+        let page=doc.addPage(dimensions),y=dimensions[1]-margin-size;
+        for(const line of DropletFonts.lines(fileContent.replace(/\t/g,'    '),font,size,width)){
+          if(y<margin){page=doc.addPage(dimensions);y=dimensions[1]-margin-size;}
+          if(line)page.drawText(line,{x:margin,y,size,font,color:PDFLib.rgb(.06,.09,.16)});
+          y-=spacing;
+        }
+        const blob=new Blob([await doc.save()],{type:'application/pdf'});convertedBlob=blob;
+        if(downloadLink.href.startsWith('blob:'))URL.revokeObjectURL(downloadLink.href);
+        downloadLink.href=URL.createObjectURL(blob);downloadLink.download=baseName+'.pdf';
+        pdfPreviewContent.replaceChildren();const preview=document.createElement('pre');preview.style.whiteSpace='pre-wrap';preview.textContent=fileContent;pdfPreviewContent.append(preview);
+        resultSection.classList.remove('hidden');statusText.textContent='Ready — '+doc.getPageCount()+' pages';
+      }catch(error){statusText.textContent='Could not create PDF: '+error.message;}
+      finally{convertBtn.disabled=false;convertBtn.textContent='Convert to PDF';progressContainer.classList.add('hidden');}
     }
 
     // Keyboard shortcut: Enter to convert
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' && !fileInfo.classList.contains('hidden') && !convertBtn.disabled) {
+      if (e.key === 'Enter' && !e.target.matches('textarea,input,select') && !fileInfo.classList.contains('hidden') && !convertBtn.disabled) {
         convertTXTtoPDF();
       }
     });
   </script>
 
+<footer class="site-footer">
+<div class="wrap">
+<div class="footer-grid">
+<div>
+<a class="brand" href="/">
+<img src="/favicon-96x96.png" width="36" height="36" alt="">
+<span>Droplet</span>
+</a>
+<p>Free tools for PDFs, images, documents and data. Processing details and limits are shown by each tool.</p>
+</div>
+<div>
+<h2>Browse tools</h2>
+<ul>
+<li>
+<a href="/#image-tools">Images</a>
+</li>
+<li>
+<a href="/#doc-tools">Documents</a>
+</li>
+<li>
+<a href="/#pdf-organize">PDF tools</a>
+</li>
+<li>
+<a href="/#ai-tools">Audio &amp; AI</a>
+</li>
+<li>
+<a href="/#data-tools">Data tools</a>
+</li>
+</ul>
+</div>
+<div>
+<h2>Help</h2>
+<ul>
+<li>
+<a href="/faq">Questions &amp; answers</a>
+</li>
+<li>
+<a href="/contact">Contact</a>
+</li>
+<li>
+<a href="/about">About</a>
+</li>
+<li>
+<a href="/sitemap.xml">Sitemap</a>
+</li>
+</ul>
+</div>
+<div>
+<h2>Information</h2>
+<ul>
+<li>
+<a href="/privacy">Privacy</a>
+</li>
+<li>
+<a href="/terms">Terms</a>
+</li>
+<li>
+<a href="https://www.reddit.com/user/Dropletweb/" rel="noopener" target="_blank">Reddit</a>
+</li>
+<li>
+<a href="https://www.linkedin.com/company/dropletweb/" rel="noopener" target="_blank">LinkedIn</a>
+</li>
+</ul>
+</div>
+</div>
+<div class="footer-bottom">© <span data-current-year>2026</span> Droplet. Free browser tools.</div>
+</div>
+</footer>
 </body>
 </html>

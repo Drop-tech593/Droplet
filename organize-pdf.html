@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Organize PDF — Free Online Tool | Droplet</title>
-<meta name="description" content="Reorder and organize PDF pages. Free to use, with no account required. Open the tool to check supported formats, size limits and processing details.">
+<meta name="description" content="Reorder and organize PDF pages. Choose options, check the result and download your file. Free to use, with no account required.">
 <meta name="keywords" content="organize pdf, reorder pdf pages, rearrange pdf, rotate pdf pages, delete pdf pages, insert blank page pdf, sort pdf pages, pdf page organizer, drag pdf pages, client-side pdf organizer, private pdf organizer">
 <meta name="author" content="Droplet">
 <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
@@ -19,7 +19,7 @@
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Droplet">
 <meta property="og:title" content="Organize PDF — Free, Private, Interactive | Droplet">
-<meta property="og:description" content="Reorder, rotate, delete, and insert pages in a PDF. Drag-and-drop page organizer. 100% client-side.">
+<meta property="og:description" content="Reorder and organize PDF pages. Choose options, check the result and download your file. Free to use, with no account required.">
 <meta property="og:url" content="https://dropletweb.xyz/organize-pdf">
 <meta property="og:image" content="https://dropletweb.xyz/og-image.png">
 <meta property="og:image:alt" content="Droplet PDF Page Organizer">
@@ -27,7 +27,7 @@
 
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Organize PDF — Free, Private, Interactive">
-<meta name="twitter:description" content="Reorder, rotate, delete, and insert pages in a PDF. 100% client-side.">
+<meta name="twitter:description" content="Reorder and organize PDF pages. Choose options, check the result and download your file. Free to use, with no account required.">
 <meta name="twitter:image" content="https://dropletweb.xyz/og-image.png">
 
 <link rel="icon" href="/favicon-96x96.png" type="image/png">
@@ -42,9 +42,6 @@
     } catch (e) {}
   })();
 </script>
-
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4006702663328202"
-   crossorigin="anonymous"></script>
 
 <link rel="stylesheet" href="/assets/toolkit.css">
 <script src="/assets/vendor/5a2fe4830d-pdf.min.js"></script>
@@ -532,10 +529,45 @@
   html.dark #processingOverlay p { color: #94a3b8; }
   html.dark #processingOverlay .bar { background: #334155; }
 </style>
-<script src="/assets/theme.js"></script><link rel="stylesheet" href="/assets/droplet-fixes.css"><script defer src="/assets/droplet-runtime.js"></script></head>
-<body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen flex flex-col transition-colors duration-200">
+<script src="/assets/theme.js"></script><link rel="stylesheet" href="/assets/droplet-fixes.css"><script defer src="/assets/droplet-runtime.js"></script><link rel="stylesheet" href="/assets/home.css"><link rel="stylesheet" href="/assets/site-ui.css"><script defer src="/assets/site-ui.js"></script></head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen flex flex-col transition-colors duration-200 droplet-tool-page" data-tool-route="/organize-pdf">
 
-  <header class="bg-white border-b border-slate-200 py-3.5 px-6 sticky top-0 z-50 transition-colors duration-200">
+  <header class="site-header">
+<div class="wrap header-row">
+<a class="brand" href="/">
+<img src="/favicon-96x96.png" width="36" height="36" alt="">
+<span>Droplet</span>
+</a>
+<nav class="desktop-nav" aria-label="Main navigation">
+<a href="/#all-tools">All tools</a>
+<a href="/#image-tools">Images</a>
+<a href="/#doc-tools">Documents</a>
+<a href="/#pdf-organize">PDF tools</a>
+<a href="/faq">Help</a>
+</nav>
+<div class="header-actions">
+<button type="button" class="quiet-button" data-droplet-theme aria-label="Toggle dark mode">Dark mode</button>
+<button class="quiet-button mobile-toggle" id="mobile-menu-button" type="button" aria-haspopup="dialog" aria-controls="mobile-menu" aria-expanded="false">Menu</button>
+</div>
+</div>
+</header>
+<dialog id="mobile-menu" class="file-dialog mobile-dialog" aria-labelledby="menu-title">
+<div class="dialog-header">
+<h2 id="menu-title">Browse Droplet</h2>
+<button class="dialog-close" id="mobile-menu-close" type="button" aria-label="Close navigation">×</button>
+</div>
+<nav class="mobile-links" aria-label="Mobile navigation">
+<a href="/#all-tools">All tools</a>
+<a href="/#image-tools">Images</a>
+<a href="/#doc-tools">Documents</a>
+<a href="/#pdf-organize">PDF tools</a>
+<a href="/faq">Help</a>
+<a href="/#ai-tools">Audio &amp; AI</a>
+<a href="/#data-tools">Data tools</a>
+<a href="/contact">Contact</a>
+</nav>
+</dialog>
+<header class="bg-white border-b border-slate-200 py-3.5 px-6 sticky top-0 z-50 transition-colors duration-200 droplet-legacy-header">
     <div class="max-w-6xl mx-auto flex justify-between items-center">
       <a href="/" class="flex items-center gap-3 group" aria-label="Droplet home">
         <img src="/favicon-96x96.png" alt="Droplet logo" class="h-9 w-auto rounded-xl shadow-sm group-hover:scale-105 transition-transform">
@@ -546,7 +578,7 @@
       </a>
       <div class="flex items-center gap-3">
         <a href="/" class="home-btn"><span>←</span><span>Home</span></a>
-        <button id="theme-toggle" aria-label="Toggle dark mode">🌙</button>
+        <button id="theme-toggle" aria-label="Toggle dark mode" class="droplet-legacy-theme">🌙</button>
         <nav class="hidden md:flex items-center space-x-6 text-xs font-bold text-slate-600" aria-label="Primary">
           <a href="/" class="hover:text-blue-600 transition-colors">← Back</a>
         </nav>
@@ -554,25 +586,15 @@
     </div>
   </header>
 
-  <main class="max-w-4xl mx-auto px-4 py-8 md:py-12 flex-grow w-full">
+  <main class="max-w-4xl mx-auto px-4 py-8 md:py-12 flex-grow w-full" id="main">
 
-    <div class="max-w-2xl mx-auto mb-4 flex justify-start">
-      <a href="/" class="back-home-btn inline-flex items-center gap-2 bg-white hover:bg-slate-50 border border-slate-200 shadow-sm rounded-full px-5 py-2.5 text-sm font-medium text-slate-700 transition-all hover:shadow-md hover:border-slate-300 active:scale-95">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+    <section class="tool-intro" aria-labelledby="tool-title"><nav class="tool-breadcrumb" aria-label="Breadcrumb"><a href="/">Home</a><span aria-hidden="true">/</span><a href="/#all-tools">All tools</a><span aria-hidden="true">/</span><span class="breadcrumb-current">Organize PDF</span></nav><p class="tool-eyebrow">PDF organization &amp; editing</p><h1 id="tool-title">Organize PDF</h1><p class="tool-description">Reorder and organize PDF pages.</p><div class="tool-facts"><span>No account required</span><span>Processed on your device</span><span>Up to 100 MB per file</span><span>One file at a time</span></div></section><div class="max-w-2xl mx-auto mb-4 flex justify-start">
+      <a href="/" class="back-home-btn inline-flex items-center gap-2 bg-white hover:bg-slate-50 border border-slate-200 shadow-sm rounded-full px-5 py-2.5 text-sm font-medium text-slate-700 transition-all hover:shadow-md hover:border-slate-300 active:scale-95 droplet-legacy-back">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewbox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
         </svg>
         Back to Home
       </a>
-    </div>
-
-    <div class="text-center mb-8">
-      <div class="inline-block p-3 bg-blue-50 rounded-2xl mb-4 transition-colors duration-200" aria-hidden="true">
-        <span class="text-4xl">🔀</span>
-      </div>
-      <h1 class="text-3xl md:text-4xl font-black text-slate-900 tracking-tight">Organize PDF</h1>
-      <p class="text-slate-500 text-sm md:text-base mt-2 max-w-lg mx-auto">
-        Reorder, rotate, delete, duplicate, and insert pages. <strong>100% client-side</strong> — your file never leaves your browser.
-      </p>
     </div>
 
     <section class="max-w-2xl mx-auto mb-8 bg-blue-50 border border-blue-200 rounded-xl p-4 transition-colors duration-200" aria-label="How it works">
@@ -839,9 +861,9 @@
         </details>
       </div>
     </section>
-  </main>
+  <section class="related-tools"><h2>More from Droplet</h2><div class="related-tool-links"><a href="/merge-pdf">Merge PDF</a><a href="/split-pdf">Split PDF</a><a href="/remove-pages">Remove pages</a><a href="/#all-tools">Browse all 42 tools</a></div></section></main>
 
-  <footer class="border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-500 mt-auto transition-colors duration-200">
+  <footer class="border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-500 mt-auto transition-colors duration-200 droplet-legacy-footer">
     <div class="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-3">
       <p class="font-medium">© Droplet. 100% Client-Side Privacy First File Utility.</p>
       <div class="space-x-4">
@@ -1266,7 +1288,7 @@
         div.addEventListener('click', () => {
           // Scroll grid to that page
           const thumb = pagesGrid.querySelector(`[data-page-id="${p.id}"]`);
-          if (thumb) thumb.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          if (thumb) thumb.scrollIntoView({ behavior: 'auto', block: 'center' });
         });
         previewStrip.appendChild(div);
       });
@@ -1494,7 +1516,7 @@
         resultSummary.textContent = `Exported ${State.pages.length} page${State.pages.length === 1 ? '' : 's'}${rotated ? `, ${rotated} rotated` : ''}.`;
         hideProcessing();
         resultSection.classList.remove('hidden');
-        resultSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        resultSection.scrollIntoView({ behavior: 'auto', block: 'nearest' });
         showToast(`Organized PDF exported`, 'success');
       } catch (err) {
         console.error(err);
@@ -1550,7 +1572,7 @@
         resultSummary.textContent = `Packaged ${State.pages.length} page${State.pages.length === 1 ? '' : 's'} as individual PDFs in a ZIP.`;
         hideProcessing();
         resultSection.classList.remove('hidden');
-        resultSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        resultSection.scrollIntoView({ behavior: 'auto', block: 'nearest' });
         showToast(`ZIP with ${State.pages.length} PDFs ready`, 'success');
       } catch (err) {
         console.error(err);
@@ -1703,7 +1725,7 @@
     }
     function resetConverter() {
       clearFile();
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      window.scrollTo({ top: 0, behavior: 'auto' });
     }
 
     // ============================================================
@@ -1727,5 +1749,73 @@
     updateButtons();
     console.log('🔀 Organize PDF loaded — 100% client-side');
   </script>
+<footer class="site-footer">
+<div class="wrap">
+<div class="footer-grid">
+<div>
+<a class="brand" href="/">
+<img src="/favicon-96x96.png" width="36" height="36" alt="">
+<span>Droplet</span>
+</a>
+<p>Free tools for PDFs, images, documents and data. Processing details and limits are shown by each tool.</p>
+</div>
+<div>
+<h2>Browse tools</h2>
+<ul>
+<li>
+<a href="/#image-tools">Images</a>
+</li>
+<li>
+<a href="/#doc-tools">Documents</a>
+</li>
+<li>
+<a href="/#pdf-organize">PDF tools</a>
+</li>
+<li>
+<a href="/#ai-tools">Audio &amp; AI</a>
+</li>
+<li>
+<a href="/#data-tools">Data tools</a>
+</li>
+</ul>
+</div>
+<div>
+<h2>Help</h2>
+<ul>
+<li>
+<a href="/faq">Questions &amp; answers</a>
+</li>
+<li>
+<a href="/contact">Contact</a>
+</li>
+<li>
+<a href="/about">About</a>
+</li>
+<li>
+<a href="/sitemap.xml">Sitemap</a>
+</li>
+</ul>
+</div>
+<div>
+<h2>Information</h2>
+<ul>
+<li>
+<a href="/privacy">Privacy</a>
+</li>
+<li>
+<a href="/terms">Terms</a>
+</li>
+<li>
+<a href="https://www.reddit.com/user/Dropletweb/" rel="noopener" target="_blank">Reddit</a>
+</li>
+<li>
+<a href="https://www.linkedin.com/company/dropletweb/" rel="noopener" target="_blank">LinkedIn</a>
+</li>
+</ul>
+</div>
+</div>
+<div class="footer-bottom">© <span data-current-year>2026</span> Droplet. Free browser tools.</div>
+</div>
+</footer>
 </body>
 </html>
