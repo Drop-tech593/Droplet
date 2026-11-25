@@ -8,7 +8,7 @@ All AdSense loaders, advertising slots, publisher tags, initialisation calls and
 
 - Clear tool introductions, file limits, local/online processing information, consistent cards and controls, related tools and expandable help on standard tool pages.
 - Full-screen editors/scanner/crop/watermark tools use the shared header and matching controls; the PDF editor has its own workspace panels and mobile drawers.
-- Mutable engines and styles use network-first service-worker delivery with versioned build URLs; immutable vendor files retain cache-first delivery. Cache version is v11.
+- Mutable engines and styles use network-first service-worker delivery with versioned source and build URLs; immutable vendor files retain cache-first delivery. Cache version is v11.
 - Added local Unicode PDF font support and the relevant font/fontkit notices.
 - Generated HTML/Office/EPUB PDFs use isolated document rendering with a white background and safer pagination. Native page operations preserve source PDF text, dimensions and rotation.
 
@@ -75,6 +75,8 @@ Every row also received the applicable shared design and advertising cleanup des
 - Actual conversions were exercised on all 42 tools using anonymous synthetic fixtures, plus a public speech sample. Downloaded PDFs, images, ZIPs, DOCX, XLSX, PPTX and text outputs were reopened. Selected PDFs were rendered and visually reviewed. The source PDF intentionally has a blank fourth page; preserving that page is correct.
 - PDF output checks include page counts, original text/order where applicable, blank/black detection, page dimensions and invalid annotation references. Office and data outputs were checked for real content, not only file extensions.
 - Machine-readable evidence: `upgrade/page-audit.json`, `upgrade/output-checks.json`, `upgrade/layout-desktop.json`, `upgrade/layout-mobile.json` and `upgrade/layout-light.json`. `upgrade/make_fixtures.py` and `upgrade/check_output.py` reproduce the local fixture and output checks. `upgrade/layout-qa.html` is a local test harness and is excluded from the deployed build.
+
+The Cloudflare build for commit `b108c8c` succeeded. A live public-site Split PDF test produced two valid two-page PDFs with original text and page sizes; the only blank page was the intentional blank source page. Live editor import, theme and the new workspace were also verified. The hosting setup serves source pages directly, so `npm run version-assets` now stamps content hashes into source asset links as well as the existing build-time stamping.
 
 ## Practical limits
 
