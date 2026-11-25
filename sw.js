@@ -1,177 +1,44 @@
-// sw.js - Service Worker for Droplet PWA
-// Cache version bumped to force refresh
+/* Droplet: cache pages and resources after use; online services still need internet. */
+const CACHE = 'droplet-site-2026-11-25-v8';
+const CORE = ['/', '/offline', '/faq', '/contact', '/assets/home.css', '/assets/droplet-fixes.css', '/assets/home.js', '/assets/theme.js', '/assets/droplet-runtime.js', '/favicon-96x96.png', '/site.webmanifest'];
+const LIBRARY_HOSTS = new Set(['cdn.jsdelivr.net', 'cdnjs.cloudflare.com', 'unpkg.com']);
+const MAX_ENTRIES = 150;
 
-const CACHE_NAME = 'droplet-v6';
-
-// Only files that ACTUALLY exist in the repo.
-// Missing files here will NOT break the service worker
-// (we use Promise.allSettled instead of cache.addAll).
-const ASSETS_TO_CACHE = [
-  // Core pages
-  '/',
-  '/index.html',
-  '/offline.html',
-
-  // PWA metadata
-  '/site.webmanifest',
-
-  // Logos / images
-  '/Gemini_Generated_Image_sdu6v7sdu6v7sdu6.jpg',
-  '/Untitled design.png',
-  '/favicon.ico',
-  '/favicon.svg',
-  '/favicon-96x96.png',
-  '/apple-touch-icon.png',
-  '/web-app-manifest-192x192.png',
-  '/web-app-manifest-512x512.png',
-
-  // Core documents
-  '/pdf-to-word.html',
-  '/word-to-pdf.html',
-  '/pdf-to-txt.html',
-  '/epub-to-pdf.html',
-  '/txt-to-pdf.html',
-  '/pdf-to-pdfa.html',
-  '/pdf-to-powerpoint.html',
-  '/pdf-to-excel.html',
-
-  // Image converters
-  '/heic-to-jpg.html',
-  '/webp-to-jpg.html',
-  '/webp-to-png.html',
-  '/avif-to-png.html',
-  '/gif-to-png.html',
-  '/psd-to-png.html',
-  '/raw-to-jpg.html',
-  '/tiff-to-pdf.html',
-  '/jpg-to-pdf.html',
-  '/pdf-to-jpg.html',
-  '/svg-to-png.html',
-  '/eps-to-svg.html',
-
-  // Data tools
-  '/json-to-csv.html',
-  '/csv-to-json.html',
-  '/xml-to-json.html',
-
-  // AI & Audio tools
-  '/voice-to-text.html',
-
-  // PDF Organize
-  '/merge-pdf.html',
-  '/split-pdf.html',
-  '/remove-pages.html',
-  '/extract-pages.html',
-  '/organize-pdf.html',
-  '/scan-to-pdf.html',
-  '/rotate-pdf.html',
-  '/add-page-numbers.html',
-
-  // PDF Intelligence
-  '/ai-summarizer.html',
-  '/translate-pdf.html',
-  '/pdf-to-markdown.html',
-
-  // PDF Editing & Security
-  '/add-watermark.html',
-  '/crop-pdf.html',
-  '/edit-pdf.html',
-  '/pdf-forms.html',
-
-  // Convert to PDF
-  '/powerpoint-to-pdf.html',
-  '/excel-to-pdf.html',
-  '/html-to-pdf.html',
-
-  // Info pages
-  '/about.html',
-  '/privacy.html',
-  '/terms.html',
-  '/faq.html'
-];
-
-// INSTALL — cache files individually so one 404 doesn't break everything
-self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then((cache) => {
-        console.log('[SW] Caching files...');
-        // Use allSettled + individual add() so missing files don't crash install
-        return Promise.allSettled(
-          ASSETS_TO_CACHE.map(url =>
-            cache.add(url).catch(err => {
-              console.warn('[SW] Failed to cache:', url, err.message);
-            })
-          )
-        );
-      })
-      .then(() => self.skipWaiting())
-  );
+self.addEventListener('install', event => {
+  event.waitUntil(caches.open(CACHE).then(cache => Promise.allSettled(CORE.map(url => cache.add(url)))).then(() => self.skipWaiting()));
 });
-
-// ACTIVATE — clean up old caches
-self.addEventListener('activate', (event) => {
-  event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames.map((cacheName) => {
-          if (cacheName !== CACHE_NAME) {
-            console.log('[SW] Removing old cache:', cacheName);
-            return caches.delete(cacheName);
-          }
-        })
-      );
-    }).then(() => self.clients.claim())
-  );
+self.addEventListener('activate', event => {
+  event.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(key => key.startsWith('droplet-') && key !== CACHE).map(key => caches.delete(key)))).then(() => self.clients.claim()));
 });
-
-// FETCH — network-first for HTML, cache-first for static assets
-self.addEventListener('fetch', (event) => {
-  const { request } = event;
-
-  // Only handle same-origin GET requests
-  if (!request.url.startsWith(self.location.origin)) return;
+async function keep(request, response) {
+  if (!response || !(response.ok || response.type === 'opaque')) return;
+  const cache = await caches.open(CACHE);
+  await cache.put(request, response.clone());
+  const keys = await cache.keys();
+  const protectedPaths = new Set(CORE.map(path => new URL(path, self.location.origin).href));
+  let extra = keys.length - MAX_ENTRIES;
+  for (const key of keys) {
+    if (extra <= 0) break;
+    if (!protectedPaths.has(key.url)) { await cache.delete(key); extra--; }
+  }
+}
+self.addEventListener('fetch', event => {
+  const request = event.request;
   if (request.method !== 'GET') return;
-  if (!request.url.startsWith('http')) return;
-
-  const isHTML = (request.headers.get('accept') || '').includes('text/html');
-
-  if (isHTML) {
-    // NETWORK-FIRST for HTML pages (fixes stale cache issue)
-    event.respondWith(
-      fetch(request)
-        .then((response) => {
-          if (response && response.status === 200) {
-            const clone = response.clone();
-            caches.open(CACHE_NAME).then(cache => cache.put(request, clone));
-          }
-          return response;
-        })
-        .catch(() => {
-          // Offline fallback: try cache, then offline.html
-          return caches.match(request).then(cached => cached || caches.match('/offline.html'));
-        })
-    );
-  } else {
-    // CACHE-FIRST for assets (images, CSS, JS)
-    event.respondWith(
-      caches.match(request).then((cached) => {
-        if (cached) return cached;
-        return fetch(request).then((response) => {
-          if (response && response.status === 200 && response.type !== 'opaque') {
-            const clone = response.clone();
-            caches.open(CACHE_NAME).then(cache => cache.put(request, clone));
-          }
-          return response;
-        });
-      })
-    );
+  const url = new URL(request.url);
+  const local = url.origin === self.location.origin;
+  const library = LIBRARY_HOSTS.has(url.hostname) && /\.(?:js|mjs|wasm|css)(?:$|\?)/.test(url.pathname);
+  if (!local && !library) return;
+  if (request.mode === 'navigate') {
+    event.respondWith(fetch(request).then(response => {
+      event.waitUntil(keep(request, response).catch(() => {}));
+      return response;
+    }).catch(async () => await caches.match(request, { ignoreSearch: true }) || await caches.match('/offline') || new Response('You are offline. Reconnect to open this tool.', { status: 503, headers: { 'Content-Type': 'text/plain' } })));
+    return;
   }
+  event.respondWith(caches.match(request).then(cached => cached || fetch(request).then(response => {
+    event.waitUntil(keep(request, response).catch(() => {}));
+    return response;
+  })));
 });
-
-// MESSAGE — allow page to trigger SW update
-self.addEventListener('message', (event) => {
-  if (event.data && event.data.type === 'SKIP_WAITING') {
-    self.skipWaiting();
-  }
-});
+self.addEventListener('message', event => { if (event.data?.type === 'SKIP_WAITING') self.skipWaiting(); });

@@ -94,12 +94,12 @@ new MutationObserver(()=>{
 }).observe(pickerUI,{attributes:true,attributeFilter:['disabled']});
 el('deviceSummary').textContent=[navigator.hardwareConcurrency&&navigator.hardwareConcurrency+' CPU threads',navigator.deviceMemory&&navigator.deviceMemory+' GB device memory'].filter(Boolean).join(' · ')||'Device details unavailable';
 for(const r of document.querySelectorAll('[name=quality]'))r.onchange=()=>el('qualityWarning').classList.toggle('show',r.value==='small');
-el('theme-toggle').onclick=()=>{document.documentElement.classList.toggle('dark')};
+el('theme-toggle').onclick=()=>{const dark=document.documentElement.classList.toggle('dark');try{localStorage.setItem('theme',dark?'dark':'light')}catch{}};
 document.addEventListener('click',async e=>{
  const b=e.target.closest('[data-action]');if(!b||b.disabled)return;
  const action=b.dataset.action;
  if(action==='clear'){if(confirm('Clear the transcript saved in this browser?')){draft.value='';segments=0;el('statSegments').textContent=0;draft.dispatchEvent(new Event('input'))}return}
- if(action==='back'){location.href='https://dropletweb.xyz/';return}
+ if(action==='back'){location.href='/';return}
  if(b.id!==action){el(action)?.click();return}
  if(action==='pdf'||action==='word'){
   try{const {exportFile}=await import('./exports.js');await exportFile(action,draft.value)}

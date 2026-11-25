@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RAW to JPG Converter Online Free – Convert Camera RAW Files | Droplet</title>
-  <meta name="description" content="Convert camera RAW files to JPG online for free. Handles TIFF-based RAW formats (DNG and some others). 100% client-side, private, and free.">
+  <title>RAW to JPG — Free Online Tool | Droplet</title>
+  <meta name="description" content="Convert supported camera RAW images to JPG. Free to use, with no account required. Open the tool to check supported formats, size limits and processing.">
   <link rel="canonical" href="https://dropletweb.xyz/raw-to-jpg">
 
   <!-- ===== GOOGLE ADSENSE ===== -->
@@ -12,13 +12,13 @@
      crossorigin="anonymous"></script>
 
   <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="/assets/toolkit.css">
 
   <!-- UTIF.js for TIFF-based RAW parsing -->
-  <script src="https://cdn.jsdelivr.net/npm/utif@3.1.0/UTIF.min.js"></script>
+  <script src="/assets/vendor/469bd9ad0a-UTIF.min.js"></script>
 
   <!-- JSZip for bulk download -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="/assets/vendor/bd0b6a1bcd-jszip.min.js"></script>
 
   <style>
     .dropzone-highlight {
@@ -394,16 +394,16 @@
       border-color: #3b82f6 !important;
     }
   </style>
-</head>
+<script src="/assets/theme.js"></script><link rel="stylesheet" href="/assets/droplet-fixes.css"><script defer src="/assets/droplet-runtime.js"></script></head>
 <body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen flex flex-col transition-colors duration-200">
 
   <!-- Navigation -->
   <header class="bg-white border-b border-slate-200 py-3.5 px-6 sticky top-0 z-50 transition-colors duration-200">
     <div class="max-w-6xl mx-auto flex justify-between items-center">
       <a href="/" class="flex items-center gap-3 group">
-        <img src="Gemini_Generated_Image_sdu6v7sdu6v7sdu6.jpg" alt="Droplet Logo" class="h-9 w-auto rounded-xl shadow-sm group-hover:scale-105 transition-transform">
+        <img src="/favicon-96x96.png" alt="Droplet Logo" class="h-9 w-auto rounded-xl shadow-sm group-hover:scale-105 transition-transform">
         <div>
-          <h1 class="text-xl font-black tracking-tight text-slate-900 leading-none">Droplet</h1>
+          <span class="text-xl font-black tracking-tight text-slate-900 leading-none">Droplet</span>
           <p class="text-[9px] text-blue-600 font-extrabold tracking-widest uppercase mt-0.5">DRAG, DROP AND CONVERT.</p>
         </div>
       </a>
@@ -952,9 +952,9 @@
     <div class="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-3">
       <p class="font-medium">© Droplet. 100% Client-Side Privacy First File Utility.</p>
       <div class="space-x-4">
-        <a href="/privacy.html" class="hover:text-blue-600 transition-colors">Privacy Policy</a>
+        <a href="/privacy" class="hover:text-blue-600 transition-colors">Privacy Policy</a>
         <span>•</span>
-        <a href="/terms.html" class="hover:text-blue-600 transition-colors">Terms of Service</a>
+        <a href="/terms" class="hover:text-blue-600 transition-colors">Terms of Service</a>
       </div>
     </div>
   </footer>

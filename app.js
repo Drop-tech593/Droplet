@@ -4,7 +4,7 @@ const Recognition=window.SpeechRecognition||window.webkitSpeechRecognition;
 let session,failed;
 function update(){const words=draft.value.trim().split(/\s+/).filter(Boolean).length;el('count').textContent=words+' '+(words===1?'word':'words');el('copy').disabled=el('save').disabled=!words}
 draft.oninput=update;update();
-if(!Recognition){go.disabled=true;state.textContent='Speech recognition is unavailable here. Try opening Voicepad in Chrome.'}
+if(!Recognition){go.disabled=true;state.textContent='Speech recognition is unavailable here. Try opening Droplet Voice in Chrome.'}
 let liveStartedAt = 0;
 let keepListening = false;
 let restartTimer;
@@ -111,4 +111,4 @@ window.addEventListener('pagehide', () => {
  if (session) session.abort();
 });
 el('copy').onclick=async()=>{try{await navigator.clipboard.writeText(draft.value);el('copy').textContent='Copied';setTimeout(()=>el('copy').textContent='Copy text',1400)}catch{draft.focus();draft.select();state.textContent='Transcript selected. Use your browser’s Copy command.'}};
-el('save').onclick=()=>{const url=URL.createObjectURL(new Blob([draft.value],{type:'text/plain;charset=utf-8'}));const a=document.createElement('a');a.href=url;a.download='voicepad-transcript.txt';a.click();setTimeout(()=>URL.revokeObjectURL(url),1500)};
+el('save').onclick=()=>{const url=URL.createObjectURL(new Blob([draft.value],{type:'text/plain;charset=utf-8'}));const a=document.createElement('a');a.href=url;a.download='droplet-transcript.txt';a.click();setTimeout(()=>URL.revokeObjectURL(url),1500)};

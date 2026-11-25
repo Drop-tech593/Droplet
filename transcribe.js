@@ -2,7 +2,7 @@ let recognizer,language;
 self.onmessage=async ({data})=>{
   try{
     if(data.init){
-      const {pipeline,env}=await import('https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.7.2/dist/transformers.min.js');
+      const {pipeline,env}=await import('https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.8.1/dist/transformers.min.js');
       env.allowLocalModels=false;
       env.backends.onnx.wasm.numThreads=1;
       language=data.language;

@@ -1,6 +1,6 @@
 const mime='application/vnd.openxmlformats-officedocument.wordprocessingml.document';
 async function word(text){
- if(!window.JSZip)await new Promise((ok,fail)=>{const s=document.createElement('script');s.src='vendor/jszip.min.js';s.onload=ok;s.onerror=fail;document.head.append(s)});
+ if(!window.JSZip)await new Promise((ok,fail)=>{const s=document.createElement('script');s.src='/assets/vendor/bd0b6a1bcd-jszip.min.js';s.onload=ok;s.onerror=fail;document.head.append(s)});
  const zip=new JSZip(),ns='http://schemas.openxmlformats.org/';
  zip.file('[Content_Types].xml','<Types xmlns="'+ns+'package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/></Types>');
  zip.file('_rels/.rels','<Relationships xmlns="'+ns+'package/2006/relationships"><Relationship Id="rId1" Type="'+ns+'officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>');
@@ -9,7 +9,8 @@ async function word(text){
  return zip.generateAsync({type:'blob',mimeType:mime,compression:'DEFLATE'});
 }
 async function pdf(text){
- const {PDFDocument}=await import('./vendor/pdf.mjs'),doc=await PDFDocument.create();
+ if(!window.PDFLib)await new Promise((ok,fail)=>{const script=document.createElement('script');script.src='/assets/vendor/13891e810b-pdf-lib.min.js';script.onload=ok;script.onerror=fail;document.head.append(script)});
+ const {PDFDocument}=window.PDFLib,doc=await PDFDocument.create();
  const canvas=document.createElement('canvas');canvas.width=1240;canvas.height=1754;
  const ctx=canvas.getContext('2d');let y;
  function reset(){ctx.fillStyle='white';ctx.fillRect(0,0,1240,1754);ctx.fillStyle='#152235';ctx.font='25px sans-serif';y=100}
@@ -31,5 +32,5 @@ async function pdf(text){
 export async function exportFile(kind,text){
  const blob=kind==='word'?await word(text):await pdf(text);
  const url=URL.createObjectURL(blob),link=document.createElement('a');
- link.href=url;link.download='voicepad-transcript.'+(kind==='word'?'docx':'pdf');link.click();setTimeout(()=>URL.revokeObjectURL(url),10000);
+ link.href=url;link.download='droplet-transcript.'+(kind==='word'?'docx':'pdf');link.click();setTimeout(()=>URL.revokeObjectURL(url),10000);
 }

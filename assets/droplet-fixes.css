@@ -1,0 +1,17 @@
+/* Shared accessibility and theme corrections. */
+*,*::before,*::after{box-sizing:border-box}
+[hidden]{display:none!important}
+.sr-only{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+:focus-visible{outline:3px solid #2563eb;outline-offset:4px}
+html.dark{color-scheme:dark}
+html.dark header{background:#111827!important;border-color:#334155!important;color:#f1f5f9!important}
+html.dark header a,html.dark header .nav-link-with-dropdown>a{color:#e2e8f0}
+html.dark .text-slate-700{color:#cbd5e1!important}
+html.dark .dropdown-menu{background:#111827;border-color:#334155}
+html.dark .dropdown-menu a{color:#e2e8f0}
+html.dark .dropdown-menu a:hover{background:#1e293b}
+.dropdown-group:focus-within .dropdown-menu{display:block}
+.droplet-notice{padding:.85rem 1rem;margin:1rem auto;max-width:72rem;background:#eff6ff;color:#1e3a8a;border:1px solid #bfdbfe;border-radius:12px;font-size:1rem;line-height:1.5}
+.droplet-notice[data-kind="warning"]{background:#fffbeb;color:#78350f;border-color:#fde68a}
+html.dark .droplet-notice{background:#172554;color:#dbeafe;border-color:#1d4ed8}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}

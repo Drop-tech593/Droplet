@@ -28,6 +28,7 @@ function finish(job, message) {
   status.textContent = message;
 }
 picker.onchange = () => {
+  if (picker.files[0]?.size > 100 * 1024 * 1024) { picker.value = ''; start.disabled = true; status.textContent = 'Choose an audio file under 100 MB, or split the recording into smaller files.'; return; }
   start.disabled = !picker.files.length;
   progress.hidden = true;
   status.textContent = start.disabled ? 'Choose an audio file.' : 'Ready. Starting transcription replaces the previous transcript.';

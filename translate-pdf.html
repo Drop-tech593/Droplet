@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Translate PDF — Free Online Document Translator | Droplet</title>
-<meta name="description" content="Translate PDF documents online for free. 14 target languages, preserves paragraph structure, exports to PDF, DOCX, or XLSX. Your PDF is processed in your browser — only the extracted text is sent to the translation engine.">
+<meta name="description" content="Translate extracted text using an online service. Free to use, with no account required. Open the tool to check supported formats, size limits and.">
 <meta name="keywords" content="translate pdf, pdf translator, translate pdf online, free pdf translator, pdf to spanish, pdf to french, pdf to german, document translation, translate document, client-side pdf translate, pdf language converter">
 <meta name="author" content="Droplet">
 <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
@@ -17,15 +17,15 @@
 <meta property="og:title" content="Translate PDF — Free, Fast, 14 Languages | Droplet">
 <meta property="og:description" content="Translate PDF documents. Extracts paragraphs, translates text, exports to PDF, DOCX, or XLSX.">
 <meta property="og:url" content="https://dropletweb.xyz/translate-pdf">
-<meta property="og:image" content="https://dropletweb.xyz/Gemini_Generated_Image_sdu6v7sdu6v7sdu6.jpg">
+<meta property="og:image" content="https://dropletweb.xyz/og-image.png">
 <meta property="og:locale" content="en_ZA">
 
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Translate PDF — Free, Fast, 14 Languages">
 <meta name="twitter:description" content="Translate PDF documents. Extracts paragraphs, translates text, exports to PDF, DOCX, or XLSX.">
-<meta name="twitter:image" content="https://dropletweb.xyz/Gemini_Generated_Image_sdu6v7sdu6v7sdu6.jpg">
+<meta name="twitter:image" content="https://dropletweb.xyz/og-image.png">
 
-<link rel="icon" href="/Gemini_Generated_Image_sdu6v7sdu6v7sdu6.jpg" type="image/jpeg">
+<link rel="icon" href="/favicon-96x96.png" type="image/png">
 
 <script>
   (function () {
@@ -39,37 +39,14 @@
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4006702663328202"
    crossorigin="anonymous"></script>
 
-<script src="https://cdn.tailwindcss.com"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/docx/8.5.0/docx.umd.js"></script>
+<link rel="stylesheet" href="/assets/toolkit.css">
+<script src="/assets/vendor/5a2fe4830d-pdf.min.js"></script>
+<script src="/assets/vendor/13891e810b-pdf-lib.min.js"></script>
+<script src="/assets/vendor/bd0b6a1bcd-jszip.min.js"></script>
+<script src="/assets/vendor/51d86bd540-xlsx.full.min.js"></script>
+<script src="/assets/vendor/e6d00f5c1d-index.umd.js"></script>
 
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "WebApplication",
-  "name": "Translate PDF",
-  "url": "https://dropletweb.xyz/translate-pdf",
-  "description": "Free online PDF translator. Extracts text from a PDF, translates it into 14 target languages, and exports the result to PDF, DOCX, or XLSX.",
-  "applicationCategory": "UtilitiesApplication",
-  "operatingSystem": "Any (Web)",
-  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
-  "featureList": [
-    "Translate PDF text into 14 languages",
-    "PDF, DOCX, and XLSX output",
-    "Side-by-side original + translation DOCX",
-    "Batch translation with progress",
-    "Optional OCR for scanned pages",
-    "Preserves paragraph structure",
-    "Rate-limit handling",
-    "100% in-browser PDF parsing"
-  ],
-  "creator": { "@type": "Organization", "name": "Droplet", "url": "https://dropletweb.xyz/" },
-  "inLanguage": "en"
-}
-</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebApplication", "name": "Translate PDF", "url": "https://dropletweb.xyz/translate-pdf", "description": "Free online PDF translator. Extracts text from a PDF, translates it into 14 target languages, and exports the result to PDF, DOCX, or XLSX.", "applicationCategory": "UtilitiesApplication", "operatingSystem": "Any (Web)", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "featureList": ["Translate PDF text into 14 languages", "PDF, DOCX, and XLSX output", "Side-by-side original + translation DOCX", "Batch translation with progress", "Optional OCR for scanned pages", "Preserves paragraph structure", "Rate-limit handling", "100% in-browser PDF parsing"], "creator": {"@type": "Organization", "name": "Droplet", "url": "https://dropletweb.xyz/"}, "inLanguage": "en"}</script>
 
 <style>
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -429,15 +406,15 @@
   html.dark #processingOverlay p { color: #94a3b8; }
   html.dark #processingOverlay .bar { background: #334155; }
 </style>
-</head>
+<script src="/assets/theme.js"></script><link rel="stylesheet" href="/assets/droplet-fixes.css"><script defer src="/assets/droplet-runtime.js"></script></head>
 <body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen flex flex-col transition-colors duration-200">
 
   <header class="bg-white border-b border-slate-200 py-3.5 px-6 sticky top-0 z-50 transition-colors duration-200">
     <div class="max-w-6xl mx-auto flex justify-between items-center">
       <a href="/" class="flex items-center gap-3 group" aria-label="Droplet home">
-        <img src="Gemini_Generated_Image_sdu6v7sdu6v7sdu6.jpg" alt="Droplet logo" class="h-9 w-auto rounded-xl shadow-sm group-hover:scale-105 transition-transform">
+        <img src="/favicon-96x96.png" alt="Droplet logo" class="h-9 w-auto rounded-xl shadow-sm group-hover:scale-105 transition-transform">
         <div>
-          <h1 class="text-xl font-black tracking-tight text-slate-900 leading-none">Droplet</h1>
+          <span class="text-xl font-black tracking-tight text-slate-900 leading-none">Droplet</span>
           <p class="text-[9px] text-blue-600 font-extrabold tracking-widest uppercase mt-0.5">DRAG, DROP AND CONVERT.</p>
         </div>
       </a>
@@ -531,7 +508,21 @@
               <option value="zu">Zulu</option>
             </select>
           </div>
-          <button id="translateBtn" class="primary" disabled>🌐 Translate</button>
+          <div class="droplet-notice" id="online-translation-choice"><label for="sourceLang">Source language</label><select id="sourceLang" style="margin:8px;padding:8px;max-width:100%"><option value="en">English</option><option value="af">Afrikaans</option>
+              <option value="ar">Arabic</option>
+              <option value="zh-CN">Chinese (Simplified)</option>
+              <option value="nl">Dutch</option>
+              <option value="fr">French</option>
+              <option value="de">German</option>
+              <option value="it">Italian</option>
+              <option value="ja">Japanese</option>
+              <option value="ko">Korean</option>
+              <option value="pt">Portuguese</option>
+              <option value="ru">Russian</option>
+              <option value="es">Spanish</option>
+              <option value="sw">Swahili</option>
+              <option value="zu">Zulu</option>
+            </select><p>Online translation sends extracted document text to MyMemory. The PDF file itself stays in your browser. The service may have usage limits.</p><label style="display:flex;gap:10px;align-items:flex-start"><input type="checkbox" id="translation-consent" style="margin-top:6px"><span>Send this document’s extracted text to MyMemory for translation.</span></label></div><button id="translateBtn" class="primary" disabled>🌐 Translate</button>
           <button id="stopBtn" class="danger" disabled>⏹ Stop</button>
           <div class="stats" id="translateStats">
             <span><strong>0</strong> paragraphs</span>
@@ -649,13 +640,13 @@
 
   <footer class="border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-500 mt-auto transition-colors duration-200">
     <div class="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-3">
-      <p class="font-medium">© Droplet. 100% Client-Side Privacy First File Utility.</p>
+      <p class="font-medium">© Droplet. Browser PDF tools. Online translation uses MyMemory.</p>
       <div class="space-x-4">
-        <a href="/about.html" class="hover:text-blue-600 transition-colors">About</a>
+        <a href="/about" class="hover:text-blue-600 transition-colors">About</a>
         <span>•</span>
-        <a href="/privacy.html" class="hover:text-blue-600 transition-colors">Privacy</a>
+        <a href="/privacy" class="hover:text-blue-600 transition-colors">Privacy</a>
         <span>•</span>
-        <a href="/terms.html" class="hover:text-blue-600 transition-colors">Terms</a>
+        <a href="/terms" class="hover:text-blue-600 transition-colors">Terms</a>
       </div>
     </div>
   </footer>
@@ -675,7 +666,7 @@
     // ============================================================
     // PDF.JS WORKER
     // ============================================================
-    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    pdfjsLib.GlobalWorkerOptions.workerSrc = '/assets/vendor/c0a5848ab2-pdf.worker.min.js';
 
     // ============================================================
     // STATE
@@ -862,30 +853,36 @@
     // TRANSLATION ENGINE — MyMemory
     // ============================================================
     async function translateWithMyMemory(text, targetLangCode) {
-      // MyMemory requires a source language; auto-detect returns 'en' fallback
-      const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text.slice(0, 500))}&langpair=en|${targetLangCode}`;
-      
-      const resp = await fetch(url);
-      if (!resp.ok) {
-        if (resp.status === 429) throw new Error('RATE_LIMIT');
-        throw new Error(`HTTP ${resp.status}`);
+      const sourceLang = document.getElementById('sourceLang').value;
+      const chunks = [];
+      let current = '';
+      const encoder = new TextEncoder();
+      for (const character of text) {
+        if (encoder.encode(current + character).length > 400) {
+          const split = current.lastIndexOf(' ');
+          if (split > 100) { chunks.push(current.slice(0, split)); current = current.slice(split + 1); }
+          else { chunks.push(current); current = ''; }
+        }
+        current += character;
       }
-
-      const data = await resp.json();
-      
-      if (data.responseStatus === 429) throw new Error('RATE_LIMIT');
-      if (!data.responseData || !data.responseData.translatedText) {
-        throw new Error('No translation returned');
+      if (current.trim()) chunks.push(current);
+      const output = [];
+      for (const chunk of chunks) {
+        if (State.stopRequested) throw new Error('Translation cancelled.');
+        const url = new URL('https://api.mymemory.translated.net/get');
+        url.searchParams.set('q', chunk);
+        url.searchParams.set('langpair', sourceLang + '|' + targetLangCode);
+        const response = await fetch(url);
+        if (response.status === 429) throw new Error('RATE_LIMIT');
+        if (!response.ok) throw new Error('Translation service returned HTTP ' + response.status);
+        const data = await response.json();
+        if (Number(data.responseStatus) === 429) throw new Error('RATE_LIMIT');
+        if (Number(data.responseStatus) !== 200 || !data.responseData?.translatedText) throw new Error(data.responseDetails || 'No translation returned.');
+        const translated = data.responseData.translatedText;
+        if (translated.includes('MYMEMORY WARNING') || translated.includes('QUERY LENGTH LIMIT')) throw new Error('RATE_LIMIT');
+        output.push(translated);
       }
-
-      let translated = data.responseData.translatedText;
-      
-      // MyMemory sometimes returns "MYMEMORY WARNING: YOU USED ALL AVAILABLE FREE TRANSLATIONS..." 
-      if (translated.includes('MYMEMORY WARNING') || translated.includes('QUERY LENGTH LIMIT')) {
-        throw new Error('RATE_LIMIT');
-      }
-
-      return translated;
+      return output.join(' ');
     }
 
     // ============================================================
@@ -1018,6 +1015,16 @@
     // TRANSLATION FLOW
     // ============================================================
     translateBtn.addEventListener('click', async () => {
+      if (!document.getElementById('translation-consent').checked) {
+        showToast('Enable online translation to send extracted text to MyMemory.', 'error');
+        document.getElementById('translation-consent').focus();
+        return;
+      }
+      if (document.getElementById('sourceLang').value === targetLang.value) {
+        showToast('Choose different source and target languages.', 'error');
+        return;
+      }
+
       if (State.translating) return;
       State.translating = true;
       State.stopRequested = false;

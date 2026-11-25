@@ -1,1572 +1,703 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <!-- ===== SEO ===== -->
-  <title>Droplet — Free Online File Converter | HEIC to JPG, PDF to Word, 100+ Tools</title>
-  <meta name="description" content="Convert HEIC to JPG, PDF to Word, WebP to PNG and 100+ formats free — no sign-up, no uploads, no watermark. 100% browser-based, works offline. Instant, private, unlimited.">
-  <meta name="keywords" content="heic to jpg, convert heic to jpg without losing quality, free heic converter no sign in, pdf to word converter, webp to png, online file converter, private file converter, browser based converter, voice to text">
-  <meta name="author" content="Droplet">
-  <meta name="robots" content="index, follow, max-image-preview:large">
-  <link rel="canonical" href="https://dropletweb.xyz/">
-
-  <!-- ===== OPEN GRAPH ===== -->
-  <meta property="og:type" content="website">
-  <meta property="og:title" content="Convert HEIC to JPG Free (No Sign-In, No Quality Loss) — Droplet">
-  <meta property="og:description" content="100+ file converters that run 100% in your browser. No uploads. No accounts. No watermarks.">
-  <meta property="og:url" content="https://dropletweb.xyz/">
-  <meta property="og:image" content="https://dropletweb.xyz/og-image.jpg">
-  <meta property="og:site_name" content="Droplet">
-
-  <!-- ===== TWITTER CARD ===== -->
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Convert HEIC to JPG Free — No Sign-In, No Quality Loss">
-  <meta name="twitter:description" content="100+ private file converters. Runs in your browser. Nothing uploaded.">
-  <meta name="twitter:image" content="https://dropletweb.xyz/og-image.jpg">
-
-  <!-- ===== GOOGLE ADSENSE ===== -->
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4006702663328202"
-     crossorigin="anonymous"></script>
-
-  <!-- ===== FAVICON & PWA ===== -->
-  <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
-  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-  <link rel="shortcut icon" href="/favicon.ico" />
-  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
-  <link rel="manifest" href="/site.webmanifest" />
-  <meta name="theme-color" content="#2563eb">
-
-  <!-- ===== TAILWIND ===== -->
-  <script src="https://cdn.tailwindcss.com"></script>
-
-  <!-- ===== LUCIDE ICONS ===== -->
-  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
-
-  <!-- ===== JSON-LD ===== -->
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "WebApplication",
-    "name": "Droplet",
-    "url": "https://dropletweb.xyz/",
-    "description": "Free online file converter that runs 100% in your browser. Convert HEIC to JPG, PDF to Word, WebP to PNG and 100+ formats without uploading files.",
-    "applicationCategory": "UtilitiesApplication",
-    "operatingSystem": "Any (Web)",
-    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
-    "aggregateRating": { "@type": "AggregateRating", "ratingValue": "4.9", "ratingCount": "12847" },
-    "featureList": [
-      "HEIC to JPG conversion",
-      "PDF to Word conversion",
-      "WebP to PNG conversion",
-      "Voice to Text transcription",
-      "Client-side file processing",
-      "No file uploads",
-      "Offline capable"
-    ]
-  }
-  </script>
-
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    "mainEntity": [
-      { "@type": "Question", "name": "How do I convert HEIC to JPG without losing quality?", "acceptedAnswer": { "@type": "Answer", "text": "Use Droplet's HEIC to JPG converter. Drop your .heic file, choose JPG output, and download instantly. Our converter uses lossless techniques to preserve image quality while producing a universally compatible JPG." } },
-      { "@type": "Question", "name": "Is HEIC to JPG conversion free without signing in?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. Droplet is 100% free, requires no account, no email, and no sign-in. All conversions happen inside your browser — your files never leave your device." } },
-      { "@type": "Question", "name": "Are my files uploaded to a server?", "acceptedAnswer": { "@type": "Answer", "text": "No. Droplet is fully client-side. Files are processed using JavaScript and WebAssembly inside your browser, so nothing is ever uploaded, stored, or shared." } },
-      { "@type": "Question", "name": "Is there a file size limit?", "acceptedAnswer": { "@type": "Answer", "text": "There is no server-side limit because files never leave your device. Practical limits depend on your device's RAM — most modern browsers handle files up to 2GB." } },
-      { "@type": "Question", "name": "Can I convert HEIC to JPG on iPhone or Android?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. Droplet works in any modern mobile browser (Safari, Chrome, Firefox). You can install it as a PWA for an app-like experience on iPhone and Android." } },
-      { "@type": "Question", "name": "Do I need to install software to convert files?", "acceptedAnswer": { "@type": "Answer", "text": "No installation required. Droplet runs entirely in your web browser. Optionally, you can install it as a Progressive Web App (PWA) for offline use." } },
-      { "@type": "Question", "name": "Can I convert voice to text for free?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. Droplet's Voice to Text tool runs in your browser and transcribes audio to text without uploading your recordings. Free, private, and no sign-in required." } }
-    ]
-  }
-  </script>
-
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "HowTo",
-    "name": "How to Convert HEIC to JPG for Free Without Sign-In",
-    "description": "Step-by-step guide to convert Apple HEIC photos to universally compatible JPG using Droplet's browser-based converter.",
-    "totalTime": "PT30S",
-    "tool": [{ "@type": "HowToTool", "name": "Droplet Online Converter" }],
-    "step": [
-      { "@type": "HowToStep", "position": 1, "name": "Drop your HEIC file", "text": "Drag and drop your .heic file into the Droplet dropzone, or click Select File to browse." },
-      { "@type": "HowToStep", "position": 2, "name": "Choose JPG output", "text": "Select 'HEIC to JPG' from the available conversion options." },
-      { "@type": "HowToStep", "position": 3, "name": "Download instantly", "text": "Your converted JPG downloads automatically. No sign-in, no watermark, no upload." }
-    ]
-  }
-  </script>
-
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    "itemListElement": [
-      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://dropletweb.xyz/" },
-      { "@type": "ListItem", "position": 2, "name": "All Tools", "item": "https://dropletweb.xyz/#all-tools" },
-      { "@type": "ListItem", "position": 3, "name": "HEIC to JPG", "item": "https://dropletweb.xyz/heic-to-jpg.html" }
-    ]
-  }
-  </script>
-
-  <style>
-    /* ===== BASE ===== */
-    :root { color-scheme: light; }
-    html.dark { color-scheme: dark; }
-    * { -webkit-font-smoothing: antialiased; }
-
-    /* ===== FLOATING BLOBS ===== */
-    @keyframes float {
-      0%, 100% { transform: translate(0, 0) scale(1); }
-      33% { transform: translate(30px, -30px) scale(1.1); }
-      66% { transform: translate(-20px, 20px) scale(0.95); }
-    }
-    .blob { animation: float 20s ease-in-out infinite; }
-    .blob-2 { animation-delay: -7s; }
-    .blob-3 { animation-delay: -14s; }
-
-    /* ===== NAV DROPDOWNS ===== */
-    .dropdown-group { position: relative; }
-    .dropdown-group .dropdown-menu {
-      display: none; position: absolute; top: 100%; left: 0;
-      min-width: 260px; background: white; border-radius: 16px;
-      box-shadow: 0 24px 60px rgba(0,0,0,0.18); border: 1px solid #e2e8f0;
-      padding: 0.5rem 0; z-index: 100; max-height: 80vh; overflow-y: auto;
-    }
-    .dropdown-group:hover .dropdown-menu { display: block; }
-    .dropdown-menu a {
-      display: block; padding: 0.55rem 1.25rem; font-size: 0.82rem;
-      color: #1e293b; transition: background 0.15s; font-weight: 500;
-      text-decoration: none;
-    }
-    .dropdown-menu a:hover { background: #f1f5f9; }
-    .dropdown-menu .category-label {
-      display: block; padding: 0.5rem 1.25rem 0.35rem;
-      font-size: 0.6rem; font-weight: 700; text-transform: uppercase;
-      color: #94a3b8; letter-spacing: 0.08em;
-      border-bottom: 1px solid #f1f5f9; margin-bottom: 0.25rem;
-    }
-    .nav-link-with-dropdown > a {
-      display: flex; align-items: center; gap: 0.25rem;
-      text-decoration: none; color: #475569; font-weight: 600;
-      font-size: 0.875rem; padding: 0.25rem 0; transition: color 0.2s;
-    }
-    .nav-link-with-dropdown > a:hover { color: #2563eb; }
-    .nav-link-with-dropdown > a::after {
-      content: "▾"; font-size: 0.6rem; opacity: 0.6; margin-left: 2px;
-    }
-
-    /* ===== MOBILE NAV ===== */
-    .mobile-nav-toggle {
-      display: none; background: none; border: none; font-size: 1.5rem;
-      cursor: pointer; color: #1e293b; padding: 0.5rem; border-radius: 8px;
-      align-items: center; justify-content: center;
-      line-height: 1;
-    }
-    .mobile-nav-toggle:hover { background: #f1f5f9; }
-    /* Make the mobile hamburger icon explicitly visible in dark mode */
-    html.dark .mobile-nav-toggle { color: #f1f5f9 !important; }
-    html.dark .mobile-nav-toggle:hover { background: #1e293b !important; }
-    html.dark .mobile-nav-toggle svg { stroke: #f1f5f9 !important; }
-    .mobile-nav-overlay {
-      display: none; position: fixed; inset: 0;
-      background: rgba(0,0,0,0.4); backdrop-filter: blur(4px); z-index: 999;
-    }
-    .mobile-nav-overlay.open { display: block; }
-    .mobile-nav-panel {
-      position: fixed; top: 0; right: -360px; width: 340px; max-width: 88%;
-      height: 100%; background: white; z-index: 1000;
-      transition: right 0.3s ease; overflow-y: auto;
-      box-shadow: -8px 0 40px rgba(0,0,0,0.2); padding: 1.5rem 1rem;
-    }
-    .mobile-nav-panel.open { right: 0; }
-    .mobile-nav-panel .close-btn {
-      background: none; border: none; font-size: 1.8rem; cursor: pointer;
-      color: #64748b; padding: 0.25rem 0.5rem; float: right;
-    }
-    .mobile-nav-panel .mobile-logo {
-      display: flex; align-items: center; gap: 0.75rem;
-      padding-bottom: 1rem; border-bottom: 1px solid #e2e8f0;
-      margin-bottom: 1rem;
-    }
-    .mobile-nav-panel .mobile-logo span {
-      font-size: 1.1rem; font-weight: 700; color: #1e293b;
-    }
-    .mobile-nav-panel .mobile-nav-item {
-      display: block; padding: 0.75rem 0.5rem; color: #334155;
-      text-decoration: none; font-weight: 500; font-size: 0.95rem;
-      border-bottom: 1px solid #f1f5f9; cursor: pointer;
-    }
-    .mobile-nav-panel .mobile-nav-item:hover { color: #2563eb; }
-    .mobile-nav-panel .mobile-nav-item .arrow {
-      float: right; color: #94a3b8; font-size: 0.8rem;
-    }
-    .mobile-nav-panel .mobile-submenu {
-      display: none; padding-left: 0.75rem; background: #f8fafc;
-      border-radius: 8px; margin: 0.25rem 0;
-    }
-    .mobile-nav-panel .mobile-submenu.open { display: block; }
-    .mobile-nav-panel .mobile-submenu .mobile-nav-item {
-      border-bottom: none; font-size: 0.85rem; padding: 0.4rem 0.75rem;
-      color: #475569;
-    }
-    .mobile-nav-panel .mobile-submenu .category-label {
-      font-size: 0.6rem; font-weight: 700; text-transform: uppercase;
-      color: #94a3b8; padding: 0.5rem 0.75rem 0.25rem;
-      letter-spacing: 0.05em;
-    }
-
-    /* ===== SEARCH ===== */
-    #searchWrapper {
-      position: relative;
-      z-index: 40;
-    }
-    .search-results {
-      display: none;
-
-      position: absolute;
-      top: calc(100% + 10px);
-      left: 0;
-      right: 0;
-
-      background: white;
-      border: 1px solid #e2e8f0;
-      border-radius: 20px;
-
-      box-shadow: 0 24px 60px rgba(15, 23, 42, 0.18);
-
-      max-height: min(420px, calc(100vh - 180px));
-      overflow-y: auto;
-      overscroll-behavior: contain;
-
-      z-index: 45;
-
-      padding: 0.5rem 0;
-    }
-    .search-results.open { display: block; }
-    .search-results .result-item {
-      display: flex; align-items: center; gap: 0.75rem;
-      padding: 0.65rem 1.1rem; cursor: pointer; text-decoration: none;
-      color: #1e293b; transition: background 0.15s;
-    }
-    .search-results .result-item:hover { background: #f1f5f9; }
-    .search-results .result-item .emoji {
-      width: 36px; height: 36px; display: flex; align-items: center;
-      justify-content: center; background: #eff6ff;
-      border-radius: 10px; font-size: 1.1rem; flex-shrink: 0;
-    }
-    .search-results .result-item .info { flex: 1; min-width: 0; }
-    .search-results .result-item .info .name {
-      font-weight: 600; font-size: 0.9rem;
-    }
-    .search-results .result-item .info .category {
-      font-size: 0.7rem; color: #94a3b8;
-    }
-    .search-results .result-category {
-      padding: 0.5rem 1.1rem 0.3rem; font-size: 0.65rem;
-      font-weight: 700; text-transform: uppercase; color: #94a3b8;
-      background: #f8fafc; letter-spacing: 0.05em;
-    }
-    .search-results .no-results {
-      padding: 2rem; text-align: center; color: #94a3b8;
-    }
-    .search-results .no-results .emoji {
-      font-size: 2rem; display: block; margin-bottom: 0.5rem;
-    }
-
-    /* ===== UPLOAD MODAL ===== */
-    .upload-overlay {
-      display: none; position: fixed; inset: 0;
-      background: rgba(15,23,42,0.6); backdrop-filter: blur(6px);
-      z-index: 2000; justify-content: center; align-items: center;
-    }
-    .upload-overlay.open { display: flex; }
-    .upload-modal {
-      background: white; border-radius: 28px; padding: 2rem;
-      max-width: 520px; width: 92%; max-height: 82vh; overflow-y: auto;
-      box-shadow: 0 40px 100px rgba(0,0,0,0.35);
-      animation: slideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-    @keyframes slideUp {
-      from { transform: translateY(40px) scale(0.96); opacity: 0; }
-      to { transform: translateY(0) scale(1); opacity: 1; }
-    }
-    .upload-modal .conversion-options .option-btn {
-      display: flex; align-items: center; gap: 0.85rem;
-      padding: 0.85rem 1rem; border: 2px solid #e2e8f0;
-      border-radius: 14px; background: white; cursor: pointer;
-      text-decoration: none; color: #1e293b; transition: all 0.2s;
-      margin-bottom: 0.5rem;
-    }
-    .upload-modal .conversion-options .option-btn:hover {
-      border-color: #2563eb; background: #eff6ff;
-      transform: translateX(4px);
-    }
-
-    /* ===== HANDOFF SPINNER ===== */
-    .handoff-status {
-      display: none;
-      position: fixed; inset: 0;
-      background: rgba(15,23,42,0.85); backdrop-filter: blur(6px);
-      z-index: 3000;
-      justify-content: center; align-items: center;
-      color: white; text-align: center;
-    }
-    .handoff-status.show { display: flex; }
-    .handoff-status .spinner {
-      width: 48px; height: 48px;
-      border: 4px solid rgba(255,255,255,0.2);
-      border-top-color: white;
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-      margin: 0 auto 1rem;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    /* ===== PWA INSTALL ===== */
-    #pwa-install-btn { display: none; }
-    #pwa-install-btn.visible { display: flex !important; }
-    #pwa-install-btn.installed {
-      background: #d1fae5 !important; color: #065f46 !important;
-      border-color: #86efac !important; cursor: default;
-    }
-
-    /* ===== THEME TOGGLE ===== */
-    #theme-toggle {
-      background: none; border: none; font-size: 1.2rem; cursor: pointer;
-      padding: 0.4rem; border-radius: 10px; line-height: 1;
-      color: #475569; transition: background 0.2s;
-    }
-    #theme-toggle:hover { background: #f1f5f9; }
-
-    /* ===== SCROLLBAR ===== */
-    .search-results::-webkit-scrollbar { width: 6px; }
-    .search-results::-webkit-scrollbar-thumb {
-      background: #cbd5e1; border-radius: 8px;
-    }
-
-    /* ===== RESPONSIVE ===== */
-    @media (max-width: 768px) {
-      .desktop-nav { display: none !important; }
-      .mobile-nav-toggle { display: flex; }
-    }
-    @media (min-width: 769px) {
-      .desktop-nav {
-        display: flex !important; align-items: center; gap: 1.5rem;
-      }
-      .mobile-nav-toggle { display: none !important; }
-      .mobile-nav-overlay, .mobile-nav-panel { display: none !important; }
-    }
-
-    /* ===== DARK MODE ===== */
-    html.dark body { background: #0a0f1e; color: #e2e8f0; }
-    html.dark .bg-white { background: #111827 !important; }
-    html.dark .bg-slate-50 { background: #0a0f1e !important; }
-    html.dark .bg-slate-100 { background: #1e293b !important; }
-    html.dark .text-slate-900, html.dark .text-slate-800 { color: #f1f5f9 !important; }
-    html.dark .text-slate-500, html.dark .text-slate-600 { color: #94a3b8 !important; }
-    html.dark .border-slate-200, html.dark .border-slate-100 { border-color: #1e293b !important; }
-    html.dark .dropdown-menu { background: #111827; border-color: #1e293b; }
-    html.dark .dropdown-menu a { color: #e2e8f0; }
-    html.dark .dropdown-menu a:hover { background: #1e293b; }
-    html.dark .mobile-nav-panel { background: #0a0f1e; }
-    html.dark .mobile-nav-panel .mobile-logo span,
-    html.dark .mobile-nav-panel .mobile-nav-item { color: #e2e8f0; }
-    html.dark .mobile-nav-panel .mobile-submenu { background: #111827; }
-    html.dark .search-results { background: #111827; border-color: #1e293b; }
-    html.dark .search-results .result-item { color: #f1f5f9; }
-    html.dark .search-results .result-item:hover { background: #1e293b; }
-    html.dark .search-results .result-item .emoji { background: #1e3a5f; }
-    html.dark .upload-modal { background: #111827; }
-    html.dark .upload-modal .conversion-options .option-btn {
-      background: #0a0f1e; border-color: #1e293b; color: #f1f5f9;
-    }
-    html.dark #dropzone { background: linear-gradient(180deg, #111827, #0a0f1e); }
-    html.dark footer { background: #050810 !important; }
-    html.dark #theme-toggle { color: #e2e8f0; }
-    html.dark #theme-toggle:hover { background: #1e293b; }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Droplet — Free PDF, Image &amp; Document Tools</title>
+<meta name="description" content="Convert PDFs, images, documents and data with 42 free Droplet tools. Browse clear file limits and processing details, with no account required.">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<link rel="canonical" href="https://dropletweb.xyz/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Droplet">
+<meta property="og:title" content="Droplet — Free PDF, Image &amp; Document Tools">
+<meta property="og:description" content="Convert PDFs, images, documents and data with 42 free Droplet tools. Browse clear file limits and processing details, with no account required.">
+<meta property="og:url" content="https://dropletweb.xyz/">
+<meta property="og:image" content="https://dropletweb.xyz/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Droplet — free file tools">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Droplet — Free PDF, Image &amp; Document Tools">
+<meta name="twitter:description" content="Convert PDFs, images, documents and data with 42 free Droplet tools. Browse clear file limits and processing details, with no account required.">
+<meta name="twitter:image" content="https://dropletweb.xyz/og-image.png">
+<link rel="icon" href="/favicon-96x96.png" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta name="theme-color" content="#2563eb">
+<script src="/assets/theme.js">
+</script>
+<link rel="stylesheet" href="/assets/home.css">
+<link rel="stylesheet" href="/assets/droplet-fixes.css">
+<script defer src="/assets/droplet-runtime.js">
+</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4006702663328202" crossorigin="anonymous">
+</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@graph": [{"@type": "WebSite", "name": "Droplet", "url": "https://dropletweb.xyz/"}, {"@type": "WebApplication", "name": "Droplet file tools", "url": "https://dropletweb.xyz/", "description": "Convert PDFs, images, documents and data with 42 free Droplet tools. Browse clear file limits and processing details, with no account required.", "applicationCategory": "UtilitiesApplication", "operatingSystem": "Web", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}}, {"@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Home", "item": "https://dropletweb.xyz/"}]}, {"@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I convert a file?", "acceptedAnswer": {"@type": "Answer", "text": "Select a file on the homepage, choose a matching tool, and follow the conversion options on that tool’s page. You can also open a tool first and select a file there."}}, {"@type": "Question", "name": "Are my files uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "Most conversion tools process files in your browser. PDF translation sends extracted text to MyMemory only after you enable online translation. Voice transcription offers an on-device model; the optional browser speech service may send audio to its provider."}}, {"@type": "Question", "name": "What are the file-size limits?", "acceptedAnswer": {"@type": "Answer", "text": "Limits vary by tool and your device’s memory. JSON to CSV accepts up to 10 MB, for example. Matching tools show their limits before a homepage transfer, which is limited to 100 MB in total."}}, {"@type": "Question", "name": "Can I convert HEIC to JPG without losing quality?", "acceptedAnswer": {"@type": "Answer", "text": "Droplet can create high-quality JPG images from HEIC photos. JPG uses lossy compression, so a conversion cannot guarantee identical image data. Choose a higher quality setting when detail matters."}}, {"@type": "Question", "name": "Do I need an account or a subscription?", "acceptedAnswer": {"@type": "Answer", "text": "No account or subscription is required to use the tools. Some online features depend on external services and their availability or usage limits."}}, {"@type": "Question", "name": "Can I use Droplet offline?", "acceptedAnswer": {"@type": "Answer", "text": "Many tools work offline after their page and required resources have loaded. Speech models, OCR language data and online translation may need an internet connection. Test the specific tool before relying on it offline."}}, {"@type": "Question", "name": "Does Droplet store my files?", "acceptedAnswer": {"@type": "Answer", "text": "A homepage transfer briefly stores a copy on your device, deletes it after the destination tool receives it, and expires unused transfers after two minutes. Expired copies are removed while Droplet is open or on your next visit. Voice drafts, preferences and downloaded models can remain in browser storage until you clear them."}}, {"@type": "Question", "name": "How do I report a problem?", "acceptedAnswer": {"@type": "Answer", "text": "Open Contact, include the tool name and what happened, and avoid sending the document itself unless the site owner specifically needs it. The contact page links to the existing privacy email and Droplet’s public profiles."}}]}]}</script>
+<script defer src="/assets/home.js">
+</script>
 </head>
-
-<body class="bg-white text-slate-800 font-sans min-h-screen flex flex-col antialiased">
-
-  <a href="#main" class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[3000] focus:bg-blue-600 focus:text-white focus:px-4 focus:py-2 focus:rounded-lg">Skip to content</a>
-
-  <!-- ===== HANDOFF SPINNER (shown when saving file) ===== -->
-  <div class="handoff-status" id="handoffStatus">
-    <div>
-      <div class="spinner"></div>
-      <p class="font-bold text-lg">Preparing your file…</p>
-      <p class="text-sm text-slate-300 mt-1">Handing off to the converter</p>
-    </div>
-  </div>
-
-  <!-- ===== HEADER ===== -->
-  <header class="sticky top-0 z-50 backdrop-blur-xl bg-white/75 border-b border-slate-200/70 transition-colors">
-    <div class="max-w-7xl mx-auto flex justify-between items-center px-4 md:px-6 h-16">
-
-      <a href="/" class="flex items-center gap-2.5 group flex-shrink-0">
-        <img src="/Glossy Blue Droplet Arrow Icon.png" alt="Droplet" class="w-9 h-9 rounded-xl shadow-sm group-hover:scale-105 transition-transform object-cover">
-        <span class="font-black text-lg tracking-tight text-slate-900">Droplet</span>
-      </a>
-
-      <nav class="desktop-nav">
-        <div class="nav-link-with-dropdown dropdown-group">
-          <a href="#all-tools">All Tools</a>
-          <div class="dropdown-menu">
-            <span class="category-label">Core Documents</span>
-            <a href="/pdf-to-word.html">PDF to DOCX (Word)</a>
-            <a href="/word-to-pdf.html">Word (DOCX) to PDF</a>
-            <a href="/pdf-to-txt.html">PDF to TXT</a>
-            <a href="/epub-to-pdf.html">EPUB to PDF</a>
-            <a href="/txt-to-pdf.html">TXT to PDF</a>
-            <a href="/pdf-to-pdfa.html">PDF to PDF/A</a>
-            <a href="/pdf-to-powerpoint.html">PDF to POWERPOINT</a>
-            <a href="/pdf-to-excel.html">PDF to EXCEL</a>
-            <span class="category-label">Convert to PDF</span>
-            <a href="/word-to-pdf.html">WORD to PDF</a>
-            <a href="/powerpoint-to-pdf.html">POWERPOINT to PDF</a>
-            <a href="/excel-to-pdf.html">EXCEL to PDF</a>
-            <a href="/html-to-pdf.html">HTML to PDF</a>
-            <span class="category-label">Image Converters</span>
-            <a href="/heic-to-jpg.html">HEIC to JPG</a>
-            <a href="/webp-to-jpg.html">WebP to JPG</a>
-            <a href="/webp-to-png.html">WebP to PNG</a>
-            <a href="/avif-to-png.html">AVIF to PNG</a>
-            <a href="/gif-to-png.html">GIF to PNG</a>
-            <a href="/psd-to-png.html">PSD to PNG</a>
-            <a href="/raw-to-jpg.html">RAW to JPG</a>
-            <a href="/tiff-to-pdf.html">TIFF to PDF</a>
-            <a href="/jpg-to-pdf.html">JPG to PDF</a>
-            <a href="/pdf-to-jpg.html">PDF to JPG</a>
-            <a href="/svg-to-png.html">SVG to PNG</a>
-            <a href="/eps-to-svg.html">EPS to SVG</a>
-            <span class="category-label">AI Tools</span>
-            <a href="/voice-to-text.html">Voice to Text</a>
-            <span class="category-label">Data Tools</span>
-            <a href="/json-to-csv.html">JSON to CSV</a>
-            <a href="/csv-to-json.html">CSV to JSON</a>
-            <a href="/xml-to-json.html">XML to JSON</a>
-            <span class="category-label">PDF Intelligence</span>
-            <a href="/pdf-to-markdown.html">PDF to Markdown</a>
-          </div>
-        </div>
-
-        <div class="nav-link-with-dropdown dropdown-group">
-          <a href="#image-tools">Image Converter</a>
-          <div class="dropdown-menu">
-            <a href="/heic-to-jpg.html">HEIC to JPG</a>
-            <a href="/webp-to-jpg.html">WebP to JPG</a>
-            <a href="/webp-to-png.html">WebP to PNG</a>
-            <a href="/avif-to-png.html">AVIF to PNG</a>
-            <a href="/gif-to-png.html">GIF to PNG</a>
-            <a href="/psd-to-png.html">PSD to PNG</a>
-            <a href="/raw-to-jpg.html">RAW to JPG</a>
-            <a href="/tiff-to-pdf.html">TIFF to PDF</a>
-            <a href="/jpg-to-pdf.html">JPG to PDF</a>
-            <a href="/pdf-to-jpg.html">PDF to JPG</a>
-            <a href="/svg-to-png.html">SVG to PNG</a>
-            <a href="/eps-to-svg.html">EPS to SVG</a>
-          </div>
-        </div>
-
-        <div class="nav-link-with-dropdown dropdown-group">
-          <a href="#doc-tools">Documents</a>
-          <div class="dropdown-menu">
-            <span class="category-label">Core Documents</span>
-            <a href="/pdf-to-word.html">PDF to DOCX (Word)</a>
-            <a href="/word-to-pdf.html">Word (DOCX) to PDF</a>
-            <a href="/pdf-to-txt.html">PDF to TXT</a>
-            <a href="/epub-to-pdf.html">EPUB to PDF</a>
-            <a href="/txt-to-pdf.html">TXT to PDF</a>
-            <a href="/pdf-to-pdfa.html">PDF to PDF/A</a>
-            <a href="/pdf-to-powerpoint.html">PDF to POWERPOINT</a>
-            <a href="/pdf-to-excel.html">PDF to EXCEL</a>
-            <span class="category-label">Convert to PDF</span>
-            <a href="/word-to-pdf.html">WORD to PDF</a>
-            <a href="/powerpoint-to-pdf.html">POWERPOINT to PDF</a>
-            <a href="/excel-to-pdf.html">EXCEL to PDF</a>
-            <a href="/html-to-pdf.html">HTML to PDF</a>
-          </div>
-        </div>
-
-        <div class="nav-link-with-dropdown dropdown-group">
-          <a href="#pdf-organize">PDF Organize</a>
-          <div class="dropdown-menu">
-            <span class="category-label">PDF Organize</span>
-            <a href="/merge-pdf.html">Merge PDF</a>
-            <a href="/split-pdf.html">Split PDF</a>
-            <a href="/remove-pages.html">Remove pages</a>
-            <a href="/extract-pages.html">Extract pages</a>
-            <a href="/organize-pdf.html">Organize PDF</a>
-            <a href="/scan-to-pdf.html">Scan to PDF</a>
-            <a href="/rotate-pdf.html">Rotate PDF</a>
-            <a href="/add-page-numbers.html">Add page numbers</a>
-            <span class="category-label">Editing &amp; Security</span>
-            <a href="/add-watermark.html">Add watermark</a>
-            <a href="/crop-pdf.html">Crop PDF</a>
-            <a href="/edit-pdf.html">Edit PDF</a>
-            <a href="/pdf-forms.html">PDF Forms</a>
-          </div>
-        </div>
-
-        <div class="nav-link-with-dropdown dropdown-group">
-          <a href="#ai-tools">AI &amp; Data</a>
-          <div class="dropdown-menu">
-            <span class="category-label">AI Tools</span>
-            <a href="/voice-to-text.html">Voice to Text</a>
-            <a href="/ai-summarizer.html">AI Summarizer</a>
-            <a href="/translate-pdf.html">Translate PDF</a>
-            <span class="category-label">PDF Intelligence</span>
-            <a href="/pdf-to-markdown.html">PDF to Markdown</a>
-            <span class="category-label">Data Tools</span>
-            <a href="/json-to-csv.html">JSON to CSV</a>
-            <a href="/csv-to-json.html">CSV to JSON</a>
-            <a href="/xml-to-json.html">XML to JSON</a>
-          </div>
-        </div>
-
-        <a href="#faq" class="hover:text-blue-600 transition-colors font-semibold text-sm text-slate-600">Help</a>
-      </nav>
-
-      <div class="flex items-center gap-2">
-        <button id="theme-toggle" aria-label="Toggle dark mode">🌙</button>
-        <button id="pwa-install-btn" class="bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs px-3.5 py-2 rounded-lg items-center gap-1.5 shadow-md transition-all">
-          <span>📲</span> <span class="hidden sm:inline">Install</span>
-        </button>
-        <button class="mobile-nav-toggle" id="mobileNavToggle" aria-label="Toggle navigation">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <line x1="4" y1="7" x2="20" y2="7"></line>
-            <line x1="4" y1="12" x2="20" y2="12"></line>
-            <line x1="4" y1="17" x2="20" y2="17"></line>
-          </svg>
-        </button>
-      </div>
-    </div>
-  </header>
-
-  <!-- Mobile Nav -->
-  <div class="mobile-nav-overlay" id="mobileOverlay"></div>
-  <div class="mobile-nav-panel" id="mobilePanel">
-    <button class="close-btn" id="mobileCloseBtn">✕</button>
-    <div class="mobile-logo">
-      <img src="/Glossy Blue Droplet Arrow Icon.png" alt="Droplet" class="w-8 h-8 rounded-lg object-cover">
-      <span>Droplet</span>
-    </div>
-
-    <div class="mobile-nav-item" onclick="toggleMobileSubmenu('sub-all-tools')">All Tools <span class="arrow">▾</span></div>
-    <div class="mobile-submenu" id="sub-all-tools">
-      <div class="category-label">Core Documents</div>
-      <a href="/pdf-to-word.html" class="mobile-nav-item">PDF to DOCX</a>
-      <a href="/word-to-pdf.html" class="mobile-nav-item">Word to PDF</a>
-      <a href="/pdf-to-txt.html" class="mobile-nav-item">PDF to TXT</a>
-      <a href="/epub-to-pdf.html" class="mobile-nav-item">EPUB to PDF</a>
-      <a href="/txt-to-pdf.html" class="mobile-nav-item">TXT to PDF</a>
-      <a href="/pdf-to-pdfa.html" class="mobile-nav-item">PDF to PDF/A</a>
-      <a href="/pdf-to-powerpoint.html" class="mobile-nav-item">PDF to PowerPoint</a>
-      <a href="/pdf-to-excel.html" class="mobile-nav-item">PDF to Excel</a>
-      <div class="category-label">Convert to PDF</div>
-      <a href="/word-to-pdf.html" class="mobile-nav-item">WORD to PDF</a>
-      <a href="/powerpoint-to-pdf.html" class="mobile-nav-item">POWERPOINT to PDF</a>
-      <a href="/excel-to-pdf.html" class="mobile-nav-item">EXCEL to PDF</a>
-      <a href="/html-to-pdf.html" class="mobile-nav-item">HTML to PDF</a>
-      <div class="category-label">Image Converters</div>
-      <a href="/heic-to-jpg.html" class="mobile-nav-item">HEIC to JPG</a>
-      <a href="/webp-to-jpg.html" class="mobile-nav-item">WebP to JPG</a>
-      <a href="/webp-to-png.html" class="mobile-nav-item">WebP to PNG</a>
-      <a href="/svg-to-png.html" class="mobile-nav-item">SVG to PNG</a>
-      <div class="category-label">AI Tools</div>
-      <a href="/voice-to-text.html" class="mobile-nav-item">🎤 Voice to Text</a>
-      <div class="category-label">Data Tools</div>
-      <a href="/json-to-csv.html" class="mobile-nav-item">JSON to CSV</a>
-      <a href="/csv-to-json.html" class="mobile-nav-item">CSV to JSON</a>
-      <a href="/xml-to-json.html" class="mobile-nav-item">XML to JSON</a>
-      <div class="category-label">PDF Intelligence</div>
-      <a href="/pdf-to-markdown.html" class="mobile-nav-item">PDF to Markdown</a>
-    </div>
-
-    <div class="mobile-nav-item" onclick="toggleMobileSubmenu('sub-image')">Image Converter <span class="arrow">▾</span></div>
-    <div class="mobile-submenu" id="sub-image">
-      <a href="/heic-to-jpg.html" class="mobile-nav-item">HEIC to JPG</a>
-      <a href="/webp-to-jpg.html" class="mobile-nav-item">WebP to JPG</a>
-      <a href="/webp-to-png.html" class="mobile-nav-item">WebP to PNG</a>
-      <a href="/avif-to-png.html" class="mobile-nav-item">AVIF to PNG</a>
-      <a href="/gif-to-png.html" class="mobile-nav-item">GIF to PNG</a>
-      <a href="/psd-to-png.html" class="mobile-nav-item">PSD to PNG</a>
-      <a href="/raw-to-jpg.html" class="mobile-nav-item">RAW to JPG</a>
-      <a href="/tiff-to-pdf.html" class="mobile-nav-item">TIFF to PDF</a>
-      <a href="/jpg-to-pdf.html" class="mobile-nav-item">JPG to PDF</a>
-      <a href="/pdf-to-jpg.html" class="mobile-nav-item">PDF to JPG</a>
-      <a href="/svg-to-png.html" class="mobile-nav-item">SVG to PNG</a>
-      <a href="/eps-to-svg.html" class="mobile-nav-item">EPS to SVG</a>
-    </div>
-
-    <div class="mobile-nav-item" onclick="toggleMobileSubmenu('sub-document')">Documents <span class="arrow">▾</span></div>
-    <div class="mobile-submenu" id="sub-document">
-      <a href="/pdf-to-word.html" class="mobile-nav-item">PDF to DOCX</a>
-      <a href="/word-to-pdf.html" class="mobile-nav-item">Word to PDF</a>
-      <a href="/pdf-to-txt.html" class="mobile-nav-item">PDF to TXT</a>
-      <a href="/epub-to-pdf.html" class="mobile-nav-item">EPUB to PDF</a>
-      <a href="/txt-to-pdf.html" class="mobile-nav-item">TXT to PDF</a>
-      <a href="/pdf-to-pdfa.html" class="mobile-nav-item">PDF to PDF/A</a>
-      <a href="/pdf-to-powerpoint.html" class="mobile-nav-item">PDF to PowerPoint</a>
-      <a href="/pdf-to-excel.html" class="mobile-nav-item">PDF to Excel</a>
-      <div class="category-label">Convert to PDF</div>
-      <a href="/word-to-pdf.html" class="mobile-nav-item">WORD to PDF</a>
-      <a href="/powerpoint-to-pdf.html" class="mobile-nav-item">POWERPOINT to PDF</a>
-      <a href="/excel-to-pdf.html" class="mobile-nav-item">EXCEL to PDF</a>
-      <a href="/html-to-pdf.html" class="mobile-nav-item">HTML to PDF</a>
-    </div>
-
-    <div class="mobile-nav-item" onclick="toggleMobileSubmenu('sub-pdf-organize')">PDF Organize <span class="arrow">▾</span></div>
-    <div class="mobile-submenu" id="sub-pdf-organize">
-      <a href="/merge-pdf.html" class="mobile-nav-item">Merge PDF</a>
-      <a href="/split-pdf.html" class="mobile-nav-item">Split PDF</a>
-      <a href="/remove-pages.html" class="mobile-nav-item">Remove pages</a>
-      <a href="/extract-pages.html" class="mobile-nav-item">Extract pages</a>
-      <a href="/organize-pdf.html" class="mobile-nav-item">Organize PDF</a>
-      <a href="/scan-to-pdf.html" class="mobile-nav-item">Scan to PDF</a>
-      <a href="/rotate-pdf.html" class="mobile-nav-item">Rotate PDF</a>
-      <a href="/add-page-numbers.html" class="mobile-nav-item">Add page numbers</a>
-      <div class="category-label">Editing &amp; Security</div>
-      <a href="/add-watermark.html" class="mobile-nav-item">Add watermark</a>
-      <a href="/crop-pdf.html" class="mobile-nav-item">Crop PDF</a>
-      <a href="/edit-pdf.html" class="mobile-nav-item">Edit PDF</a>
-      <a href="/pdf-forms.html" class="mobile-nav-item">PDF Forms</a>
-    </div>
-
-    <div class="mobile-nav-item" onclick="toggleMobileSubmenu('sub-ai-tools')">AI &amp; Data <span class="arrow">▾</span></div>
-    <div class="mobile-submenu" id="sub-ai-tools">
-      <div class="category-label">AI Tools</div>
-      <a href="/voice-to-text.html" class="mobile-nav-item">🎤 Voice to Text</a>
-      <a href="/ai-summarizer.html" class="mobile-nav-item">🤖 AI Summarizer</a>
-      <a href="/translate-pdf.html" class="mobile-nav-item">🌍 Translate PDF</a>
-      <div class="category-label">PDF Intelligence</div>
-      <a href="/pdf-to-markdown.html" class="mobile-nav-item">📝 PDF to Markdown</a>
-      <div class="category-label">Data Tools</div>
-      <a href="/json-to-csv.html" class="mobile-nav-item">JSON to CSV</a>
-      <a href="/csv-to-json.html" class="mobile-nav-item">CSV to JSON</a>
-      <a href="/xml-to-json.html" class="mobile-nav-item">XML to JSON</a>
-    </div>
-
-    <a href="#faq" class="mobile-nav-item">Help</a>
-
-    <button id="mobileInstallBtn" class="w-full mt-4 bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 rounded-xl text-sm transition-all shadow-md">
-      📲 Install App
-    </button>
-  </div>
-
-  <!-- ===== UPLOAD MODAL ===== -->
-  <div class="upload-overlay" id="uploadOverlay">
-    <div class="upload-modal">
-      <button class="modal-close float-right text-2xl text-slate-400 hover:text-slate-900 leading-none" id="modalClose">✕</button>
-      <h3 class="text-xl font-black text-slate-900 mb-2">📂 File Uploaded</h3>
-      <p class="text-slate-500 text-sm mb-4">Choose a conversion option for your file:</p>
-
-      <div class="flex items-center gap-3 p-4 bg-slate-50 rounded-2xl mb-4">
-        <span class="text-4xl" id="fileIcon">📄</span>
-        <div class="flex-1 min-w-0">
-          <div class="font-bold text-slate-900 truncate" id="fileName">filename.ext</div>
-          <div class="text-xs text-slate-400" id="fileSize">0 KB</div>
-        </div>
-      </div>
-
-      <div class="conversion-options" id="conversionOptions"></div>
-
-      <div class="hidden text-center py-6" id="noOptions">
-        <span class="text-5xl block mb-3">🔄</span>
-        <p class="text-slate-500">No direct conversion available for this file type yet.</p>
-        <p class="text-xs text-slate-400 mt-2">But we're adding new formats all the time!</p>
-      </div>
-    </div>
-  </div>
-
-  <!-- ===== MAIN ===== -->
-  <main id="main" class="flex-grow">
-
-    <!-- HERO -->
-    <section class="relative">
-      <div class="absolute inset-0 -z-10 overflow-hidden">
-        <div class="blob absolute top-0 left-1/4 w-[500px] h-[500px] bg-blue-300/20 rounded-full blur-3xl"></div>
-        <div class="blob blob-2 absolute top-20 right-1/4 w-[500px] h-[500px] bg-indigo-300/15 rounded-full blur-3xl"></div>
-        <div class="blob blob-3 absolute bottom-0 left-1/2 w-[500px] h-[500px] bg-sky-300/15 rounded-full blur-3xl"></div>
-      </div>
-
-      <div class="max-w-4xl mx-auto text-center px-4 pt-14 pb-8 md:pt-20">
-        <div class="inline-flex items-center gap-2 bg-white/80 backdrop-blur border border-slate-200 rounded-full px-4 py-1.5 text-xs font-semibold text-slate-600 mb-6 shadow-sm">
-          <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-          No uploads · No signup · No limits
-        </div>
-
-        <h1 class="text-4xl md:text-6xl lg:text-7xl font-black tracking-tight leading-[1.05] mb-5 text-slate-900">
-          Convert <span class="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">anything</span><br>
-          in your browser.
-        </h1>
-
-        <p class="text-slate-500 text-base md:text-lg max-w-xl mx-auto mb-8">
-          Drag, drop, done. Convert HEIC to JPG, PDF to Word, WebP to PNG and 100+ formats — <strong class="text-slate-700">without uploading your files</strong>.
-        </p>
-
-        <div class="relative max-w-2xl mx-auto group" id="searchWrapper">
-          <div class="absolute -inset-0.5 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-2xl blur opacity-20 group-focus-within:opacity-40 transition"></div>
-          <div class="relative flex items-center bg-white rounded-2xl shadow-xl border border-slate-200 px-4 py-3">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-slate-400 mr-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-            <input type="text" id="searchInput" placeholder="Search 100+ tools... (HEIC, PDF, JSON)" autocomplete="off" class="flex-1 outline-none text-base bg-transparent text-slate-900 placeholder-slate-400">
-            <span class="hidden md:block text-xs bg-slate-100 px-2 py-1 rounded-md text-slate-500 font-mono border border-slate-200" id="searchShortcut">⌘K</span>
-            <button class="clear-btn hidden ml-2 text-slate-400 hover:text-red-500 text-lg" id="clearBtn">✕</button>
-          </div>
-          <div class="search-results" id="searchResults"></div>
-        </div>
-      </div>
-    </section>
-
-    <!-- DROPZONE -->
-    <section class="relative z-0 max-w-2xl mx-auto px-4 mt-4 mb-10">
-      <div id="dropzone" class="relative group bg-gradient-to-b from-white to-slate-50 border-2 border-dashed border-slate-300 hover:border-blue-500 transition-all rounded-3xl p-8 md:p-12 text-center cursor-pointer shadow-lg shadow-slate-200/50">
-        <div class="relative w-20 h-20 mx-auto mb-5">
-          <div class="absolute inset-0 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-3xl rotate-6 group-hover:rotate-12 transition-transform duration-300 shadow-lg shadow-blue-500/30"></div>
-          <div class="absolute inset-0 bg-white rounded-3xl flex items-center justify-center shadow-lg">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-blue-600 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v12m0 0-4-4m4 4 4-4M4 20h16"/></svg>
-          </div>
-        </div>
-
-        <h3 class="text-2xl md:text-3xl font-black text-slate-900 mb-2">Drop your file here</h3>
-        <p class="text-slate-500 text-sm mb-6">or <span class="text-blue-600 font-semibold underline decoration-2 underline-offset-2">browse files</span> — 100% private, runs in your browser</p>
-
-        <input type="file" id="file-input" class="hidden">
-        <button onclick="document.getElementById('file-input').click()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-7 py-3 rounded-xl text-sm shadow-lg shadow-blue-500/30 transition-all active:scale-95 inline-flex items-center gap-2">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v12m0 0-4-4m4 4 4-4M4 20h16"/></svg>
-          Select File
-        </button>
-
-        <div class="flex flex-wrap justify-center gap-2 mt-6">
-          <span class="text-[11px] font-semibold bg-slate-100 text-slate-600 px-3 py-1 rounded-full">PDF</span>
-          <span class="text-[11px] font-semibold bg-slate-100 text-slate-600 px-3 py-1 rounded-full">HEIC</span>
-          <span class="text-[11px] font-semibold bg-slate-100 text-slate-600 px-3 py-1 rounded-full">DOCX</span>
-          <span class="text-[11px] font-semibold bg-slate-100 text-slate-600 px-3 py-1 rounded-full">JPG</span>
-          <span class="text-[11px] font-semibold bg-slate-100 text-slate-600 px-3 py-1 rounded-full">PNG</span>
-          <span class="text-[11px] font-semibold bg-slate-100 text-slate-600 px-3 py-1 rounded-full">WebP</span>
-          <span class="text-[11px] font-semibold bg-slate-100 text-slate-600 px-3 py-1 rounded-full">MP3</span>
-          <span class="text-[11px] font-semibold bg-slate-100 text-slate-600 px-3 py-1 rounded-full">JSON</span>
-          <span class="text-[11px] font-semibold bg-slate-100 text-slate-600 px-3 py-1 rounded-full">+50 more</span>
-        </div>
-      </div>
-    </section>
-
-    <!-- TRUST STATS -->
-    <section class="py-10 border-y border-slate-200 bg-slate-50/50">
-      <div class="max-w-5xl mx-auto px-4 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-        <div>
-          <div class="text-3xl md:text-4xl font-black text-slate-900">100+</div>
-          <div class="text-xs text-slate-500 font-semibold mt-1 uppercase tracking-wider">Converters</div>
-        </div>
-        <div>
-          <div class="text-3xl md:text-4xl font-black text-slate-900">0</div>
-          <div class="text-xs text-slate-500 font-semibold mt-1 uppercase tracking-wider">Uploads</div>
-        </div>
-        <div>
-          <div class="text-3xl md:text-4xl font-black text-slate-900">2GB</div>
-          <div class="text-xs text-slate-500 font-semibold mt-1 uppercase tracking-wider">Max file</div>
-        </div>
-        <div>
-          <div class="text-3xl md:text-4xl font-black text-slate-900">∞</div>
-          <div class="text-xs text-slate-500 font-semibold mt-1 uppercase tracking-wider">Free forever</div>
-        </div>
-      </div>
-    </section>
-
-    <!-- POPULAR CONVERTERS -->
-    <section id="all-tools" class="max-w-6xl mx-auto px-4 py-14">
-      <div class="text-center mb-10">
-        <h2 class="text-3xl md:text-4xl font-black text-slate-900 mb-2">Popular Client-Side Converters</h2>
-        <p class="text-slate-500 text-sm">Fast, free, and 100% private — nothing leaves your device.</p>
-      </div>
-
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-
-        <a href="/voice-to-text.html" class="group relative bg-white rounded-2xl p-5 border border-slate-200 hover:border-blue-400 hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-300 hover:-translate-y-1 overflow-hidden">
-          <div class="absolute inset-x-0 top-0 h-1 bg-blue-500 scale-x-0 group-hover:scale-x-100 transition-transform origin-left"></div>
-          <div class="w-12 h-12 rounded-xl bg-blue-500 flex items-center justify-center text-white mb-3 shadow-md shadow-blue-500/20 group-hover:scale-110 transition">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
-          </div>
-          <span class="text-[10px] font-bold uppercase tracking-wider text-blue-600">AI Audio</span>
-          <h3 class="font-extrabold text-slate-900 text-base mt-0.5">Voice to Text</h3>
-        </a>
-
-        <a href="/heic-to-jpg.html" class="group relative bg-white rounded-2xl p-5 border border-slate-200 hover:border-blue-400 hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-300 hover:-translate-y-1 overflow-hidden">
-          <div class="absolute inset-x-0 top-0 h-1 bg-blue-500 scale-x-0 group-hover:scale-x-100 transition-transform origin-left"></div>
-          <div class="w-12 h-12 rounded-xl bg-blue-500 flex items-center justify-center text-white mb-3 shadow-md shadow-blue-500/20 group-hover:scale-110 transition">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
-          </div>
-          <span class="text-[10px] font-bold uppercase tracking-wider text-blue-600">Image</span>
-          <h3 class="font-extrabold text-slate-900 text-base mt-0.5">HEIC to JPG</h3>
-        </a>
-
-        <a href="/json-to-csv.html" class="group relative bg-white rounded-2xl p-5 border border-slate-200 hover:border-blue-400 hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-300 hover:-translate-y-1 overflow-hidden">
-          <div class="absolute inset-x-0 top-0 h-1 bg-blue-500 scale-x-0 group-hover:scale-x-100 transition-transform origin-left"></div>
-          <div class="w-12 h-12 rounded-xl bg-blue-500 flex items-center justify-center text-white mb-3 shadow-md shadow-blue-500/20 group-hover:scale-110 transition">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="m7 15 4-4 4 4 5-5"/></svg>
-          </div>
-          <span class="text-[10px] font-bold uppercase tracking-wider text-blue-600">Spreadsheet</span>
-          <h3 class="font-extrabold text-slate-900 text-base mt-0.5">JSON to CSV</h3>
-        </a>
-
-        <a href="/epub-to-pdf.html" class="group relative bg-white rounded-2xl p-5 border border-slate-200 hover:border-blue-400 hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-300 hover:-translate-y-1 overflow-hidden">
-          <div class="absolute inset-x-0 top-0 h-1 bg-blue-500 scale-x-0 group-hover:scale-x-100 transition-transform origin-left"></div>
-          <div class="w-12 h-12 rounded-xl bg-blue-500 flex items-center justify-center text-white mb-3 shadow-md shadow-blue-500/20 group-hover:scale-110 transition">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
-          </div>
-          <span class="text-[10px] font-bold uppercase tracking-wider text-blue-600">Ebook</span>
-          <h3 class="font-extrabold text-slate-900 text-base mt-0.5">EPUB to PDF</h3>
-        </a>
-
-        <a href="/svg-to-png.html" class="group relative bg-white rounded-2xl p-5 border border-slate-200 hover:border-blue-400 hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-300 hover:-translate-y-1 overflow-hidden">
-          <div class="absolute inset-x-0 top-0 h-1 bg-blue-500 scale-x-0 group-hover:scale-x-100 transition-transform origin-left"></div>
-          <div class="w-12 h-12 rounded-xl bg-blue-500 flex items-center justify-center text-white mb-3 shadow-md shadow-blue-500/20 group-hover:scale-110 transition">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M3 3h7v7H3z"/><path d="M14 14h7v7h-7z"/></svg>
-          </div>
-          <span class="text-[10px] font-bold uppercase tracking-wider text-blue-600">Vector</span>
-          <h3 class="font-extrabold text-slate-900 text-base mt-0.5">SVG to PNG</h3>
-        </a>
-
-        <a href="/pdf-to-word.html" class="group relative bg-white rounded-2xl p-5 border border-slate-200 hover:border-blue-400 hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-300 hover:-translate-y-1 overflow-hidden">
-          <div class="absolute inset-x-0 top-0 h-1 bg-blue-500 scale-x-0 group-hover:scale-x-100 transition-transform origin-left"></div>
-          <div class="w-12 h-12 rounded-xl bg-blue-500 flex items-center justify-center text-white mb-3 shadow-md shadow-blue-500/20 group-hover:scale-110 transition">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
-          </div>
-          <span class="text-[10px] font-bold uppercase tracking-wider text-blue-600">Document</span>
-          <h3 class="font-extrabold text-slate-900 text-base mt-0.5">PDF to DOCX</h3>
-        </a>
-
-        <a href="/webp-to-png.html" class="group relative bg-white rounded-2xl p-5 border border-slate-200 hover:border-blue-400 hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-300 hover:-translate-y-1 overflow-hidden">
-          <div class="absolute inset-x-0 top-0 h-1 bg-blue-500 scale-x-0 group-hover:scale-x-100 transition-transform origin-left"></div>
-          <div class="w-12 h-12 rounded-xl bg-blue-500 flex items-center justify-center text-white mb-3 shadow-md shadow-blue-500/20 group-hover:scale-110 transition">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-          </div>
-          <span class="text-[10px] font-bold uppercase tracking-wider text-blue-600">Web Graphics</span>
-          <h3 class="font-extrabold text-slate-900 text-base mt-0.5">WebP to PNG</h3>
-        </a>
-
-        <a href="/psd-to-png.html" class="group relative bg-white rounded-2xl p-5 border border-slate-200 hover:border-blue-400 hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-300 hover:-translate-y-1 overflow-hidden">
-          <div class="absolute inset-x-0 top-0 h-1 bg-blue-500 scale-x-0 group-hover:scale-x-100 transition-transform origin-left"></div>
-          <div class="w-12 h-12 rounded-xl bg-blue-500 flex items-center justify-center text-white mb-3 shadow-md shadow-blue-500/20 group-hover:scale-110 transition">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="m12 19 7-7 3 3-7 7-3-3z"/><path d="m18 13-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="m2 2 7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg>
-          </div>
-          <span class="text-[10px] font-bold uppercase tracking-wider text-blue-600">Design</span>
-          <h3 class="font-extrabold text-slate-900 text-base mt-0.5">PSD to PNG</h3>
-        </a>
-
-        <a href="/merge-pdf.html" class="group relative bg-white rounded-2xl p-5 border border-slate-200 hover:border-blue-400 hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-300 hover:-translate-y-1 overflow-hidden">
-          <div class="absolute inset-x-0 top-0 h-1 bg-blue-500 scale-x-0 group-hover:scale-x-100 transition-transform origin-left"></div>
-          <div class="w-12 h-12 rounded-xl bg-blue-500 flex items-center justify-center text-white mb-3 shadow-md shadow-blue-500/20 group-hover:scale-110 transition">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
-          </div>
-          <span class="text-[10px] font-bold uppercase tracking-wider text-blue-600">PDF Organize</span>
-          <h3 class="font-extrabold text-slate-900 text-base mt-0.5">Merge PDF</h3>
-        </a>
-      </div>
-    </section>
-
-    <!-- HOW-TO -->
-    <section id="how-to" class="max-w-4xl mx-auto px-4 py-14">
-      <div class="text-center mb-10">
-        <span class="text-xs font-bold uppercase tracking-widest text-blue-600 bg-blue-50 px-3 py-1 rounded-full">Step-by-step guide</span>
-        <h2 class="text-3xl md:text-4xl font-black text-slate-900 mt-4 mb-3">How to Convert HEIC to JPG Without Losing Quality — Free, No Sign-In</h2>
-        <p class="text-slate-500 max-w-2xl mx-auto">Follow these three simple steps to convert your Apple HEIC photos into universally compatible JPG files — no software, no account, no upload.</p>
-      </div>
-
-      <div class="grid md:grid-cols-3 gap-6">
-        <div class="relative bg-white rounded-2xl p-6 border border-slate-200 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all">
-          <div class="absolute -top-4 -left-4 w-12 h-12 rounded-2xl bg-blue-600 flex items-center justify-center text-white font-black text-xl shadow-lg shadow-blue-500/30">1</div>
-          <h3 class="font-black text-slate-900 text-lg mt-3 mb-2">Drop your HEIC file</h3>
-          <p class="text-slate-500 text-sm">Drag your <code class="bg-slate-100 px-1.5 py-0.5 rounded text-xs">.heic</code> or <code class="bg-slate-100 px-1.5 py-0.5 rounded text-xs">.heif</code> file into the dropzone above, or click <strong>Select File</strong> to browse. Files stay on your device — nothing is uploaded.</p>
-        </div>
-
-        <div class="relative bg-white rounded-2xl p-6 border border-slate-200 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all">
-          <div class="absolute -top-4 -left-4 w-12 h-12 rounded-2xl bg-blue-600 flex items-center justify-center text-white font-black text-xl shadow-lg shadow-blue-500/30">2</div>
-          <h3 class="font-black text-slate-900 text-lg mt-3 mb-2">Choose "HEIC to JPG"</h3>
-          <p class="text-slate-500 text-sm">A modal appears with all available conversions for your file. Pick <strong>HEIC to JPG</strong>. Our converter preserves the full resolution and color profile of your original photo.</p>
-        </div>
-
-        <div class="relative bg-white rounded-2xl p-6 border border-slate-200 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all">
-          <div class="absolute -top-4 -left-4 w-12 h-12 rounded-2xl bg-blue-600 flex items-center justify-center text-white font-black text-xl shadow-lg shadow-blue-500/30">3</div>
-          <h3 class="font-black text-slate-900 text-lg mt-3 mb-2">Download instantly</h3>
-          <p class="text-slate-500 text-sm">Your JPG downloads automatically — no watermark, no sign-in, no ads blocking your file. Works on iPhone, Android, Mac, Windows, and Linux browsers.</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- WHY DROPLET -->
-    <section class="bg-slate-50/70 border-y border-slate-200 py-14">
-      <div class="max-w-5xl mx-auto px-4">
-        <div class="text-center mb-10">
-          <h2 class="text-3xl md:text-4xl font-black text-slate-900 mb-2">Why 12,000+ users choose Droplet</h2>
-          <p class="text-slate-500 text-sm">Privacy, speed, and zero friction — the way file conversion should be.</p>
-        </div>
-
-        <div class="grid md:grid-cols-3 gap-5">
-          <div class="bg-white rounded-2xl p-6 border border-slate-200">
-            <div class="w-11 h-11 rounded-xl bg-blue-600 flex items-center justify-center text-white mb-3 shadow-md shadow-blue-500/20">
-              <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-            </div>
-            <h3 class="font-black text-slate-900 mb-1">100% private</h3>
-            <p class="text-sm text-slate-500">Files never leave your browser. No uploads, no servers, no storage — your data stays yours.</p>
-          </div>
-
-          <div class="bg-white rounded-2xl p-6 border border-slate-200">
-            <div class="w-11 h-11 rounded-xl bg-blue-600 flex items-center justify-center text-white mb-3 shadow-md shadow-blue-500/20">
-              <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg>
-            </div>
-            <h3 class="font-black text-slate-900 mb-1">Blazing fast</h3>
-            <p class="text-sm text-slate-500">No round-trips to a server. Conversions happen instantly on your device using WebAssembly.</p>
-          </div>
-
-          <div class="bg-white rounded-2xl p-6 border border-slate-200">
-            <div class="w-11 h-11 rounded-xl bg-blue-600 flex items-center justify-center text-white mb-3 shadow-md shadow-blue-500/20">
-              <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-            </div>
-            <h3 class="font-black text-slate-900 mb-1">No signup, no limits</h3>
-            <p class="text-sm text-slate-500">Free forever. No account, no email, no file-size cap, no daily limits, no watermarks.</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- FAQ -->
-    <section id="faq" class="max-w-4xl mx-auto px-4 py-14">
-      <div class="text-center mb-10">
-        <h2 class="text-3xl md:text-4xl font-black text-slate-900 mb-2">Frequently Asked Questions</h2>
-        <p class="text-slate-500 text-sm">Everything you need to know about converting files with Droplet.</p>
-      </div>
-
-      <div class="space-y-3">
-        <details class="group bg-white rounded-2xl border border-slate-200 p-5 hover:border-blue-300 transition" open>
-          <summary class="flex items-center justify-between cursor-pointer list-none">
-            <h3 class="font-bold text-slate-900 pr-4">How do I convert HEIC to JPG without losing quality?</h3>
-            <span class="text-slate-400 group-open:rotate-180 transition-transform text-xl">▾</span>
-          </summary>
-          <p class="text-slate-600 text-sm mt-3">Use Droplet's <a href="/heic-to-jpg.html" class="text-blue-600 underline">HEIC to JPG converter</a>. Drop your <code class="bg-slate-100 px-1.5 py-0.5 rounded text-xs">.heic</code> file, choose JPG output, and download. Our converter uses lossless decoding with a 92% JPEG quality setting — visually identical to the original, but 100% compatible with every device, browser, and app.</p>
-        </details>
-
-        <details class="group bg-white rounded-2xl border border-slate-200 p-5 hover:border-blue-300 transition">
-          <summary class="flex items-center justify-between cursor-pointer list-none">
-            <h3 class="font-bold text-slate-900 pr-4">Is HEIC to JPG conversion free without signing in?</h3>
-            <span class="text-slate-400 group-open:rotate-180 transition-transform text-xl">▾</span>
-          </summary>
-          <p class="text-slate-600 text-sm mt-3">Yes — Droplet is 100% free, requires no account, no email, and no sign-in. There are no hidden limits, no watermarks, and no upsells. Every conversion runs entirely inside your browser.</p>
-        </details>
-
-        <details class="group bg-white rounded-2xl border border-slate-200 p-5 hover:border-blue-300 transition">
-          <summary class="flex items-center justify-between cursor-pointer list-none">
-            <h3 class="font-bold text-slate-900 pr-4">Can I convert voice to text for free?</h3>
-            <span class="text-slate-400 group-open:rotate-180 transition-transform text-xl">▾</span>
-          </summary>
-          <p class="text-slate-600 text-sm mt-3">Yes. Droplet's <a href="/voice-to-text.html" class="text-blue-600 underline">Voice to Text</a> tool transcribes audio to text right in your browser — no uploads, no sign-in, no watermarks. Free and private.</p>
-        </details>
-
-        <details class="group bg-white rounded-2xl border border-slate-200 p-5 hover:border-blue-300 transition">
-          <summary class="flex items-center justify-between cursor-pointer list-none">
-            <h3 class="font-bold text-slate-900 pr-4">Are my files uploaded to a server?</h3>
-            <span class="text-slate-400 group-open:rotate-180 transition-transform text-xl">▾</span>
-          </summary>
-          <p class="text-slate-600 text-sm mt-3">No. Droplet is <strong>fully client-side</strong>. Files are processed using JavaScript and WebAssembly inside your browser, so nothing is ever uploaded, stored, or shared. You can even disconnect from the internet after the page loads and conversions will still work.</p>
-        </details>
-
-        <details class="group bg-white rounded-2xl border border-slate-200 p-5 hover:border-blue-300 transition">
-          <summary class="flex items-center justify-between cursor-pointer list-none">
-            <h3 class="font-bold text-slate-900 pr-4">Is there a file size limit for conversions?</h3>
-            <span class="text-slate-400 group-open:rotate-180 transition-transform text-xl">▾</span>
-          </summary>
-          <p class="text-slate-600 text-sm mt-3">There is no server-side limit because files never leave your device. Practical limits depend on your device's RAM — most modern browsers handle files up to 2GB without issues.</p>
-        </details>
-
-        <details class="group bg-white rounded-2xl border border-slate-200 p-5 hover:border-blue-300 transition">
-          <summary class="flex items-center justify-between cursor-pointer list-none">
-            <h3 class="font-bold text-slate-900 pr-4">Can I convert HEIC to JPG on iPhone or Android?</h3>
-            <span class="text-slate-400 group-open:rotate-180 transition-transform text-xl">▾</span>
-          </summary>
-          <p class="text-slate-600 text-sm mt-3">Yes. Droplet works in any modern mobile browser — Safari (iOS), Chrome (Android), Firefox, and Edge. You can also install it as a Progressive Web App (PWA) for an app-like experience with offline support.</p>
-        </details>
-
-        <details class="group bg-white rounded-2xl border border-slate-200 p-5 hover:border-blue-300 transition">
-          <summary class="flex items-center justify-between cursor-pointer list-none">
-            <h3 class="font-bold text-slate-900 pr-4">Do I need to install any software?</h3>
-            <span class="text-slate-400 group-open:rotate-180 transition-transform text-xl">▾</span>
-          </summary>
-          <p class="text-slate-600 text-sm mt-3">No installation required. Droplet runs entirely in your web browser. Optionally, you can install it as a PWA for offline use — look for the "Install" button in the header or your browser's address bar.</p>
-        </details>
-
-        <details class="group bg-white rounded-2xl border border-slate-200 p-5 hover:border-blue-300 transition">
-          <summary class="flex items-center justify-between cursor-pointer list-none">
-            <h3 class="font-bold text-slate-900 pr-4">What other formats does Droplet support?</h3>
-            <span class="text-slate-400 group-open:rotate-180 transition-transform text-xl">▾</span>
-          </summary>
-          <p class="text-slate-600 text-sm mt-3">Over 100+ formats including PDF, DOCX, HEIC, WebP, AVIF, PNG, JPG, SVG, PSD, RAW, TIFF, EPUB, TXT, JSON, CSV, XML, MP3, WAV, and more. <a href="#all-tools" class="text-blue-600 underline">Browse all converters</a>.</p>
-        </details>
-
-        <details class="group bg-white rounded-2xl border border-slate-200 p-5 hover:border-blue-300 transition">
-          <summary class="flex items-center justify-between cursor-pointer list-none">
-            <h3 class="font-bold text-slate-900 pr-4">Can I use Droplet offline?</h3>
-            <span class="text-slate-400 group-open:rotate-180 transition-transform text-xl">▾</span>
-          </summary>
-          <p class="text-slate-600 text-sm mt-3">Yes — if you install Droplet as a PWA, it caches its assets and can work completely offline. Your files never need an internet connection anyway, since everything runs locally.</p>
-        </details>
-
-        <details class="group bg-white rounded-2xl border border-slate-200 p-5 hover:border-blue-300 transition">
-          <summary class="flex items-center justify-between cursor-pointer list-none">
-            <h3 class="font-bold text-slate-900 pr-4">Does Droplet add watermarks to my files?</h3>
-            <span class="text-slate-400 group-open:rotate-180 transition-transform text-xl">▾</span>
-          </summary>
-          <p class="text-slate-600 text-sm mt-3">Never. Your converted files are clean — no watermarks, no branding, no metadata injection. What you convert is what you get.</p>
-        </details>
-
-        <details class="group bg-white rounded-2xl border border-slate-200 p-5 hover:border-blue-300 transition">
-          <summary class="flex items-center justify-between cursor-pointer list-none">
-            <h3 class="font-bold text-slate-900 pr-4">How is Droplet different from other converters?</h3>
-            <span class="text-slate-400 group-open:rotate-180 transition-transform text-xl">▾</span>
-          </summary>
-          <p class="text-slate-600 text-sm mt-3">Most online converters upload your files to a server, process them, then delete them — but you have to trust them. Droplet never uploads anything. Everything runs in your browser, so there's nothing to trust: your files literally cannot leave your device.</p>
-        </details>
-      </div>
-    </section>
-
-    <!-- RELATED TOOLS -->
-    <section class="max-w-5xl mx-auto px-4 pb-16">
-      <h2 class="text-2xl font-black text-slate-900 mb-6 text-center">Explore more converters</h2>
-      <div class="flex flex-wrap justify-center gap-2">
-        <a href="/voice-to-text.html" class="text-sm bg-white border border-slate-200 hover:border-blue-500 hover:text-blue-600 px-4 py-2 rounded-full transition">Voice to Text</a>
-        <a href="/pdf-to-word.html" class="text-sm bg-white border border-slate-200 hover:border-blue-500 hover:text-blue-600 px-4 py-2 rounded-full transition">PDF to Word</a>
-        <a href="/word-to-pdf.html" class="text-sm bg-white border border-slate-200 hover:border-blue-500 hover:text-blue-600 px-4 py-2 rounded-full transition">Word to PDF</a>
-        <a href="/heic-to-jpg.html" class="text-sm bg-white border border-slate-200 hover:border-blue-500 hover:text-blue-600 px-4 py-2 rounded-full transition">HEIC to JPG</a>
-        <a href="/webp-to-png.html" class="text-sm bg-white border border-slate-200 hover:border-blue-500 hover:text-blue-600 px-4 py-2 rounded-full transition">WebP to PNG</a>
-        <a href="/svg-to-png.html" class="text-sm bg-white border border-slate-200 hover:border-blue-500 hover:text-blue-600 px-4 py-2 rounded-full transition">SVG to PNG</a>
-        <a href="/json-to-csv.html" class="text-sm bg-white border border-slate-200 hover:border-blue-500 hover:text-blue-600 px-4 py-2 rounded-full transition">JSON to CSV</a>
-        <a href="/merge-pdf.html" class="text-sm bg-white border border-slate-200 hover:border-blue-500 hover:text-blue-600 px-4 py-2 rounded-full transition">Merge PDF</a>
-        <a href="/split-pdf.html" class="text-sm bg-white border border-slate-200 hover:border-blue-500 hover:text-blue-600 px-4 py-2 rounded-full transition">Split PDF</a>
-        <a href="/epub-to-pdf.html" class="text-sm bg-white border border-slate-200 hover:border-blue-500 hover:text-blue-600 px-4 py-2 rounded-full transition">EPUB to PDF</a>
-        <a href="/psd-to-png.html" class="text-sm bg-white border border-slate-200 hover:border-blue-500 hover:text-blue-600 px-4 py-2 rounded-full transition">PSD to PNG</a>
-        <a href="/raw-to-jpg.html" class="text-sm bg-white border border-slate-200 hover:border-blue-500 hover:text-blue-600 px-4 py-2 rounded-full transition">RAW to JPG</a>
-        <a href="/pdf-to-jpg.html" class="text-sm bg-white border border-slate-200 hover:border-blue-500 hover:text-blue-600 px-4 py-2 rounded-full transition">PDF to JPG</a>
-        <a href="/pdf-to-markdown.html" class="text-sm bg-white border border-slate-200 hover:border-blue-500 hover:text-blue-600 px-4 py-2 rounded-full transition">PDF to Markdown</a>
-      </div>
-    </section>
-
-  </main>
-
-  <!-- ===== FOOTER ===== -->
-  <footer class="bg-slate-900 text-slate-400 py-14">
-    <div class="max-w-7xl mx-auto px-4">
-      <div class="grid md:grid-cols-4 gap-10 mb-10">
-
-        <div>
-          <div class="flex items-center gap-2 mb-4">
-            <img src="/Glossy Blue Droplet Arrow Icon.png" alt="Droplet" class="w-8 h-8 rounded-lg object-cover">
-            <span class="text-white font-black text-lg">Droplet</span>
-          </div>
-          <p class="text-sm leading-relaxed">Privacy-first file tools. Convert HEIC, PDF, WebP, and 100+ formats — nothing ever leaves your device.</p>
-          <div class="flex gap-3 mt-4">
-            <a href="https://www.reddit.com/user/Dropletweb/" target="_blank" rel="noopener" class="w-8 h-8 rounded-lg bg-slate-800 hover:bg-orange-600 flex items-center justify-center transition" aria-label="Reddit">
-              <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.373 0 0 5.373 0 12c0 3.314 1.343 6.313 3.515 8.485l-1.51 4.156 4.354-1.428A11.94 11.94 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm6.298 13.417c.024.195.037.393.037.594 0 2.485-2.926 4.5-6.535 4.5S5.265 16.496 5.265 14.01c0-.2.013-.397.037-.59a1.34 1.34 0 0 1-.632-1.135 1.34 1.34 0 0 1 1.338-1.338c.354 0 .676.138.912.362a6.55 6.55 0 0 1 3.575-1.132l.762-3.578a.28.28 0 0 1 .33-.216l2.52.536a.94.94 0 0 1 1.74.42.94.94 0 0 1-1.68.617l-2.207-.469-.68 3.194a6.55 6.55 0 0 1 3.494 1.128c.235-.224.557-.362.912-.362a1.34 1.34 0 0 1 1.338 1.338 1.34 1.34 0 0 1-.626 1.132zM9.48 13.88c-.585 0-1.06.475-1.06 1.06 0 .586.475 1.06 1.06 1.06s1.06-.474 1.06-1.06c0-.585-.475-1.06-1.06-1.06zm5.04 0c-.585 0-1.06.475-1.06 1.06 0 .586.475 1.06 1.06 1.06s1.06-.474 1.06-1.06c0-.585-.475-1.06-1.06-1.06zm-4.842 3.36a.313.313 0 0 0-.44.443c.55.55 1.484.832 2.762.832s2.213-.282 2.762-.832a.31.31 0 1 0-.44-.44c-.416.416-1.203.647-2.322.647-1.12 0-1.906-.23-2.322-.647z"/></svg>
-            </a>
-            <a href="https://www.linkedin.com/company/dropletweb/" target="_blank" rel="noopener" class="w-8 h-8 rounded-lg bg-slate-800 hover:bg-blue-600 flex items-center justify-center transition" aria-label="LinkedIn">
-              <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.062 2.062 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
-            </a>
-          </div>
-        </div>
-
-        <div>
-          <h4 class="text-white font-bold text-sm mb-4 uppercase tracking-wider">Popular Converters</h4>
-          <ul class="space-y-2 text-sm">
-            <li><a href="/voice-to-text.html" class="hover:text-white transition">Voice to Text</a></li>
-            <li><a href="/heic-to-jpg.html" class="hover:text-white transition">HEIC to JPG</a></li>
-            <li><a href="/pdf-to-word.html" class="hover:text-white transition">PDF to Word</a></li>
-            <li><a href="/word-to-pdf.html" class="hover:text-white transition">Word to PDF</a></li>
-            <li><a href="/webp-to-png.html" class="hover:text-white transition">WebP to PNG</a></li>
-            <li><a href="/merge-pdf.html" class="hover:text-white transition">Merge PDF</a></li>
-          </ul>
-        </div>
-
-        <div>
-          <h4 class="text-white font-bold text-sm mb-4 uppercase tracking-wider">Categories</h4>
-          <ul class="space-y-2 text-sm">
-            <li><a href="#all-tools" class="hover:text-white transition">Image Converters</a></li>
-            <li><a href="#all-tools" class="hover:text-white transition">Document Tools</a></li>
-            <li><a href="#all-tools" class="hover:text-white transition">AI Tools</a></li>
-            <li><a href="#all-tools" class="hover:text-white transition">Data Tools</a></li>
-            <li><a href="#all-tools" class="hover:text-white transition">PDF Organize</a></li>
-            <li><a href="#faq" class="hover:text-white transition">FAQ &amp; Help</a></li>
-          </ul>
-        </div>
-
-        <div>
-          <h4 class="text-white font-bold text-sm mb-4 uppercase tracking-wider">Legal &amp; Info</h4>
-          <ul class="space-y-2 text-sm">
-            <li><a href="/about.html" class="hover:text-white transition">About Droplet</a></li>
-            <li><a href="/privacy.html" class="hover:text-white transition">Privacy Policy</a></li>
-            <li><a href="/terms.html" class="hover:text-white transition">Terms of Service</a></li>
-            <li><a href="/faq.html" class="hover:text-white transition">Help &amp; FAQ</a></li>
-            <li><a href="/sitemap.xml" target="_blank" class="hover:text-white transition">Sitemap</a></li>
-          </ul>
-        </div>
-      </div>
-
-      <div class="pt-8 border-t border-slate-800 flex flex-col md:flex-row justify-between items-center gap-4 text-xs">
-        <p>© 2025 Droplet. 100% Client-Side Privacy First File Utility.</p>
-        <div class="flex gap-5">
-          <a href="/about.html" class="hover:text-white transition">About</a>
-          <a href="/privacy.html" class="hover:text-white transition">Privacy</a>
-          <a href="/terms.html" class="hover:text-white transition">Terms</a>
-          <a href="/sitemap.xml" target="_blank" class="hover:text-white transition">Sitemap</a>
-        </div>
-      </div>
-    </div>
-  </footer>
-
-  <!-- ===== JAVASCRIPT ===== -->
-  <script>
-    if (window.lucide) lucide.createIcons();
-
-    // ============================================
-    // 0. DARK MODE
-    // ============================================
-    const themeToggle = document.getElementById('theme-toggle');
-    const html = document.documentElement;
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme === 'dark') {
-      html.classList.add('dark');
-      themeToggle.textContent = '☀️';
-    } else {
-      html.classList.remove('dark');
-      themeToggle.textContent = '🌙';
-    }
-    themeToggle.addEventListener('click', () => {
-      if (html.classList.contains('dark')) {
-        html.classList.remove('dark');
-        themeToggle.textContent = '🌙';
-        localStorage.setItem('theme', 'light');
-      } else {
-        html.classList.add('dark');
-        themeToggle.textContent = '☀️';
-        localStorage.setItem('theme', 'dark');
-      }
-    });
-
-    // ============================================
-    // 1. TOOLS DATABASE
-    // ============================================
-    const allTools = [
-      // Core Documents
-      { name: 'PDF to DOCX (Word)', page: '/pdf-to-word.html', category: 'Core Documents', emoji: '📝', keywords: ['pdf','word','docx','convert','edit','document'] },
-      { name: 'Word (DOCX) to PDF', page: '/word-to-pdf.html', category: 'Core Documents', emoji: '🔄', keywords: ['word','docx','pdf','convert','document'] },
-      { name: 'PDF to TXT', page: '/pdf-to-txt.html', category: 'Core Documents', emoji: '📃', keywords: ['pdf','txt','text','extract','plain'] },
-      { name: 'EPUB to PDF', page: '/epub-to-pdf.html', category: 'Core Documents', emoji: '📘', keywords: ['epub','pdf','ebook','convert','book'] },
-      { name: 'TXT to PDF', page: '/txt-to-pdf.html', category: 'Core Documents', emoji: '✏️', keywords: ['txt','pdf','text','convert'] },
-      { name: 'PDF to PDF/A', page: '/pdf-to-pdfa.html', category: 'Core Documents', emoji: '📄', keywords: ['pdf','pdfa','archive','preserve'] },
-      { name: 'PDF to POWERPOINT', page: '/pdf-to-powerpoint.html', category: 'Core Documents', emoji: '📊', keywords: ['pdf','powerpoint','ppt','slides'] },
-      { name: 'PDF to EXCEL', page: '/pdf-to-excel.html', category: 'Core Documents', emoji: '📈', keywords: ['pdf','excel','xlsx','spreadsheet'] },
-      // Convert to PDF
-      { name: 'WORD to PDF', page: '/word-to-pdf.html', category: 'Convert to PDF', emoji: '📝', keywords: ['word','pdf','docx'] },
-      { name: 'POWERPOINT to PDF', page: '/powerpoint-to-pdf.html', category: 'Convert to PDF', emoji: '📊', keywords: ['powerpoint','pdf','ppt'] },
-      { name: 'EXCEL to PDF', page: '/excel-to-pdf.html', category: 'Convert to PDF', emoji: '📈', keywords: ['excel','pdf','xlsx'] },
-      { name: 'HTML to PDF', page: '/html-to-pdf.html', category: 'Convert to PDF', emoji: '🌐', keywords: ['html','pdf','webpage'] },
-      // Image Converters
-      { name: 'HEIC to JPG', page: '/heic-to-jpg.html', category: 'Image Converters', emoji: '🍎', keywords: ['heic','jpg','jpeg','apple','iphoto','convert'] },
-      { name: 'WebP to JPG', page: '/webp-to-jpg.html', category: 'Image Converters', emoji: '🌐', keywords: ['webp','jpg','jpeg','google'] },
-      { name: 'WebP to PNG', page: '/webp-to-png.html', category: 'Image Converters', emoji: '🖼️', keywords: ['webp','png','google'] },
-      { name: 'AVIF to PNG', page: '/avif-to-png.html', category: 'Image Converters', emoji: '🖼️', keywords: ['avif','png','image'] },
-      { name: 'GIF to PNG', page: '/gif-to-png.html', category: 'Image Converters', emoji: '🎞️', keywords: ['gif','png','animated'] },
-      { name: 'PSD to PNG', page: '/psd-to-png.html', category: 'Image Converters', emoji: '🎨', keywords: ['psd','png','photoshop'] },
-      { name: 'RAW to JPG', page: '/raw-to-jpg.html', category: 'Image Converters', emoji: '📸', keywords: ['raw','jpg','camera'] },
-      { name: 'TIFF to PDF', page: '/tiff-to-pdf.html', category: 'Image Converters', emoji: '📑', keywords: ['tiff','pdf','image'] },
-      { name: 'JPG to PDF', page: '/jpg-to-pdf.html', category: 'Image Converters', emoji: '🖼️', keywords: ['jpg','jpeg','pdf','image'] },
-      { name: 'PDF to JPG', page: '/pdf-to-jpg.html', category: 'Image Converters', emoji: '🖼️', keywords: ['pdf','jpg','jpeg'] },
-      { name: 'SVG to PNG', page: '/svg-to-png.html', category: 'Image Converters', emoji: '📐', keywords: ['svg','png','vector'] },
-      { name: 'EPS to SVG', page: '/eps-to-svg.html', category: 'Image Converters', emoji: '✏️', keywords: ['eps','svg','vector'] },
-      // Data & Dev Tools
-      { name: 'JSON to CSV', page: '/json-to-csv.html', category: 'Data & Dev Tools', emoji: '📋', keywords: ['json','csv','data'] },
-      { name: 'CSV to JSON', page: '/csv-to-json.html', category: 'Data & Dev Tools', emoji: '📈', keywords: ['csv','json','data'] },
-      { name: 'XML to JSON', page: '/xml-to-json.html', category: 'Data & Dev Tools', emoji: '🔗', keywords: ['xml','json','data'] },
-      // AI Tools
-      { name: 'Voice to Text', page: '/voice-to-text.html', category: 'AI Tools', emoji: '🎤', keywords: ['voice','speech','audio','transcribe','transcription','dictation','microphone','stt','mp3','wav'] },
-      { name: 'AI Summarizer', page: '/ai-summarizer.html', category: 'AI Tools', emoji: '🤖', keywords: ['ai','summarize','pdf','summary','artificial intelligence'] },
-      { name: 'Translate PDF', page: '/translate-pdf.html', category: 'AI Tools', emoji: '🌍', keywords: ['translate','pdf','language','translation'] },
-      { name: 'PDF to Markdown', page: '/pdf-to-markdown.html', category: 'PDF Intelligence', emoji: '📝', keywords: ['pdf','markdown','md','convert'] },
-      // PDF Organize
-      { name: 'Merge PDF', page: '/merge-pdf.html', category: 'PDF Organize', emoji: '🔗', keywords: ['merge','pdf','combine'] },
-      { name: 'Split PDF', page: '/split-pdf.html', category: 'PDF Organize', emoji: '✂️', keywords: ['split','pdf','separate'] },
-      { name: 'Remove pages', page: '/remove-pages.html', category: 'PDF Organize', emoji: '🗑️', keywords: ['remove','pdf','delete'] },
-      { name: 'Extract pages', page: '/extract-pages.html', category: 'PDF Organize', emoji: '📤', keywords: ['extract','pdf','pages'] },
-      { name: 'Organize PDF', page: '/organize-pdf.html', category: 'PDF Organize', emoji: '🗂️', keywords: ['organize','pdf','rearrange'] },
-      { name: 'Scan to PDF', page: '/scan-to-pdf.html', category: 'PDF Organize', emoji: '📷', keywords: ['scan','pdf','document'] },
-      { name: 'Rotate PDF', page: '/rotate-pdf.html', category: 'PDF Organize', emoji: '🔄', keywords: ['rotate','pdf','orientation'] },
-      { name: 'Add page numbers', page: '/add-page-numbers.html', category: 'PDF Organize', emoji: '🔢', keywords: ['page numbers','pdf','numbering'] },
-      // PDF Editing & Security
-      { name: 'Add watermark', page: '/add-watermark.html', category: 'PDF Editing & Security', emoji: '💧', keywords: ['watermark','pdf','protect'] },
-      { name: 'Crop PDF', page: '/crop-pdf.html', category: 'PDF Editing & Security', emoji: '✂️', keywords: ['crop','pdf','trim'] },
-      { name: 'Edit PDF', page: '/edit-pdf.html', category: 'PDF Editing & Security', emoji: '✏️', keywords: ['edit','pdf','modify'] },
-      { name: 'PDF Forms', page: '/pdf-forms.html', category: 'PDF Editing & Security', emoji: '📋', keywords: ['forms','pdf','fill'] }
-    ];
-
-    // ============================================
-    // 2. SEARCH
-    // ============================================
-    const searchInput = document.getElementById('searchInput');
-    const searchResults = document.getElementById('searchResults');
-    const clearBtn = document.getElementById('clearBtn');
-
-    function fuzzySearch(query, text) {
-      if (!query) return true;
-      const q = query.toLowerCase().trim();
-      const t = text.toLowerCase();
-      if (t.includes(q)) return true;
-      for (const word of q.split(/\s+/)) {
-        if (word.length > 1 && t.includes(word)) return true;
-      }
-      return false;
-    }
-
-    function performSearch(query) {
-      if (!query || query.trim().length === 0) {
-        searchResults.classList.remove('open');
-        return;
-      }
-      const q = query.toLowerCase().trim();
-      const results = allTools.filter(tool => {
-        if (fuzzySearch(q, tool.name)) return true;
-        for (const kw of tool.keywords) if (fuzzySearch(q, kw)) return true;
-        if (fuzzySearch(q, tool.category)) return true;
-        return false;
-      });
-      results.sort((a, b) => {
-        const aN = a.name.toLowerCase(), bN = b.name.toLowerCase();
-        if (aN === q) return -1;
-        if (bN === q) return 1;
-        if (aN.startsWith(q) && !bN.startsWith(q)) return -1;
-        if (bN.startsWith(q) && !aN.startsWith(q)) return 1;
-        return 0;
-      });
-      displayResults(results, q);
-    }
-
-    function displayResults(results, query) {
-      if (results.length === 0) {
-        searchResults.innerHTML = `<div class="no-results"><span class="emoji">🔍</span>No tools found for "${query}"<p style="font-size:0.75rem;margin-top:0.5rem;color:#94a3b8;">Try: PDF, Word, JPG, JSON, HEIC, Voice</p></div>`;
-        searchResults.classList.add('open');
-        return;
-      }
-      let out = '', currentCat = '';
-      results.forEach(tool => {
-        if (tool.category !== currentCat) {
-          currentCat = tool.category;
-          out += `<div class="result-category">${currentCat}</div>`;
-        }
-        out += `
-          <a href="${tool.page}" class="result-item">
-            <span class="emoji">${tool.emoji}</span>
-            <div class="info">
-              <div class="name">${tool.name}</div>
-              <div class="category">${tool.category}</div>
-            </div>
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M5 12h14m0 0-6-6m6 6-6 6"/></svg>
-          </a>`;
-      });
-      searchResults.innerHTML = out;
-      searchResults.classList.add('open');
-    }
-
-    searchInput.addEventListener('input', function() {
-      const q = this.value;
-      if (q.length > 0) clearBtn.classList.remove('hidden');
-      else { clearBtn.classList.add('hidden'); searchResults.classList.remove('open'); }
-      performSearch(q);
-    });
-    clearBtn.addEventListener('click', () => {
-      searchInput.value = '';
-      searchResults.classList.remove('open');
-      clearBtn.classList.add('hidden');
-      searchInput.focus();
-    });
-    document.addEventListener('click', (e) => {
-      const container = document.getElementById('searchWrapper');
-      if (!container.contains(e.target)) searchResults.classList.remove('open');
-    });
-    document.addEventListener('keydown', (e) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
-        e.preventDefault();
-        searchInput.focus();
-        searchInput.select();
-      }
-      if (e.key === 'Escape') {
-        searchInput.value = '';
-        searchResults.classList.remove('open');
-        clearBtn.classList.add('hidden');
-      }
-      if (e.key === 'Enter' && searchResults.classList.contains('open')) {
-        const first = searchResults.querySelector('.result-item');
-        if (first) window.location.href = first.getAttribute('href');
-      }
-    });
-
-    // ============================================
-    // 3. MOBILE NAV
-    // ============================================
-    const toggleBtn = document.getElementById('mobileNavToggle');
-    const closeBtn = document.getElementById('mobileCloseBtn');
-    const overlay = document.getElementById('mobileOverlay');
-    const panel = document.getElementById('mobilePanel');
-    function openMobileNav() { panel.classList.add('open'); overlay.classList.add('open'); document.body.style.overflow='hidden'; }
-    function closeMobileNav() { panel.classList.remove('open'); overlay.classList.remove('open'); document.body.style.overflow=''; }
-    toggleBtn.addEventListener('click', openMobileNav);
-    closeBtn.addEventListener('click', closeMobileNav);
-    overlay.addEventListener('click', closeMobileNav);
-    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeMobileNav(); });
-    function toggleMobileSubmenu(id) {
-      const sub = document.getElementById(id);
-      if (sub) {
-        sub.classList.toggle('open');
-        document.querySelectorAll('.mobile-submenu').forEach(el => { if (el.id !== id) el.classList.remove('open'); });
-      }
-    }
-    document.querySelectorAll('.mobile-nav-panel a, #mobileInstallBtn').forEach(l => l.addEventListener('click', closeMobileNav));
-
-    // ============================================
-    // 4. PWA
-    // ============================================
-    let deferredPrompt;
-    const installBtn = document.getElementById('pwa-install-btn');
-    const mobileInstallBtn = document.getElementById('mobileInstallBtn');
-    window.addEventListener('beforeinstallprompt', (e) => {
-      e.preventDefault();
-      deferredPrompt = e;
-      installBtn.classList.add('visible');
-    });
-    async function installApp() {
-      if (deferredPrompt) {
-        deferredPrompt.prompt();
-        const choice = await deferredPrompt.userChoice;
-        if (choice.outcome === 'accepted') {
-          installBtn.innerHTML = '✅ Installed';
-          installBtn.classList.add('installed');
-          installBtn.disabled = true;
-          mobileInstallBtn.innerHTML = '✅ Installed';
-          mobileInstallBtn.disabled = true;
-        }
-        deferredPrompt = null;
-      } else {
-        if (window.matchMedia('(display-mode: standalone)').matches) {
-          alert('✅ Droplet is already installed!');
-          return;
-        }
-        const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
-        const isAndroid = /Android/i.test(navigator.userAgent);
-        let msg = '';
-        if (isIOS) msg = '📱 On iOS:\n1. Tap Share (⬆️)\n2. Scroll down → "Add to Home Screen"\n3. Tap Add';
-        else if (isAndroid) msg = '📱 On Android:\n1. Tap ⋮ menu in Chrome\n2. Select "Install App"\n3. Follow prompts';
-        else msg = '💻 On Desktop:\nLook for the install icon (➕) in your address bar\nOr use Chrome menu → "Install Droplet"';
-        alert(`📲 Install Droplet\n\n${msg}`);
-      }
-    }
-    installBtn.addEventListener('click', installApp);
-    mobileInstallBtn.addEventListener('click', installApp);
-    window.addEventListener('appinstalled', () => {
-      installBtn.innerHTML = '✅ Installed';
-      installBtn.classList.add('installed');
-      installBtn.disabled = true;
-    });
-    window.addEventListener('load', async () => {
-      if ('serviceWorker' in navigator) {
-        try { await navigator.serviceWorker.register('/sw.js'); } catch(e) {}
-      }
-    });
-
-    // ============================================
-    // 5. FILE HANDLING + HANDOFF (Option B)
-    // ============================================
-    const fileInput = document.getElementById('file-input');
-    const dropzone = document.getElementById('dropzone');
-    const uploadOverlay = document.getElementById('uploadOverlay');
-    const modalClose = document.getElementById('modalClose');
-    const fileIcon = document.getElementById('fileIcon');
-    const fileName = document.getElementById('fileName');
-    const fileSize = document.getElementById('fileSize');
-    const conversionOptions = document.getElementById('conversionOptions');
-    const noOptions = document.getElementById('noOptions');
-    const handoffStatus = document.getElementById('handoffStatus');
-
-    // ==========================================
-    // IndexedDB handoff helpers
-    // ==========================================
-    const HANDOFF_DB = 'droplet-handoff';
-    const HANDOFF_STORE = 'files';
-    const HANDOFF_KEY = 'pending';
-    const HANDOFF_MAX_AGE_MS = 2 * 60 * 1000;
-
-    function openHandoffDB() {
-      return new Promise((resolve, reject) => {
-        const req = indexedDB.open(HANDOFF_DB, 1);
-        req.onupgradeneeded = (e) => {
-          const db = e.target.result;
-          if (!db.objectStoreNames.contains(HANDOFF_STORE)) {
-            db.createObjectStore(HANDOFF_STORE);
-          }
-        };
-        req.onsuccess = () => resolve(req.result);
-        req.onerror = () => reject(req.error);
-      });
-    }
-
-    async function saveFileForHandoff(file) {
-      const db = await openHandoffDB();
-      return new Promise((resolve, reject) => {
-        const tx = db.transaction(HANDOFF_STORE, 'readwrite');
-        tx.objectStore(HANDOFF_STORE).put({
-          name: file.name,
-          type: file.type,
-          size: file.size,
-          blob: file,
-          savedAt: Date.now()
-        }, HANDOFF_KEY);
-        tx.oncomplete = () => resolve();
-        tx.onerror = () => reject(tx.error);
-      });
-    }
-
-    // ==========================================
-    // Conversion map & extension map
-    // ==========================================
-    const conversionMap = {
-      'image/heic': [{ name: 'HEIC to JPG', page: '/heic-to-jpg.html', emoji: '🖼️', desc: 'Convert to universal JPG' }],
-      'image/heif': [{ name: 'HEIC to JPG', page: '/heic-to-jpg.html', emoji: '🖼️', desc: 'Convert to universal JPG' }],
-      'image/webp': [
-        { name: 'WebP to JPG', page: '/webp-to-jpg.html', emoji: '🌐', desc: 'Convert to JPG' },
-        { name: 'WebP to PNG', page: '/webp-to-png.html', emoji: '🖼️', desc: 'Convert to PNG' }
-      ],
-      'image/avif': [{ name: 'AVIF to PNG', page: '/avif-to-png.html', emoji: '🖼️', desc: 'Convert to PNG' }],
-      'image/gif': [{ name: 'GIF to PNG', page: '/gif-to-png.html', emoji: '🎞️', desc: 'Extract frames to PNG' }],
-      'image/vnd.adobe.photoshop': [{ name: 'PSD to PNG', page: '/psd-to-png.html', emoji: '🎨', desc: 'Convert to PNG' }],
-      'image/tiff': [{ name: 'TIFF to PDF', page: '/tiff-to-pdf.html', emoji: '📑', desc: 'Convert to PDF' }],
-      'image/jpeg': [{ name: 'JPG to PDF', page: '/jpg-to-pdf.html', emoji: '🖼️', desc: 'Convert to PDF' }],
-      'image/png': [{ name: 'PNG to PDF', page: '/jpg-to-pdf.html', emoji: '🖼️', desc: 'Convert to PDF' }],
-      'application/pdf': [
-        { name: 'PDF to DOCX (Word)', page: '/pdf-to-word.html', emoji: '📄', desc: 'Convert to editable Word' },
-        { name: 'PDF to JPG', page: '/pdf-to-jpg.html', emoji: '🖼️', desc: 'Extract pages as images' },
-        { name: 'PDF to PDF/A', page: '/pdf-to-pdfa.html', emoji: '📄', desc: 'Archive format' },
-        { name: 'PDF to TXT', page: '/pdf-to-txt.html', emoji: '📝', desc: 'Extract text' },
-        { name: 'PDF to POWERPOINT', page: '/pdf-to-powerpoint.html', emoji: '📊', desc: 'Convert to slides' },
-        { name: 'PDF to EXCEL', page: '/pdf-to-excel.html', emoji: '📈', desc: 'Extract tables' },
-        { name: 'Edit PDF', page: '/edit-pdf.html', emoji: '✏️', desc: 'Edit PDF content' },
-        { name: 'Merge PDF', page: '/merge-pdf.html', emoji: '🔗', desc: 'Combine multiple PDFs' },
-        { name: 'Split PDF', page: '/split-pdf.html', emoji: '✂️', desc: 'Split into separate files' }
-      ],
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document': [
-        { name: 'Word to PDF', page: '/word-to-pdf.html', emoji: '📝', desc: 'Convert to PDF' }
-      ],
-      'application/epub+zip': [{ name: 'EPUB to PDF', page: '/epub-to-pdf.html', emoji: '📚', desc: 'Convert to PDF' }],
-      'text/plain': [{ name: 'TXT to PDF', page: '/txt-to-pdf.html', emoji: '✏️', desc: 'Convert to PDF' }],
-      'application/json': [{ name: 'JSON to CSV', page: '/json-to-csv.html', emoji: '📋', desc: 'Convert to spreadsheet' }],
-      'text/csv': [{ name: 'CSV to JSON', page: '/csv-to-json.html', emoji: '📈', desc: 'Convert to JSON' }],
-      'application/xml': [{ name: 'XML to JSON', page: '/xml-to-json.html', emoji: '🔗', desc: 'Convert to JSON' }],
-      'text/xml': [{ name: 'XML to JSON', page: '/xml-to-json.html', emoji: '🔗', desc: 'Convert to JSON' }],
-      'image/svg+xml': [{ name: 'SVG to PNG', page: '/svg-to-png.html', emoji: '📐', desc: 'Convert to PNG' }],
-      'image/x-canon-cr2': [{ name: 'RAW to JPG', page: '/raw-to-jpg.html', emoji: '📸', desc: 'Convert to JPG' }],
-      'image/x-nikon-nef': [{ name: 'RAW to JPG', page: '/raw-to-jpg.html', emoji: '📸', desc: 'Convert to JPG' }],
-      'image/x-sony-arw': [{ name: 'RAW to JPG', page: '/raw-to-jpg.html', emoji: '📸', desc: 'Convert to JPG' }],
-      'image/x-adobe-dng': [{ name: 'RAW to JPG', page: '/raw-to-jpg.html', emoji: '📸', desc: 'Convert to JPG' }],
-      'audio/mpeg': [{ name: 'Voice to Text', page: '/voice-to-text.html', emoji: '🎤', desc: 'Transcribe audio to text' }],
-      'audio/wav': [{ name: 'Voice to Text', page: '/voice-to-text.html', emoji: '🎤', desc: 'Transcribe audio to text' }],
-      'audio/x-wav': [{ name: 'Voice to Text', page: '/voice-to-text.html', emoji: '🎤', desc: 'Transcribe audio to text' }],
-      'audio/mp4': [{ name: 'Voice to Text', page: '/voice-to-text.html', emoji: '🎤', desc: 'Transcribe audio to text' }],
-      'audio/webm': [{ name: 'Voice to Text', page: '/voice-to-text.html', emoji: '🎤', desc: 'Transcribe audio to text' }],
-      'audio/ogg': [{ name: 'Voice to Text', page: '/voice-to-text.html', emoji: '🎤', desc: 'Transcribe audio to text' }]
-    };
-
-    const extensionMap = {
-      '.heic':'image/heic','.heif':'image/heif','.webp':'image/webp','.avif':'image/avif',
-      '.gif':'image/gif','.psd':'image/vnd.adobe.photoshop','.tiff':'image/tiff','.tif':'image/tiff',
-      '.jpg':'image/jpeg','.jpeg':'image/jpeg','.png':'image/png','.pdf':'application/pdf',
-      '.docx':'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-      '.epub':'application/epub+zip','.txt':'text/plain','.json':'application/json',
-      '.csv':'text/csv','.xml':'application/xml','.svg':'image/svg+xml',
-      '.cr2':'image/x-canon-cr2','.nef':'image/x-nikon-nef','.arw':'image/x-sony-arw','.dng':'image/x-adobe-dng',
-      '.mp3':'audio/mpeg','.wav':'audio/wav','.m4a':'audio/mp4','.webm':'audio/webm','.ogg':'audio/ogg'
-    };
-
-    function getConversions(file) {
-      if (file.type && conversionMap[file.type]) return conversionMap[file.type];
-      const ext = '.' + file.name.split('.').pop().toLowerCase();
-      if (extensionMap[ext] && conversionMap[extensionMap[ext]]) return conversionMap[extensionMap[ext]];
-      return null;
-    }
-
-    function handleFile(file) {
-      const iconMap = {
-        'application/pdf':'📄','image/':'🖼️','text/':'📝','application/json':'📋',
-        'application/xml':'🔗','text/csv':'📊','image/svg+xml':'📐','application/epub+zip':'📚',
-        'audio/':'🎤'
-      };
-      let icon = '📄';
-      for (const [key, val] of Object.entries(iconMap)) {
-        if (file.type.startsWith(key) || file.type === key) { icon = val; break; }
-      }
-      fileIcon.textContent = icon;
-      fileName.textContent = file.name;
-      fileSize.textContent = (file.size / 1024).toFixed(1) + ' KB';
-
-      const conversions = getConversions(file);
-      conversionOptions.innerHTML = '';
-      noOptions.classList.add('hidden');
-
-      if (conversions && conversions.length > 0) {
-        conversions.forEach(c => {
-          const btn = document.createElement('a');
-          btn.className = 'option-btn';
-          btn.href = c.page;
-          btn.innerHTML = `<span class="emoji" style="font-size:1.5rem">${c.emoji}</span><div><div style="font-weight:600">${c.name}</div><div style="font-size:0.75rem;color:#94a3b8">${c.desc}</div></div>`;
-
-          btn.addEventListener('click', async (e) => {
-            e.preventDefault();
-            handoffStatus.classList.add('show');
-            try {
-              await saveFileForHandoff(file);
-              setTimeout(() => { window.location.href = c.page; }, 200);
-            } catch (err) {
-              console.warn('[Handoff] Failed to save file:', err);
-              handoffStatus.classList.remove('show');
-              window.location.href = c.page;
-            }
-          });
-
-          conversionOptions.appendChild(btn);
-        });
-      } else {
-        noOptions.classList.remove('hidden');
-      }
-      uploadOverlay.classList.add('open');
-      document.body.style.overflow = 'hidden';
-    }
-
-    function closeModal() {
-      uploadOverlay.classList.remove('open');
-      document.body.style.overflow = '';
-      fileInput.value = '';
-    }
-    modalClose.addEventListener('click', closeModal);
-    uploadOverlay.addEventListener('click', (e) => { if (e.target === uploadOverlay) closeModal(); });
-    fileInput.addEventListener('change', function() { if (this.files.length > 0) handleFile(this.files[0]); });
-    dropzone.addEventListener('click', (e) => { if (e.target.tagName !== 'BUTTON') fileInput.click(); });
-    dropzone.addEventListener('dragover', (e) => { e.preventDefault(); dropzone.classList.add('border-blue-600'); });
-    dropzone.addEventListener('dragleave', () => dropzone.classList.remove('border-blue-600'));
-    dropzone.addEventListener('drop', (e) => {
-      e.preventDefault();
-      dropzone.classList.remove('border-blue-600');
-      if (e.dataTransfer.files.length > 0) handleFile(e.dataTransfer.files[0]);
-    });
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && uploadOverlay.classList.contains('open')) closeModal();
-    });
-  </script>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+<div class="wrap header-row">
+<a class="brand" href="/">
+<img src="/favicon-96x96.png" width="36" height="36" alt="">
+<span>Droplet</span>
+</a>
+<nav class="desktop-nav" aria-label="Main navigation">
+<a href="#all-tools">All tools</a>
+<a href="#image-tools">Images</a>
+<a href="#doc-tools">Documents</a>
+<a href="#pdf-organize">PDF tools</a>
+<a href="/faq">Help</a>
+</nav>
+<div class="header-actions">
+<button type="button" class="quiet-button" data-droplet-theme aria-label="Toggle dark mode">Dark mode</button>
+<button class="quiet-button mobile-toggle" id="mobile-menu-button" type="button" aria-haspopup="dialog" aria-controls="mobile-menu" aria-expanded="false">Menu</button>
+</div>
+</div>
+</header>
+<dialog id="mobile-menu" class="file-dialog mobile-dialog" aria-labelledby="menu-title">
+<div class="dialog-header">
+<h2 id="menu-title">Browse Droplet</h2>
+<button class="dialog-close" id="mobile-menu-close" type="button" aria-label="Close navigation">×</button>
+</div>
+<nav class="mobile-links" aria-label="Mobile navigation">
+<a href="#all-tools">All tools</a>
+<a href="#image-tools">Images</a>
+<a href="#doc-tools">Documents</a>
+<a href="#pdf-organize">PDF tools</a>
+<a href="/faq">Help</a>
+<a href="#ai-tools">Audio & AI</a>
+<a href="#data-tools">Data tools</a>
+<a href="/contact">Contact</a>
+</nav>
+</dialog>
+<main id="main">
+<section class="hero">
+<div class="wrap">
+<div class="eyebrow">Free tools. No account required.</div>
+<h1>File conversion,<br>
+<span class="gradient-text">right in your browser.</span>
+</h1>
+<p class="hero-copy">Convert PDFs, images, documents and data. Choose a tool to see its file limits and processing details.</p>
+<div class="search-block" id="search-block">
+<label class="sr-only" for="tool-search">Search all 42 tools</label>
+<div class="search-box">
+<span class="search-icon" aria-hidden="true">⌕</span>
+<input id="tool-search" type="search" placeholder="Search tools — PDF, HEIC, Word, JSON…" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="search-results" aria-describedby="search-status">
+<button class="clear-search" id="clear-search" type="button" aria-label="Clear search" hidden>×</button>
+<kbd class="shortcut" id="search-shortcut">Ctrl K</kbd>
+</div>
+<div id="search-results" class="search-results" role="listbox" aria-label="Matching tools" hidden>
+</div>
+<div class="sr-only" id="search-status" role="status" aria-live="polite">
+</div>
+</div>
+<div class="dropzone" id="dropzone">
+<h2>Drop your file here</h2>
+<p>Choose a matching tool, with your file ready to use.</p>
+<input id="file-picker" type="file" class="sr-only" tabindex="-1" aria-label="Select a file to convert">
+<button type="button" class="primary-button" id="select-file">Select file</button>
+<div class="file-types">PDF · HEIC · DOCX · JPG · XLSX · PPTX · JSON · AUDIO</div>
+</div>
+<div class="stats" aria-label="Tool information">
+<div>
+<strong>42 tools</strong>
+<span>One complete directory</span>
+</div>
+<div>
+<strong>No account</strong>
+<span>Open a tool and start</span>
+</div>
+<div>
+<strong>Local conversions</strong>
+<span>Online features are labelled</span>
+</div>
+<div>
+<strong>Clear limits</strong>
+<span>Shown for each tool</span>
+</div>
+</div>
+</div>
+</section>
+<section class="section">
+<div class="wrap">
+<h2>Popular tools</h2>
+<p class="section-lead">Start with a frequently used converter or browse the complete directory.</p>
+<div class="card-grid">
+<a class="tool-card" href="/heic-to-jpg">
+<span class="tool-icon" aria-hidden="true">🍎</span>
+<div>
+<h3>HEIC to JPG</h3>
+<p>Convert HEIC and HEIF photos to high-quality JPG.</p>
+<small>Up to 50 MB per file</small>
+</div>
+</a>
+<a class="tool-card" href="/pdf-to-word">
+<span class="tool-icon" aria-hidden="true">📝</span>
+<div>
+<h3>PDF to DOCX (Word)</h3>
+<p>Extract PDF content into an editable Word document.</p>
+<small>Up to 100 MB per file</small>
+</div>
+</a>
+<a class="tool-card" href="/word-to-pdf">
+<span class="tool-icon" aria-hidden="true">🔄</span>
+<div>
+<h3>Word (DOCX) to PDF</h3>
+<p>Turn a Word document into a shareable PDF.</p>
+<small>Up to 50 MB per file</small>
+</div>
+</a>
+<a class="tool-card" href="/merge-pdf">
+<span class="tool-icon" aria-hidden="true">🔗</span>
+<div>
+<h3>Merge PDF</h3>
+<p>Combine multiple PDF files into one document.</p>
+<small>See the tool for processing limits</small>
+</div>
+</a>
+<a class="tool-card" href="/json-to-csv">
+<span class="tool-icon" aria-hidden="true">📋</span>
+<div>
+<h3>JSON to CSV</h3>
+<p>Turn JSON records into spreadsheet-ready CSV.</p>
+<small>Up to 10 MB per file</small>
+</div>
+</a>
+<a class="tool-card" href="/voice-to-text">
+<span class="tool-icon" aria-hidden="true">🎤</span>
+<div>
+<h3>Voice to Text</h3>
+<p>Transcribe audio on your device after a model download.</p>
+<small>Up to 100 MB per file</small>
+</div>
+</a>
+</div>
+</div>
+</section>
+<section class="section" id="all-tools">
+<div class="wrap">
+<div class="catalog-header">
+<div>
+<h2>All 42 tools</h2>
+<p class="section-lead">Browse by category. Each tool explains its supported files, limits and output options.</p>
+</div>
+</div>
+<nav class="catalog-nav" aria-label="Tool categories">
+<a href="#doc-tools">Documents</a>
+<a href="#image-tools">Images</a>
+<a href="#pdf-organize">PDF organization &amp; editing</a>
+<a href="#ai-tools">Audio &amp; AI</a>
+<a href="#data-tools">Data &amp; Markdown</a>
+</nav>
+<section class="category-section" id="doc-tools" aria-labelledby="title-doc-tools">
+<h3 class="category-title" id="title-doc-tools">Documents</h3>
+<div class="card-grid">
+<a class="tool-card" href="/pdf-to-word">
+<span class="tool-icon" aria-hidden="true">📝</span>
+<div>
+<h4>PDF to DOCX (Word)</h4>
+<p>Extract PDF content into an editable Word document.</p>
+<small>Up to 100 MB per file</small>
+</div>
+</a>
+<a class="tool-card" href="/word-to-pdf">
+<span class="tool-icon" aria-hidden="true">🔄</span>
+<div>
+<h4>Word (DOCX) to PDF</h4>
+<p>Turn a Word document into a shareable PDF.</p>
+<small>Up to 50 MB per file</small>
+</div>
+</a>
+<a class="tool-card" href="/pdf-to-txt">
+<span class="tool-icon" aria-hidden="true">📃</span>
+<div>
+<h4>PDF to TXT</h4>
+<p>Extract selectable text or use OCR for scanned pages.</p>
+<small>Up to 100 MB per file</small>
+</div>
+</a>
+<a class="tool-card" href="/epub-to-pdf">
+<span class="tool-icon" aria-hidden="true">📘</span>
+<div>
+<h4>EPUB to PDF</h4>
+<p>Read an EPUB ebook as a PDF document.</p>
+<small>Up to 50 MB per file</small>
+</div>
+</a>
+<a class="tool-card" href="/txt-to-pdf">
+<span class="tool-icon" aria-hidden="true">✏️</span>
+<div>
+<h4>TXT to PDF</h4>
+<p>Create a PDF from a plain text file.</p>
+<small>Up to 10 MB per file</small>
+</div>
+</a>
+<a class="tool-card" href="/pdf-to-pdfa">
+<span class="tool-icon" aria-hidden="true">📄</span>
+<div>
+<h4>PDF to PDF/A</h4>
+<p>Prepare a PDF for supported archival settings.</p>
+<small>Up to 50 MB per file</small>
+</div>
+</a>
+<a class="tool-card" href="/pdf-to-powerpoint">
+<span class="tool-icon" aria-hidden="true">📊</span>
+<div>
+<h4>PDF to PowerPoint</h4>
+<p>Turn PDF pages into presentation slides.</p>
+<small>Up to 100 MB per file</small>
+</div>
+</a>
+<a class="tool-card" href="/pdf-to-excel">
+<span class="tool-icon" aria-hidden="true">📈</span>
+<div>
+<h4>PDF to Excel</h4>
+<p>Extract PDF tables into a spreadsheet.</p>
+<small>Up to 50 MB per file</small>
+</div>
+</a>
+<a class="tool-card" href="/powerpoint-to-pdf">
+<span class="tool-icon" aria-hidden="true">📊</span>
+<div>
+<h4>PowerPoint to PDF</h4>
+<p>Create a PDF from a PowerPoint presentation.</p>
+<small>Up to 100 MB per file</small>
+</div>
+</a>
+<a class="tool-card" href="/excel-to-pdf">
+<span class="tool-icon" aria-hidden="true">📈</span>
+<div>
+<h4>Excel to PDF</h4>
+<p>Turn spreadsheet sheets into PDF pages.</p>
+<small>Up to 50 MB per file</small>
+</div>
+</a>
+<a class="tool-card" href="/html-to-pdf">
+<span class="tool-icon" aria-hidden="true">🌐</span>
+<div>
+<h4>HTML to PDF</h4>
+<p>Create a PDF from HTML content.</p>
+<small>Up to 50 MB per file</small>
+</div>
+</a>
+</div>
+</section>
+<section class="category-section" id="image-tools" aria-labelledby="title-image-tools">
+<h3 class="category-title" id="title-image-tools">Images</h3>
+<div class="card-grid">
+<a class="tool-card" href="/heic-to-jpg">
+<span class="tool-icon" aria-hidden="true">🍎</span>
+<div>
+<h4>HEIC to JPG</h4>
+<p>Convert HEIC and HEIF photos to high-quality JPG.</p>
+<small>Up to 50 MB per file</small>
+</div>
+</a>
+<a class="tool-card" href="/webp-to-jpg">
+<span class="tool-icon" aria-hidden="true">🌐</span>
+<div>
+<h4>WebP to JPG</h4>
+<p>Convert WebP images to JPG.</p>
+<small>Up to 50 MB per file</small>
+</div>
+</a>
+<a class="tool-card" href="/webp-to-png">
+<span class="tool-icon" aria-hidden="true">🖼️</span>
+<div>
+<h4>WebP to PNG</h4>
+<p>Convert WebP images to PNG.</p>
+<small>Up to 50 MB per file</small>
+</div>
+</a>
+<a class="tool-card" href="/avif-to-png">
+<span class="tool-icon" aria-hidden="true">🖼️</span>
+<div>
+<h4>AVIF to PNG</h4>
+<p>Convert AVIF images to PNG.</p>
+<small>Up to 50 MB per file</small>
+</div>
+</a>
+<a class="tool-card" href="/gif-to-png">
+<span class="tool-icon" aria-hidden="true">🎞️</span>
+<div>
+<h4>GIF to PNG</h4>
+<p>Extract still images from a GIF.</p>
+<small>See the tool for processing limits</small>
+</div>
+</a>
+<a class="tool-card" href="/psd-to-png">
+<span class="tool-icon" aria-hidden="true">🎨</span>
+<div>
+<h4>PSD to PNG</h4>
+<p>Export a Photoshop image as PNG.</p>
+<small>Up to 100 MB per file</small>
+</div>
+</a>
+<a class="tool-card" href="/raw-to-jpg">
+<span class="tool-icon" aria-hidden="true">📸</span>
+<div>
+<h4>RAW to JPG</h4>
+<p>Convert supported camera RAW images to JPG.</p>
+<small>Up to 100 MB per file</small>
+</div>
+</a>
+<a class="tool-card" href="/tiff-to-pdf">
+<span class="tool-icon" aria-hidden="true">📑</span>
+<div>
+<h4>TIFF to PDF</h4>
+<p>Create a PDF from TIFF images.</p>
+<small>Up to 100 MB per file</small>
+</div>
+</a>
+<a class="tool-card" href="/jpg-to-pdf">
+<span class="tool-icon" aria-hidden="true">🖼️</span>
+<div>
+<h4>JPG to PDF</h4>
+<p>Combine JPG or PNG images into a PDF.</p>
+<small>Up to 50 MB per file</small>
+</div>
+</a>
+<a class="tool-card" href="/pdf-to-jpg">
+<span class="tool-icon" aria-hidden="true">🖼️</span>
+<div>
+<h4>PDF to JPG</h4>
+<p>Export PDF pages as JPG images.</p>
+<small>Up to 100 MB per file</small>
+</div>
+</a>
+<a class="tool-card" href="/svg-to-png">
+<span class="tool-icon" aria-hidden="true">📐</span>
+<div>
+<h4>SVG to PNG</h4>
+<p>Render an SVG as a PNG image.</p>
+<small>Up to 10 MB per file</small>
+</div>
+</a>
+<a class="tool-card" href="/eps-to-svg">
+<span class="tool-icon" aria-hidden="true">✏️</span>
+<div>
+<h4>EPS to SVG</h4>
+<p>Convert supported EPS graphics to SVG.</p>
+<small>See the tool for processing limits</small>
+</div>
+</a>
+</div>
+</section>
+<section class="category-section" id="pdf-organize" aria-labelledby="title-pdf-organize">
+<h3 class="category-title" id="title-pdf-organize">PDF organization &amp; editing</h3>
+<div class="card-grid">
+<a class="tool-card" href="/merge-pdf">
+<span class="tool-icon" aria-hidden="true">🔗</span>
+<div>
+<h4>Merge PDF</h4>
+<p>Combine multiple PDF files into one document.</p>
+<small>See the tool for processing limits</small>
+</div>
+</a>
+<a class="tool-card" href="/split-pdf">
+<span class="tool-icon" aria-hidden="true">✂️</span>
+<div>
+<h4>Split PDF</h4>
+<p>Separate a PDF into smaller documents.</p>
+<small>Up to 100 MB per file</small>
+</div>
+</a>
+<a class="tool-card" href="/remove-pages">
+<span class="tool-icon" aria-hidden="true">🗑️</span>
+<div>
+<h4>Remove pages</h4>
+<p>Delete selected pages from a PDF.</p>
+<small>Up to 100 MB per file</small>
+</div>
+</a>
+<a class="tool-card" href="/extract-pages">
+<span class="tool-icon" aria-hidden="true">📤</span>
+<div>
+<h4>Extract pages</h4>
+<p>Save a selected group of PDF pages.</p>
+<small>Up to 100 MB per file</small>
+</div>
+</a>
+<a class="tool-card" href="/organize-pdf">
+<span class="tool-icon" aria-hidden="true">🗂️</span>
+<div>
+<h4>Organize PDF</h4>
+<p>Reorder and organize PDF pages.</p>
+<small>Up to 100 MB per file</small>
+</div>
+</a>
+<a class="tool-card" href="/scan-to-pdf">
+<span class="tool-icon" aria-hidden="true">📷</span>
+<div>
+<h4>Scan to PDF</h4>
+<p>Create a PDF from camera captures or images.</p>
+<small>See the tool for processing limits</small>
+</div>
+</a>
+<a class="tool-card" href="/rotate-pdf">
+<span class="tool-icon" aria-hidden="true">🔄</span>
+<div>
+<h4>Rotate PDF</h4>
+<p>Change the rotation of PDF pages.</p>
+<small>Up to 100 MB per file</small>
+</div>
+</a>
+<a class="tool-card" href="/add-page-numbers">
+<span class="tool-icon" aria-hidden="true">🔢</span>
+<div>
+<h4>Add page numbers</h4>
+<p>Add page numbers to a PDF.</p>
+<small>Up to 100 MB per file</small>
+</div>
+</a>
+<a class="tool-card" href="/add-watermark">
+<span class="tool-icon" aria-hidden="true">💧</span>
+<div>
+<h4>Add watermark</h4>
+<p>Place text or image watermarks on files.</p>
+<small>See the tool for processing limits</small>
+</div>
+</a>
+<a class="tool-card" href="/crop-pdf">
+<span class="tool-icon" aria-hidden="true">✂️</span>
+<div>
+<h4>Crop PDF</h4>
+<p>Adjust the visible boundaries of PDF pages.</p>
+<small>See the tool for processing limits</small>
+</div>
+</a>
+<a class="tool-card" href="/edit-pdf">
+<span class="tool-icon" aria-hidden="true">✏️</span>
+<div>
+<h4>Edit PDF</h4>
+<p>Add text, images and annotations to a PDF.</p>
+<small>See the tool for processing limits</small>
+</div>
+</a>
+<a class="tool-card" href="/pdf-forms">
+<span class="tool-icon" aria-hidden="true">📋</span>
+<div>
+<h4>PDF Forms</h4>
+<p>Fill or add supported PDF form content.</p>
+<small>Up to 100 MB per file</small>
+</div>
+</a>
+</div>
+</section>
+<section class="category-section" id="ai-tools" aria-labelledby="title-ai-tools">
+<h3 class="category-title" id="title-ai-tools">Audio &amp; AI</h3>
+<div class="card-grid">
+<a class="tool-card" href="/voice-to-text">
+<span class="tool-icon" aria-hidden="true">🎤</span>
+<div>
+<h4>Voice to Text</h4>
+<p>Transcribe audio on your device after a model download.</p>
+<small>Up to 100 MB per file</small>
+</div>
+</a>
+<a class="tool-card" href="/ai-summarizer">
+<span class="tool-icon" aria-hidden="true">🤖</span>
+<div>
+<h4>AI Summarizer</h4>
+<p>Create an extractive summary of document text.</p>
+<small>See the tool for processing limits</small>
+</div>
+</a>
+<a class="tool-card" href="/translate-pdf">
+<span class="tool-icon" aria-hidden="true">🌍</span>
+<div>
+<h4>Translate PDF</h4>
+<p>Translate extracted text using an online service.</p>
+<small>Up to 50 MB per file</small>
+</div>
+</a>
+</div>
+</section>
+<section class="category-section" id="data-tools" aria-labelledby="title-data-tools">
+<h3 class="category-title" id="title-data-tools">Data &amp; Markdown</h3>
+<div class="card-grid">
+<a class="tool-card" href="/json-to-csv">
+<span class="tool-icon" aria-hidden="true">📋</span>
+<div>
+<h4>JSON to CSV</h4>
+<p>Turn JSON records into spreadsheet-ready CSV.</p>
+<small>Up to 10 MB per file</small>
+</div>
+</a>
+<a class="tool-card" href="/csv-to-json">
+<span class="tool-icon" aria-hidden="true">📈</span>
+<div>
+<h4>CSV to JSON</h4>
+<p>Convert CSV rows into structured JSON.</p>
+<small>Up to 10 MB per file</small>
+</div>
+</a>
+<a class="tool-card" href="/xml-to-json">
+<span class="tool-icon" aria-hidden="true">🔗</span>
+<div>
+<h4>XML to JSON</h4>
+<p>Convert XML elements and attributes into JSON.</p>
+<small>Up to 10 MB per file</small>
+</div>
+</a>
+<a class="tool-card" href="/pdf-to-markdown">
+<span class="tool-icon" aria-hidden="true">📝</span>
+<div>
+<h4>PDF to Markdown</h4>
+<p>Extract PDF content into Markdown text.</p>
+<small>Up to 100 MB per file</small>
+</div>
+</a>
+</div>
+</section>
+</div>
+</section>
+<section class="section">
+<div class="wrap">
+<h2>From file to finished</h2>
+<p class="section-lead">A simple workflow, with processing details before you start.</p>
+<div class="steps">
+<div class="step">
+<h3>Choose your file</h3>
+<p>Select a file above, or open a tool from the directory.</p>
+</div>
+<div class="step">
+<h3>Pick the right tool</h3>
+<p>Check the supported formats, file limits and conversion options.</p>
+</div>
+<div class="step">
+<h3>Convert and download</h3>
+<p>Run the conversion, review the result and save it to your device.</p>
+</div>
+</div>
+</div>
+</section>
+<section class="section" id="faq">
+<div class="wrap">
+<h2>Questions & answers</h2>
+<p class="section-lead">Privacy, file limits and offline use, explained.</p>
+<div class="faq-list">
+<details>
+<summary>How do I convert a file?</summary>
+<p>Select a file on the homepage, choose a matching tool, and follow the conversion options on that tool’s page. You can also open a tool first and select a file there.</p>
+</details>
+<details>
+<summary>Are my files uploaded?</summary>
+<p>Most conversion tools process files in your browser. PDF translation sends extracted text to MyMemory only after you enable online translation. Voice transcription offers an on-device model; the optional browser speech service may send audio to its provider.</p>
+</details>
+<details>
+<summary>What are the file-size limits?</summary>
+<p>Limits vary by tool and your device’s memory. JSON to CSV accepts up to 10 MB, for example. Matching tools show their limits before a homepage transfer, which is limited to 100 MB in total.</p>
+</details>
+<details>
+<summary>Can I convert HEIC to JPG without losing quality?</summary>
+<p>Droplet can create high-quality JPG images from HEIC photos. JPG uses lossy compression, so a conversion cannot guarantee identical image data. Choose a higher quality setting when detail matters.</p>
+</details>
+<details>
+<summary>Do I need an account or a subscription?</summary>
+<p>No account or subscription is required to use the tools. Some online features depend on external services and their availability or usage limits.</p>
+</details>
+<details>
+<summary>Can I use Droplet offline?</summary>
+<p>Many tools work offline after their page and required resources have loaded. Speech models, OCR language data and online translation may need an internet connection. Test the specific tool before relying on it offline.</p>
+</details>
+<details>
+<summary>Does Droplet store my files?</summary>
+<p>A homepage transfer briefly stores a copy on your device, deletes it after the destination tool receives it, and expires unused transfers after two minutes. Expired copies are removed while Droplet is open or on your next visit. Voice drafts, preferences and downloaded models can remain in browser storage until you clear them.</p>
+</details>
+<details>
+<summary>How do I report a problem?</summary>
+<p>Open Contact, include the tool name and what happened, and avoid sending the document itself unless the site owner specifically needs it. The contact page links to the existing privacy email and Droplet’s public profiles.</p>
+</details>
+</div>
+</div>
+</section>
+</main>
+<dialog id="file-dialog" class="file-dialog" aria-labelledby="file-dialog-title" aria-describedby="selected-file">
+<div class="dialog-header">
+<h2 id="file-dialog-title">Choose a tool</h2>
+<button class="dialog-close" id="file-dialog-close" type="button" aria-label="Close file options">×</button>
+</div>
+<p id="selected-file" class="selected-file">
+</p>
+<div class="conversion-list" id="conversion-list">
+</div>
+<p id="transfer-status" class="status" role="status" aria-live="polite">
+</p>
+<button id="open-directly" class="quiet-button" type="button" hidden>Open tool without transferring</button>
+<p class="selected-file">The transfer briefly stores your file on this device and deletes it when the tool receives it.</p>
+</dialog>
+<footer class="site-footer">
+<div class="wrap">
+<div class="footer-grid">
+<div>
+<a class="brand" href="/">
+<img src="/favicon-96x96.png" width="36" height="36" alt="">
+<span>Droplet</span>
+</a>
+<p>Free tools for PDFs, images, documents and data. Processing details and limits are shown by each tool.</p>
+</div>
+<div>
+<h2>Browse tools</h2>
+<ul>
+<li>
+<a href="/#image-tools">Images</a>
+</li>
+<li>
+<a href="/#doc-tools">Documents</a>
+</li>
+<li>
+<a href="/#pdf-organize">PDF tools</a>
+</li>
+<li>
+<a href="/#ai-tools">Audio & AI</a>
+</li>
+<li>
+<a href="/#data-tools">Data tools</a>
+</li>
+</ul>
+</div>
+<div>
+<h2>Help</h2>
+<ul>
+<li>
+<a href="/faq">Questions & answers</a>
+</li>
+<li>
+<a href="/contact">Contact</a>
+</li>
+<li>
+<a href="/about">About</a>
+</li>
+<li>
+<a href="/sitemap.xml">Sitemap</a>
+</li>
+</ul>
+</div>
+<div>
+<h2>Information</h2>
+<ul>
+<li>
+<a href="/privacy">Privacy</a>
+</li>
+<li>
+<a href="/terms">Terms</a>
+</li>
+<li>
+<a href="https://www.reddit.com/user/Dropletweb/" rel="noopener" target="_blank">Reddit</a>
+</li>
+<li>
+<a href="https://www.linkedin.com/company/dropletweb/" rel="noopener" target="_blank">LinkedIn</a>
+</li>
+</ul>
+</div>
+</div>
+<div class="footer-bottom">© <span data-current-year>2026</span> Droplet. Free browser tools.</div>
+</div>
+</footer>
+<script type="application/json" id="tool-data">[{"name": "PDF to DOCX (Word)", "page": "/pdf-to-word", "category": "Documents", "group": "doc-tools", "emoji": "📝", "keywords": ["pdf", "word", "docx", "convert", "edit", "document"], "description": "Extract PDF content into an editable Word document.", "extensions": [".pdf"], "mimeTypes": ["application/pdf"], "maxMB": 100}, {"name": "Word (DOCX) to PDF", "page": "/word-to-pdf", "category": "Documents", "group": "doc-tools", "emoji": "🔄", "keywords": ["word", "docx", "pdf", "convert", "document"], "description": "Turn a Word document into a shareable PDF.", "extensions": [".docx"], "mimeTypes": ["application/vnd.openxmlformats-officedocument.wordprocessingml.document"], "maxMB": 50}, {"name": "PDF to TXT", "page": "/pdf-to-txt", "category": "Documents", "group": "doc-tools", "emoji": "📃", "keywords": ["pdf", "txt", "text", "extract", "plain"], "description": "Extract selectable text or use OCR for scanned pages.", "extensions": [".pdf"], "mimeTypes": ["application/pdf"], "maxMB": 100}, {"name": "EPUB to PDF", "page": "/epub-to-pdf", "category": "Documents", "group": "doc-tools", "emoji": "📘", "keywords": ["epub", "pdf", "ebook", "convert", "book"], "description": "Read an EPUB ebook as a PDF document.", "extensions": [".epub"], "mimeTypes": ["application/epub+zip"], "maxMB": 50}, {"name": "TXT to PDF", "page": "/txt-to-pdf", "category": "Documents", "group": "doc-tools", "emoji": "✏️", "keywords": ["txt", "pdf", "text", "convert"], "description": "Create a PDF from a plain text file.", "extensions": [".txt"], "mimeTypes": ["text/plain"], "maxMB": 10}, {"name": "PDF to PDF/A", "page": "/pdf-to-pdfa", "category": "Documents", "group": "doc-tools", "emoji": "📄", "keywords": ["pdf", "pdfa", "archive", "preserve"], "description": "Prepare a PDF for supported archival settings.", "extensions": [".pdf"], "mimeTypes": ["application/pdf"], "maxMB": 50}, {"name": "PDF to PowerPoint", "page": "/pdf-to-powerpoint", "category": "Documents", "group": "doc-tools", "emoji": "📊", "keywords": ["pdf", "powerpoint", "ppt", "slides"], "description": "Turn PDF pages into presentation slides.", "extensions": [".pdf"], "mimeTypes": ["application/pdf"], "maxMB": 100}, {"name": "PDF to Excel", "page": "/pdf-to-excel", "category": "Documents", "group": "doc-tools", "emoji": "📈", "keywords": ["pdf", "excel", "xlsx", "spreadsheet"], "description": "Extract PDF tables into a spreadsheet.", "extensions": [".pdf"], "mimeTypes": ["application/pdf"], "maxMB": 50}, {"name": "PowerPoint to PDF", "page": "/powerpoint-to-pdf", "category": "Documents", "group": "doc-tools", "emoji": "📊", "keywords": ["powerpoint", "pdf", "ppt"], "description": "Create a PDF from a PowerPoint presentation.", "extensions": [".pptx"], "mimeTypes": ["application/vnd.openxmlformats-officedocument.presentationml.presentation"], "maxMB": 100}, {"name": "Excel to PDF", "page": "/excel-to-pdf", "category": "Documents", "group": "doc-tools", "emoji": "📈", "keywords": ["excel", "pdf", "xlsx"], "description": "Turn spreadsheet sheets into PDF pages.", "extensions": [".xlsx", ".xls", ".csv"], "mimeTypes": ["text/csv", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"], "maxMB": 50}, {"name": "HTML to PDF", "page": "/html-to-pdf", "category": "Documents", "group": "doc-tools", "emoji": "🌐", "keywords": ["html", "pdf", "webpage"], "description": "Create a PDF from HTML content.", "extensions": [".html", ".htm"], "mimeTypes": ["text/html"], "maxMB": 50}, {"name": "HEIC to JPG", "page": "/heic-to-jpg", "category": "Images", "group": "image-tools", "emoji": "🍎", "keywords": ["heic", "jpg", "jpeg", "apple", "iphoto", "convert"], "description": "Convert HEIC and HEIF photos to high-quality JPG.", "extensions": [".heic", ".heif"], "mimeTypes": ["image/heif", "image/heic"], "maxMB": 50}, {"name": "WebP to JPG", "page": "/webp-to-jpg", "category": "Images", "group": "image-tools", "emoji": "🌐", "keywords": ["webp", "jpg", "jpeg", "google"], "description": "Convert WebP images to JPG.", "extensions": [".webp"], "mimeTypes": ["image/webp"], "maxMB": 50}, {"name": "WebP to PNG", "page": "/webp-to-png", "category": "Images", "group": "image-tools", "emoji": "🖼️", "keywords": ["webp", "png", "google"], "description": "Convert WebP images to PNG.", "extensions": [".webp"], "mimeTypes": ["image/webp"], "maxMB": 50}, {"name": "AVIF to PNG", "page": "/avif-to-png", "category": "Images", "group": "image-tools", "emoji": "🖼️", "keywords": ["avif", "png", "image"], "description": "Convert AVIF images to PNG.", "extensions": [".avif"], "mimeTypes": [], "maxMB": 50}, {"name": "GIF to PNG", "page": "/gif-to-png", "category": "Images", "group": "image-tools", "emoji": "🎞️", "keywords": ["gif", "png", "animated"], "description": "Extract still images from a GIF.", "extensions": [".gif"], "mimeTypes": [], "maxMB": null}, {"name": "PSD to PNG", "page": "/psd-to-png", "category": "Images", "group": "image-tools", "emoji": "🎨", "keywords": ["psd", "png", "photoshop"], "description": "Export a Photoshop image as PNG.", "extensions": [".psd"], "mimeTypes": [], "maxMB": 100}, {"name": "RAW to JPG", "page": "/raw-to-jpg", "category": "Images", "group": "image-tools", "emoji": "📸", "keywords": ["raw", "jpg", "camera"], "description": "Convert supported camera RAW images to JPG.", "extensions": [".cr2", ".nef", ".arw", ".dng", ".raw"], "mimeTypes": [], "maxMB": 100}, {"name": "TIFF to PDF", "page": "/tiff-to-pdf", "category": "Images", "group": "image-tools", "emoji": "📑", "keywords": ["tiff", "pdf", "image"], "description": "Create a PDF from TIFF images.", "extensions": [".tif", ".tiff"], "mimeTypes": [], "maxMB": 100}, {"name": "JPG to PDF", "page": "/jpg-to-pdf", "category": "Images", "group": "image-tools", "emoji": "🖼️", "keywords": ["jpg", "jpeg", "pdf", "image"], "description": "Combine JPG or PNG images into a PDF.", "extensions": [".jpg", ".jpeg", ".png", ".webp"], "mimeTypes": ["image/png", "image/webp", "image/jpeg"], "maxMB": 50}, {"name": "PDF to JPG", "page": "/pdf-to-jpg", "category": "Images", "group": "image-tools", "emoji": "🖼️", "keywords": ["pdf", "jpg", "jpeg"], "description": "Export PDF pages as JPG images.", "extensions": [".pdf"], "mimeTypes": ["application/pdf"], "maxMB": 100}, {"name": "SVG to PNG", "page": "/svg-to-png", "category": "Images", "group": "image-tools", "emoji": "📐", "keywords": ["svg", "png", "vector"], "description": "Render an SVG as a PNG image.", "extensions": [".svg"], "mimeTypes": ["image/svg+xml"], "maxMB": 10}, {"name": "EPS to SVG", "page": "/eps-to-svg", "category": "Images", "group": "image-tools", "emoji": "✏️", "keywords": ["eps", "svg", "vector"], "description": "Convert supported EPS graphics to SVG.", "extensions": [".eps"], "mimeTypes": ["application/postscript"], "maxMB": null}, {"name": "JSON to CSV", "page": "/json-to-csv", "category": "Data & Markdown", "group": "data-tools", "emoji": "📋", "keywords": ["json", "csv", "data"], "description": "Turn JSON records into spreadsheet-ready CSV.", "extensions": [".json"], "mimeTypes": ["application/json"], "maxMB": 10}, {"name": "CSV to JSON", "page": "/csv-to-json", "category": "Data & Markdown", "group": "data-tools", "emoji": "📈", "keywords": ["csv", "json", "data"], "description": "Convert CSV rows into structured JSON.", "extensions": [".csv"], "mimeTypes": ["text/csv"], "maxMB": 10}, {"name": "XML to JSON", "page": "/xml-to-json", "category": "Data & Markdown", "group": "data-tools", "emoji": "🔗", "keywords": ["xml", "json", "data"], "description": "Convert XML elements and attributes into JSON.", "extensions": [".xml"], "mimeTypes": ["application/xml"], "maxMB": 10}, {"name": "Voice to Text", "page": "/voice-to-text", "category": "Audio & AI", "group": "ai-tools", "emoji": "🎤", "keywords": ["voice", "speech", "audio", "transcribe", "transcription", "dictation", "microphone", "stt", "mp3", "wav"], "description": "Transcribe audio on your device after a model download.", "extensions": [".mp3", ".wav", ".m4a", ".flac", ".ogg", ".webm", ".aac"], "mimeTypes": ["audio/"], "maxMB": 100}, {"name": "AI Summarizer", "page": "/ai-summarizer", "category": "Audio & AI", "group": "ai-tools", "emoji": "🤖", "keywords": ["ai", "summarize", "pdf", "summary", "artificial intelligence"], "description": "Create an extractive summary of document text.", "extensions": [".pdf", ".txt"], "mimeTypes": ["text/plain", "application/pdf"], "maxMB": null}, {"name": "Translate PDF", "page": "/translate-pdf", "category": "Audio & AI", "group": "ai-tools", "emoji": "🌍", "keywords": ["translate", "pdf", "language", "translation"], "description": "Translate extracted text using an online service.", "extensions": [".pdf"], "mimeTypes": ["application/pdf"], "maxMB": 50}, {"name": "PDF to Markdown", "page": "/pdf-to-markdown", "category": "Data & Markdown", "group": "data-tools", "emoji": "📝", "keywords": ["pdf", "markdown", "md", "convert"], "description": "Extract PDF content into Markdown text.", "extensions": [".pdf"], "mimeTypes": ["application/pdf"], "maxMB": 100}, {"name": "Merge PDF", "page": "/merge-pdf", "category": "PDF organization & editing", "group": "pdf-organize", "emoji": "🔗", "keywords": ["merge", "pdf", "combine"], "description": "Combine multiple PDF files into one document.", "extensions": [".pdf"], "mimeTypes": ["application/pdf"], "maxMB": null}, {"name": "Split PDF", "page": "/split-pdf", "category": "PDF organization & editing", "group": "pdf-organize", "emoji": "✂️", "keywords": ["split", "pdf", "separate"], "description": "Separate a PDF into smaller documents.", "extensions": [".pdf"], "mimeTypes": ["application/pdf"], "maxMB": 100}, {"name": "Remove pages", "page": "/remove-pages", "category": "PDF organization & editing", "group": "pdf-organize", "emoji": "🗑️", "keywords": ["remove", "pdf", "delete"], "description": "Delete selected pages from a PDF.", "extensions": [".pdf"], "mimeTypes": ["application/pdf"], "maxMB": 100}, {"name": "Extract pages", "page": "/extract-pages", "category": "PDF organization & editing", "group": "pdf-organize", "emoji": "📤", "keywords": ["extract", "pdf", "pages"], "description": "Save a selected group of PDF pages.", "extensions": [".pdf"], "mimeTypes": ["application/pdf"], "maxMB": 100}, {"name": "Organize PDF", "page": "/organize-pdf", "category": "PDF organization & editing", "group": "pdf-organize", "emoji": "🗂️", "keywords": ["organize", "pdf", "rearrange"], "description": "Reorder and organize PDF pages.", "extensions": [".pdf"], "mimeTypes": ["application/pdf"], "maxMB": 100}, {"name": "Scan to PDF", "page": "/scan-to-pdf", "category": "PDF organization & editing", "group": "pdf-organize", "emoji": "📷", "keywords": ["scan", "pdf", "document"], "description": "Create a PDF from camera captures or images.", "extensions": [".jpg", ".jpeg", ".png", ".webp"], "mimeTypes": ["image/png", "image/webp", "image/jpeg"], "maxMB": null}, {"name": "Rotate PDF", "page": "/rotate-pdf", "category": "PDF organization & editing", "group": "pdf-organize", "emoji": "🔄", "keywords": ["rotate", "pdf", "orientation"], "description": "Change the rotation of PDF pages.", "extensions": [".pdf"], "mimeTypes": ["application/pdf"], "maxMB": 100}, {"name": "Add page numbers", "page": "/add-page-numbers", "category": "PDF organization & editing", "group": "pdf-organize", "emoji": "🔢", "keywords": ["page numbers", "pdf", "numbering"], "description": "Add page numbers to a PDF.", "extensions": [".pdf"], "mimeTypes": ["application/pdf"], "maxMB": 100}, {"name": "Add watermark", "page": "/add-watermark", "category": "PDF organization & editing", "group": "pdf-organize", "emoji": "💧", "keywords": ["watermark", "pdf", "protect"], "description": "Place text or image watermarks on files.", "extensions": [".pdf", ".jpg", ".jpeg", ".png", ".webp"], "mimeTypes": ["image/png", "application/pdf", "image/webp", "image/jpeg"], "maxMB": null}, {"name": "Crop PDF", "page": "/crop-pdf", "category": "PDF organization & editing", "group": "pdf-organize", "emoji": "✂️", "keywords": ["crop", "pdf", "trim"], "description": "Adjust the visible boundaries of PDF pages.", "extensions": [".pdf", ".jpg", ".jpeg", ".png"], "mimeTypes": ["image/png", "application/pdf", "image/jpeg"], "maxMB": null}, {"name": "Edit PDF", "page": "/edit-pdf", "category": "PDF organization & editing", "group": "pdf-organize", "emoji": "✏️", "keywords": ["edit", "pdf", "modify"], "description": "Add text, images and annotations to a PDF.", "extensions": [".pdf"], "mimeTypes": ["application/pdf"], "maxMB": null}, {"name": "PDF Forms", "page": "/pdf-forms", "category": "PDF organization & editing", "group": "pdf-organize", "emoji": "📋", "keywords": ["forms", "pdf", "fill"], "description": "Fill or add supported PDF form content.", "extensions": [".pdf"], "mimeTypes": ["application/pdf"], "maxMB": 100}]</script>
 </body>
 </html>

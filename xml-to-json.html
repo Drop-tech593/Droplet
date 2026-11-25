@@ -4,14 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>XML to JSON Converter Online Free – Convert XML Data | Droplet</title>
-  <meta name="description" content="Convert XML data to JSON online for free. Preserves attributes as _attributes, groups repeated elements into arrays. 100% client-side, private, and free.">
+  <meta name="description" content="Convert XML elements and attributes into JSON. Free to use, with no account required. Open the tool to check supported formats, size limits and.">
   <link rel="canonical" href="https://dropletweb.xyz/xml-to-json">
 
   <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="/assets/toolkit.css">
 
   <!-- xml2js for XML parsing -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xml2js/0.6.2/xml2js.min.js"></script>
+  <script src="/assets/vendor/xml2js-0.6.2.js"></script>
 
   <style>
     .dropzone-highlight {
@@ -419,16 +419,16 @@
       background: #334155;
     }
   </style>
-</head>
+<script src="/assets/theme.js"></script><link rel="stylesheet" href="/assets/droplet-fixes.css"><script defer src="/assets/droplet-runtime.js"></script></head>
 <body class="bg-slate-50 text-slate-800 font-sans antialiased transition-colors duration-200">
 
   <!-- Navigation -->
   <header class="bg-white border-b border-slate-200 py-3.5 px-6 sticky top-0 z-50 transition-colors duration-200">
     <div class="max-w-6xl mx-auto flex justify-between items-center">
       <a href="/" class="flex items-center gap-3 group">
-        <img src="Gemini_Generated_Image_sdu6v7sdu6v7sdu6.jpg" alt="Droplet Logo" class="h-9 w-auto rounded-xl shadow-sm group-hover:scale-105 transition-transform">
+        <img src="/favicon-96x96.png" alt="Droplet Logo" class="h-9 w-auto rounded-xl shadow-sm group-hover:scale-105 transition-transform">
         <div>
-          <h1 class="text-xl font-black tracking-tight text-slate-900 leading-none">Droplet</h1>
+          <span class="text-xl font-black tracking-tight text-slate-900 leading-none">Droplet</span>
           <p class="text-[9px] text-blue-600 font-extrabold tracking-widest uppercase mt-0.5">DRAG, DROP AND CONVERT.</p>
         </div>
       </a>
@@ -956,9 +956,9 @@
     <div class="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-3">
       <p class="font-medium">© Droplet. 100% Client-Side Privacy First File Utility.</p>
       <div class="space-x-4">
-        <a href="/privacy.html" class="hover:text-blue-600 transition-colors">Privacy Policy</a>
+        <a href="/privacy" class="hover:text-blue-600 transition-colors">Privacy Policy</a>
         <span>•</span>
-        <a href="/terms.html" class="hover:text-blue-600 transition-colors">Terms of Service</a>
+        <a href="/terms" class="hover:text-blue-600 transition-colors">Terms of Service</a>
       </div>
     </div>
   </footer>
@@ -1204,11 +1204,11 @@
       function traverse(item) {
         if (typeof item === 'object' && item !== null) {
           nodes++;
-          if (item._attributes) {
-            attrs += Object.keys(item._attributes).length;
+          if (item.$) {
+            attrs += Object.keys(item.$).length;
           }
           for (let key in item) {
-            if (key !== '_attributes') {
+            if (key !== '$') {
               traverse(item[key]);
             }
           }

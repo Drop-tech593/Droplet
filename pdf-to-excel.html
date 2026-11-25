@@ -4,16 +4,16 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>BOQ PDF to Excel Converter Online Free | Droplet</title>
-  <meta name="description" content="Convert PDF BOQ and tender documents to editable Excel spreadsheets. Extract construction BOQ tables, items, quantities and prices to XLSX online.">
+  <meta name="description" content="Extract PDF tables into a spreadsheet. Free to use, with no account required. Open the tool to check supported formats, size limits and processing details.">
   <link rel="canonical" href="https://dropletweb.xyz/pdf-to-excel">
 
   <!-- Google AdSense -->
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4006702663328202"
      crossorigin="anonymous"></script>
 
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
+  <link rel="stylesheet" href="/assets/toolkit.css">
+  <script src="/assets/vendor/5a2fe4830d-pdf.min.js"></script>
+  <script src="/assets/vendor/2d49319ab7-exceljs.min.js"></script>
 
   <style>
     .dropzone-highlight { border-color: #3b82f6 !important; background: #eff6ff !important; }
@@ -232,15 +232,15 @@
     html.dark #theme-toggle { color: #e2e8f0; }
     html.dark #theme-toggle:hover { background: #334155; }
   </style>
-</head>
+<script src="/assets/theme.js"></script><link rel="stylesheet" href="/assets/droplet-fixes.css"><script defer src="/assets/droplet-runtime.js"></script></head>
 <body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen flex flex-col transition-colors duration-200">
 
   <header class="bg-white border-b border-slate-200 py-3.5 px-6 sticky top-0 z-50 transition-colors duration-200">
     <div class="max-w-6xl mx-auto flex justify-between items-center">
       <a href="/" class="flex items-center gap-3 group">
-        <img src="Gemini_Generated_Image_sdu6v7sdu6v7sdu6.jpg" alt="Droplet Logo" class="h-9 w-auto rounded-xl shadow-sm group-hover:scale-105 transition-transform">
+        <img src="/favicon-96x96.png" alt="Droplet Logo" class="h-9 w-auto rounded-xl shadow-sm group-hover:scale-105 transition-transform">
         <div>
-          <h1 class="text-xl font-black tracking-tight text-slate-900 leading-none">Droplet</h1>
+          <span class="text-xl font-black tracking-tight text-slate-900 leading-none">Droplet</span>
           <p class="text-[9px] text-blue-600 font-extrabold tracking-widest uppercase mt-0.5">DRAG, DROP AND CONVERT.</p>
         </div>
       </a>
@@ -570,11 +570,11 @@
     <div class="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-3">
       <p class="font-medium">© Droplet. 100% Client-Side Privacy First File Utility.</p>
       <div class="space-x-4">
-        <a href="/about.html" class="hover:text-blue-600 transition-colors">About</a>
+        <a href="/about" class="hover:text-blue-600 transition-colors">About</a>
         <span>•</span>
-        <a href="/privacy.html" class="hover:text-blue-600 transition-colors">Privacy Policy</a>
+        <a href="/privacy" class="hover:text-blue-600 transition-colors">Privacy Policy</a>
         <span>•</span>
-        <a href="/terms.html" class="hover:text-blue-600 transition-colors">Terms of Service</a>
+        <a href="/terms" class="hover:text-blue-600 transition-colors">Terms of Service</a>
       </div>
     </div>
   </footer>
@@ -733,7 +733,7 @@
     const itemCountBadge = document.getElementById('itemCountBadge');
     const rowCountBadge = document.getElementById('rowCountBadge');
 
-    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    pdfjsLib.GlobalWorkerOptions.workerSrc = '/assets/vendor/c0a5848ab2-pdf.worker.min.js';
 
     // ============================================================
     // CONVERSION OVERLAY

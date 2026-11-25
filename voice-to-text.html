@@ -1,226 +1,207 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
-  <!-- ===== HOMEPAGE ===== -->
-  <url>
-    <loc>https://dropletweb.xyz/</loc>
-    <lastmod>2025-01-15</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>1.0</priority>
-  </url>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Voice to Text — Audio Transcription | Droplet</title><link rel="stylesheet" href="/layout.css"><meta name="description" content="Transcribe audio on your device after a model download. Free to use, with no account required. Open the tool to check supported formats, size limits and."><link rel="canonical" href="https://dropletweb.xyz/voice-to-text"><script src="/assets/theme.js"></script><link rel="stylesheet" href="/assets/droplet-fixes.css"><script defer src="/assets/droplet-runtime.js"></script></head><body><div class="app">
+  <!-- ============================================================ -->
+  <!-- HEADER                                                        -->
+  <!-- ============================================================ -->
+  <div class="app-header">
+    <a href="/" class="logo-link">
+      <span>💧</span><span class="logo-text">Droplet</span>
+    </a>
+    <h1 style="font-size:13px;line-height:1.4;margin:0" class="title" id="headerTitle">Voice to Text</h1>
+    <a class="header-btn settingsLink" href="#settings">Settings</a><div class="header-spacer"></div>
+    <button class="header-btn" id="clearBtn" data-action="clear">Clear</button>
+    <button class="header-btn strong" id="copyBtn" data-action="copy">Copy</button>
+    <button class="header-btn" id="guideOpen" aria-haspopup="dialog">Guide</button>
+    <button id="theme-toggle" aria-label="Toggle theme">🌙</button>
+  </div>
 
-  <!-- ===== TOP CONVERTERS (highest priority) ===== -->
-  <url>
-    <loc>https://dropletweb.xyz/heic-to-jpg</loc>
-    <lastmod>2025-01-15</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://dropletweb.xyz/pdf-to-word</loc>
-    <lastmod>2025-01-15</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://dropletweb.xyz/word-to-pdf</loc>
-    <lastmod>2025-01-15</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://dropletweb.xyz/merge-pdf</loc>
-    <lastmod>2025-01-15</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://dropletweb.xyz/jpg-to-pdf</loc>
-    <lastmod>2025-01-15</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.9</priority>
-  </url>
+  <!-- ============================================================ -->
+  <!-- EDITOR                                                        -->
+  <!-- ============================================================ -->
+  <div class="editor" id="screen-editor">
 
-  <!-- ===== CORE DOCUMENTS ===== -->
-  <url>
-    <loc>https://dropletweb.xyz/pdf-to-txt</loc>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://dropletweb.xyz/epub-to-pdf</loc>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://dropletweb.xyz/txt-to-pdf</loc>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://dropletweb.xyz/pdf-to-pdfa</loc>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://dropletweb.xyz/pdf-to-powerpoint</loc>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://dropletweb.xyz/pdf-to-excel</loc>
-    <priority>0.8</priority>
-  </url>
+    <!-- ========================================================== -->
+    <!-- LEFT MAIN PANEL                                            -->
+    <!-- ========================================================== -->
+    <div class="main-panel">
 
-  <!-- ===== IMAGE CONVERTERS ===== -->
-  <url>
-    <loc>https://dropletweb.xyz/webp-to-jpg</loc>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://dropletweb.xyz/webp-to-png</loc>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://dropletweb.xyz/avif-to-png</loc>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://dropletweb.xyz/gif-to-png</loc>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://dropletweb.xyz/psd-to-png</loc>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://dropletweb.xyz/raw-to-jpg</loc>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://dropletweb.xyz/tiff-to-pdf</loc>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://dropletweb.xyz/pdf-to-jpg</loc>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://dropletweb.xyz/svg-to-png</loc>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://dropletweb.xyz/eps-to-svg</loc>
-    <priority>0.8</priority>
-  </url>
+      <!-- Select / Record Audio -->
+      <div class="panel">
+        <div class="panel-header">
+          <span class="icon">🎙️</span>
+          <h3>Select or Record Audio</h3>
+          <span class="badge" id="statusBadge">Ready</span>
+        </div>
 
-  <!-- ===== DATA TOOLS ===== -->
-  <url>
-    <loc>https://dropletweb.xyz/json-to-csv</loc>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://dropletweb.xyz/csv-to-json</loc>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://dropletweb.xyz/xml-to-json</loc>
-    <priority>0.8</priority>
-  </url>
+        <div class="upload-zone" id="uploadZone" tabindex="0" role="button">
+          <div class="big-icon">📁</div>
+          <h4>Drop an audio file here</h4>
+          <p>or click to browse — MP3, WAV, M4A, FLAC, OGG, WEBM</p>
+          <input type="file" id="recording" accept="audio/*" style="display:none;">
+        </div>
 
-  <!-- ===== AUDIO & SPEECH ===== -->
-  <url>
-    <loc>https://dropletweb.xyz/voice-to-text</loc>
-    <lastmod>2025-01-15</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
+        <div class="audio-actions">
+          <div class="action-card primary-card">
+            <button class="record-btn primary" id="recordBtn">🎙️ Record Audio</button>
+            <button class="record-btn danger hidden" id="stopBtn">⏹️ Stop Recording</button>
+            <div class="action-note">Record first, then select Transcribe Audio to turn the recording into text.</div>
+          </div>
 
-  <!-- ===== PDF ORGANIZE ===== -->
-  <url>
-    <loc>https://dropletweb.xyz/split-pdf</loc>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://dropletweb.xyz/remove-pages</loc>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://dropletweb.xyz/extract-pages</loc>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://dropletweb.xyz/organize-pdf</loc>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://dropletweb.xyz/scan-to-pdf</loc>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://dropletweb.xyz/rotate-pdf</loc>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://dropletweb.xyz/add-page-numbers</loc>
-    <priority>0.7</priority>
-  </url>
+          <div class="action-card coming-card">
+            <div class="coming-title"><span>⚡ Live Transcription</span><span class="coming-badge">Live</span></div>
+            <button class="coming-btn" type="button" id="go">🎙️ Transcribe while speaking</button>
+            <div class="action-note">Live dictation uses your browser’s speech service, which may send audio to its provider.</div><div class="action-note" id="state" role="status">Microphone idle</div>
+          <div id="live"></div></div>
+        </div>
 
-  <!-- ===== PDF INTELLIGENCE ===== -->
-  <url>
-    <loc>https://dropletweb.xyz/ai-summarizer</loc>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://dropletweb.xyz/translate-pdf</loc>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://dropletweb.xyz/pdf-to-markdown</loc>
-    <priority>0.7</priority>
-  </url>
+        <div class="selected-audio" id="selectedAudioCard">
+          <span style="font-size:20px;">🎧</span>
+          <div class="audio-meta">
+            <strong id="selectedAudioName">Audio ready</strong>
+            <small id="selectedAudioMeta">Ready to transcribe</small>
+          </div>
+          <span class="timer-display" id="timerDisplay">00:00</span>
+        </div>
 
-  <!-- ===== PDF EDITING & SECURITY ===== -->
-  <url>
-    <loc>https://dropletweb.xyz/add-watermark</loc>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://dropletweb.xyz/crop-pdf</loc>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://dropletweb.xyz/edit-pdf</loc>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://dropletweb.xyz/pdf-forms</loc>
-    <priority>0.7</priority>
-  </url>
+        <div class="trust-row">
+          <span><b class="tick">✓</b> Up to 2 hours 30 minutes</span>
+          <span><b class="tick">✓</b> Editable transcript</span>
+          <span><b class="tick">✓</b> Word, TXT and PDF</span>
+          <span><b class="tick">✓</b> Free</span>
+        </div>
 
-  <!-- ===== CONVERT TO PDF ===== -->
-  <url>
-    <loc>https://dropletweb.xyz/powerpoint-to-pdf</loc>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://dropletweb.xyz/excel-to-pdf</loc>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://dropletweb.xyz/html-to-pdf</loc>
-    <priority>0.8</priority>
-  </url>
+        <button class="transcribe-main" id="runFile" disabled>Transcribe Audio</button>
 
-  <!-- ===== INFO PAGES ===== -->
-  <url>
-    <loc>https://dropletweb.xyz/faq</loc>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://dropletweb.xyz/about</loc>
-    <priority>0.5</priority>
-  </url>
-  <url>
-    <loc>https://dropletweb.xyz/privacy</loc>
-    <priority>0.3</priority>
-  </url>
-  <url>
-    <loc>https://dropletweb.xyz/terms</loc>
-    <priority>0.3</priority>
-  </url>
-</urlset>
+        <button class="header-btn" id="stopFile" hidden>Cancel transcription</button><div style="margin-top:10px;">
+          <progress id="progress" max="1" value="0" aria-label="Transcription progress"></progress><p style="font-size:11px; color:#94a3b8; margin:6px 0 0; text-align:center;" id="fileStatus" role="status">Ready. Upload an audio file or record one.</p>
+        </div>
+      </div>
+
+      <!-- Transcript -->
+      <div class="panel transcript-area">
+        <div class="panel-header">
+          <span class="icon">📝</span>
+          <h3>Transcript</h3>
+          <span class="badge" id="count">0 words</span>
+        </div>
+
+        <div class="transcript-toolbar"><button id="formatParagraphs">Format conversation</button><button id="editTranscript" aria-pressed="false">✎ Edit</button>
+          <button data-action="copy" id="copy">📋 Copy</button>
+          <button data-action="save" id="save">⬇️ TXT</button>
+          <button data-action="word" id="word">⬇️ DOCX</button>
+          <button data-action="pdf" id="pdf">⬇️ PDF</button>
+          <button style="color:#ef4444; border-color:#fecaca;" data-action="clear">🗑️ Clear</button>
+        </div>
+
+        <textarea readonly id="draft" placeholder="Your transcript will appear here after transcription. Press Edit to make corrections." aria-label="Transcript"></textarea>
+        <div class="save-state"><span class="save-dot"></span><span id="saveStateText">Saved in this browser</span></div>
+      </div>
+
+      <!-- Progress Details -->
+      <div class="panel">
+        <div class="panel-header">
+          <span class="icon">📊</span>
+          <h3>Progress</h3>
+          <span class="badge" id="progressPercentBadge">0%</span>
+        </div>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-value" id="statChunks">0 / 0</div>
+            <div class="stat-label">Chunks</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="statProcessed">0:00</div>
+            <div class="stat-label">Processed</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="statElapsed">0:00</div>
+            <div class="stat-label">Elapsed</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="statRemaining">--:--</div>
+            <div class="stat-label">Remaining</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ========================================================== -->
+    <!-- RIGHT SIDEBAR                                              -->
+    <!-- ========================================================== -->
+    <div class="sidebar-right">
+
+      <!-- Quality -->
+      <div class="sidebar-section">
+        <h4>On-device file quality</h4>
+        <div class="quality-list" id="qualityList">
+          <label class="quality-option">
+            <input type="radio" name="quality" value="tiny">
+            <span class="quality-card"><span class="quality-dot"></span><span class="quality-copy"><span class="quality-name">Fast</span><span class="quality-desc">Fastest processing with lower transcription accuracy.</span></span></span>
+          </label>
+          <label class="quality-option">
+            <input type="radio" name="quality" value="base" checked>
+            <span class="quality-card"><span class="quality-dot"></span><span class="quality-copy"><span class="quality-name">Balanced <span class="recommended">Recommended</span></span><span class="quality-desc">Best balance of speed and accuracy for most devices.</span></span></span>
+          </label>
+          <label class="quality-option">
+            <input type="radio" name="quality" value="small">
+            <span class="quality-card"><span class="quality-dot"></span><span class="quality-copy"><span class="quality-name">High Quality</span><span class="quality-desc">Better accuracy, but needs much more processing power.</span></span></span>
+          </label>
+        </div>
+        
+        <div class="quality-warning" id="qualityWarning">⚠️ <strong>High Quality may be very slow on this device.</strong><br>Balanced is recommended for smoother processing.</div>
+        <div class="device-box" id="deviceSummary"><strong>Device:</strong> Checking your device automatically…</div>
+      </div>
+
+      <div class="sidebar-section" id="settings"><h4>Transcription settings</h4><div class="field"><label for="lang">Spoken language</label><select id="lang"></select></div><div class="field"><label for="method">Audio file transcription method</label><select id="method"><option value="local">On-device model</option><option value="browser">Browser speech service</option></select></div><small id="methodHint"></small></div><!-- Stats -->
+      <div class="sidebar-section">
+        <h4>Statistics</h4>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-value" id="statWords">0</div>
+            <div class="stat-label">Words</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="statChars">0</div>
+            <div class="stat-label">Characters</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="statSegments">0</div>
+            <div class="stat-label">Segments</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="statDuration">0:00</div>
+            <div class="stat-label">Duration</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Export Tools -->
+      <div class="sidebar-section">
+        <h4>Export Transcript</h4>
+        <div class="btn-group">
+          <button data-action="copy">📋 Copy to Clipboard</button>
+          <button data-action="save">📄 Download as TXT</button>
+          <button data-action="word">📝 Download as DOCX</button>
+          <button data-action="pdf">⬇️ PDF</button>
+        </div>
+      </div>
+
+      <!-- Danger Zone -->
+      <div class="sidebar-section">
+        <h4>Actions</h4>
+        <div class="btn-group">
+          <button class="danger" data-action="clear">🗑️ Clear Transcript</button>
+          
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<dialog id="guide" aria-labelledby="guideTitle"><form method="dialog"><button class="header-btn" autofocus>Close</button></form><h2 id="guideTitle">Droplet Voice guide</h2>
+<h3>Speak and see words immediately</h3><p>Choose your spoken language in Settings, then select <b>Transcribe while speaking</b> in Live Transcription. Allow the microphone when prompted. Early words appear under the button and each finished phrase moves into the editor. Press <b>Stop listening</b> when done.</p>
+<h3>Transcribe a recording</h3><p>Drop an audio file into the upload box, or tap the folder to browse. To make a new recording, select <b>Record Audio</b>, speak, then press <b>Stop Recording</b>. Check the selected filename and press <b>Transcribe Audio</b>. Each file can be up to two hours 30 minutes long. Keep this tab open. Cancelling keeps completed text.</p>
+<h3>Choose a processing method</h3><p><b>Browser speech service</b> processes files at playback speed on supported browsers. Audio may be sent to the browser provider. <b>On-device model</b> downloads a speech model and processes the file locally. Start with Fast on a low-powered laptop. Larger models need more memory and time. These quality settings apply only to on-device files.</p>
+<h3>Edit, save and export</h3><p>Starting a new live or file transcription clears the previous transcript. Download it first if you need a copy. Press Edit to type corrections, then Done to lock the text again. Automatic live reconnections continue the same transcript. The draft is saved in this browser. Choose <b>DOCX</b> for editable Word text, <b>TXT</b> for plain text, or <b>PDF</b> for fixed-layout pages. PDF pages are images. Download a copy before clearing browser data.</p>
+<h3>Conversation formatting and timestamps</h3><p>Questions start separate blocks, followed by their answers. Brief exchanges stay separate; longer explanations form paragraphs, with a readability break after about 100 words or five sentences. Each block has its available timestamp above it. There is no fixed 30-second interval. These are punctuation-based formatting clues, not speaker identification or topic detection.</p><p>Live times approximate when results arrive. On-device files currently provide the start of each 25-second audio chunk, so several blocks within a chunk can share the same time. Exact question timings and reliable speaker changes are not available. Formatting cannot correct misheard words or recover missing audio.</p><h3>Readable paragraphs</h3><p>Select Format conversation to tidy an existing transcript without changing its words. Copy and downloads preserve the displayed blocks. Use Edit to adjust breaks or add speaker names. Older saved text retains only its saved timestamp positions.</p><h3>Conversations and languages</h3><p>Live dictation uses the single language selected in Settings. Automatic switching between languages, speaker labels and separation of overlapping voices are not available. For a video or meeting, uploading the original audio lets you retry processing without replaying it through a microphone. Speech during a live-service disconnection is not captured.</p><h3>If something goes wrong</h3><p><b>Microphone denied?</b> Open Droplet Voice in its own browser tab, open the permissions beside the site address, allow Microphone and reload. <b>Incorrect words?</b> Check the spoken language and the microphone selected on your device. <b>File processing stalls?</b> Check the status under Transcribe Audio. Cancel and try a different method, or try Fast for on-device processing. Completed text stays after cancellation or an error. Starting a new transcription clears it.</p></dialog><script src="paragraphs.js"></script><script src="app.js"></script><script src="studio.js"></script><script type="module" src="upload.js"></script></body></html>
